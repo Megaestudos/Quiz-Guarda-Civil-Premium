@@ -1,10 +1,10 @@
-<!-- Index.html — versão paga (demo removido) -->
+<!-- Index.html — versão PAGA (demo removido, botão compra removido, estudos corrigidos) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Quiz Guarda Civil — App</title>
+  <title>Quiz Guarda Civil — App (Paga)</title>
   <meta name="theme-color" content="#1e3c72"/>
   <style>
     :root{ --bg1:#0f3b6b; --bg2:#1f6fb0; --card-bg: rgba(255,255,255,0.06); --muted: rgba(255,255,255,0.92); --accent: #00ff9d; --card-scale: 1.10; }
@@ -87,8 +87,6 @@
         <button class="icon-btn" id="scaleUpBtn" title="Aumentar caixa">A+</button>
         <button class="icon-btn" id="fullscreenBtn" title="Tela cheia">⛶</button>
         <button class="btn" id="soundToggle">🔊 Som: On</button>
-        <!-- botão de compra visível -->
-        <button class="btn" id="buyBtn" title="Adquirir versão paga">💳 Comprar</button>
       </div>
     </div>
 
@@ -108,7 +106,7 @@
 
       <section id="study" class="page">
         <h3>Conteúdos de Estudo</h3>
-        <div id="studyList" class="study-list"></div>
+        <div id="studyList" class="study-list">Carregando...</div>
       </section>
 
       <section id="quiz" class="page">
@@ -154,21 +152,18 @@
   </div>
 
 <script>
-  /* ===================== CONFIGURE AQUI ===================== */
+  /* ========== CONFIG ========== */
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec';
   const TEMPLATE_QUESTIONS = null;
-  const TEMPLATE_STUDIES = [];
+  const TEMPLATE_STUDIES = []; // opcional fallback
   const TEMPLATE_QUIZ_SIZE = 20;
 
-  /* ===== purchase / UI ===== */
-  const PURCHASE_URL = 'https://seu-site-de-venda.com/checkout'; // <-- substitua pelo link de compra real
-
-  /* =========== estado e chaves =========== */
+  /* ========== KEYS / STATE ========== */
   let POOL = []; let currentIndex = 0; let score = 0; let errors = []; let quizStarted = false;
   const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
   const scaleMin = 0.8, scaleMax = 1.6, scaleStep = 0.05;
 
-  /* ====== helpers compatibilidade ====== */
+  /* ====== UI HELPERS ====== */
   function q_text(q){ if (!q) return ''; return q.pergunta || q.perguntas || q.question || q.Question || q.Pergunta || ''; }
   function q_topic(q){ if (!q) return ''; return q.materia || q.topico || q.tópico || q.topic || ''; }
   function q_expl(q){ if (!q) return ''; return q.explicacao || q.explanation || q.Explicacao || q.resposta || q.respostas || q.answer || ''; }
@@ -205,56 +200,62 @@
   function playWrong(){ playTone(220,220,'sawtooth',0.08); }
 
   /* ===== navigation/pages ===== */
-  // função global go(target)
+  // função global de navegação
   window.go = function(target){
-    // remove active from all pages, add to target
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const tEl = document.getElementById(target);
     if (tEl) tEl.classList.add('active');
-    // update tab buttons
     document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
-    // lazy actions on page show
     if (target === 'home') showBestRecord();
     if (target === 'study') renderStudies();
     if (target === 'cards') renderCards();
     if (target === 'quiz') { if (!quizStarted) showTopicSelection(); }
   };
 
-  /* ===== studies ===== */
+  /* ===== STUDIES (corrigido/robusto) ===== */
   async function renderStudies(){
     const container = document.getElementById('studyList');
-    container.innerHTML = '';
+    container.innerHTML = 'Carregando...';
     try {
-      const res = await fetch(`${SCRIPT_URL}?action=getStudies`, {cache:'no-store'});
+      // tenta endpoint getStudies no Apps Script
+      const res = await fetch(`${SCRIPT_URL}?action=getStudies`, { cache: 'no-store' });
       const js = await res.json();
-      if (js && js.ok && js.studies && js.studies.length) {
+      if (js && js.ok && js.studies && Array.isArray(js.studies) && js.studies.length){
+        container.innerHTML = '';
         js.studies.forEach((s,i)=>{
-          const d = document.createElement('details'); d.className='summary';
-          const sum = document.createElement('summary'); sum.innerText = s.topico || s.topico || `Tópico ${i+1}`; d.appendChild(sum);
+          const d = document.createElement('details'); d.className = 'summary';
+          const sum = document.createElement('summary'); sum.innerText = s.topico || s.topic || `Tópico ${i+1}`;
+          d.appendChild(sum);
           const div = document.createElement('div'); div.style.padding='8px 6px'; div.style.color='#dfeff5';
-          div.innerHTML = linkify(s.conteudo || '');
-          d.appendChild(div); container.appendChild(d);
+          div.innerHTML = linkify(s.conteudo || s.conteudo || s.texto || s.resposta || '');
+          d.appendChild(div);
+          container.appendChild(d);
         });
         return;
       }
-    } catch(e){
-      console.warn('Erro ao buscar estudos', e);
+    } catch (err){
+      console.warn('Erro ao buscar estudos via SCRIPT_URL:', err);
     }
-    const S = TEMPLATE_STUDIES || [];
-    if (!S || S.length === 0){
-      container.innerHTML = '<div class="small">Nenhum conteúdo de estudo (adicione aba "Estudos" com colunas: Tópico | Conteúdo).</div>';
+
+    // fallback para TEMPLATE_STUDIES embutidos
+    if (Array.isArray(TEMPLATE_STUDIES) && TEMPLATE_STUDIES.length){
+      container.innerHTML = '';
+      TEMPLATE_STUDIES.forEach((s,i)=>{
+        const d = document.createElement('details'); d.className='summary';
+        const sum = document.createElement('summary'); sum.innerText = s.topico || s.titulo || `Tópico ${i+1}`;
+        d.appendChild(sum);
+        const div = document.createElement('div'); div.style.padding='8px 6px'; div.style.color='#dfeff5';
+        div.innerHTML = linkify(s.conteudo || s.conteudo || '');
+        d.appendChild(div);
+        container.appendChild(d);
+      });
       return;
     }
-    S.forEach((s,i)=> {
-      const d = document.createElement('details'); d.className='summary';
-      const sum = document.createElement('summary'); sum.innerText = s.topico || `Tópico ${i+1}`; d.appendChild(sum);
-      const div = document.createElement('div'); div.style.padding='8px 6px'; div.style.color='#dfeff5';
-      div.innerHTML = linkify(s.conteudo || '');
-      d.appendChild(div); container.appendChild(d);
-    });
+
+    container.innerHTML = '<div class="small">Nenhum conteúdo de estudo disponível. Verifique se a aba "<strong>Estudos</strong>" existe na planilha ou atualize o Apps Script para apontar para a planilha correta.</div>';
   }
 
-  /* ===== quiz ===== */
+  /* ===== topics + quiz loading ===== */
   const quizSizeLabel = document.getElementById('quizSizeLabel');
   quizSizeLabel.innerText = TEMPLATE_QUIZ_SIZE || 20;
   const topicSelect = document.getElementById('topicSelect');
@@ -276,7 +277,7 @@
     try {
       const res = await fetch(`${SCRIPT_URL}?action=getTopics`, {cache:'no-store'});
       const js = await res.json();
-      if (js && js.ok && js.topics) { populateTopicSelect(js.topics || []); return; } else { console.warn('getTopics returned no topics', js); }
+      if (js && js.ok && js.topics) { populateTopicSelect(js.topics || []); return; }
     } catch (e) { console.warn('Erro fetch topics', e); }
   }
   function populateTopicSelect(topics){ topicSelect.innerHTML = ''; const optAll = document.createElement('option'); optAll.value='Todos'; optAll.textContent='Todos'; topicSelect.appendChild(optAll); if (topics && topics.length){ topics.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; topicSelect.appendChild(o); }); } }
@@ -363,65 +364,43 @@
   async function renderCards(){
     const container = document.getElementById('cardsContainer');
     container.innerHTML = '';
-    // nome da aba que você criou (exato). Se usar outro nome, troque aqui.
     const sheetName = 'cartões';
     const encoded = encodeURIComponent(sheetName);
     const endpointsTried = [];
     try {
-      // 1) tenta endpoint getCards (específico)
       const urlCards = `${SCRIPT_URL}?action=getCards&sheet=${encoded}`;
       endpointsTried.push(urlCards);
-      console.log('Tentando endpoint (getCards):', urlCards);
       let res = await fetch(urlCards, {cache:'no-store'});
       let js = await res.json();
-      console.log('Resposta getCards:', js);
       let list = null;
-      if (js && js.ok && js.cards && Array.isArray(js.cards) && js.cards.length) {
-        list = js.cards;
-      } else if (js && js.ok && Array.isArray(js)) {
-        list = js;
-      } else if (js && js.ok && js.sheet && js.sheet.rows && Array.isArray(js.sheet.rows) && js.sheet.rows.length) {
-        // caso getSheetByName retorne sheet
-        list = js.sheet.rows;
-      }
-      // 2) se não encontrou nada, tenta getQuestionsBySheet
-      if (!list || !list.length) {
+      if (js && js.ok && js.cards && Array.isArray(js.cards) && js.cards.length) list = js.cards;
+      else if (js && js.ok && Array.isArray(js)) list = js;
+      else if (js && js.ok && js.sheet && js.sheet.rows && Array.isArray(js.sheet.rows) && js.sheet.rows.length) list = js.sheet.rows;
+
+      if (!list || !list.length){
         const urlQSheet = `${SCRIPT_URL}?action=getQuestionsBySheet&sheet=${encoded}`;
         endpointsTried.push(urlQSheet);
-        console.log('getCards vazio — tentando getQuestionsBySheet:', urlQSheet);
         res = await fetch(urlQSheet, {cache:'no-store'});
         js = await res.json();
-        console.log('Resposta getQuestionsBySheet:', js);
-        if (js && js.ok && js.questions && Array.isArray(js.questions) && js.questions.length) {
-          list = js.questions;
-        } else if (js && js.ok && Array.isArray(js)) {
-          list = js;
-        } else if (js && js.ok && js.cards && Array.isArray(js.cards)) {
-          list = js.cards;
-        }
-      }
-      // 3) fallback para getAllQuestions (último recurso)
-      if (!list || !list.length) {
-        const urlAll = `${SCRIPT_URL}?action=getAllQuestions`;
-        endpointsTried.push(urlAll);
-        console.log('Ainda vazio — tentando getAllQuestions:', urlAll);
-        res = await fetch(urlAll, {cache:'no-store'});
-        js = await res.json();
-        console.log('Resposta getAllQuestions:', js);
-        if (js && js.ok && js.questions && Array.isArray(js.questions) && js.questions.length) {
-          list = js.questions;
-        }
+        if (js && js.ok && js.questions && Array.isArray(js.questions) && js.questions.length) list = js.questions;
+        else if (js && js.ok && Array.isArray(js)) list = js;
+        else if (js && js.ok && js.cards && Array.isArray(js.cards)) list = js.cards;
       }
 
-      console.log('Endpoints tentados:', endpointsTried);
+      if (!list || !list.length){
+        const urlAll = `${SCRIPT_URL}?action=getAllQuestions`;
+        endpointsTried.push(urlAll);
+        res = await fetch(urlAll, {cache:'no-store'});
+        js = await res.json();
+        if (js && js.ok && js.questions && Array.isArray(js.questions) && js.questions.length) list = js.questions;
+      }
+
       if (!list || list.length === 0) {
         container.innerHTML = '<div class="small">Nenhum cartão disponível na aba "<strong>cartões</strong>". Verifique o nome da aba e os cabeçalhos (pergunta | resposta).</div>';
         return;
       }
 
-      // Se list é array de arrays (planilha bruta), transforma em objetos simples
       if (Array.isArray(list[0]) && !list[0].pergunta && !list[0].question) {
-        // assume primeira linha header
         const headers = list[0].map(h => (h===null? '': h.toString()));
         const rows = list.slice(1);
         const mapped = rows.map(row=>{
@@ -433,7 +412,6 @@
         return;
       }
 
-      // já temos objetos — normaliza e cria cartões
       makeCards(list);
     } catch(e){
       console.error('Erro renderCards:', e);
@@ -445,13 +423,8 @@
     const container = document.getElementById('cardsContainer');
     container.innerHTML = '';
     if (!list || list.length === 0) { container.innerHTML = '<div class="small">Nenhum cartão disponível.</div>'; return; }
-    // shuffle
     for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
     list.forEach((q, idx)=>{
-      // Suporta formatos variados:
-      // - q.pergunta / q.resposta
-      // - q.question / q.explanation
-      // - objetos simples com colunas nomeadas
       const frontText = (q.pergunta || q.perguntas || q.question || q[Object.keys(q).find(k=>/perg/i.test(k))] || '').toString();
       const topicText = (q.topico || q.tópico || q.materia || q.categoria || q.topic || '').toString();
       const backText = (q.resposta || q.respostas || q.explanation || q.explicacao || q.answer || q[Object.keys(q).find(k=>/resp/i.test(k))] || '').toString();
@@ -478,14 +451,12 @@
     if (window.innerWidth <= 520) localStorage.setItem(SCALE_KEY, '1.10');
     setScale(readSavedScale());
 
+    // Chamadas iniciais
     renderStudies();
     showTopicSelection();
     showBestRecord();
     window.addEventListener('click', function unlock(){ try{ ensureAudio(); }catch(e){} window.removeEventListener('click', unlock); }, { once:true });
     document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
-
-    // buy button
-    document.getElementById('buyBtn').addEventListener('click', ()=> { window.open(PURCHASE_URL, '_blank', 'noopener'); });
   })();
 </script>
 </body>
