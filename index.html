@@ -1,4 +1,3 @@
-<!-- Index.html — versão PAGA (demo removido, botão compra removido, estudos corrigidos) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -20,7 +19,7 @@
     .btn { background:transparent;border:1px solid rgba(255,255,255,0.12); color:#fff;padding:8px 10px;border-radius:10px;font-weight:700; cursor:pointer; }
     .icon-btn { width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:#fff; cursor:pointer; }
     .scale-label { min-width:62px; text-align:center; font-weight:800; }
-    .pages { min-height:340px; }
+    .pages { min-height:340px; padding-bottom:14px; } /* ADIÇÃO: pequeno padding para evitar sobreposição com tabs */
     .page { display:none; }
     .page.active { display:block; animation: fadeIn .22s ease; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
@@ -41,12 +40,12 @@
     .explain { margin-top:12px; padding:12px; background:rgba(255,255,255,0.04); border-radius:10px; color:#fff; }
     .final { text-align:center; padding:12px; }
     .record { margin-top:8px; font-size:14px; color:#e6f7f0; }
-    .tabs { display:flex; justify-content:space-around; gap:6px; margin-top:8px; }
+    .tabs { display:flex; justify-content:space-around; gap:6px; margin-top:14px; } /* ADIÇÃO: leve aumento do espaçamento superior */
     .tabbtn { flex:1; padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#fff;font-weight:800;cursor:pointer;text-align:center; }
     .tabbtn.active{ background: rgba(255,255,255,0.06); }
     .small { font-size:13px; color:#dfeff5; }
     .topic-select { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
-    .next-area { display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:10px; flex-wrap:wrap; }
+    .next-area { display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:10px; flex-wrap:wrap; margin-bottom:0; } /* ADIÇÃO: margem inferior neutra, controlada por media queries */
     .next-btn { background: linear-gradient(90deg,var(--accent), #2fb6ff); border:none; color:#012; font-weight:900; padding:12px 16px; border-radius:12px; cursor:pointer; font-size:16px; }
     .next-btn:disabled { opacity:0.6; cursor:not-allowed; }
     .next-btn.small-btn { padding: 8px 12px; font-size: 14px; border-radius: 10px; }
@@ -66,6 +65,11 @@
       .controls .icon-btn { width:34px; height:34px; }
       .controls .btn { padding:6px 8px; font-size:13px; }
       .scale-label { min-width:46px; font-size:13px; text-align:center; }
+
+      /* ADIÇÃO específica para telas menores: dá mais espaço entre o conteúdo e a barra de abas */
+      .pages { padding-bottom: calc(env(safe-area-inset-bottom) + 56px); } /* espaço suficiente para botões inferiores */
+      .tabs { margin-top:18px; margin-bottom: calc(env(safe-area-inset-bottom) + 6px); }
+      .next-area { margin-bottom: 10px; } /* garante distância entre próxima e a barra */
     }
     @media (max-width:420px){ .title { font-size:15px; } .controls { justify-content:flex-start; gap:6px; } }
     @media (max-width:520px){ .opts{ grid-template-columns:1fr; } }
