@@ -81,7 +81,7 @@
     <!-- HEADER -->
     <div class="card header" id="cardHeader">
       <div>
-        <h1 class="title">Quiz Guarda Civil 👮‍♂️</h1>
+        <h1 class="title">App de Estudos - Guarda Civil 👮‍♂️</h1>
         <div class="subtitle">Estude por tópicos </div>
       </div>
 
@@ -97,10 +97,10 @@
     <!-- PAGES -->
     <div class="card pages" id="pages">
       <section id="home" class="page active">
-        <div class="welcome">Olá! Escolha um tópico e inicie o quiz quando estiver pronto.</div>
+        <div class="welcome">Olá! Escolha um tópico e inicie o simulado quando estiver pronto.</div>
         <div class="home-actions">
           <button class="btn" onclick="go('study')" id="btnStudy">📘 Estudar</button>
-          <button class="btn" onclick="go('quiz')" id="btnQuiz">🎯 Fazer Quiz</button>
+          <button class="btn" onclick="go('quiz')" id="btnQuiz">🎯 Fazer simulado</button>
           <button class="btn" onclick="go('cards')" id="btnCards">🃏 Cartões</button>
         </div>
         <div style="margin-top:12px">
@@ -149,7 +149,7 @@
     <div class="tabs card" role="navigation" aria-label="Navegação">
       <button class="tabbtn active" data-target="home" onclick="go('home')">Início</button>
       <button class="tabbtn" data-target="study" onclick="go('study')">Estudo</button>
-      <button class="tabbtn" data-target="quiz" onclick="go('quiz')">Quiz</button>
+      <button class="tabbtn" data-target="quiz" onclick="go('quiz')">Simulado</button>
       <button class="tabbtn" data-target="cards" onclick="go('cards')">Cartões</button>
     </div>
 
@@ -362,7 +362,7 @@
   /* ===== local record ===== */
   function saveRecord(score, total){ try { const pct = Math.round((score/total)*100); const now = new Date().toISOString(); const current = {score: score, total: total, pct: pct, when: now}; const prev = JSON.parse(localStorage.getItem(BEST_KEY) || 'null'); if (!prev || pct > prev.pct) { localStorage.setItem(BEST_KEY, JSON.stringify(current)); return {isNew:true, record: current, prev: prev}; } else { return {isNew:false, record: prev}; } } catch(e){ return null; } }
   function getRecord(){ try { return JSON.parse(localStorage.getItem(BEST_KEY) || 'null'); } catch(e){ return null; } }
-  function showBestRecord(){ const rec = getRecord(); const el = document.getElementById('bestRecord'); if (!rec) el.innerText = 'Ainda sem recorde. Faça um quiz e apareça aqui!'; else el.innerText = `Seu recorde: ${rec.score}/${rec.total} (${rec.pct}%) — em ${new Date(rec.when).toLocaleString()}`; }
+  function showBestRecord(){ const rec = getRecord(); const el = document.getElementById('bestRecord'); if (!rec) el.innerText = 'Ainda sem recorde. Faça um Simulado e apareça aqui!'; else el.innerText = `Seu recorde: ${rec.score}/${rec.total} (${rec.pct}%) — em ${new Date(rec.when).toLocaleString()}`; }
 
   /* ====== CARTÕES (forçando endpoint getCards) ====== */
   async function renderCards(){
