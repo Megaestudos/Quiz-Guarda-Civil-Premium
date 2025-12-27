@@ -181,7 +181,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const ME_ENDPOINT = "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
-const LOGIN_URL = "https://SEU_LOGIN_AQUI.html"; // ajuste para sua página de login
+const LOGIN_URL = "https://megaestudos.github.io/login-simulados/"; // ajuste para sua página de login
 
 async function checkAccess(user){
   const token = await user.getIdToken();
