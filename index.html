@@ -166,6 +166,47 @@
     </div>
 
   </div>
+  <!-- ===== SEGURANÇA / GATE DE ACESSO ===== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const ME_ENDPOINT = "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
+const LOGIN_URL = "https://SEU_LOGIN_AQUI.html"; // ajuste para sua página de login
+
+async function checkAccess(user){
+  const token = await user.getIdToken();
+
+  const r = await fetch(ME_ENDPOINT, {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  const data = await r.json();
+
+  if (!data.authenticated || !data.entitled) {
+    window.location.replace(LOGIN_URL);
+  }
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.replace(LOGIN_URL);
+    return;
+  }
+  checkAccess(user);
+});
+</script>
+<!-- ===== FIM DA SEGURANÇA ===== -->
+
 
 <script>
   /* ========== CONFIG ========== */
