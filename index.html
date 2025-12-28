@@ -4,7 +4,6 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Quiz Guarda Civil — App (Paga)</title>
-<div id="trialInfo" style="font-size:13px;opacity:.85;margin-top:6px"></div>
 <meta name="theme-color" content="#1e3c72"/>
 <style>
 :root{ --bg1:#0f3b6b; --bg2:#1f6fb0; --card-bg: rgba(255,255,255,0.06); --muted: rgba(255,255,255,0.92); --accent: #00ff9d; --card-scale: 1.10; }
@@ -83,6 +82,7 @@ button.opt[disabled]{ opacity:.8; cursor:not-allowed; }
 <div class="card header" id="cardHeader">
 <div>
 <h1 class="title">APP DE ESTUDOS - Guarda Civil 👮‍♂️</h1>
+<div id="trialInfo" style="font-size:13px;opacity:.85;margin-top:6px"></div>
 <div class="subtitle">Estude por tópicos </div>
 </div>
 
@@ -196,11 +196,36 @@ async function checkAccess(user){
 
   const data = await r.json();
 
-  // ❌ SEM ACESSO → VOLTA PARA LOGIN
-  if (!data.authenticated || !data.entitled) {
-    window.location.replace(LOGIN_URL);
-    return;
+ // ❌ NÃO AUTENTICADO
+if (!data.authenticated) {
+  window.location.replace(LOGIN_URL);
+  return;
+}
+
+// ❌ SEM DIREITO (trial acabou)
+if (!data.entitled) {
+  const el = document.getElementById("trialInfo");
+  if (el && data.expiresAt) {
+    el.innerText =
+      "⛔ Seu teste terminou em " +
+      new Date(data.expiresAt).toLocaleString();
   }
+  setTimeout(() => {
+    window.location.replace(LOGIN_URL);
+  }, 2500);
+  return;
+}
+
+// ✅ TEM ACESSO → MOSTRA DATA
+if (data.expiresAt) {
+  const el = document.getElementById("trialInfo");
+  if (el) {
+    el.innerText =
+      "⏳ Acesso válido até: " +
+      new Date(data.expiresAt).toLocaleString();
+  }
+}
+
 
   // ✅ MOSTRAR TEMPO DO TRIAL
   if (data.type === "trial" && data.expiresAt) {
@@ -535,4 +560,5 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
