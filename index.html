@@ -56,4 +56,198 @@ body{
   margin:0 0 12px;
 }
 .hero p{
-  font
+  font-size:18px;
+  color:#e5e7eb;
+}
+.hero ul{
+  list-style:none;
+  padding:0;
+}
+.hero li{
+  margin:10px 0;
+}
+.hero li::before{
+  content:"✓ ";
+  color:#22c55e;
+}
+
+.card{
+  background:var(--card);
+  color:var(--text);
+  border-radius:20px;
+  padding:32px;
+  box-shadow:0 40px 80px rgba(0,0,0,.35);
+}
+
+label{
+  font-size:14px;
+  color:#475569;
+}
+input{
+  width:100%;
+  padding:14px;
+  margin:6px 0 16px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  font-size:15px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:0;
+  font-size:15px;
+  cursor:pointer;
+}
+
+.btn-primary{
+  background:var(--primary);
+  color:#fff;
+}
+.btn-primary:hover{background:var(--primary-dark)}
+
+.btn-sec{
+  background:#f1f5f9;
+  margin-top:10px;
+}
+
+.msg{
+  margin-top:14px;
+  font-size:14px;
+  text-align:center;
+  color:#dc2626;
+}
+
+.hide{display:none}
+</style>
+</head>
+
+<body>
+<div class="page">
+  <div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Prepare-se para concursos<br>com foco total em aprovação</h1>
+      <p>Simulados atualizados, estudo direto ao ponto e acesso imediato.</p>
+      <ul>
+        <li>Questões comentadas</li>
+        <li>Simulados realistas</li>
+        <li>Conteúdo focado em prova</li>
+        <li>Teste gratuito por 48 horas</li>
+      </ul>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="login" class="card">
+      <h2>Acesso à plataforma</h2>
+      <p style="color:#64748b">Crie sua conta ou entre para começar o teste.</p>
+
+      <label>Email</label>
+      <input id="email" type="email" placeholder="seu@email.com">
+
+      <label>Senha</label>
+      <input id="senha" type="password" placeholder="••••••••">
+
+      <button class="btn-primary" onclick="entrar()">Entrar</button>
+      <button class="btn-sec" onclick="criarConta()">Criar conta gratuita</button>
+
+      <div id="msgLogin" class="msg"></div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+/* ===== CONFIG ===== */
+const FRONT_URL = "https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
+const HORAS_TRIAL = 48;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+
+/* ===== HELPERS ===== */
+async function ensureUser(uid, email){
+  const ref = doc(db, "users", uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()){
+    await setDoc(ref, {
+      email,
+      criadoEm: serverTimestamp(),
+      trialAte: new Date(Date.now() + HORAS_TRIAL * 3600000),
+      pagoAte: null
+    });
+  }
+}
+
+/* ===== AÇÕES ===== */
+window.criarConta = async () => {
+  try{
+    const cred = await createUserWithEmailAndPassword(
+      auth,
+      $("email").value,
+      $("senha").value
+    );
+    await sendEmailVerification(cred.user);
+    $("msgLogin").innerText = "Conta criada. Confirme seu e-mail.";
+  }catch(e){
+    $("msgLogin").innerText = e.message;
+  }
+};
+
+window.entrar = async () => {
+  try{
+    await signInWithEmailAndPassword(
+      auth,
+      $("email").value,
+      $("senha").value
+    );
+  }catch(e){
+    $("msgLogin").innerText = e.message;
+  }
+};
+
+/* ===== AUTH STATE ===== */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  if (!user.emailVerified){
+    $("msgLogin").innerText = "Confirme seu e-mail antes de continuar.";
+    return;
+  }
+
+  await ensureUser(user.uid, user.email);
+
+  // 🔥 REDIRECIONAMENTO FINAL
+  window.location.replace(FRONT_URL);
+});
+</script>
+</body>
+</html>
