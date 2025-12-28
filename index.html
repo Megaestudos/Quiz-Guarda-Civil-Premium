@@ -1,253 +1,521 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Simulados de Concursos</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Quiz Guarda Civil — App (Paga)</title>
+<meta name="theme-color" content="#1e3c72"/>
 <style>
-:root{
-  --primary:#2563eb;
-  --primary-dark:#1e40af;
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#cbd5f5;
-  --border:#e2e8f0;
-  --success:#16a34a;
-}
+:root{ --bg1:#0f3b6b; --bg2:#1f6fb0; --card-bg: rgba(255,255,255,0.06); --muted: rgba(255,255,255,0.92); --accent: #00ff9d; --card-scale: 1.10; }
+html,body{height:100%;margin:0;padding:0}
+body{ font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background: linear-gradient(135deg,var(--bg1),var(--bg2)); color:#fff; display:flex; align-items:center; justify-content:center; padding:env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 12px) 12px; }
+.app { width:100%; max-width:920px; display:flex; flex-direction:column; gap:12px; }
+.card { background: var(--card-bg); border-radius:14px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,0.28); backdrop-filter: blur(6px); transform: scale(var(--card-scale)); transform-origin: top center; transition: transform .12s ease; }
+.header { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.header > div:first-child { flex: 1 1 auto; min-width: 0; }
+.controls { flex: 0 0 auto; display:flex; gap:8px; align-items:center; }
+.title { font-size: clamp(18px,4vw,22px); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+.subtitle { font-size:13px; color:#e6f7f0; margin-top:6px; }
+.btn { background:transparent;border:1px solid rgba(255,255,255,0.12); color:#fff;padding:8px 10px;border-radius:10px;font-weight:700; cursor:pointer; }
+.icon-btn { width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:#fff; cursor:pointer; }
+.scale-label { min-width:62px; text-align:center; font-weight:800; }
+.pages { min-height:340px; padding-bottom:14px; } /* ADIÇÃO: pequeno padding para evitar sobreposição com tabs */
+.page { display:none; }
+.page.active { display:block; animation: fadeIn .22s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+.welcome { font-size:18px; margin:6px 0 12px 0; color:var(--muted); }
+.home-actions { display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
+.study-list { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+details.summary { background: rgba(255,255,255,0.03); padding:10px; border-radius:10px; color:#fff; }
+summary { font-weight:800; cursor:pointer; padding:8px 6px; outline:none; }
+.progress { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.track { flex:1; height:12px; background:rgba(255,255,255,0.10); border-radius:999px; overflow:hidden; }
+.bar { height:12px; width:0; background: linear-gradient(90deg, rgba(0,255,157,0.95), rgba(0,214,138,0.95)); transition: width .45s ease; border-radius:999px; }
+.question { margin:12px 0; font-size:18px; color:var(--muted); transition:opacity .2s, transform .2s; white-space:pre-wrap; }
+.opts { display:grid; gap:10px; grid-template-columns:1fr 1fr; }
+button.opt { padding:14px; min-height:62px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); background:#fff; color:#123; font-weight:800; cursor:pointer; text-align:left; }
+button.opt[disabled]{ opacity:.8; cursor:not-allowed; }
+.opt.correct{ background:#e9fff2; border-color:#2fa764; }
+.opt.wrong{ background:#fff0f0; border-color:#ff6b6b; }
+.explain { margin-top:12px; padding:12px; background:rgba(255,255,255,0.04); border-radius:10px; color:#fff; }
+.final { text-align:center; padding:12px; }
+.record { margin-top:8px; font-size:14px; color:#e6f7f0; }
+.tabs { display:flex; justify-content:space-around; gap:6px; margin-top:14px; } /* ADIÇÃO: leve aumento do espaçamento superior */
+.tabbtn { flex:1; padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#fff;font-weight:800;cursor:pointer;text-align:center; }
+.tabbtn.active{ background: rgba(255,255,255,0.06); }
+.small { font-size:13px; color:#dfeff5; }
+.topic-select { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+.next-area { display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:10px; flex-wrap:wrap; margin-bottom:0; } /* ADIÇÃO: margem inferior neutra, controlada por media queries */
+.next-btn { background: linear-gradient(90deg,var(--accent), #2fb6ff); border:none; color:#012; font-weight:900; padding:12px 16px; border-radius:12px; cursor:pointer; font-size:16px; }
+.next-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.next-btn.small-btn { padding: 8px 12px; font-size: 14px; border-radius: 10px; }
+.card-small { padding:10px; border-radius:10px; background:rgba(255,255,255,0.03); margin-bottom:8px; }
+.flashcard { perspective:1000px; cursor:pointer; }
+.flash-inner { transition: transform .5s; transform-style: preserve-3d; position:relative; min-height:120px; }
+.flash-front, .flash-back { backface-visibility: hidden; position:absolute; inset:0; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:center; }
+.flash-front { background:rgba(255,255,255,0.02); color:#fff; }
+.flash-back { transform: rotateY(180deg); background:rgba(0,0,0,0.12); color:#fff; }
+.flash-inner.flipped { transform: rotateY(180deg); }
 
-*{box-sizing:border-box}
+@media (max-width:520px){
+.header { flex-wrap:wrap; align-items:center; }
+.header > div:first-child { order: 1; flex: 1 1 100%; min-width:0; }
+.controls { order: 2; flex: 1 1 100%; display:flex; justify-content:flex-start; gap:6px; margin-top:8px; }
+.title { white-space:normal; font-size:16px; }
+.controls .icon-btn { width:34px; height:34px; }
+.controls .btn { padding:6px 8px; font-size:13px; }
+.scale-label { min-width:46px; font-size:13px; text-align:center; }
 
-body{
-  margin:0;
-  font-family: Inter, system-ui, -apple-system, Arial, sans-serif;
-  min-height:100vh;
-  color:#fff;
-  background:
-    linear-gradient(rgba(15,23,42,0.70), rgba(15,23,42,0.70)),
-    url("https://images.pexels.com/photos/990432/pexels-photo-990432.jpeg");
-  background-size:cover;
-  background-position:center;
-  background-attachment:fixed;
+/* ADIÇÃO específica para telas menores: dá mais espaço entre o conteúdo e a barra de abas */
+.pages { padding-bottom: calc(env(safe-area-inset-bottom) + 56px); } /* espaço suficiente para botões inferiores */
+.tabs { margin-top:18px; margin-bottom: calc(env(safe-area-inset-bottom) + 6px); }
+.next-area { margin-bottom: 10px; } /* garante distância entre próxima e a barra */
 }
-
-.page{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-}
-
-.container{
-  width:100%;
-  max-width:980px;
-  display:grid;
-  grid-template-columns:1.2fr 1fr;
-  gap:40px;
-}
-
-@media(max-width:900px){
-  .container{grid-template-columns:1fr}
-}
-
-.hero h1{
-  font-size:38px;
-  margin:0 0 12px;
-}
-.hero p{
-  font-size:18px;
-  color:#e5e7eb;
-}
-.hero ul{
-  list-style:none;
-  padding:0;
-}
-.hero li{
-  margin:10px 0;
-}
-.hero li::before{
-  content:"✓ ";
-  color:#22c55e;
-}
-
-.card{
-  background:var(--card);
-  color:var(--text);
-  border-radius:20px;
-  padding:32px;
-  box-shadow:0 40px 80px rgba(0,0,0,.35);
-}
-
-label{
-  font-size:14px;
-  color:#475569;
-}
-input{
-  width:100%;
-  padding:14px;
-  margin:6px 0 16px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  font-size:15px;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  border-radius:12px;
-  border:0;
-  font-size:15px;
-  cursor:pointer;
-}
-
-.btn-primary{
-  background:var(--primary);
-  color:#fff;
-}
-.btn-primary:hover{background:var(--primary-dark)}
-
-.btn-sec{
-  background:#f1f5f9;
-  margin-top:10px;
-}
-
-.msg{
-  margin-top:14px;
-  font-size:14px;
-  text-align:center;
-  color:#dc2626;
-}
-
-.hide{display:none}
+@media (max-width:420px){ .title { font-size:15px; } .controls { justify-content:flex-start; gap:6px; } }
+@media (max-width:520px){ .opts{ grid-template-columns:1fr; } }
 </style>
 </head>
-
 <body>
-<div class="page">
-  <div class="container">
+<div class="app" style="width:100%;max-width:820px;" id="appRoot">
 
-    <!-- HERO -->
-    <div class="hero">
-      <h1>Prepare-se para concursos<br>com foco total em aprovação</h1>
-      <p>Simulados atualizados, estudo direto ao ponto e acesso imediato.</p>
-      <ul>
-        <li>Questões comentadas</li>
-        <li>Simulados realistas</li>
-        <li>Conteúdo focado em prova</li>
-        <li>Teste gratuito por 48 horas</li>
-      </ul>
-    </div>
-
-    <!-- LOGIN -->
-    <div id="login" class="card">
-      <h2>Acesso à plataforma</h2>
-      <p style="color:#64748b">Crie sua conta ou entre para começar o teste.</p>
-
-      <label>Email</label>
-      <input id="email" type="email" placeholder="seu@email.com">
-
-      <label>Senha</label>
-      <input id="senha" type="password" placeholder="••••••••">
-
-      <button class="btn-primary" onclick="entrar()">Entrar</button>
-      <button class="btn-sec" onclick="criarConta()">Criar conta gratuita</button>
-
-      <div id="msgLogin" class="msg"></div>
-    </div>
-
-  </div>
+<!-- HEADER -->
+<div class="card header" id="cardHeader">
+<div>
+<h1 class="title">APP DE ESTUDOS - Guarda Civil 👮‍♂️</h1>
+<div class="subtitle">Estude por tópicos </div>
 </div>
 
+<div class="controls">
+<button class="icon-btn" id="scaleDownBtn" title="Diminuir caixa">A−</button>
+<div class="scale-label" id="scaleLabel">x1.10</div>
+<button class="icon-btn" id="scaleUpBtn" title="Aumentar caixa">A+</button>
+<button class="icon-btn" id="fullscreenBtn" title="Tela cheia">⛶</button>
+<button class="btn" id="soundToggle">🔊 Som: On</button>
+</div>
+</div>
+
+<!-- PAGES -->
+<div class="card pages" id="pages">
+<section id="home" class="page active">
+<div class="welcome">Olá! Escolha um tópico e inicie os estudos quando estiver pronto.</div>
+<div class="home-actions">
+<button class="btn" onclick="go('study')" id="btnStudy">📘 Estudar Leis</button>
+<button class="btn" onclick="go('quiz')" id="btnQuiz">🎯 Fazer simulado</button>
+<button class="btn" onclick="go('cards')" id="btnCards">🃏 Cartões</button>
+<button type="button" class="btn" onclick="location.href='https://megaestudos.github.io/Resumos-PlenAula/'">
+<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:6px">
+<rect x="3" y="3" width="15" height="18" rx="2" fill="#FFD500"/>
+<rect x="5" y="5" width="11" height="14" fill="#FFFFFF" opacity="0.25"/>
+<rect x="18" y="3" width="3" height="18" rx="1" fill="#E0B800"/>
+<rect x="5" y="7" width="9" height="1.6" fill="#FFFFFF"/>
+<rect x="5" y="10" width="9" height="1.6" fill="#FFFFFF"/>
+<rect x="5" y="13" width="7" height="1.6" fill="#FFFFFF"/>
+</svg>
+Resumos
+</button>
+
+</div>
+<div style="margin-top:12px">
+<div id="bestRecord" class="record">Carregando recorde...</div>
+</div>
+</section>
+
+<section id="study" class="page">
+<h3>Conteúdos de Estudo</h3>
+<div id="studyList" class="study-list">Carregando...</div>
+</section>
+
+<section id="quiz" class="page">
+<div class="topic-select">
+<div class="average">Escolha o Tópico:</div>
+<select id="topicSelect" class="average"></select>
+<button class="next-btn small-btn" id="loadTopicBtn">Carregar tópico</button>
+<div style="flex:1"></div>
+<div class="small" id="quizNote">Questões por rodada: <strong id="quizSizeLabel"></strong></div>
+</div>
+
+<div class="progress" style="margin-bottom:8px">
+<div class="track"><div class="bar" id="bar" style="width:0%"></div></div>
+<div class="small" id="progressInfo">0 / 0</div>
+</div>
+
+<div class="question" id="question">Aguardando escolha do tópico...</div>
+<div class="opts" id="opts"></div>
+<div class="explain" id="explain" style="display:none"></div>
+
+<div class="next-area">
+<div id="progressText" class="small"></div>
+<div style="display:flex;gap:8px">
+<button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄 Reiniciar</button>
+<button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
+</div>
+</div>
+</section>
+
+<section id="cards" class="page">
+<h3>Cartões (clique para virar)</h3>
+<div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:12px;"></div>
+</section>
+</div>
+
+<div class="tabs card" role="navigation" aria-label="Navegação">
+<button class="tabbtn active" data-target="home" onclick="go('home')">Início</button>
+<button class="tabbtn" data-target="study" onclick="go('study')">Estudo</button>
+<button class="tabbtn" data-target="quiz" onclick="go('quiz')">Simulado</button>
+<button class="tabbtn" data-target="cards" onclick="go('cards')">Cartões</button>
+</div>
+
+</div>
+<!-- ===== SEGURANÇA / GATE DE ACESSO ===== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendEmailVerification
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-/* ===== CONFIG ===== */
-const FRONT_URL = "https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
-const HORAS_TRIAL = 48;
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-  authDomain: "simulados-concursos-22c91.firebaseapp.com",
-  projectId: "simulados-concursos-22c91"
+apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+authDomain: "simulados-concursos-22c91.firebaseapp.com",
+projectId: "simulados-concursos-22c91"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 
-const $ = id => document.getElementById(id);
+const ME_ENDPOINT = "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
+const LOGIN_URL = "https://SEU_LOGIN_AQUI.html"; // ajuste para sua página de login
+const LOGIN_URL = "https://megaestudos.github.io/login-simulados/"; // ajuste para sua página de login
 
-/* ===== HELPERS ===== */
-async function ensureUser(uid, email){
-  const ref = doc(db, "users", uid);
-  const snap = await getDoc(ref);
+async function checkAccess(user){
+const token = await user.getIdToken();
 
-  if (!snap.exists()){
-    await setDoc(ref, {
-      email,
-      criadoEm: serverTimestamp(),
-      trialAte: new Date(Date.now() + HORAS_TRIAL * 3600000),
-      pagoAte: null
-    });
-  }
+const r = await fetch(ME_ENDPOINT, {
+headers: { Authorization: "Bearer " + token }
+});
+
+const data = await r.json();
+
+if (!data.authenticated || !data.entitled) {
+window.location.replace(LOGIN_URL);
+}
 }
 
-/* ===== AÇÕES ===== */
-window.criarConta = async () => {
-  try{
-    const cred = await createUserWithEmailAndPassword(
-      auth,
-      $("email").value,
-      $("senha").value
-    );
-    await sendEmailVerification(cred.user);
-    $("msgLogin").innerText = "Conta criada. Confirme seu e-mail.";
-  }catch(e){
-    $("msgLogin").innerText = e.message;
-  }
-};
-
-window.entrar = async () => {
-  try{
-    await signInWithEmailAndPassword(
-      auth,
-      $("email").value,
-      $("senha").value
-    );
-  }catch(e){
-    $("msgLogin").innerText = e.message;
-  }
-};
-
-/* ===== AUTH STATE ===== */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-
-  if (!user.emailVerified){
-    $("msgLogin").innerText = "Confirme seu e-mail antes de continuar.";
-    return;
-  }
-
-  await ensureUser(user.uid, user.email);
-
-  // 🔥 REDIRECIONAMENTO FINAL
-  window.location.replace(FRONT_URL);
+onAuthStateChanged(auth, (user) => {
+if (!user) {
+window.location.replace(LOGIN_URL);
+return;
+}
+checkAccess(user);
 });
+</script>
+<!-- ===== FIM DA SEGURANÇA ===== -->
+
+
+<script>
+/* ========== CONFIG ========== */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec';
+const TEMPLATE_QUESTIONS = null;
+const TEMPLATE_STUDIES = []; // opcional fallback
+const TEMPLATE_QUIZ_SIZE = 20;
+
+/* ========== KEYS / STATE ========== */
+let POOL = []; let currentIndex = 0; let score = 0; let errors = []; let quizStarted = false;
+const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
+const scaleMin = 0.8, scaleMax = 1.6, scaleStep = 0.05;
+
+/* ====== UI HELPERS ====== */
+function q_text(q){ if (!q) return ''; return q.pergunta || q.perguntas || q.question || q.Question || q.Pergunta || ''; }
+function q_topic(q){ if (!q) return ''; return q.materia || q.topico || q.tópico || q.topic || ''; }
+function q_expl(q){ if (!q) return ''; return q.explicacao || q.explanation || q.Explicacao || q.resposta || q.respostas || q.answer || ''; }
+function q_answer_letter(q){ const a = (q.resposta || q.answer || q.Resposta || q.Answer || '').toString().trim(); if (!a) return ''; return a.substr(0,1).toUpperCase(); }
+function q_option(q, letter){ const up = q[letter.toUpperCase()]; if (up !== undefined && up !== null && up !== '') return up; const low = q[letter.toLowerCase()]; if (low !== undefined && low !== null && low !== '') return low; return ''; }
+
+function linkify(text){ if (!text) return ''; let out = text.toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); const urlPattern = /(\bhttps?:\/\/[^\s<]+[^\s<.,;:!?])/gi; const wwwPattern = /(^|[^\/])(www\.[^\s<]+[^\s<.,;:!?])/gi; out = out.replace(urlPattern, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'); out = out.replace(wwwPattern, '$1<a href="http://$2" target="_blank" rel="noopener noreferrer">$2</a>'); out = out.replace(/\n/g, '<br>'); return out; }
+
+/* ===== scale controls ===== */
+function readSavedScale(){ const s = parseFloat(localStorage.getItem(SCALE_KEY)); if (!isNaN(s)) return Math.max(scaleMin, Math.min(scaleMax, s)); const css = getComputedStyle(document.documentElement).getPropertyValue('--card-scale'); return parseFloat(css) || 1.10; }
+function setScale(v){ v = Math.max(scaleMin, Math.min(scaleMax, Number(v))); document.documentElement.style.setProperty('--card-scale', v.toFixed(2)); const lbl = document.getElementById('scaleLabel'); if (lbl) lbl.innerText = 'x' + v.toFixed(2); localStorage.setItem(SCALE_KEY, v.toFixed(2)); }
+document.getElementById('scaleUpBtn').addEventListener('click', ()=> setScale(readSavedScale() + scaleStep));
+document.getElementById('scaleDownBtn').addEventListener('click', ()=> setScale(readSavedScale() - scaleStep));
+
+/* ===== fullscreen ===== */
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+function updateFullscreenButton(){ const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement); fullscreenBtn.innerText = isFs ? '🡼' : '⛶'; }
+fullscreenBtn.addEventListener('click', async ()=>{ try { if (!document.fullscreenElement && !document.webkitFullscreenElement) { if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen(); else if (document.documentElement.webkitRequestFullscreen) await document.documentElement.webkitRequestFullscreen(); } else { if (document.exitFullscreen) await document.exitFullscreen(); else if (document.webkitExitFullscreen) await document.webkitExitFullscreen(); } } catch(e){} });
+document.addEventListener('fullscreenchange', updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+
+/* ===== sound ===== */
+function isSoundOn(){ return localStorage.getItem(SOUND_KEY) !== '0'; }
+function setSoundOn(v){ localStorage.setItem(SOUND_KEY, v ? '1' : '0'); updateSoundBtn(); }
+function updateSoundBtn(){ document.getElementById('soundToggle').innerText = isSoundOn() ? '🔊 Som: On' : '🔇 Som: Off'; }
+document.getElementById('soundToggle').addEventListener('click', ()=> setSoundOn(!isSoundOn()));
+if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY,'1');
+updateSoundBtn();
+
+let audioCtx = null;
+function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function playTone(freq, dur=120, type='sine', gainVal=0.06){ if (!isSoundOn()) return; try{ ensureAudio(); const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = type; o.frequency.value = freq; g.gain.value = gainVal; o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, dur); }catch(e){} }
+function playCorrect(){ playTone(880,120,'sine',0.06); }
+function playWrong(){ playTone(220,220,'sawtooth',0.08); }
+
+/* ===== navigation/pages ===== */
+// função global de navegação
+window.go = function(target){
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+const tEl = document.getElementById(target);
+if (tEl) tEl.classList.add('active');
+document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
+if (target === 'home') showBestRecord();
+if (target === 'study') renderStudies();
+if (target === 'cards') renderCards();
+if (target === 'quiz') { if (!quizStarted) showTopicSelection(); }
+};
+
+/* ===== STUDIES (corrigido/robusto) ===== */
+async function renderStudies(){
+const container = document.getElementById('studyList');
+container.innerHTML = 'Carregando...';
+try {
+// tenta endpoint getStudies no Apps Script
+const res = await fetch(`${SCRIPT_URL}?action=getStudies`, { cache: 'no-store' });
+const js = await res.json();
+if (js && js.ok && js.studies && Array.isArray(js.studies) && js.studies.length){
+container.innerHTML = '';
+js.studies.forEach((s,i)=>{
+const d = document.createElement('details'); d.className = 'summary';
+const sum = document.createElement('summary'); sum.innerText = s.topico || s.topic || `Tópico ${i+1}`;
+d.appendChild(sum);
+const div = document.createElement('div'); div.style.padding='8px 6px'; div.style.color='#dfeff5';
+div.innerHTML = linkify(s.conteudo || s.conteudo || s.texto || s.resposta || '');
+d.appendChild(div);
+container.appendChild(d);
+});
+return;
+}
+} catch (err){
+console.warn('Erro ao buscar estudos via SCRIPT_URL:', err);
+}
+
+// fallback para TEMPLATE_STUDIES embutidos
+if (Array.isArray(TEMPLATE_STUDIES) && TEMPLATE_STUDIES.length){
+container.innerHTML = '';
+TEMPLATE_STUDIES.forEach((s,i)=>{
+const d = document.createElement('details'); d.className='summary';
+const sum = document.createElement('summary'); sum.innerText = s.topico || s.titulo || `Tópico ${i+1}`;
+d.appendChild(sum);
+const div = document.createElement('div'); div.style.padding='8px 6px'; div.style.color='#dfeff5';
+div.innerHTML = linkify(s.conteudo || s.conteudo || '');
+d.appendChild(div);
+container.appendChild(d);
+});
+return;
+}
+
+container.innerHTML = '<div class="small">Nenhum conteúdo de estudo disponível. Verifique se a aba "<strong>Estudos</strong>" existe na planilha ou atualize o Apps Script para apontar para a planilha correta.</div>';
+}
+
+/* ===== topics + quiz loading ===== */
+const quizSizeLabel = document.getElementById('quizSizeLabel');
+quizSizeLabel.innerText = TEMPLATE_QUIZ_SIZE || 20;
+const topicSelect = document.getElementById('topicSelect');
+const loadTopicBtn = document.getElementById('loadTopicBtn');
+const nextBtn = document.getElementById('nextBtn');
+const optsDiv = document.getElementById('opts');
+const qEl = document.getElementById('question');
+const explainEl = document.getElementById('explain');
+const progressBar = document.getElementById('bar');
+const progressInfo = document.getElementById('progressInfo');
+const progressText = document.getElementById('progressText');
+const btnRestart = document.getElementById('btnRestart');
+
+loadTopicBtn.addEventListener('click', ()=> { loadTopicQuestions(topicSelect.value); });
+nextBtn.addEventListener('click', ()=> { if (!quizStarted) return; currentIndex++; renderQuestion(); });
+
+async function showTopicSelection(){
+populateTopicSelect(['Todos']);
+try {
+const res = await fetch(`${SCRIPT_URL}?action=getTopics`, {cache:'no-store'});
+const js = await res.json();
+if (js && js.ok && js.topics) { populateTopicSelect(js.topics || []); return; }
+} catch (e) { console.warn('Erro fetch topics', e); }
+}
+function populateTopicSelect(topics){ topicSelect.innerHTML = ''; const optAll = document.createElement('option'); optAll.value='Todos'; optAll.textContent='Todos'; topicSelect.appendChild(optAll); if (topics && topics.length){ topics.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; topicSelect.appendChild(o); }); } }
+
+async function loadTopicQuestions(topic){
+qEl.innerText = 'Carregando perguntas...';
+try {
+const encoded = encodeURIComponent(topic || 'Todos');
+const res = await fetch(`${SCRIPT_URL}?action=getQuestionsByTopic&topic=${encoded}`, {cache:'no-store'});
+const js = await res.json();
+let data = (js && js.ok && js.questions) ? js.questions.slice() : [];
+if (!data.length && TEMPLATE_QUESTIONS && TEMPLATE_QUESTIONS.length){ data = TEMPLATE_QUESTIONS.slice(0, TEMPLATE_QUIZ_SIZE); }
+POOL = data.slice(0, TEMPLATE_QUIZ_SIZE);
+currentIndex = 0; score = 0; errors = []; quizStarted = true;
+btnRestart.style.display = 'none';
+renderQuestion();
+} catch (err){ console.error('Erro ao carregar questões:', err); qEl.innerText = 'Erro ao carregar questões. Verifique a conexão.'; }
+}
+
+function renderQuestion(){
+explainEl.style.display = 'none';
+nextBtn.disabled = true;
+if (!POOL || POOL.length === 0) {
+qEl.innerText = 'Nenhuma questão disponível. Carregue outro tópico ou verifique a planilha.';
+optsDiv.innerHTML = '';
+progressBar.style.width = '0%';
+progressInfo.innerText = '0 / 0';
+progressText.innerText = '';
+btnRestart.style.display = 'inline-block';
+quizStarted = false;
+return;
+}
+if (currentIndex >= POOL.length) { finishQuiz(); return; }
+const q = POOL[currentIndex];
+qEl.style.opacity = 0;
+setTimeout(()=>{ qEl.innerText = `📘 ${q_topic(q) || ''}\n${q_text(q)}`; qEl.style.opacity = 1; }, 120);
+
+optsDiv.innerHTML = '';
+['A','B','C','D'].forEach(letter => {
+const txt = q_option(q, letter);
+if (!txt) return;
+const btn = document.createElement('button');
+btn.className = 'opt';
+btn.id = 'opt_' + letter;
+btn.innerText = `${letter}) ${txt}`;
+btn.onclick = ()=> selectOption(letter);
+optsDiv.appendChild(btn);
+});
+
+updateProgressUI();
+}
+
+function selectOption(letter){
+if (!quizStarted) return;
+const q = POOL[currentIndex];
+const correct = q_answer_letter(q);
+const chosen = letter.toUpperCase();
+document.querySelectorAll('.opt').forEach(el => el.disabled = true);
+if (correct) {
+const elCorrect = document.getElementById('opt_' + correct);
+if (elCorrect) elCorrect.classList.add('correct');
+}
+const elChosen = document.getElementById('opt_' + chosen);
+if (elChosen) {
+if (chosen === correct) { elChosen.classList.add('correct'); playCorrect(); score++; }
+else { elChosen.classList.add('wrong'); playWrong(); errors.push(q); }
+} else { if (chosen !== correct) { playWrong(); errors.push(q); } else playCorrect(); }
+const title = (chosen === correct) ? '✅ Correto!' : ('❌ Errado! Resposta: ' + (correct || '—'));
+showExplanation(title, q_expl(q));
+nextBtn.disabled = false;
+}
+
+function showExplanation(title, explanation){ explainEl.style.display = 'block'; explainEl.innerHTML = `<strong>${title}</strong><div style="margin-top:8px;color:#dfeff5">${explanation || ''}</div>`; }
+function updateProgressUI(){ const total = POOL.length || 0; const pct = total ? Math.round((currentIndex / total) * 100) : 0; progressBar.style.width = pct + '%'; progressInfo.innerText = `${currentIndex + 1} / ${total}`; progressText.innerText = `Pontos: ${score}`; }
+function finishQuiz(){ quizStarted = false; const total = POOL.length || 1; const pct = Math.round((score / total) * 100); const badge = pct >= 80 ? '🏆' : pct >= 60 ? '🎉' : pct >= 40 ? '👍' : '📘'; const finalTitle = `${badge} Você acertou ${score} de ${total} (${pct}%)`; qEl.innerText = finalTitle; optsDiv.innerHTML = ''; explainEl.style.display = 'block'; const rec = saveRecord(score, total); explainEl.innerHTML = `<div style="color:#dfeff5">${rec && rec.isNew ? '🎯 Novo recorde! ' : ''}${rec && rec.record ? 'Seu recorde Simulado: ' + rec.record.score + '/' + rec.record.total + ' ('+rec.record.pct+'%)' : ''}</div>`; btnRestart.style.display = 'inline-block'; progressBar.style.width = '100%'; }
+function restartQuiz(){ if (topicSelect && topicSelect.value) loadTopicQuestions(topicSelect.value); else loadTopicQuestions('Todos'); }
+
+/* ===== local record ===== */
+function saveRecord(score, total){ try { const pct = Math.round((score/total)*100); const now = new Date().toISOString(); const current = {score: score, total: total, pct: pct, when: now}; const prev = JSON.parse(localStorage.getItem(BEST_KEY) || 'null'); if (!prev || pct > prev.pct) { localStorage.setItem(BEST_KEY, JSON.stringify(current)); return {isNew:true, record: current, prev: prev}; } else { return {isNew:false, record: prev}; } } catch(e){ return null; } }
+function getRecord(){ try { return JSON.parse(localStorage.getItem(BEST_KEY) || 'null'); } catch(e){ return null; } }
+function showBestRecord(){ const rec = getRecord(); const el = document.getElementById('bestRecord'); if (!rec) el.innerText = 'Ainda sem recorde. Faça um Simulado e apareça aqui!'; else el.innerText = `Seu recorde: ${rec.score}/${rec.total} (${rec.pct}%) — em ${new Date(rec.when).toLocaleString()}`; }
+
+/* ====== CARTÕES (forçando endpoint getCards) ====== */
+async function renderCards(){
+const container = document.getElementById('cardsContainer');
+container.innerHTML = '';
+const sheetName = 'cartões';
+const encoded = encodeURIComponent(sheetName);
+const endpointsTried = [];
+try {
+const urlCards = `${SCRIPT_URL}?action=getCards&sheet=${encoded}`;
+endpointsTried.push(urlCards);
+let res = await fetch(urlCards, {cache:'no-store'});
+let js = await res.json();
+let list = null;
+if (js && js.ok && js.cards && Array.isArray(js.cards) && js.cards.length) list = js.cards;
+else if (js && js.ok && Array.isArray(js)) list = js;
+else if (js && js.ok && js.sheet && js.sheet.rows && Array.isArray(js.sheet.rows) && js.sheet.rows.length) list = js.sheet.rows;
+
+if (!list || !list.length){
+const urlQSheet = `${SCRIPT_URL}?action=getQuestionsBySheet&sheet=${encoded}`;
+endpointsTried.push(urlQSheet);
+res = await fetch(urlQSheet, {cache:'no-store'});
+js = await res.json();
+if (js && js.ok && js.questions && Array.isArray(js.questions) && js.questions.length) list = js.questions;
+else if (js && js.ok && Array.isArray(js)) list = js;
+else if (js && js.ok && js.cards && Array.isArray(js.cards)) list = js.cards;
+}
+
+if (!list || !list.length){
+const urlAll = `${SCRIPT_URL}?action=getAllQuestions`;
+endpointsTried.push(urlAll);
+res = await fetch(urlAll, {cache:'no-store'});
+js = await res.json();
+if (js && js.ok && js.questions && Array.isArray(js.questions) && js.questions.length) list = js.questions;
+}
+
+if (!list || list.length === 0) {
+container.innerHTML = '<div class="small">Nenhum cartão disponível na aba "<strong>cartões</strong>". Verifique o nome da aba e os cabeçalhos (pergunta | resposta).</div>';
+return;
+}
+
+if (Array.isArray(list[0]) && !list[0].pergunta && !list[0].question) {
+const headers = list[0].map(h => (h===null? '': h.toString()));
+const rows = list.slice(1);
+const mapped = rows.map(row=>{
+const obj = {};
+row.forEach((val,i)=> obj[ (headers[i]||i) ] = val );
+return obj;
+});
+makeCards(mapped);
+return;
+}
+
+makeCards(list);
+} catch(e){
+console.error('Erro renderCards:', e);
+container.innerHTML = '<div class="small">Erro ao buscar cartões. Abra o console para ver detalhes.</div>';
+}
+}
+
+function makeCards(list){
+const container = document.getElementById('cardsContainer');
+container.innerHTML = '';
+if (!list || list.length === 0) { container.innerHTML = '<div class="small">Nenhum cartão disponível.</div>'; return; }
+for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+list.forEach((q, idx)=>{
+const frontText = (q.pergunta || q.perguntas || q.question || q[Object.keys(q).find(k=>/perg/i.test(k))] || '').toString();
+const topicText = (q.topico || q.tópico || q.materia || q.categoria || q.topic || '').toString();
+const backText = (q.resposta || q.respostas || q.explanation || q.explicacao || q.answer || q[Object.keys(q).find(k=>/resp/i.test(k))] || '').toString();
+
+const wrapper = document.createElement('div'); wrapper.className = 'flashcard card-small';
+const inner = document.createElement('div'); inner.className = 'flash-inner';
+const front = document.createElement('div'); front.className = 'flash-front';
+const back = document.createElement('div'); back.className = 'flash-back';
+
+front.innerHTML = `<div style="font-size:12px;color:#dfeff5">${topicText}</div><div style="font-weight:800;margin-top:8px">${frontText}</div><div style="margin-top:8px;font-size:13px;color:#bfeadf">Clique para ver explicação</div>`;
+back.innerHTML = `<div style="font-size:12px;color:#dfeff5">${topicText}</div><div style="font-weight:800;margin-top:8px">${backText}</div>`;
+
+inner.appendChild(front); inner.appendChild(back);
+wrapper.appendChild(inner);
+wrapper.addEventListener('click', ()=> inner.classList.toggle('flipped'));
+container.appendChild(wrapper);
+});
+}
+
+/* ===== inicialização ===== */
+(function init(){
+const cssScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-scale')) || 1.10;
+if (localStorage.getItem(SCALE_KEY) === null) localStorage.setItem(SCALE_KEY, cssScale.toFixed(2));
+if (window.innerWidth <= 520) localStorage.setItem(SCALE_KEY, '1.10');
+setScale(readSavedScale());
+
+// Chamadas iniciais
+renderStudies();
+showTopicSelection();
+showBestRecord();
+window.addEventListener('click', function unlock(){ try{ ensureAudio(); }catch(e){} window.removeEventListener('click', unlock); }, { once:true });
+document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
+})();
 </script>
 </body>
 </html>
