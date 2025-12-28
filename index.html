@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Quiz Guarda Civil — App (Paga)</title>
+<div id="trialInfo" style="font-size:13px;opacity:.85;margin-top:6px"></div>
 <meta name="theme-color" content="#1e3c72"/>
 <style>
 :root{ --bg1:#0f3b6b; --bg2:#1f6fb0; --card-bg: rgba(255,255,255,0.06); --muted: rgba(255,255,255,0.92); --accent: #00ff9d; --card-scale: 1.10; }
@@ -172,41 +173,56 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-authDomain: "simulados-concursos-22c91.firebaseapp.com",
-projectId: "simulados-concursos-22c91"
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const ME_ENDPOINT = "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
-const LOGIN_URL = "https://SEU_LOGIN_AQUI.html"; // ajuste para sua página de login
-const LOGIN_URL = "https://megaestudos.github.io/login-simulados/"; // ajuste para sua página de login
+const ME_ENDPOINT =
+  "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
+
+const LOGIN_URL =
+  "https://megaestudos.github.io/login-simulados/";
 
 async function checkAccess(user){
-const token = await user.getIdToken();
+  const token = await user.getIdToken(true);
 
-const r = await fetch(ME_ENDPOINT, {
-headers: { Authorization: "Bearer " + token }
-});
+  const r = await fetch(ME_ENDPOINT, {
+    headers: { Authorization: "Bearer " + token }
+  });
 
-const data = await r.json();
+  const data = await r.json();
 
-if (!data.authenticated || !data.entitled) {
-window.location.replace(LOGIN_URL);
-}
+  // ❌ SEM ACESSO → VOLTA PARA LOGIN
+  if (!data.authenticated || !data.entitled) {
+    window.location.replace(LOGIN_URL);
+    return;
+  }
+
+  // ✅ MOSTRAR TEMPO DO TRIAL
+  if (data.type === "trial" && data.expiresAt) {
+    const el = document.getElementById("trialInfo");
+    if (el) {
+      const fim = new Date(data.expiresAt);
+      el.innerText =
+        "⏳ Teste gratuito até: " + fim.toLocaleString();
+    }
+  }
 }
 
 onAuthStateChanged(auth, (user) => {
-if (!user) {
-window.location.replace(LOGIN_URL);
-return;
-}
-checkAccess(user);
+  if (!user) {
+    window.location.replace(LOGIN_URL);
+    return;
+  }
+  checkAccess(user);
 });
 </script>
 <!-- ===== FIM DA SEGURANÇA ===== -->
+
 
 
 <script>
@@ -519,3 +535,4 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
