@@ -180,6 +180,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+window.__FIREBASE_AUTH__ = auth;
 
 const ME_ENDPOINT =
   "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
@@ -568,6 +569,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
