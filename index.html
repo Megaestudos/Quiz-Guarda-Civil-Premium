@@ -228,10 +228,21 @@ async function checkAccess(user) {
         "⏳ Teste gratuito até: " + fim.toLocaleString();
     }
 
-    if (data.plan === "premium") {
-      el.innerText =
-        "✅ Premium ativo até: " + fim.toLocaleString();
-    }
+   if (data.plan === "trial") {
+  el.innerText =
+    "⏳ Teste gratuito até: " + fim.toLocaleString();
+}
+
+if (data.plan === "6m") {
+  el.innerText =
+    "⭐ Plano 6 meses ativo até: " + fim.toLocaleString();
+}
+
+if (data.plan === "12m") {
+  el.innerText =
+    "🏆 Plano 1 ano ativo até: " + fim.toLocaleString();
+}
+
   }
 }
 
@@ -557,6 +568,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
