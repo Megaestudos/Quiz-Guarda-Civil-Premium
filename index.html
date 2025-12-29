@@ -180,7 +180,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-window.__FIREBASE_AUTH__ = auth;
 
 const ME_ENDPOINT =
   "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
@@ -196,8 +195,9 @@ async function checkAccess(user) {
   });
 
   const data = await r.json();
-
   const el = document.getElementById("trialInfo");
+
+  console.log("🔎 /me =", data);
 
   // ❌ NÃO AUTENTICADO
   if (!data.authenticated) {
@@ -205,46 +205,39 @@ async function checkAccess(user) {
     return;
   }
 
-  // ❌ SEM DIREITO (trial ou premium expirado)
+  // ❌ SEM DIREITO
   if (!data.entitled) {
     if (el && data.expiresAt) {
       el.innerText =
         "⛔ Acesso expirado em " +
         new Date(data.expiresAt).toLocaleString();
     }
-
     setTimeout(() => {
       window.location.replace(LOGIN_URL);
     }, 2500);
-
     return;
   }
 
-  // ✅ TEM ACESSO (TRIAL OU PREMIUM)
-  if (el && data.expiresAt) {
-    const fim = new Date(data.expiresAt);
+  // ✅ TEM ACESSO
+  if (!el || !data.expiresAt) return;
 
-    if (data.plan === "trial") {
-      el.innerText =
-        "⏳ Teste gratuito até: " + fim.toLocaleString();
-    }
+  const fim = new Date(data.expiresAt);
 
-   if (data.plan === "trial") {
-  el.innerText =
-    "⏳ Teste gratuito até: " + fim.toLocaleString();
-}
-
-if (data.plan === "6m") {
-  el.innerText =
-    "⭐ Plano 6 meses ativo até: " + fim.toLocaleString();
-}
-
-if (data.plan === "12m") {
-  el.innerText =
-    "🏆 Plano 1 ano ativo até: " + fim.toLocaleString();
-}
-
+  if (data.plan === "trial") {
+    el.innerText =
+      "⏳ Teste gratuito até: " + fim.toLocaleString();
+    return;
   }
+
+  if (data.plan === "premium") {
+    el.innerText =
+      "✅ Acesso Premium ativo até: " + fim.toLocaleString();
+    return;
+  }
+
+  // fallback de segurança
+  el.innerText =
+    "✅ Acesso ativo até: " + fim.toLocaleString();
 }
 
 onAuthStateChanged(auth, (user) => {
@@ -569,6 +562,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
