@@ -187,7 +187,7 @@ const ME_ENDPOINT =
 const LOGIN_URL =
   "https://megaestudos.github.io/login-simulados/";
 
-async function checkAccess(user){
+async function checkAccess(user) {
   const token = await user.getIdToken(true);
 
   const r = await fetch(ME_ENDPOINT, {
@@ -196,44 +196,41 @@ async function checkAccess(user){
 
   const data = await r.json();
 
- // ❌ NÃO AUTENTICADO
-if (!data.authenticated) {
-  window.location.replace(LOGIN_URL);
-  return;
-}
-
-// ❌ SEM DIREITO (trial acabou)
-if (!data.entitled) {
   const el = document.getElementById("trialInfo");
-  if (el && data.expiresAt) {
-    el.innerText =
-      "⛔ Seu teste terminou em " +
-      new Date(data.expiresAt).toLocaleString();
-  }
-  setTimeout(() => {
+
+  // ❌ NÃO AUTENTICADO
+  if (!data.authenticated) {
     window.location.replace(LOGIN_URL);
-  }, 2500);
-  return;
-}
-
-// ✅ TEM ACESSO → MOSTRA DATA
-if (data.expiresAt) {
-  const el = document.getElementById("trialInfo");
-  if (el) {
-    el.innerText =
-      "⏳ Acesso válido até: " +
-      new Date(data.expiresAt).toLocaleString();
+    return;
   }
-}
 
+  // ❌ SEM DIREITO (trial ou premium expirado)
+  if (!data.entitled) {
+    if (el && data.expiresAt) {
+      el.innerText =
+        "⛔ Acesso expirado em " +
+        new Date(data.expiresAt).toLocaleString();
+    }
 
-  // ✅ MOSTRAR TEMPO DO TRIAL
-  if (data.type === "trial" && data.expiresAt) {
-    const el = document.getElementById("trialInfo");
-    if (el) {
-      const fim = new Date(data.expiresAt);
+    setTimeout(() => {
+      window.location.replace(LOGIN_URL);
+    }, 2500);
+
+    return;
+  }
+
+  // ✅ TEM ACESSO (TRIAL OU PREMIUM)
+  if (el && data.expiresAt) {
+    const fim = new Date(data.expiresAt);
+
+    if (data.plan === "trial") {
       el.innerText =
         "⏳ Teste gratuito até: " + fim.toLocaleString();
+    }
+
+    if (data.plan === "premium") {
+      el.innerText =
+        "✅ Premium ativo até: " + fim.toLocaleString();
     }
   }
 }
@@ -560,5 +557,6 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
