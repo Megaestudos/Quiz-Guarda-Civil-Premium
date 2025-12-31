@@ -240,13 +240,17 @@ async function checkAccess(user) {
     "✅ Acesso ativo até: " + fim.toLocaleString();
 }
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
+    // Usuário não logado → manda para login
     window.location.replace(LOGIN_URL);
     return;
   }
-  checkAccess(user);
+
+  // Usuário logado → verifica acesso
+  await checkAccess(user);
 });
+
 </script>
 <!-- ===== FIM DA SEGURANÇA ===== -->
 
@@ -562,6 +566,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
