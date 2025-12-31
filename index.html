@@ -205,18 +205,20 @@ async function checkAccess(user) {
     return;
   }
 
-  // ❌ SEM DIREITO
-  if (!data.entitled) {
-    if (el && data.expiresAt) {
-      el.innerText =
-        "⛔ Acesso expirado em " +
-        new Date(data.expiresAt).toLocaleString();
-    }
-    setTimeout(() => {
-      window.location.replace(LOGIN_URL);
-    }, 2500);
-    return;
+ // ❌ SEM DIREITO (trial ou premium expirado)
+if (!data.entitled) {
+  if (el && data.expiresAt) {
+    el.innerText =
+      "⛔ Acesso expirado em " +
+      new Date(data.expiresAt).toLocaleString();
   }
+
+  // IMPORTANTE:
+  // O APP NÃO decide pagamento
+  // Ele apenas volta para o login
+  window.location.replace(LOGIN_URL + "?expired=1");
+  return;
+}
 
   // ✅ TEM ACESSO
   if (!el || !data.expiresAt) return;
@@ -566,6 +568,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
