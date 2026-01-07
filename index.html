@@ -169,8 +169,10 @@ Resumos
 </div>
 <!-- ===== SEGURANÇA / GATE DE ACESSO ===== -->
 <script type="module">
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
@@ -180,19 +182,35 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const functions = getFunctions(app, "us-central1");
 
-const ME_ENDPOINT =
-  "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
+const meCall = httpsCallable(functions, "me");
 
-const LOGIN_URL =
-  "https://megaestudos.github.io/login-simulados/";
+const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
 
-async function checkAccess(user) {
-  const token = await user.getIdToken(true);
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = LOGIN_URL;
+    return;
+  }
 
-  const r = await fetch(ME_ENDPOINT, {
-    headers: { Authorization: "Bearer " + token }
-  });
+  try {
+    const resp = await meCall();
+    const data = resp.data;
+
+    if (!data.entitled) {
+      window.location.href = LOGIN_URL;
+      return;
+    }
+
+    // ✅ acesso liberado → continua no app
+
+  } catch (e) {
+    console.error("Erro ao validar acesso:", e);
+    window.location.href = LOGIN_URL;
+  }
+});
+</script>
 
   const data = await r.json();
   const el = document.getElementById("trialInfo");
@@ -568,6 +586,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
