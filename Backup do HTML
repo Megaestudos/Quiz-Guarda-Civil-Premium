@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -77,12 +76,29 @@ button.opt[disabled]{ opacity:.8; cursor:not-allowed; }
 </style>
 </head>
 <body>
-<div class="app" style="width:100%;max-width:820px;" id="appRoot">
+  <div id="accessBlocker" style="
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#0f3b6b,#1f6fb0);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  font-family:Inter,system-ui,Arial;
+">
+  <div style="text-align:center">
+    <div style="font-size:20px;font-weight:900">🔐 Verificando acesso…</div>
+    <div style="opacity:.8;margin-top:8px">Aguarde alguns segundos</div>
+  </div>
+</div>
+<div class="app" id="appRoot" style="display:none">
 
 <!-- HEADER -->
 <div class="card header" id="cardHeader">
 <div>
 <h1 class="title">APP DE ESTUDOS - Guarda Civil 👮‍♂️</h1>
+<div id="trialInfo" style="font-size:13px;opacity:.85;margin-top:6px"></div>
 <div class="subtitle">Estude por tópicos </div>
 </div>
 
@@ -171,43 +187,79 @@ Resumos
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-authDomain: "simulados-concursos-22c91.firebaseapp.com",
-projectId: "simulados-concursos-22c91"
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91"
 };
+
+const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const functions = getFunctions(app, "us-central1");
 
-const ME_ENDPOINT = "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
-const LOGIN_URL = "https://SEU_LOGIN_AQUI.html"; // ajuste para sua página de login
-const LOGIN_URL = "https://megaestudos.github.io/login-simulados/"; // ajuste para sua página de login
+const meCall = httpsCallable(functions, "me");
 
-async function checkAccess(user){
-const token = await user.getIdToken();
+const appRoot = document.getElementById("appRoot");
+const blocker = document.getElementById("accessBlocker");
+const trialInfo = document.getElementById("trialInfo");
 
-const r = await fetch(ME_ENDPOINT, {
-headers: { Authorization: "Bearer " + token }
-});
-
-const data = await r.json();
-
-if (!data.authenticated || !data.entitled) {
-window.location.replace(LOGIN_URL);
-}
+function deny() {
+  window.location.replace(LOGIN_URL);
 }
 
-onAuthStateChanged(auth, (user) => {
-if (!user) {
-window.location.replace(LOGIN_URL);
-return;
+function allow(data) {
+  // libera o app
+  blocker.remove();
+  appRoot.style.display = "block";
+
+  if (trialInfo && data.expiresAt) {
+    const fim = new Date(data.expiresAt);
+    trialInfo.innerText =
+      data.plan === "trial"
+        ? "⏳ Teste gratuito até: " + fim.toLocaleString()
+        : "✅ Premium ativo até: " + fim.toLocaleString();
+  }
 }
-checkAccess(user);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    deny();
+    return;
+  }
+
+  try {
+    const resp = await meCall();
+    const data = resp.data;
+
+    console.log("🔐 GATE /me:", data);
+
+    if (!data.authenticated) {
+      deny();
+      return;
+    }
+
+    if (!data.entitled) {
+      window.location.replace(LOGIN_URL + "?expired=1");
+      return;
+    }
+
+    allow(data);
+
+  } catch (e) {
+    console.error("Erro no gate:", e);
+    deny();
+  }
 });
 </script>
+</script>
+
+</script>
 <!-- ===== FIM DA SEGURANÇA ===== -->
+
 
 
 <script>
@@ -520,3 +572,11 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
