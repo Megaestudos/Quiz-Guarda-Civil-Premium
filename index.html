@@ -169,67 +169,60 @@ Resumos
 </div>
 <!-- ===== SEGURANÇA / GATE DE ACESSO ===== -->
 <script type="module">
-<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-  authDomain: "simulados-concursos-22c91.firebaseapp.com",
-  projectId: "simulados-concursos-22c91"
+apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+authDomain: "simulados-concursos-22c91.firebaseapp.com",
+projectId: "simulados-concursos-22c91"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const functions = getFunctions(app, "us-central1");
 
-const meCall = httpsCallable(functions, "me");
+const ME_ENDPOINT =
+"https://us-central1-simulados-concursos-22c91.cloudfunctions.net/me";
 
-const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
+const LOGIN_URL =
+"https://megaestudos.github.io/login-simulados/";
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = LOGIN_URL;
-    return;
-  }
+async function checkAccess(user) {
+const token = await user.getIdToken(true);
 
-  try {
-    const resp = await meCall();
-    const data = resp.data;
-
-    if (!data.entitled) {
-      window.location.href = LOGIN_URL;
-      return;
-    }
-
-    // ✅ acesso liberado → continua no app
-
-  } catch (e) {
-    console.error("Erro ao validar acesso:", e);
-    window.location.href = LOGIN_URL;
-  }
+const r = await fetch(ME_ENDPOINT, {
+headers: { Authorization: "Bearer " + token }
 });
-</script>
 
-  const data = await r.json();
-  const el = document.getElementById("trialInfo");
+const data = await r.json();
+const el = document.getElementById("trialInfo");
 
-  console.log("🔎 /me =", data);
+console.log("🔎 /me =", data);
 
-  // ❌ NÃO AUTENTICADO
-  if (!data.authenticated) {
-    window.location.replace(LOGIN_URL);
+// ❌ NÃO AUTENTICADO
+if (!data.authenticated) {
+window.location.replace(LOGIN_URL);
+return;
+}
+
+  // ❌ SEM DIREITO
+  if (!data.entitled) {
+    if (el && data.expiresAt) {
+      el.innerText =
+        "⛔ Acesso expirado em " +
+        new Date(data.expiresAt).toLocaleString();
+    }
+    setTimeout(() => {
+      window.location.replace(LOGIN_URL);
+    }, 2500);
     return;
-  }
-
  // ❌ SEM DIREITO (trial ou premium expirado)
 if (!data.entitled) {
   if (el && data.expiresAt) {
     el.innerText =
       "⛔ Acesso expirado em " +
       new Date(data.expiresAt).toLocaleString();
-  }
+}
 
   // IMPORTANTE:
   // O APP NÃO decide pagamento
@@ -238,37 +231,37 @@ if (!data.entitled) {
   return;
 }
 
-  // ✅ TEM ACESSO
-  if (!el || !data.expiresAt) return;
+// ✅ TEM ACESSO
+if (!el || !data.expiresAt) return;
 
-  const fim = new Date(data.expiresAt);
+const fim = new Date(data.expiresAt);
 
-  if (data.plan === "trial") {
-    el.innerText =
-      "⏳ Teste gratuito até: " + fim.toLocaleString();
-    return;
-  }
+if (data.plan === "trial") {
+el.innerText =
+"⏳ Teste gratuito até: " + fim.toLocaleString();
+return;
+}
 
-  if (data.plan === "premium") {
-    el.innerText =
-      "✅ Acesso Premium ativo até: " + fim.toLocaleString();
-    return;
-  }
+if (data.plan === "premium") {
+el.innerText =
+"✅ Acesso Premium ativo até: " + fim.toLocaleString();
+return;
+}
 
-  // fallback de segurança
-  el.innerText =
-    "✅ Acesso ativo até: " + fim.toLocaleString();
+// fallback de segurança
+el.innerText =
+"✅ Acesso ativo até: " + fim.toLocaleString();
 }
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    // Usuário não logado → manda para login
-    window.location.replace(LOGIN_URL);
-    return;
-  }
+if (!user) {
+// Usuário não logado → manda para login
+window.location.replace(LOGIN_URL);
+return;
+}
 
-  // Usuário logado → verifica acesso
-  await checkAccess(user);
+// Usuário logado → verifica acesso
+await checkAccess(user);
 });
 
 </script>
@@ -586,8 +579,6 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
-
-
 
 
 
