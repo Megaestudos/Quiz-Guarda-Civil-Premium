@@ -76,7 +76,23 @@ button.opt[disabled]{ opacity:.8; cursor:not-allowed; }
 </style>
 </head>
 <body>
-<div class="app" style="width:100%;max-width:820px;" id="appRoot">
+  <div id="accessBlocker" style="
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#0f3b6b,#1f6fb0);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  font-family:Inter,system-ui,Arial;
+">
+  <div style="text-align:center">
+    <div style="font-size:20px;font-weight:900">🔐 Verificando acesso…</div>
+    <div style="opacity:.8;margin-top:8px">Aguarde alguns segundos</div>
+  </div>
+</div>
+<div class="app" id="appRoot" style="display:none">
 
 <!-- HEADER -->
 <div class="card header" id="cardHeader">
@@ -169,7 +185,6 @@ Resumos
 </div>
 <!-- ===== SEGURANÇA / GATE DE ACESSO ===== -->
 <script type="module">
-<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
@@ -180,17 +195,39 @@ const firebaseConfig = {
   projectId: "simulados-concursos-22c91"
 };
 
+const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app, "us-central1");
 
 const meCall = httpsCallable(functions, "me");
 
-const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
+const appRoot = document.getElementById("appRoot");
+const blocker = document.getElementById("accessBlocker");
+const trialInfo = document.getElementById("trialInfo");
+
+function deny() {
+  window.location.replace(LOGIN_URL);
+}
+
+function allow(data) {
+  // libera o app
+  blocker.remove();
+  appRoot.style.display = "block";
+
+  if (trialInfo && data.expiresAt) {
+    const fim = new Date(data.expiresAt);
+    trialInfo.innerText =
+      data.plan === "trial"
+        ? "⏳ Teste gratuito até: " + fim.toLocaleString()
+        : "✅ Premium ativo até: " + fim.toLocaleString();
+  }
+}
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.replace(LOGIN_URL);
+    deny();
     return;
   }
 
@@ -198,35 +235,26 @@ onAuthStateChanged(auth, async (user) => {
     const resp = await meCall();
     const data = resp.data;
 
-    console.log("🔎 me()", data);
+    console.log("🔐 GATE /me:", data);
 
-    // ❌ NÃO AUTENTICADO
     if (!data.authenticated) {
-      window.location.replace(LOGIN_URL);
+      deny();
       return;
     }
 
-    // ❌ SEM DIREITO (trial/premium expirado)
     if (!data.entitled) {
       window.location.replace(LOGIN_URL + "?expired=1");
       return;
     }
 
-    // ✅ ACESSO LIBERADO
-    const el = document.getElementById("trialInfo");
-    if (el && data.expiresAt) {
-      const fim = new Date(data.expiresAt);
-      el.innerText =
-        data.plan === "trial"
-          ? "⏳ Teste gratuito até: " + fim.toLocaleString()
-          : "✅ Premium ativo até: " + fim.toLocaleString();
-    }
+    allow(data);
 
   } catch (e) {
-    console.error("Erro ao validar acesso:", e);
-    window.location.replace(LOGIN_URL);
+    console.error("Erro no gate:", e);
+    deny();
   }
 });
+</script>
 </script>
 
 </script>
@@ -544,6 +572,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
