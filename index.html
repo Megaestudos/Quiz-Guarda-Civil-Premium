@@ -196,12 +196,6 @@ const firebaseConfig = {
 };
 
 const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
-  
-  // ✅ Bloqueia auto-login silencioso: só entra no app se veio do login
-const cameFromLogin = sessionStorage.getItem("login_ok") === "1";
-if (!cameFromLogin) {
-  window.location.replace(LOGIN_URL + "?choose=1");
-}
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -622,6 +616,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
