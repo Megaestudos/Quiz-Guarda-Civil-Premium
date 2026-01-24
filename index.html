@@ -211,7 +211,7 @@ function deny() {
 }
 
 function allow(data) {
-  blocker.remove();
+  if (blocker) blocker.style.display = "none";
   appRoot.style.display = "block";
 
   if (trialInfo && data.expiresAt) {
@@ -224,7 +224,7 @@ function allow(data) {
 }
 
 function showExpiredPaywall() {
-  blocker.remove();
+  if (blocker) blocker.style.display = "none";
   appRoot.style.display = "block";
 
   document.body.insertAdjacentHTML("beforeend", `
@@ -252,8 +252,12 @@ function showExpiredPaywall() {
         </p>
 
         <div style="margin-top:16px;display:flex;gap:12px;justify-content:center">
-          <button onclick="location.href='${LOGIN_URL}?plan=6m'">⭐ Premium 6 meses</button>
-          <button onclick="location.href='${LOGIN_URL}?plan=12m'">🔥 Premium 1 ano</button>
+          <button onclick="location.href='${LOGIN_URL}?plan=6m'">
+            ⭐ Premium 6 meses
+          </button>
+          <button onclick="location.href='${LOGIN_URL}?plan=12m'">
+            🔥 Premium 1 ano
+          </button>
         </div>
       </div>
     </div>
@@ -611,6 +615,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
