@@ -200,7 +200,6 @@ const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app, "us-central1");
-
 const meCall = httpsCallable(functions, "me");
 
 const appRoot = document.getElementById("appRoot");
@@ -212,7 +211,6 @@ function deny() {
 }
 
 function allow(data) {
-  // libera o app
   blocker.remove();
   appRoot.style.display = "block";
 
@@ -223,6 +221,43 @@ function allow(data) {
         ? "⏳ Teste gratuito até: " + fim.toLocaleString()
         : "✅ Premium ativo até: " + fim.toLocaleString();
   }
+}
+
+function showExpiredPaywall() {
+  blocker.remove();
+  appRoot.style.display = "block";
+
+  document.body.insertAdjacentHTML("beforeend", `
+    <div style="
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.75);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:999999;
+    ">
+      <div style="
+        background:#0f172a;
+        padding:24px;
+        border-radius:16px;
+        max-width:420px;
+        text-align:center;
+        color:#fff;
+      ">
+        <h3>⏳ Seu período gratuito terminou</h3>
+        <p style="margin-top:10px;font-size:14px;opacity:.9">
+          Você usou o app gratuitamente por <strong>3 dias</strong>.<br>
+          Para continuar estudando, escolha um plano premium:
+        </p>
+
+        <div style="margin-top:16px;display:flex;gap:12px;justify-content:center">
+          <button onclick="location.href='${LOGIN_URL}?plan=6m'">⭐ Premium 6 meses</button>
+          <button onclick="location.href='${LOGIN_URL}?plan=12m'">🔥 Premium 1 ano</button>
+        </div>
+      </div>
+    </div>
+  `);
 }
 
 let gateChecked = false;
@@ -237,27 +272,24 @@ onAuthStateChanged(auth, async (user) => {
 
   try {
     await user.getIdToken(true);
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r => setTimeout(r, 500));
 
     const resp = await meCall();
     const data = resp.data;
 
     console.log("🔐 GATE /me:", data);
 
-    // ⛔ TRIAL EXPIRADO
     if (!data.entitled && data.plan === "expired") {
       gateChecked = true;
       showExpiredPaywall();
       return;
     }
 
-    // ❌ SEM ACESSO
     if (!data.entitled) {
       deny();
       return;
     }
 
-    // ✅ ACESSO LIBERADO
     gateChecked = true;
     allow(data);
 
@@ -268,32 +300,6 @@ onAuthStateChanged(auth, async (user) => {
 });
 </script>
 <!-- ===== FIM DA SEGURANÇA ===== -->
-
-  function showExpiredPaywall() {
-  blocker.remove();
-  appRoot.style.display = "block";
-
-  document.body.insertAdjacentHTML("beforeend", `
-    <div class="modal-overlay">
-      <div class="modal">
-        <h3>⏳ Seu período gratuito terminou</h3>
-        <p style="margin-top:8px">
-          Você usou o app gratuitamente por <strong>3 dias</strong>.<br>
-          Para continuar estudando sem interrupções, escolha um plano premium.
-        </p>
-
-        <div style="margin-top:16px; display:flex; gap:12px; justify-content:center">
-          <button onclick="location.href='${LOGIN_URL}?plan=6m'">
-            ⭐ Premium 6 meses
-          </button>
-          <button onclick="location.href='${LOGIN_URL}?plan=12m'">
-            🔥 Premium 1 ano
-          </button>
-        </div>
-      </div>
-    </div>
-  `);
-}
 
 <script>
 /* ========== CONFIG ========== */
@@ -605,6 +611,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
