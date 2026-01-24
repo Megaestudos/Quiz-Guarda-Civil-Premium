@@ -232,6 +232,8 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   try {
+    await user.getIdToken(true);
+
     const resp = await meCall();
     const data = resp.data;
 
@@ -572,6 +574,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
