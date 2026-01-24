@@ -225,30 +225,34 @@ function allow(data) {
   }
 }
 
+let gateChecked = false;
+
 onAuthStateChanged(auth, async (user) => {
+  if (gateChecked) return;
+
   if (!user) {
     deny();
     return;
   }
 
   try {
+    // 🔒 FORÇA token fresco
     await user.getIdToken(true);
+
+    // ⏳ DELAY REAL (essencial)
+    await new Promise(r => setTimeout(r, 500));
 
     const resp = await meCall();
     const data = resp.data;
 
     console.log("🔐 GATE /me:", data);
 
-    if (!data.authenticated) {
+    if (!data.authenticated || !data.entitled) {
       deny();
       return;
     }
 
-    if (!data.entitled) {
-      window.location.replace(LOGIN_URL + "?expired=1");
-      return;
-    }
-
+    gateChecked = true;
     allow(data);
 
   } catch (e) {
@@ -571,6 +575,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
