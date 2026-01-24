@@ -227,8 +227,6 @@ function allow(data) {
 
 let gateChecked = false;
 
-let gateChecked = false;
-
 onAuthStateChanged(auth, async (user) => {
   if (gateChecked) return;
 
@@ -607,6 +605,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
