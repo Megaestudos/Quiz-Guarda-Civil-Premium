@@ -227,6 +227,8 @@ function allow(data) {
 
 let gateChecked = false;
 
+let gateChecked = false;
+
 onAuthStateChanged(auth, async (user) => {
   if (gateChecked) return;
 
@@ -236,22 +238,28 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   try {
-    // 🔒 FORÇA token fresco
     await user.getIdToken(true);
-
-    // ⏳ DELAY REAL (essencial)
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 600));
 
     const resp = await meCall();
     const data = resp.data;
 
     console.log("🔐 GATE /me:", data);
 
-    if (!data.authenticated || !data.entitled) {
+    // ⛔ TRIAL EXPIRADO
+    if (!data.entitled && data.plan === "expired") {
+      gateChecked = true;
+      showExpiredPaywall();
+      return;
+    }
+
+    // ❌ SEM ACESSO
+    if (!data.entitled) {
       deny();
       return;
     }
 
+    // ✅ ACESSO LIBERADO
     gateChecked = true;
     allow(data);
 
@@ -263,7 +271,31 @@ onAuthStateChanged(auth, async (user) => {
 </script>
 <!-- ===== FIM DA SEGURANÇA ===== -->
 
+  function showExpiredPaywall() {
+  blocker.remove();
+  appRoot.style.display = "block";
 
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="modal-overlay">
+      <div class="modal">
+        <h3>⏳ Seu período gratuito terminou</h3>
+        <p style="margin-top:8px">
+          Você usou o app gratuitamente por <strong>3 dias</strong>.<br>
+          Para continuar estudando sem interrupções, escolha um plano premium.
+        </p>
+
+        <div style="margin-top:16px; display:flex; gap:12px; justify-content:center">
+          <button onclick="location.href='${LOGIN_URL}?plan=6m'">
+            ⭐ Premium 6 meses
+          </button>
+          <button onclick="location.href='${LOGIN_URL}?plan=12m'">
+            🔥 Premium 1 ano
+          </button>
+        </div>
+      </div>
+    </div>
+  `);
+}
 
 <script>
 /* ========== CONFIG ========== */
@@ -575,6 +607,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
