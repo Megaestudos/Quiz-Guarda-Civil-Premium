@@ -207,11 +207,20 @@ const blocker = document.getElementById("accessBlocker");
 const trialInfo = document.getElementById("trialInfo");
 
 function deny() {
-  window.location.replace(LOGIN_URL);
+   sessionStorage.removeItem("login_ok");
+  // Se o usuário veio do login ou já tinha sessão recente,
+  // mandamos para login com opção de escolha
+  const hasSession = localStorage.getItem("auth_user");
+  if (hasSession) {
+    window.location.replace(LOGIN_URL + "?choose=1");
+  } else {
+    window.location.replace(LOGIN_URL);
+  }
 }
 
 function allow(data) {
-  sessionStorage.removeItem("login_ok");
+  sessionStorage.setItem("login_ok", "1");
+
   if (blocker) blocker.style.display = "none";
   appRoot.style.display = "block";
 
@@ -225,6 +234,8 @@ function allow(data) {
 }
 
 function showExpiredPaywall() {
+  sessionStorage.removeItem("login_ok");
+  
   if (blocker) blocker.style.display = "none";
   appRoot.style.display = "block";
 
@@ -268,6 +279,15 @@ function showExpiredPaywall() {
 let gateChecked = false;
 
 onAuthStateChanged(auth, async (user) => {
+ if (gateChecked) return;
+
+if (sessionStorage.getItem("login_ok") === "1" && auth.currentUser) {
+  // Mostra o app rápido, mas NÃO trava o gate (não seta gateChecked aqui)
+  if (blocker) blocker.style.display = "none";
+  appRoot.style.display = "block";
+  // continua e valida normalmente
+}
+
   if (gateChecked) return;
 
   if (!user) {
@@ -616,6 +636,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
