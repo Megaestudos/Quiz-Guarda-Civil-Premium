@@ -308,6 +308,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app, "us-central1");
 const meCall = httpsCallable(functions, "me");
+
   const createCheckout = async (planId) => {
     
     if (!['6m', '12m'].includes(planId)) {
@@ -336,13 +337,14 @@ const meCall = httpsCallable(functions, "me");
       }
     );
 
-    const data = await res.json();
+   if (!res.ok) {
+  const txt = await res.text();
+  console.error("Erro HTTP:", res.status, txt);
+  alert("Falha ao iniciar pagamento.");
+  return;
+}
 
-    if (!data.ok || !data.init_point) {
-      console.error("Erro checkout:", data);
-      alert("Erro ao iniciar pagamento. Tente novamente.");
-      return;
-    }
+const data = await res.json();
 
     // 🚀 REDIRECIONA PARA O MERCADO PAGO
     window.location.href = data.init_point;
@@ -806,5 +808,6 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
