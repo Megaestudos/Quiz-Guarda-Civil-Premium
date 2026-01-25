@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Premium | Plataforma de Simulados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body{
+      font-family: Inter, system-ui, Arial, sans-serif;
+      background:#0b1220;
+      color:#e5e7eb;
+      display:grid;
+      place-items:center;
+      min-height:100vh;
+      margin:0;
+    }
+    .box{
+      background:#020617;
+      border:1px solid #1e293b;
+      border-radius:18px;
+      padding:24px;
+      width:100%;
+      max-width:420px;
+      text-align:center;
+    }
+    h1{margin-top:0}
+    button{
+      width:100%;
+      padding:14px;
+      border-radius:14px;
+      border:0;
+      font-weight:800;
+      cursor:pointer;
+      margin-top:12px;
+      background:linear-gradient(135deg,#2563eb,#1e40af);
+      color:#fff;
+    }
+    .muted{opacity:.7;font-size:14px}
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h1>Seja Premium</h1>
+  <p class="muted">Escolha seu plano e libere o acesso completo.</p>
+
+  <button onclick="assinar('6m')">
+    Premium 6 meses — R$ 29,90
+  </button>
+
+  <button onclick="assinar('12m')">
+    Premium 12 meses — R$ 49,90
+  </button>
+
+  <p id="msg" class="muted" style="margin-top:16px"></p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const CREATE_CHECKOUT_URL =
+  "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/createCheckout";
+
+let currentUser = null;
+
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    alert("Você precisa estar logado.");
+    window.location.href = "./index.html";
+    return;
+  }
+  currentUser = user;
+});
+
+async function assinar(planId) {
+  if (!currentUser) return;
+
+  const token = await currentUser.getIdToken();
+  document.getElementById("msg").innerText = "Redirecionando para o pagamento…";
+
+  const resp = await fetch(CREATE_CHECKOUT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+    body: JSON.stringify({ planId }),
+  });
+
+  const data = await resp.json();
+
+  if (!data.ok) {
+    document.getElementById("msg").innerText = "Erro ao iniciar pagamento.";
+    return;
+  }
+
+  // 🔥 CHECKOUT PRO
+  window.location.href = data.init_point;
+}
+
+window.assinar = assinar;
+</script>
+
+</body>
+</html>
