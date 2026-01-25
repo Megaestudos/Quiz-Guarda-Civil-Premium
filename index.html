@@ -73,6 +73,113 @@ button.opt[disabled]{ opacity:.8; cursor:not-allowed; }
 }
 @media (max-width:420px){ .title { font-size:15px; } .controls { justify-content:flex-start; gap:6px; } }
 @media (max-width:520px){ .opts{ grid-template-columns:1fr; } }
+  .paywall-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,.82);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999999;
+}
+
+.paywall-card{
+  width:100%;
+  max-width:520px;
+  background:linear-gradient(180deg,#0f172a,#020617);
+  border:1px solid #1e293b;
+  border-radius:22px;
+  padding:28px;
+  color:#e5e7eb;
+  box-shadow:0 40px 120px rgba(0,0,0,.6);
+}
+
+.paywall-header h2{
+  margin:0;
+  font-size:26px;
+  font-weight:900;
+}
+
+.paywall-header p{
+  margin-top:8px;
+  color:#94a3b8;
+  font-size:14px;
+}
+
+.paywall-benefits{
+  list-style:none;
+  padding:0;
+  margin:22px 0;
+  display:grid;
+  gap:10px;
+  font-size:14px;
+}
+
+.paywall-plans{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.plan-card{
+  border:1px solid #1e293b;
+  border-radius:16px;
+  padding:18px;
+  text-align:center;
+  background:#020617;
+  position:relative;
+}
+
+.plan-card.highlight{
+  border-color:#2563eb;
+  box-shadow:0 0 0 1px rgba(37,99,235,.4);
+}
+
+.plan-badge{
+  position:absolute;
+  top:-10px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#2563eb;
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  padding:4px 10px;
+  border-radius:999px;
+}
+
+.plan-badge.alt{
+  background:#16a34a;
+}
+
+.plan-card h3{
+  margin:12px 0 6px;
+  font-size:18px;
+}
+
+.price{
+  font-size:22px;
+  font-weight:900;
+  margin-bottom:14px;
+}
+
+.plan-card button{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  background:linear-gradient(135deg,#2563eb,#1e40af);
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.paywall-footer{
+  margin-top:18px;
+  font-size:12px;
+  color:#94a3b8;
+  text-align:center;
+}
 </style>
 </head>
 <body>
@@ -207,15 +314,8 @@ const blocker = document.getElementById("accessBlocker");
 const trialInfo = document.getElementById("trialInfo");
 
 function deny() {
-   sessionStorage.removeItem("login_ok");
-  // Se o usuário veio do login ou já tinha sessão recente,
-  // mandamos para login com opção de escolha
-  const hasSession = localStorage.getItem("auth_user");
-  if (hasSession) {
-    window.location.replace(LOGIN_URL + "?choose=1");
-  } else {
-    window.location.replace(LOGIN_URL);
-  }
+  sessionStorage.removeItem("login_ok");
+  window.location.replace(LOGIN_URL + "?choose=1");
 }
 
 function allow(data) {
@@ -234,43 +334,54 @@ function allow(data) {
 }
 
 function showExpiredPaywall() {
+  // 🔒 evita duplicar o paywall
+  if (document.querySelector(".paywall-overlay")) return;
+
   sessionStorage.removeItem("login_ok");
-  
+
   if (blocker) blocker.style.display = "none";
   appRoot.style.display = "block";
 
   document.body.insertAdjacentHTML("beforeend", `
-    <div style="
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.75);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:999999;
-    ">
-      <div style="
-        background:#0f172a;
-        padding:24px;
-        border-radius:16px;
-        max-width:420px;
-        text-align:center;
-        color:#fff;
-      ">
-        <h3>⏳ Seu período gratuito terminou</h3>
-        <p style="margin-top:10px;font-size:14px;opacity:.9">
-          Você usou o app gratuitamente por <strong>3 dias</strong>.<br>
-          Para continuar estudando, escolha um plano premium:
-        </p>
+    <div class="paywall-overlay">
+      <div class="paywall-card">
 
-        <div style="margin-top:16px;display:flex;gap:12px;justify-content:center">
-          <button onclick="location.href='${LOGIN_URL}?plan=6m'">
-            ⭐ Premium 6 meses
-          </button>
-          <button onclick="location.href='${LOGIN_URL}?plan=12m'">
-            🔥 Premium 1 ano
-          </button>
+        <div class="paywall-header">
+          <h2>⭐ Torne-se Premium</h2>
+          <p>Continue seus estudos sem limites e aumente suas chances de aprovação.</p>
         </div>
+
+        <ul class="paywall-benefits">
+          <li>✔ Acesso total aos simulados</li>
+          <li>✔ Questões sempre atualizadas</li>
+          <li>✔ Estatísticas de desempenho</li>
+          <li>✔ Estude em qualquer dispositivo</li>
+        </ul>
+
+        <div class="paywall-plans">
+          <div class="plan-card highlight">
+            <div class="plan-badge">Mais popular</div>
+            <h3>6 meses</h3>
+            <div class="price">R$ 29,90</div>
+            <button onclick="location.href='${LOGIN_URL}?plan=6m'">
+              Assinar agora
+            </button>
+          </div>
+
+          <div class="plan-card">
+            <div class="plan-badge alt">Melhor valor</div>
+            <h3>12 meses</h3>
+            <div class="price">R$ 49,90</div>
+            <button onclick="location.href='${LOGIN_URL}?plan=12m'">
+              Assinar agora
+            </button>
+          </div>
+        </div>
+
+        <div class="paywall-footer">
+          🔒 Pagamento seguro • Pix com liberação imediata
+        </div>
+
       </div>
     </div>
   `);
@@ -279,6 +390,19 @@ function showExpiredPaywall() {
 let gateChecked = false;
 
 onAuthStateChanged(auth, async (user) => {
+  // 🔄 Forçar escolha de conta
+const params = new URLSearchParams(window.location.search);
+if (params.has("choose") && user) {
+  await auth.signOut();
+  sessionStorage.removeItem("login_ok");
+
+  // evita loop se já estiver no login
+  if (!location.href.startsWith(LOGIN_URL)) {
+    window.location.replace(LOGIN_URL);
+  }
+  return;
+}
+  
  if (gateChecked) return;
 
 if (sessionStorage.getItem("login_ok") === "1" && auth.currentUser) {
@@ -636,22 +760,4 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
