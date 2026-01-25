@@ -2,115 +2,221 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <title>Premium | Plataforma de Simulados</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Assinar Premium</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    body{
+    body {
+      margin: 0;
+      min-height: 100vh;
       font-family: Inter, system-ui, Arial, sans-serif;
-      background:#0b1220;
-      color:#e5e7eb;
-      display:grid;
-      place-items:center;
-      min-height:100vh;
-      margin:0;
+      background: #0b1220;
+      color: #e5e7eb;
+      display: grid;
+      place-items: center;
+      padding: 24px;
     }
-    .box{
-      background:#020617;
-      border:1px solid #1e293b;
-      border-radius:18px;
-      padding:24px;
-      width:100%;
-      max-width:420px;
-      text-align:center;
+
+    .card {
+      max-width: 420px;
+      width: 100%;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.5);
     }
-    h1{margin-top:0}
-    button{
-      width:100%;
-      padding:14px;
-      border-radius:14px;
-      border:0;
-      font-weight:800;
-      cursor:pointer;
-      margin-top:12px;
-      background:linear-gradient(135deg,#2563eb,#1e40af);
-      color:#fff;
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      text-align: center;
     }
-    .muted{opacity:.7;font-size:14px}
+
+    .sub {
+      text-align: center;
+      font-size: 14px;
+      opacity: .8;
+      margin-bottom: 24px;
+    }
+
+    .plan {
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .plan h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .price {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      border: 0;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      color: #fff;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      margin-top: 14px;
+      font-size: 14px;
+      text-align: center;
+      color: #f87171;
+    }
+
+    .ok {
+      color: #22c55e;
+    }
   </style>
 </head>
 
 <body>
 
-<div class="box">
-  <h1>Seja Premium</h1>
-  <p class="muted">Escolha seu plano e libere o acesso completo.</p>
+  <div class="card">
+    <h1>Plano Premium</h1>
+    <div class="sub">Libere acesso total aos simulados</div>
 
-  <button onclick="assinar('6m')">
-    Premium 6 meses — R$ 29,90
-  </button>
+    <div id="statusBox" class="sub"></div>
 
-  <button onclick="assinar('12m')">
-    Premium 12 meses — R$ 49,90
-  </button>
+    <div class="plan">
+      <h3>Premium 6 meses</h3>
+      <div class="price">R$ 29,90</div>
+      <button onclick="assinar('6m')">Assinar 6 meses</button>
+    </div>
 
-  <p id="msg" class="muted" style="margin-top:16px"></p>
-</div>
+    <div class="plan">
+      <h3>Premium 12 meses</h3>
+      <div class="price">R$ 49,90</div>
+      <button onclick="assinar('12m')">Assinar 12 meses</button>
+    </div>
+
+    <div id="msg" class="msg"></div>
+  </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-  authDomain: "simulados-concursos-22c91.firebaseapp.com",
-  projectId: "simulados-concursos-22c91",
-};
+  // 🔧 CONFIG FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+    authDomain: "simulados-concursos-22c91.firebaseapp.com",
+    projectId: "simulados-concursos-22c91",
+  };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-const CREATE_CHECKOUT_URL =
-  "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/createCheckout";
+  const statusBox = document.getElementById("statusBox");
+  const msg = document.getElementById("msg");
 
-let currentUser = null;
+  let currentUser = null;
 
-onAuthStateChanged(auth, user => {
-  if (!user) {
-    alert("Você precisa estar logado.");
-    window.location.href = "./index.html";
-    return;
-  }
-  currentUser = user;
-});
+  // 🔐 OBSERVA LOGIN
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      msg.innerText = "Você precisa estar logado para assinar.";
+      return;
+    }
 
-async function assinar(planId) {
-  if (!currentUser) return;
+    currentUser = user;
+    statusBox.innerText = "Usuário logado: " + user.email;
 
-  const token = await currentUser.getIdToken();
-  document.getElementById("msg").innerText = "Redirecionando para o pagamento…";
+    // 🔎 checa status premium
+    try {
+      const idToken = await user.getIdToken(true);
 
-  const resp = await fetch(CREATE_CHECKOUT_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token,
-    },
-    body: JSON.stringify({ planId }),
+      const resp = await fetch(
+        "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/checkPremium",
+        {
+          headers: {
+            Authorization: `Bearer ${idToken}`
+          }
+        }
+      );
+
+      const data = await resp.json();
+
+      if (data.premium) {
+        statusBox.innerHTML = "✅ Você já é <b>Premium</b>";
+        statusBox.classList.add("ok");
+
+        document.querySelectorAll("button").forEach(b => {
+          b.disabled = true;
+          b.innerText = "Plano ativo";
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
   });
 
-  const data = await resp.json();
+  // 🔥 FUNÇÃO DE ASSINATURA (RESOLVE O 401)
+  async function assinar(planId) {
+    try {
+      if (!currentUser) {
+        msg.innerText = "Você precisa estar logado.";
+        return;
+      }
 
-  if (!data.ok) {
-    document.getElementById("msg").innerText = "Erro ao iniciar pagamento.";
-    return;
+      msg.innerText = "";
+
+      const idToken = await currentUser.getIdToken(true);
+
+      const resp = await fetch(
+        "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/createCheckout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ planId }),
+        }
+      );
+
+      const data = await resp.json();
+
+      if (!data.ok || !data.init_point) {
+        msg.innerText = "Erro ao iniciar pagamento.";
+        console.error(data);
+        return;
+      }
+
+      // 🚀 REDIRECIONA PARA MERCADO PAGO
+      window.location.href = data.init_point;
+
+    } catch (e) {
+      msg.innerText = "Erro ao processar assinatura.";
+      console.error(e);
+    }
   }
 
-  // 🔥 CHECKOUT PRO
-  window.location.href = data.init_point;
-}
-
-window.assinar = assinar;
+  window.assinar = assinar;
 </script>
 
 </body>
