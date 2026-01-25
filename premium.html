@@ -1,222 +1,214 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Assinar Premium</title>
+<meta charset="UTF-8" />
+<title>Torne-se Premium</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, system-ui, Arial, sans-serif;
-      background: #0b1220;
-      color: #e5e7eb;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-
-    .card {
-      max-width: 420px;
-      width: 100%;
-      background: #020617;
-      border: 1px solid #1e293b;
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 30px 80px rgba(0,0,0,.5);
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 26px;
-      text-align: center;
-    }
-
-    .sub {
-      text-align: center;
-      font-size: 14px;
-      opacity: .8;
-      margin-bottom: 24px;
-    }
-
-    .plan {
-      border: 1px solid #1e293b;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .plan h3 {
-      margin: 0 0 6px;
-      font-size: 18px;
-    }
-
-    .price {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 14px;
-      border: 0;
-      font-weight: 800;
-      cursor: pointer;
-      background: linear-gradient(135deg, #2563eb, #1e40af);
-      color: #fff;
-    }
-
-    button:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
-
-    .msg {
-      margin-top: 14px;
-      font-size: 14px;
-      text-align: center;
-      color: #f87171;
-    }
-
-    .ok {
-      color: #22c55e;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  font-family: Inter, system-ui, Arial, sans-serif;
+  background: radial-gradient(circle at top, #0f2a55, #020617);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.card{
+  width:95%;
+  max-width:520px;
+  background:rgba(2,6,23,.85);
+  border-radius:18px;
+  padding:28px;
+  box-shadow:0 0 40px rgba(0,0,0,.6);
+}
+h1{
+  margin:0 0 8px;
+  text-align:center;
+}
+.subtitle{
+  text-align:center;
+  opacity:.85;
+  margin-bottom:20px;
+}
+.plans{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.plan{
+  border:1px solid #1e3a8a;
+  border-radius:14px;
+  padding:18px;
+  text-align:center;
+}
+.plan.popular{ border-color:#2563eb }
+.plan.best{ border-color:#16a34a }
+.price{
+  font-size:22px;
+  font-weight:700;
+  margin:6px 0 14px;
+}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  background:#2563eb;
+  color:#fff;
+}
+button.green{ background:#16a34a }
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+.status{
+  text-align:center;
+  margin-top:18px;
+  font-size:14px;
+}
+.premium-ok{
+  background:#16a34a;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+  margin-bottom:16px;
+}
+</style>
 </head>
 
 <body>
 
-  <div class="card">
-    <h1>Plano Premium</h1>
-    <div class="sub">Libere acesso total aos simulados</div>
+<div class="card">
 
-    <div id="statusBox" class="sub"></div>
-
-    <div class="plan">
-      <h3>Premium 6 meses</h3>
-      <div class="price">R$ 29,90</div>
-      <button onclick="assinar('6m')">Assinar 6 meses</button>
-    </div>
-
-    <div class="plan">
-      <h3>Premium 12 meses</h3>
-      <div class="price">R$ 49,90</div>
-      <button onclick="assinar('12m')">Assinar 12 meses</button>
-    </div>
-
-    <div id="msg" class="msg"></div>
+  <h1>⭐ Torne-se Premium</h1>
+  <div class="subtitle">
+    Acesso total aos simulados e estatísticas avançadas
   </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import {
-    getAuth,
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  <div id="premiumBox" style="display:none" class="premium-ok">
+    ✅ Você já é Premium
+  </div>
 
-  // 🔧 CONFIG FIREBASE
-  const firebaseConfig = {
-    apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-    authDomain: "simulados-concursos-22c91.firebaseapp.com",
-    projectId: "simulados-concursos-22c91",
-  };
+  <div class="plans" id="plansBox">
+    <div class="plan popular">
+      <strong>6 meses</strong>
+      <div class="price">R$ 29,90</div>
+      <button onclick="assinar('6m')">Assinar agora</button>
+    </div>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+    <div class="plan best">
+      <strong>12 meses</strong>
+      <div class="price">R$ 49,90</div>
+      <button class="green" onclick="assinar('12m')">Assinar agora</button>
+    </div>
+  </div>
 
-  const statusBox = document.getElementById("statusBox");
-  const msg = document.getElementById("msg");
+  <div class="status" id="status">Verificando conta…</div>
 
-  let currentUser = null;
+</div>
 
-  // 🔐 OBSERVA LOGIN
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      msg.innerText = "Você precisa estar logado para assinar.";
+<script>
+/* ===============================
+   CONFIG FIREBASE
+================================ */
+firebase.initializeApp({
+  apiKey: "SUA_API_KEY",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+});
+
+/* ===============================
+   HELPERS
+================================ */
+const FUNCTIONS_BASE =
+  "https://us-central1-simulados-concursos-22c91.cloudfunctions.net";
+
+function setStatus(msg){
+  document.getElementById("status").innerText = msg;
+}
+
+/* ===============================
+   AUTH STATE
+================================ */
+firebase.auth().onAuthStateChanged(async user=>{
+  if(!user){
+    setStatus("Faça login para continuar");
+    return;
+  }
+
+  try{
+    const token = await user.getIdToken();
+
+    const r = await fetch(FUNCTIONS_BASE + "/checkPremium",{
+      headers:{
+        Authorization:"Bearer " + token
+      }
+    });
+
+    const j = await r.json();
+
+    if(j.premium){
+      document.getElementById("premiumBox").style.display="block";
+      document.getElementById("plansBox").style.display="none";
+      setStatus("Plano ativo até " + j.premiumUntil);
+    }else{
+      setStatus("Escolha um plano");
+    }
+
+  }catch(e){
+    console.error(e);
+    setStatus("Erro ao verificar plano");
+  }
+});
+
+/* ===============================
+   ASSINAR
+================================ */
+async function assinar(planId){
+  setStatus("Gerando pagamento…");
+
+  const user = firebase.auth().currentUser;
+  if(!user){
+    setStatus("Usuário não autenticado");
+    return;
+  }
+
+  try{
+    const token = await user.getIdToken();
+
+    const r = await fetch(FUNCTIONS_BASE + "/createCheckout",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        Authorization:"Bearer " + token
+      },
+      body:JSON.stringify({ planId })
+    });
+
+    const j = await r.json();
+
+    if(!j.ok){
+      setStatus("Erro ao iniciar pagamento");
+      console.error(j);
       return;
     }
 
-    currentUser = user;
-    statusBox.innerText = "Usuário logado: " + user.email;
+    window.location.href = j.init_point;
 
-    // 🔎 checa status premium
-    try {
-      const idToken = await user.getIdToken(true);
-
-      const resp = await fetch(
-        "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/checkPremium",
-        {
-          headers: {
-            Authorization: `Bearer ${idToken}`
-          }
-        }
-      );
-
-      const data = await resp.json();
-
-      if (data.premium) {
-        statusBox.innerHTML = "✅ Você já é <b>Premium</b>";
-        statusBox.classList.add("ok");
-
-        document.querySelectorAll("button").forEach(b => {
-          b.disabled = true;
-          b.innerText = "Plano ativo";
-        });
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  });
-
-  // 🔥 FUNÇÃO DE ASSINATURA (RESOLVE O 401)
-  async function assinar(planId) {
-    try {
-      if (!currentUser) {
-        msg.innerText = "Você precisa estar logado.";
-        return;
-      }
-
-      msg.innerText = "";
-
-      const idToken = await currentUser.getIdToken(true);
-
-      const resp = await fetch(
-        "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/createCheckout",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${idToken}`,
-          },
-          body: JSON.stringify({ planId }),
-        }
-      );
-
-      const data = await resp.json();
-
-      if (!data.ok || !data.init_point) {
-        msg.innerText = "Erro ao iniciar pagamento.";
-        console.error(data);
-        return;
-      }
-
-      // 🚀 REDIRECIONA PARA MERCADO PAGO
-      window.location.href = data.init_point;
-
-    } catch (e) {
-      msg.innerText = "Erro ao processar assinatura.";
-      console.error(e);
-    }
+  }catch(e){
+    console.error(e);
+    setStatus("Falha ao criar pagamento");
   }
-
-  window.assinar = assinar;
+}
 </script>
 
 </body>
