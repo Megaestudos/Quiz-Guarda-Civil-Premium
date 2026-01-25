@@ -308,6 +308,52 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app, "us-central1");
 const meCall = httpsCallable(functions, "me");
+  const createCheckout = async (planId) => {
+    
+    if (!['6m', '12m'].includes(planId)) {
+  alert("Plano inválido.");
+  return;
+}
+
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Você precisa estar logado para continuar.");
+      return;
+    }
+
+    const token = await user.getIdToken(true);
+
+    const res = await fetch(
+      "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/createCheckout",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ planId })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!data.ok || !data.init_point) {
+      console.error("Erro checkout:", data);
+      alert("Erro ao iniciar pagamento. Tente novamente.");
+      return;
+    }
+
+    // 🚀 REDIRECIONA PARA O MERCADO PAGO
+    window.location.href = data.init_point;
+
+  } catch (err) {
+    console.error("Erro createCheckout:", err);
+    alert("Falha ao conectar com o pagamento.");
+  }
+};
+  
+window.createCheckout = createCheckout;
 
 const appRoot = document.getElementById("appRoot");
 const blocker = document.getElementById("accessBlocker");
@@ -363,7 +409,7 @@ function showExpiredPaywall() {
             <div class="plan-badge">Mais popular</div>
             <h3>6 meses</h3>
             <div class="price">R$ 29,90</div>
-            <button onclick="location.href='${LOGIN_URL}?plan=6m'">
+           <button onclick="this.disabled=true; this.innerText='Redirecionando…'; createCheckout('6m')">
               Assinar agora
             </button>
           </div>
@@ -372,7 +418,7 @@ function showExpiredPaywall() {
             <div class="plan-badge alt">Melhor valor</div>
             <h3>12 meses</h3>
             <div class="price">R$ 49,90</div>
-            <button onclick="location.href='${LOGIN_URL}?plan=12m'">
+           <button onclick="this.disabled=true; this.innerText='Redirecionando…'; createCheckout('12m')">
               Assinar agora
             </button>
           </div>
@@ -760,4 +806,5 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
