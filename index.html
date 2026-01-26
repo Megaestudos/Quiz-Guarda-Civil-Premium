@@ -309,52 +309,33 @@ const auth = getAuth(app);
 const functions = getFunctions(app, "us-central1");
 const meCall = httpsCallable(functions, "me");
 
-  const createCheckout = async (planId) => {
-    
-    if (!['6m', '12m'].includes(planId)) {
-  alert("Plano inválido.");
-  return;
-}
+const createCheckoutCall = httpsCallable(functions, "createCheckout");
+
+const createCheckout = async (planId) => {
+
+  if (!["6m", "12m"].includes(planId)) {
+    alert("Plano inválido.");
+    return;
+  }
 
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Você precisa estar logado para continuar.");
+    const result = await createCheckoutCall({ planId });
+
+    if (!result.data || !result.data.init_point) {
+      console.error("Resposta inválida:", result.data);
+      alert("Erro ao iniciar pagamento.");
       return;
     }
 
-    const token = await user.getIdToken(true);
-
-    const res = await fetch(
-      "https://us-central1-simulados-concursos-22c91.cloudfunctions.net/createCheckout",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({ planId })
-      }
-    );
-
-   if (!res.ok) {
-  const txt = await res.text();
-  console.error("Erro HTTP:", res.status, txt);
-  alert("Falha ao iniciar pagamento.");
-  return;
-}
-
-const data = await res.json();
-
     // 🚀 REDIRECIONA PARA O MERCADO PAGO
-    window.location.href = data.init_point;
+    window.location.href = result.data.init_point;
 
   } catch (err) {
     console.error("Erro createCheckout:", err);
     alert("Falha ao conectar com o pagamento.");
   }
 };
-  
+
 window.createCheckout = createCheckout;
 
 const appRoot = document.getElementById("appRoot");
@@ -808,6 +789,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
