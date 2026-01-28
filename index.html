@@ -294,7 +294,8 @@ Resumos
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+import { getFunctions } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
@@ -309,7 +310,6 @@ const auth = getAuth(app);
 const functions = getFunctions(app, "us-central1");
 const meCall = httpsCallable(functions, "me");
 
-const createCheckoutCall = httpsCallable(functions, "createCheckout");
 
 const createCheckout = async (planId) => {
 
@@ -318,17 +318,37 @@ const createCheckout = async (planId) => {
     return;
   }
 
-  try {
-    const result = await createCheckoutCall({ planId });
+  const user = auth.currentUser;
+  if (!user) {
+    alert("não logado");
+    return;
+  }
 
-    if (!result.data || !result.data.init_point) {
-      console.error("Resposta inválida:", result.data);
-      alert("Erro ao iniciar pagamento.");
+  try {
+    const res = await fetch(
+      "https://createcheckout-zp2oepwc2a-uc.a.run.app",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          planId
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!data.init_point) {
+      console.error(data);
+      alert("erro checkout");
       return;
     }
 
-    // 🚀 REDIRECIONA PARA O MERCADO PAGO
-    window.location.href = result.data.init_point;
+    window.location.href = data.init_point;
 
   } catch (err) {
     console.error("Erro createCheckout:", err);
@@ -789,6 +809,7 @@ document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 </script>
 </body>
 </html>
+
 
 
 
