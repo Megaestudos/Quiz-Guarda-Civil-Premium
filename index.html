@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Quiz Guarda Civil — App (Paga)</title>
+<title>Quiz Guarda Civil — App</title>
 <meta name="theme-color" content="#1e3c72"/>
 <style>
 :root{ --bg1:#0f3b6b; --bg2:#1f6fb0; --card-bg: rgba(255,255,255,0.06); --muted: rgba(255,255,255,0.92); --accent: #00ff9d; --card-scale: 1.10; }
@@ -73,133 +73,12 @@ button.opt[disabled]{ opacity:.8; cursor:not-allowed; }
 }
 @media (max-width:420px){ .title { font-size:15px; } .controls { justify-content:flex-start; gap:6px; } }
 @media (max-width:520px){ .opts{ grid-template-columns:1fr; } }
-.paywall-overlay{
-position:fixed;
-inset:0;
-background:rgba(2,6,23,.82);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:999999;
-}
 
-.paywall-card{
-width:100%;
-max-width:520px;
-background:linear-gradient(180deg,#0f172a,#020617);
-border:1px solid #1e293b;
-border-radius:22px;
-padding:28px;
-color:#e5e7eb;
-box-shadow:0 40px 120px rgba(0,0,0,.6);
-}
-
-.paywall-header h2{
-margin:0;
-font-size:26px;
-font-weight:900;
-}
-
-.paywall-header p{
-margin-top:8px;
-color:#94a3b8;
-font-size:14px;
-}
-
-.paywall-benefits{
-list-style:none;
-padding:0;
-margin:22px 0;
-display:grid;
-gap:10px;
-font-size:14px;
-}
-
-.paywall-plans{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:14px;
-}
-
-.plan-card{
-border:1px solid #1e293b;
-border-radius:16px;
-padding:18px;
-text-align:center;
-background:#020617;
-position:relative;
-}
-
-.plan-card.highlight{
-border-color:#2563eb;
-box-shadow:0 0 0 1px rgba(37,99,235,.4);
-}
-
-.plan-badge{
-position:absolute;
-top:-10px;
-left:50%;
-transform:translateX(-50%);
-background:#2563eb;
-color:#fff;
-font-size:11px;
-font-weight:800;
-padding:4px 10px;
-border-radius:999px;
-}
-
-.plan-badge.alt{
-background:#16a34a;
-}
-
-.plan-card h3{
-margin:12px 0 6px;
-font-size:18px;
-}
-
-.price{
-font-size:22px;
-font-weight:900;
-margin-bottom:14px;
-}
-
-.plan-card button{
-width:100%;
-padding:12px;
-border-radius:12px;
-border:none;
-background:linear-gradient(135deg,#2563eb,#1e40af);
-color:#fff;
-font-weight:900;
-cursor:pointer;
-}
-
-.paywall-footer{
-margin-top:18px;
-font-size:12px;
-color:#94a3b8;
-text-align:center;
-}
 </style>
 </head>
 <body>
-<div id="accessBlocker" style="
- position:fixed;
- inset:0;
- background:linear-gradient(135deg,#0f3b6b,#1f6fb0);
- color:#fff;
- display:flex;
- align-items:center;
- justify-content:center;
- z-index:99999;
- font-family:Inter,system-ui,Arial;
-">
-<div style="text-align:center">
-<div style="font-size:20px;font-weight:900">🔐 Verificando acesso…</div>
-<div style="opacity:.8;margin-top:8px">Aguarde alguns segundos</div>
-</div>
-</div>
-<div class="app" id="appRoot" style="display:none">
+
+<div class="app" id="appRoot">
 
 <!-- HEADER -->
 <div class="card header" id="cardHeader">
@@ -290,200 +169,6 @@ Resumos
 </div>
 
 </div>
-<!-- ===== SEGURANÇA / GATE DE ACESSO ===== -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
-
-const firebaseConfig = {
-apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-authDomain: "simulados-concursos-22c91.firebaseapp.com",
-projectId: "simulados-concursos-22c91"
-};
-
-const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const functions = getFunctions(app, "us-central1");
-const meCall = httpsCallable(functions, "me");
-
-const createCheckoutCall = httpsCallable(functions, "createCheckout");
-
-const createCheckout = async (planId) => {
-  if (!["6m", "12m"].includes(planId)) {
-    alert("Plano inválido.");
-    return;
-  }
-
-  try {
-    const user = auth.currentUser;
-
-    if (!user) {
-      alert("Você precisa estar logado.");
-      return;
-    }
-
-    const result = await createCheckoutCall({ planId });
-
-    if (!result.data || !result.data.init_point) {
-      console.error("Resposta inválida:", result.data);
-      alert("Erro ao iniciar pagamento.");
-      return;
-    }
-
-    // 🚀 REDIRECIONA PARA MERCADO PAGO
-    window.location.href = result.data.init_point;
-
-  } catch (err) {
-    console.error("Erro createCheckout:", err);
-    alert("Falha ao conectar com o pagamento.");
-  }
-};
-
-window.createCheckout = createCheckout;
-
-const appRoot = document.getElementById("appRoot");
-const blocker = document.getElementById("accessBlocker");
-const trialInfo = document.getElementById("trialInfo");
-
-function deny() {
-sessionStorage.removeItem("login_ok");
-window.location.replace(LOGIN_URL + "?choose=1");
-}
-
-function allow(data) {
-sessionStorage.setItem("login_ok", "1");
-
-if (blocker) blocker.style.display = "none";
-appRoot.style.display = "block";
-
-if (trialInfo && data.expiresAt) {
-const fim = new Date(data.expiresAt);
-trialInfo.innerText =
-data.plan === "trial"
-? "⏳ Teste gratuito até: " + fim.toLocaleString()
-: "✅ Premium ativo até: " + fim.toLocaleString();
-}
-}
-
-function showExpiredPaywall() {
-// 🔒 evita duplicar o paywall
-if (document.querySelector(".paywall-overlay")) return;
-
-sessionStorage.removeItem("login_ok");
-
-if (blocker) blocker.style.display = "none";
-appRoot.style.display = "block";
-
-document.body.insertAdjacentHTML("beforeend", `
-   <div class="paywall-overlay">
-     <div class="paywall-card">
-
-       <div class="paywall-header">
-         <h2>⭐ Torne-se Premium</h2>
-         <p>Continue seus estudos sem limites e aumente suas chances de aprovação.</p>
-       </div>
-
-       <ul class="paywall-benefits">
-         <li>✔ Acesso total aos simulados</li>
-         <li>✔ Questões sempre atualizadas</li>
-         <li>✔ Estatísticas de desempenho</li>
-         <li>✔ Estude em qualquer dispositivo</li>
-       </ul>
-
-       <div class="paywall-plans">
-         <div class="plan-card highlight">
-           <div class="plan-badge">Mais popular</div>
-           <h3>6 meses</h3>
-           <div class="price">R$ 29,90</div>
-          <button onclick="this.disabled=true; this.innerText='Redirecionando…'; createCheckout('6m')">
-             Assinar agora
-           </button>
-         </div>
-
-         <div class="plan-card">
-           <div class="plan-badge alt">Melhor valor</div>
-           <h3>12 meses</h3>
-           <div class="price">R$ 49,90</div>
-          <button onclick="this.disabled=true; this.innerText='Redirecionando…'; createCheckout('12m')">
-             Assinar agora
-           </button>
-         </div>
-       </div>
-
-       <div class="paywall-footer">
-         🔒 Pagamento seguro • Pix com liberação imediata
-       </div>
-
-     </div>
-   </div>
- `);
-}
-
-let gateChecked = false;
-
-onAuthStateChanged(auth, async (user) => {
-// 🔄 Forçar escolha de conta
-const params = new URLSearchParams(window.location.search);
-if (params.has("choose") && user) {
-await auth.signOut();
-sessionStorage.removeItem("login_ok");
-
-// evita loop se já estiver no login
-if (!location.href.startsWith(LOGIN_URL)) {
-window.location.replace(LOGIN_URL);
-}
-return;
-}
-
-if (gateChecked) return;
-
-if (sessionStorage.getItem("login_ok") === "1" && auth.currentUser) {
-// Mostra o app rápido, mas NÃO trava o gate (não seta gateChecked aqui)
-if (blocker) blocker.style.display = "none";
-appRoot.style.display = "block";
-// continua e valida normalmente
-}
-
-if (gateChecked) return;
-
-if (!user) {
-deny();
-return;
-}
-
-try {
-await user.getIdToken(true);
-await new Promise(r => setTimeout(r, 500));
-
-const resp = await meCall();
-const data = resp.data;
-
-console.log("🔐 GATE /me:", data);
-
-if (!data.entitled && data.plan === "expired") {
-gateChecked = true;
-showExpiredPaywall();
-return;
-}
-
-if (!data.entitled) {
-deny();
-return;
-}
-
-gateChecked = true;
-allow(data);
-
-} catch (e) {
-console.error("Erro no gate:", e);
-deny();
-}
-});
-</script>
-<!-- ===== FIM DA SEGURANÇA ===== -->
 
 <script>
 /* ========== CONFIG ========== */
@@ -793,8 +478,40 @@ window.addEventListener('click', function unlock(){ try{ ensureAudio(); }catch(e
 document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 })();
 </script>
+
+ <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+const firebaseConfig = {
+ apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+ authDomain: "simulados-concursos-22c91.firebaseapp.com",
+ projectId: "simulados-concursos-22c91"
+};
+
+const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
+
+initializeApp(firebaseConfig);
+const auth = getAuth();
+
+const appRoot = document.getElementById("appRoot");
+
+appRoot.style.display = "none";
+
+onAuthStateChanged(auth, (user) => {
+if (!user) {
+ if (location.href.includes("login-simulados")) return;
+ window.location.replace(LOGIN_URL);
+ return;
+}
+
+ // logado → libera app
+ appRoot.style.display = "";
+});
+</script>
 </body>
 </html>
+
 
 
 
