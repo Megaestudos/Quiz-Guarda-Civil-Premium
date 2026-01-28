@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{margin:0;font-family:Inter;background:#020617;color:white}
+.top{padding:20px;font-size:20px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:20px}
+.card{background:#020617;border:1px solid #1e293b;border-radius:14px;padding:18px}
+table{width:100%;border-collapse:collapse}
+td,th{padding:8px;border-bottom:1px solid #1e293b;font-size:13px}
+button{background:#2563eb;color:white;border:0;padding:8px 14px;border-radius:8px}
+</style>
+</head>
+
+<body>
+
+<div class="top">📊 Admin Dashboard</div>
+
+<div class="grid">
+<div class="card"><div>Total usuários</div><h2 id="total">0</h2></div>
+<div class="card"><div>Hoje</div><h2 id="today">0</h2></div>
+<div class="card"><div>Últimos 7 dias</div><h2 id="week">0</h2></div>
+<div class="card"><div>Último login</div><h2 id="last">-</h2></div>
+</div>
+
+<canvas id="chart"></canvas>
+
+<div class="card" style="margin:20px">
+<button onclick="exportCSV()">Exportar CSV</button>
+<table id="tbl"></table>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const adminUID="r9cFZEtZ8XMDiQ2wZJJkOUkfb2J3";
+
+const app=initializeApp({
+apiKey:"AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+authDomain:"simulados-concursos-22c91.firebaseapp.com",
+projectId:"simulados-concursos-22c91"
+});
+
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+onAuthStateChanged(auth,async u=>{
+if(!u||u.uid!==adminUID){alert("Acesso negado");location.href="../login.html";}
+
+const snap=await getDocs(collection(db,"users"));
+let rows=[["Email","Criado","Ultimo Login"]];
+
+document.getElementById("total").innerText=snap.size;
+
+snap.forEach(d=>{
+const v=d.data();
+rows.push([v.email,new Date(v.criadoEm?.seconds*1000).toLocaleDateString(),new Date(v.ultimoLogin?.seconds*1000).toLocaleString()]);
+});
+
+document.getElementById("tbl").innerHTML=rows.map(r=>"<tr>"+r.map(c=>"<td>"+(c||"")+"</td>").join("")+"</tr>").join("");
+
+window.exportCSV=()=>{
+let csv=rows.map(r=>r.join(";")).join("\n");
+let a=document.createElement("a");
+a.href=URL.createObjectURL(new Blob([csv]));
+a.download="usuarios.csv";
+a.click();
+};
+
+});
+
+</script>
+</body>
+</html>
