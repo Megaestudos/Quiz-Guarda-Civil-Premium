@@ -1,79 +1,120 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-<meta charset="utf-8">
-<title>Admin Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<title>Login — Simulado Guarda Civil</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
 <style>
-body{margin:0;font-family:Inter;background:#020617;color:white}
-.top{padding:20px;font-size:20px;font-weight:800}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:20px}
-.card{background:#020617;border:1px solid #1e293b;border-radius:14px;padding:18px}
-table{width:100%;border-collapse:collapse}
-td,th{padding:8px;border-bottom:1px solid #1e293b;font-size:13px}
-button{background:#2563eb;color:white;border:0;padding:8px 14px;border-radius:8px}
+*{box-sizing:border-box;font-family:Inter}
+
+body{
+margin:0;
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+background:linear-gradient(135deg,#0f172a,#020617);
+color:white;
+}
+
+.card{
+width:360px;
+padding:40px;
+border-radius:20px;
+background:rgba(255,255,255,.06);
+backdrop-filter:blur(20px);
+box-shadow:0 30px 60px rgba(0,0,0,.6);
+text-align:center;
+}
+
+h1{margin-bottom:10px}
+p{opacity:.7;margin-bottom:30px}
+
+input{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+margin-bottom:15px;
+outline:none;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+background:#2563eb;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{transform:translateY(-2px)}
 </style>
 </head>
 
 <body>
 
-<div class="top">📊 Admin Dashboard</div>
+<div class="card">
+<h1>Entrar</h1>
+<p>Acesse sua conta</p>
 
-<div class="grid">
-<div class="card"><div>Total usuários</div><h2 id="total">0</h2></div>
-<div class="card"><div>Hoje</div><h2 id="today">0</h2></div>
-<div class="card"><div>Últimos 7 dias</div><h2 id="week">0</h2></div>
-<div class="card"><div>Último login</div><h2 id="last">-</h2></div>
-</div>
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Senha">
 
-<canvas id="chart"></canvas>
+<button id="btnLogin">Entrar</button>
 
-<div class="card" style="margin:20px">
-<button onclick="exportCSV()">Exportar CSV</button>
-<table id="tbl"></table>
+<div id="msg"></div>
 </div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const adminUID="r9cFZEtZ8XMDiQ2wZJJkOUkfb2J3";
-
-const app=initializeApp({
-apiKey:"AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-authDomain:"simulados-concursos-22c91.firebaseapp.com",
-projectId:"simulados-concursos-22c91"
-});
-
-const auth=getAuth(app);
-const db=getFirestore(app);
-
-onAuthStateChanged(auth,async u=>{
-if(!u||u.uid!==adminUID){alert("Acesso negado");location.href="../login.html";}
-
-const snap=await getDocs(collection(db,"users"));
-let rows=[["Email","Criado","Ultimo Login"]];
-
-document.getElementById("total").innerText=snap.size;
-
-snap.forEach(d=>{
-const v=d.data();
-rows.push([v.email,new Date(v.criadoEm?.seconds*1000).toLocaleDateString(),new Date(v.ultimoLogin?.seconds*1000).toLocaleString()]);
-});
-
-document.getElementById("tbl").innerHTML=rows.map(r=>"<tr>"+r.map(c=>"<td>"+(c||"")+"</td>").join("")+"</tr>").join("");
-
-window.exportCSV=()=>{
-let csv=rows.map(r=>r.join(";")).join("\n");
-let a=document.createElement("a");
-a.href=URL.createObjectURL(new Blob([csv]));
-a.download="usuarios.csv";
-a.click();
+const firebaseConfig = {
+  apiKey: "SUA_KEY",
+  authDomain: "SEU_DOMAIN",
+  projectId: "SEU_PROJECT"
 };
 
-});
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+btnLogin.onclick = async () => {
+
+try{
+
+const cred = await signInWithEmailAndPassword(
+auth,
+email.value,
+password.value
+);
+
+await setDoc(
+doc(db,"users",cred.user.uid),
+{
+email:cred.user.email,
+lastLogin:serverTimestamp()
+},
+{merge:true}
+);
+
+location.href="admin/index.html";
+
+}catch(e){
+msg.innerHTML="Erro ao entrar";
+}
+
+};
 
 </script>
 </body>
