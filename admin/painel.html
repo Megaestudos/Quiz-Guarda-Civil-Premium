@@ -3,66 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Admin | Quiz</title>
+<title>Painel Admin | Plataforma de Simulados</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <style>
-body {
-  margin:0;
-  font-family:'Inter',sans-serif;
-  background:linear-gradient(135deg,#0f172a,#111827);
+:root{
+  --bg:#0f172a;
+  --card:#1e293b;
+  --primary:#2563eb;
+  --primary-dark:#1e40af;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --success:#22c55e;
+  --danger:#f87171;
+  --radius:20px;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(135deg,#0b1220,#0f172a); color:var(--text);}
+header{padding:20px;text-align:center;font-size:24px;font-weight:800;}
+.container{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px;padding:20px;}
+
+.card{
+  background:linear-gradient(145deg,#1e293b,#16212b);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+  text-align:center;
+  transition: transform .3s;
+}
+.card:hover{transform:rotateX(5deg) rotateY(5deg) scale(1.05);}
+
+.card h3{margin:0 0 10px;font-size:18px;}
+.card p{margin:0;font-size:24px;font-weight:700;}
+
+button.logout{
+  position:absolute;
+  top:20px;
+  right:20px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  border:none;
+  padding:10px 16px;
+  border-radius:12px;
+  font-weight:700;
+  cursor:pointer;
   color:#fff;
 }
-header {
-  padding:20px;
-  background:#111827;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  box-shadow:0 5px 15px rgba(0,0,0,0.5);
-}
-header h1 {margin:0;color:#60a5fa;}
-button {padding:10px 15px;border:none;border-radius:10px;background:#2563eb;color:white;cursor:pointer;}
-
-.dashboard {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
-  padding:30px;
-}
-.card {
-  background:linear-gradient(145deg,#111827,#1f2937);
-  padding:20px;
-  border-radius:20px;
-  box-shadow:10px 10px 30px rgba(0,0,0,0.4), -10px -10px 30px rgba(37,99,235,0.3);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-.card h2 {margin:0;color:#60a5fa;}
-.card p {margin:5px 0 0;font-size:18px;}
 </style>
 </head>
 <body>
+<button class="logout" id="btnLogout">Sair</button>
+<header>Painel Admin</header>
 
-<header>
-  <h1>Painel Admin</h1>
-  <button id="btnLogout">Sair</button>
-</header>
-
-<div class="dashboard">
+<div class="container">
   <div class="card">
-    <h2>Usuários</h2>
+    <h3>Usuários</h3>
     <p id="totalUsers">0</p>
   </div>
   <div class="card">
-    <h2>Último login</h2>
-    <p id="lastLogin">-</p>
+    <h3>Último Login</h3>
+    <p id="lastLogin">--</p>
   </div>
   <div class="card">
-    <h2>Relatórios CSV</h2>
-    <p>Exportar disponível</p>
+    <h3>Exportar CSV</h3>
+    <p><button id="exportBtn">Exportar</button></p>
   </div>
 </div>
 
-<script src="admin.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, collection, getDocs, orderBy, query, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const totalUsersEl = document.getElementById("totalUsers");
+const lastLoginEl = document.getElementById("lastLogin");
+const exportBtn = document.getElementById("exportBtn");
+
+// Verifica se admin está logado
+if(!localStorage.getItem("admin_user")){
+  window.location.href = "login.html";
+}
+
+// Logout
+document.getElementById("btnLogout").onclick = async () => {
+  localStorage.removeItem("admin_user");
+  await signOut(auth);
+  window.location.href = "login.html";
+};
+
+// Buscar usuários e último login
+const usersCol = collection(db, "users");
+const usersSnapshot = await getDocs(usersCol);
+totalUsersEl.innerText = usersSnapshot.size;
+
+const q = query(usersCol, orderBy("lastLogin","desc"), limit(1));
+const lastSnap = await getDocs(q);
+lastSnap.forEach(doc => {
+  const data = doc.data();
+  lastLoginEl.innerText = new Date(data.lastLogin.seconds*1000).toLocaleString("pt-BR");
+});
+
+// Export CSV
+exportBtn.onclick = () => {
+  let csv = "Email,Último Login\n";
+  usersSnapshot.forEach(doc => {
+    const d = doc.data();
+    csv += `${d.email},${new Date(d.lastLogin.seconds*1000).toLocaleString("pt-BR")}\n`;
+  });
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "usuarios.csv";
+  a.click();
+};
+</script>
 </body>
 </html>
