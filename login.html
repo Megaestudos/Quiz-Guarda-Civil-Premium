@@ -4,62 +4,35 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Acesso | Plataforma de Simulados</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-body{
-margin:0;
-font-family:Inter;
-background:#050b18;
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh
+:root{
+  --bg:#0b1220; --panel:#0f172a; --border:#1e293b;
+  --primary:#2563eb; --primary-dark:#1e40af;
+  --text:#e5e7eb; --muted:#94a3b8;
+  --danger:#f87171; --success:#22c55e;
+  --radius:20px;
 }
-
-.card{
-background:#0b1220;
-padding:40px;
-border-radius:20px;
-width:360px;
-box-shadow:0 40px 80px rgba(0,0,0,.6)
-}
-
-input{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:0;
-margin-bottom:12px
-}
-
-button{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:0;
-background:#2563eb;
-color:white;
-font-weight:700
-}
-
-.msg{color:#f87171;font-size:13px;margin-top:10px}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:#0b1220;color:var(--text);display:flex;align-items:center;justify-content:center;height:100vh;}
+.card{background:#111827;border-radius:20px;padding:32px;width:360px;box-shadow:0 20px 40px rgba(0,0,0,0.6);}
+h2{margin-bottom:16px;text-align:center;}
+input{width:100%;padding:12px;margin-bottom:14px;border-radius:12px;border:1px solid #1e293b;background:#1f2937;color:#e5e7eb;}
+button{width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-weight:700;cursor:pointer;transition:0.2s;}
+button:hover{opacity:0.9;transform:scale(1.02);}
+.msg{text-align:center;color:var(--danger);margin-top:10px;font-weight:600;}
 </style>
 </head>
-
 <body>
 
 <div class="card">
-<h2>Entrar</h2>
-
-<input id="email" placeholder="Email">
-<input id="senha" type="password" placeholder="Senha">
-
-<button id="btnLogin">Entrar</button>
-
-<div id="msg" class="msg"></div>
+  <h2>Login</h2>
+  <input id="email" type="email" placeholder="E-mail">
+  <input id="senha" type="password" placeholder="Senha">
+  <button id="btnLogin">Entrar</button>
+  <div id="msg" class="msg"></div>
 </div>
 
 <script type="module">
@@ -67,24 +40,25 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-authDomain: "simulados-concursos-22c91.firebaseapp.com",
-projectId: "simulados-concursos-22c91"
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91"
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const $ = id=>document.getElementById(id);
 
-btnLogin.onclick = async ()=>{
-try{
-const cred = await signInWithEmailAndPassword(auth,email.value,senha.value);
-localStorage.setItem("auth_user",cred.user.email);
-location.href="index.html";
-}catch{
-msg.innerText="Login inválido";
-}
+$("btnLogin").onclick=async()=>{
+  try{
+    const cred = await signInWithEmailAndPassword(auth,$("email").value,$("senha").value);
+    // salva último login no localStorage
+    localStorage.setItem("last_login", new Date().toLocaleString());
+    localStorage.setItem("auth_user", cred.user.email);
+    window.location.href="admin.html"; // abre admin no mesmo diretório
+  }catch{
+    $("msg").innerText="E-mail ou senha inválidos.";
+  }
 };
 </script>
-
 </body>
 </html>
