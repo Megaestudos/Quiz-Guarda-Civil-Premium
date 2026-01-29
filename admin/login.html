@@ -96,11 +96,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const $ = id => document.getElementById(id);
 
+const painelUrl = "painel.html";
+
 $("btnLogin").onclick = async () => {
   try {
     const cred = await signInWithEmailAndPassword(auth, $("email").value, $("senha").value);
     localStorage.setItem("admin_user", cred.user.email);
-    window.location.href = "index.html"; // redireciona pro painel
+    window.location.href = painelUrl; // redireciona corretamente
   } catch {
     $("msg").innerText = "Email ou senha incorretos!";
   }
