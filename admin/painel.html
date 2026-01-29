@@ -1,165 +1,66 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Painel Admin | Plataforma de Simulados</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0b1220;
-  --card:#0f172a;
-  --border:#1e293b;
+  --panel:#111827;
+  --border:#1f2937;
   --primary:#2563eb;
   --primary-dark:#1e40af;
   --text:#e5e7eb;
   --muted:#94a3b8;
-  --radius:20px;
+  --radius:16px;
+  --shadow:0 10px 25px rgba(0,0,0,.4);
 }
-body{
-  margin:0;
-  font-family:Inter,system-ui,-apple-system,Arial,sans-serif;
-  background: radial-gradient(900px 600px at 15% 15%, rgba(37,99,235,.18), transparent 60%), radial-gradient(800px 600px at 85% 20%, rgba(16,185,129,.12), transparent 60%), var(--bg);
-  color:var(--text);
-}
-.page{
-  padding:32px;
-  max-width:1200px;
-  margin:auto;
-}
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:24px;
-}
-.header h1{margin:0;font-size:28px}
-.header button{
-  padding:10px 20px;
-  border:none;
-  border-radius:14px;
-  font-weight:700;
-  cursor:pointer;
-  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-  color:#fff;
-}
+body{margin:0;font-family:Inter,sans-serif;background:var(--bg);color:var(--text);}
+.page{min-height:100vh;display:grid;place-items:center;padding:24px;}
 .card{
-  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
-  border:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
   border-radius:var(--radius);
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,.45);
-  backdrop-filter:blur(12px);
+  padding:24px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+  width:360px;
+  text-align:center;
+  transform: perspective(800px) rotateX(2deg);
 }
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  text-align:left;
-  padding:12px;
-}
-th{
-  border-bottom:1px solid var(--border);
-}
-button.csv{
-  padding:10px 16px;
-  border:none;
+h2{margin:0 0 12px;font-size:22px}
+button.primary{
+  padding:12px 20px;
+  border:0;
   border-radius:12px;
   background:linear-gradient(135deg,var(--primary),var(--primary-dark));
   color:#fff;
+  font-weight:700;
   cursor:pointer;
-  font-weight:600;
-  margin-top:10px;
+  margin-top:12px;
 }
+.info{margin:14px 0;font-size:14px;color:var(--muted);}
+#stats{margin-top:20px;text-align:left;}
+.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.stat:last-child{border:none;}
 </style>
 </head>
 <body>
 <div class="page">
-  <div class="header">
-    <h1>Painel Admin</h1>
-    <button id="btnLogout">Sair</button>
-  </div>
-
   <div class="card">
-    <strong>Total de Usuários: </strong><span id="totalUsers">0</span>
-  </div>
+    <h2>Painel Admin</h2>
+    <div class="info">Logado como: <span id="userEmail"></span></div>
 
-  <div class="card">
-    <h3>Usuários</h3>
-    <table>
-      <thead>
-        <tr><th>Email</th><th>Último Login</th></tr>
-      </thead>
-      <tbody id="userTable">
-      </tbody>
-    </table>
-    <button class="csv" id="exportCSV">Exportar CSV</button>
+    <div id="stats">
+      <div class="stat"><span>Usuários</span><span id="totalUsers">0</span></div>
+      <div class="stat"><span>Último login</span><span id="lastLogin">—</span></div>
+    </div>
+
+    <button class="primary" id="btnLogout">Sair</button>
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-  authDomain: "simulados-concursos-22c91.firebaseapp.com",
-  projectId: "simulados-concursos-22c91"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-const $ = id => document.getElementById(id);
-
-$("btnLogout").onclick = async ()=>{
-  await signOut(auth);
-  window.location.href="login.html";
-}
-
-onAuthStateChanged(auth, async user=>{
-  if(!user){
-    window.location.href="login.html";
-    return;
-  }
-
-  const usersCol = collection(db,"users");
-  const usersSnapshot = await getDocs(usersCol);
-  const users = usersSnapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
-
-  $("totalUsers").innerText = users.length;
-
-  const tbody = $("userTable");
-  tbody.innerHTML="";
-  users.forEach(u=>{
-    const tr = document.createElement("tr");
-    const lastLogin = u.lastLogin ? new Date(u.lastLogin).toLocaleString() : "—";
-    tr.innerHTML=`<td>${u.email}</td><td>${lastLogin}</td>`;
-    tbody.appendChild(tr);
-  });
-
-  // CSV export
-  $("exportCSV").onclick=()=>{
-    let csv="Email,Último Login\n";
-    users.forEach(u=>{
-      const last = u.lastLogin ? new Date(u.lastLogin).toLocaleString() : "";
-      csv+=`${u.email},${last}\n`;
-    });
-    const blob = new Blob([csv], {type:"text/csv"});
-    const url = URL.createObjectURL(blob);
-    const a=document.createElement("a");
-    a.href=url;
-    a.download="usuarios.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-});
-</script>
+<script type="module" src="admin.js"></script>
 </body>
 </html>
