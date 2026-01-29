@@ -23,7 +23,10 @@
             --btn-shadow-active: 0 1px 0 rgba(0, 0, 0, 0.2);
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
+        *::-webkit-scrollbar { width: 6px; }
+        *::-webkit-scrollbar-track { background: transparent; }
+        *::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
 
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; }
 
@@ -264,35 +267,36 @@
             min-height: 70px;
             border-radius: 16px;
             border: 1px solid var(--glass-border);
-            background: #fff;
-            color: #1a2a3a;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
             font-weight: 700;
             cursor: pointer;
             text-align: left;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 0 #d0d0d0;
+            box-shadow: var(--btn-shadow);
             font-size: 15px;
             display: flex;
             align-items: center;
         }
 
         button.opt:hover:not([disabled]) {
+            background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
-            box-shadow: 0 6px 0 #d0d0d0;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
         }
 
         button.opt.correct {
-            background: #e9fff2 !important;
-            border-color: #2fa764 !important;
-            color: #155724 !important;
-            box-shadow: 0 4px 0 #2fa764 !important;
+            background: #2fa764 !important;
+            border-color: #00ff9d !important;
+            color: #fff !important;
+            box-shadow: 0 4px 0 #1a5c37 !important;
         }
 
         button.opt.wrong {
-            background: #fff0f0 !important;
-            border-color: #ff6b6b !important;
-            color: #721c24 !important;
-            box-shadow: 0 4px 0 #ff6b6b !important;
+            background: #ff6b6b !important;
+            border-color: #ffcdd2 !important;
+            color: #fff !important;
+            box-shadow: 0 4px 0 #a33c3c !important;
         }
 
         .explain {
@@ -329,7 +333,7 @@
             box-shadow: 0 1px 0 #00a86b;
         }
 
-        /* Flashcards 3D */
+        /* Flashcards 3D - CORREÇÃO SCROLLBAR */
         .flashcard { perspective: 1000px; cursor: pointer; height: 180px; }
         .flash-inner {
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -351,7 +355,7 @@
             text-align: center;
             box-shadow: var(--shadow-3d);
             border: 1px solid var(--glass-border);
-            overflow-y: auto;
+            overflow: hidden; /* Remove scrollbar visível */
         }
         .flash-front { background: rgba(255, 255, 255, 0.05); color: #fff; }
         .flash-back {
@@ -391,8 +395,9 @@
             border-color: var(--glass-border);
         }
 
+        /* CORREÇÃO SELECT */
         select {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--glass-border);
             color: #fff;
             padding: 10px;
@@ -400,7 +405,9 @@
             outline: none;
             font-family: inherit;
             font-weight: 600;
+            cursor: pointer;
         }
+        select option { background: #0f3b6b; color: #fff; }
 
         @media (max-width: 600px) {
             .opts { grid-template-columns: 1fr; }
@@ -516,6 +523,35 @@
     document.getElementById('scaleDownBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.1) - 0.05);
     setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.1));
 
+    /* ===== SISTEMA DE SOM RESTAURADO ===== */
+    let audioCtx = null;
+    function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function playTone(freq, dur=120, type='sine', gainVal=0.06){ 
+        if (localStorage.getItem(SOUND_KEY) === '0') return; 
+        try{ 
+            ensureAudio(); 
+            const o = audioCtx.createOscillator(); 
+            const g = audioCtx.createGain(); 
+            o.type = type; 
+            o.frequency.value = freq; 
+            g.gain.value = gainVal; 
+            o.connect(g); 
+            g.connect(audioCtx.destination); 
+            o.start(); 
+            setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, dur); 
+        }catch(e){} 
+    }
+    function playCorrect(){ playTone(880,120,'sine',0.06); }
+    function playWrong(){ playTone(220,220,'sawtooth',0.08); }
+
+    document.getElementById('soundToggle').onclick = function() {
+        const current = localStorage.getItem(SOUND_KEY) !== '0';
+        localStorage.setItem(SOUND_KEY, current ? '0' : '1');
+        this.innerText = current ? '🔇 Som: Off' : '🔊 Som: On';
+    };
+    if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY, '1');
+    document.getElementById('soundToggle').innerText = localStorage.getItem(SOUND_KEY) === '0' ? '🔇 Som: Off' : '🔊 Som: On';
+
     window.go = function(target){
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(target).classList.add('active');
@@ -592,8 +628,13 @@
         document.querySelectorAll('.opt').forEach(b => b.disabled = true);
         const elCorrect = document.getElementById('opt_' + correct);
         if (elCorrect) elCorrect.classList.add('correct');
-        if (letter !== correct) document.getElementById('opt_' + letter).classList.add('wrong');
-        else score++;
+        if (letter !== correct) {
+            document.getElementById('opt_' + letter).classList.add('wrong');
+            playWrong();
+        } else {
+            score++;
+            playCorrect();
+        }
         document.getElementById('explain').style.display = 'block';
         document.getElementById('explain').innerHTML = `<strong>${letter === correct ? '✅ Correto!' : '❌ Errado!'}</strong><br>${q_expl(q)}`;
         document.getElementById('nextBtn').disabled = false;
@@ -626,7 +667,6 @@
         document.getElementById('bestRecord').innerText = rec ? `🏆 Melhor: ${rec.score}/${rec.total} (${rec.pct}%)` : '🚀 Sem recorde.';
     }
 
-    /* ===== FLASHCARDS MECANISMO ORIGINAL ===== */
     async function renderCards(){
         const container = document.getElementById('cardsContainer');
         container.innerHTML = 'Carregando...';
@@ -650,7 +690,6 @@
             }
 
             container.innerHTML = '';
-            // Shuffle
             for (let i = list.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [list[i], list[j]] = [list[j], list[i]];
