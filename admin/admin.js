@@ -1,51 +1,34 @@
-// ====================================
-// CONFIGURAÇÃO DO ADMIN
-// ====================================
-const ADMIN_CRED = {
-  email: "lomateco@gmail.com",
-  senha: "86173784"
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91"
 };
 
-const $ = (id)=>document.getElementById(id);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// ================= LOGIN =================
-if($("btnLogin")){
-  $("btnLogin").onclick = ()=>{
-    const email = $("adminEmail").value;
-    const senha = $("adminPass").value;
+const $ = (id) => document.getElementById(id);
 
-    if(email === ADMIN_CRED.email && senha === ADMIN_CRED.senha){
-      localStorage.setItem("adminLogged", "1");
-      localStorage.setItem("lastLogin", new Date().toLocaleString());
-      window.location.href = "painel.html";
-    } else {
-      $("msg").innerText = "Email ou senha inválidos!";
-    }
-  };
-
-  $("togglePass").onclick = ()=>{
-    const i = $("adminPass");
-    i.type = i.type==="password"?"text":"password";
-  };
-}
-
-// ================= PAINEL =================
-if($("btnLogout")){
-  // Protege painel
-  if(localStorage.getItem("adminLogged") !== "1"){
+// ✅ Aqui é onde você coloca o onAuthStateChanged
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    // não está logado → volta pro login
     window.location.href = "login.html";
+  } else {
+    // está logado → carregar dados do painel
+    $("userEmail").innerText = user.email;
+    carregarUsuarios(); // função que você vai ter para puxar dados do Firebase
   }
+});
 
-  // Exibe último login
-  const last = localStorage.getItem("lastLogin");
-  if($("lastLogin")) $("lastLogin").innerText = last || "-";
-
-  // Exemplo de contador de usuários (simulado)
-  if($("totalUsers")) $("totalUsers").innerText = 42;
-
-  // Logout
-  $("btnLogout").onclick = ()=>{
-    localStorage.removeItem("adminLogged");
-    window.location.href = "login.html";
-  };
+// Função exemplo para puxar usuários
+async function carregarUsuarios() {
+  const usersCol = collection(db, "usuarios");
+  const usersSnapshot = await getDocs(usersCol);
+  $("totalUsers").innerText = usersSnapshot.size;
 }
