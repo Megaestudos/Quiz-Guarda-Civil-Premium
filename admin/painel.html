@@ -3,77 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Admin | Plataforma de Simulados</title>
+<title>Painel Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0b1220;
-  --card:#111827;
-  --border:#1f2937;
+  --panel:#0f172a;
+  --border:#1e293b;
   --primary:#2563eb;
   --primary-dark:#1e40af;
   --text:#e5e7eb;
-  --muted:#94a3b8;
   --radius:16px;
-  --shadow:0 20px 60px rgba(0,0,0,.7);
 }
-body{
-  margin:0;
-  font-family:Inter,sans-serif;
-  background:radial-gradient(1200px 800px at 20% 25%, rgba(37,99,235,.15), transparent 70%), var(--bg);
-  color:var(--text);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-}
-.card{
-  background:var(--card);
-  border-radius:var(--radius);
-  padding:36px;
-  width:480px;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
-  transform: perspective(1000px) rotateX(3deg);
-}
-h2{text-align:center;margin-bottom:24px;font-size:26px;}
-.info{text-align:center;color:var(--muted);margin-bottom:24px;}
-#stats{display:flex;flex-direction:column;gap:12px;}
-.stat{
-  display:flex;
-  justify-content:space-between;
-  background:linear-gradient(145deg,#1f2937,#111827);
-  padding:12px 16px;
-  border-radius:12px;
-  box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3),
-              inset 2px 2px 5px rgba(255,255,255,0.05),
-              5px 5px 15px rgba(0,0,0,0.3);
-}
-button.primary{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-  margin-top:24px;
-}
+*{box-sizing:border-box;}
+body{margin:0;font-family:Inter,sans-serif;background:radial-gradient(120% 100% at 20% 20%, rgba(37,99,235,.2), transparent 60%),radial-gradient(120% 100% at 80% 10%, rgba(16,185,129,.15), transparent 60%),var(--bg);color:var(--text);}
+.header{display:flex;justify-content:space-between;align-items:center;padding:20px;}
+h1{margin:0;font-size:24px;}
+.button-logout{padding:8px 16px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;cursor:pointer;}
+.table-wrapper{overflow-x:auto;margin:20px;}
+table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.5);}
+th, td{padding:12px;text-align:left;border-bottom:1px solid var(--border);}
+th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;}
+tr:hover{background:rgba(255,255,255,.05);}
 </style>
 </head>
 <body>
-<div class="card">
-  <h2>Painel Admin</h2>
-  <div class="info">Logado como: <span id="userEmail"></span></div>
-  <div id="stats">
-    <div class="stat"><span>Usuários</span><span id="totalUsers">0</span></div>
-    <div class="stat"><span>Último login</span><span id="lastLogin">—</span></div>
-    <div class="stat"><span>Últimos logins</span><span id="recentLogins">—</span></div>
-  </div>
-  <button class="primary" id="btnLogout">Sair</button>
+<div class="header">
+  <h1>Painel Admin</h1>
+  <button class="button-logout" id="btnLogout">Sair</button>
+</div>
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>E-mail</th>
+        <th>UID</th>
+        <th>Provedores</th>
+        <th>Criação</th>
+        <th>Último Login</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaUsuarios"></tbody>
+  </table>
 </div>
 
-<script type="module" src="admin.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJECT_ID.firebaseapp.com",
+  projectId: "SEU_PROJECT_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const functions = getFunctions(app);
+
+const $ = (id)=>document.getElementById(id);
+
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){
+    window.location.href = "login.html";
+  } else {
+    carregarUsuarios();
+  }
+});
+
+$("btnLogout").onclick = async ()=>{
+  await signOut(auth);
+  window.location.href = "login.html";
+};
+
+async function carregarUsuarios(){
+  try{
+    const listUsersCall = httpsCallable(functions, "listUsers");
+    const result = await listUsersCall();
+    const tbody = $("tabelaUsuarios");
+    tbody.innerHTML = "";
+    result.data.forEach(u=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${u.email || ""}</td>
+        <td>${u.uid}</td>
+        <td>${u.providers}</td>
+        <td>${u.createdAt}</td>
+        <td>${u.lastLogin}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch(e){
+    console.error(e);
+    alert("Erro ao carregar usuários. Verifique a função no Firebase.");
+  }
+}
+</script>
 </body>
 </html>
