@@ -98,11 +98,16 @@ const $ = id => document.getElementById(id);
 
 $("btnLogin").onclick = async () => {
   try {
-    const cred = await signInWithEmailAndPassword(auth, $("email").value, $("senha").value);
-    localStorage.setItem("admin_user", cred.user.email);
-    window.location.href = "index.html"; // redireciona pro painel
+    const cred = await signInWithEmailAndPassword(
+      auth,
+      $("email").value,
+      $("senha").value
+    );
+
+    // Login bem-sucedido → redireciona para painel
+    window.location.href = "painel.html";
   } catch {
-    $("msg").innerText = "Email ou senha incorretos!";
+    $("msg").innerText = "E-mail ou senha inválidos.";
   }
 };
 
