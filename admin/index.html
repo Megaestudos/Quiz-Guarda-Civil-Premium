@@ -1,105 +1,235 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Painel Admin | Plataforma de Simulados</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
 <style>
 :root{
-  --bg:#0b1220; --card:#111827; --border:#1e293b;
-  --primary:#2563eb; --primary-dark:#1e40af;
-  --text:#e5e7eb; --muted:#94a3b8;
-  --success:#22c55e; --danger:#f87171;
-  --radius:20px;
+  --bg:#0f111a;
+  --card:#171924;
+  --border:#2b2f42;
+  --primary:#2563eb;
+  --primary-dark:#1e40af;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --success:#22c55e;
+  --danger:#f87171;
+  --radius:16px;
 }
-body{margin:0;font-family:Inter,sans-serif;background:#0b1220;color:var(--text);}
-.header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;background:#111827;box-shadow:0 8px 20px rgba(0,0,0,0.5);}
-.header h1{margin:0;font-size:22px;}
-.header button{padding:8px 14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;cursor:pointer;}
-.container{padding:32px;display:grid;gap:28px;}
-.card{background:var(--card);padding:24px;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,0.6);}
-.card h2{margin:0 0 16px;}
-.card button{margin-top:12px;}
-ul{list-style:none;padding:0;}
-li{margin-bottom:8px;}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,sans-serif;}
+body{
+  background: linear-gradient(135deg, #1f2233, #0f111a);
+  color: var(--text);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px;
+}
+
+header{
+  width:100%;
+  max-width:1200px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:30px;
+}
+
+h1{
+  font-weight:800;
+  font-size:28px;
+}
+
+button{
+  cursor:pointer;
+  font-weight:600;
+  border:none;
+  border-radius:12px;
+  padding:10px 18px;
+  background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  box-shadow:0 5px 15px rgba(37,99,235,0.4);
+  transition: all 0.2s;
+}
+
+button:hover{
+  transform: translateY(-2px);
+  box-shadow:0 8px 20px rgba(37,99,235,0.6);
+}
+
+/* CARDS */
+.dashboard{
+  width:100%;
+  max-width:1200px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+}
+
+.card{
+  background: var(--card);
+  border-radius: var(--radius);
+  padding:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.5),0 0 20px rgba(37,99,235,0.3);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover{
+  transform: translateY(-5px);
+  box-shadow:0 25px 50px rgba(37,99,235,0.6);
+}
+
+.card h2{
+  font-size:20px;
+  font-weight:800;
+  color: var(--primary);
+}
+
+.card p{
+  font-size:16px;
+  color: var(--text);
+  word-break: break-word;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+table th, table td{
+  padding:10px;
+  text-align:left;
+  border-bottom:1px solid var(--border);
+}
+
+table th{
+  color: var(--primary);
+}
+
+.msg{
+  margin-top:12px;
+  font-size:13px;
+  text-align:center;
+  font-weight:600;
+  color: var(--danger);
+}
 </style>
 </head>
 <body>
 
-<div class="header">
+<header>
   <h1>Painel Admin</h1>
-  <button id="btnLogout">Sair</button>
-</div>
+  <div>
+    Logado como: <span id="userEmail"></span>
+    <button id="btnLogout">Sair</button>
+  </div>
+</header>
 
-<div class="container">
+<div class="dashboard">
   <div class="card">
-    <h2>Usuário logado</h2>
-    <div id="userEmail">Carregando...</div>
-    <div id="lastLogin">Último login: --</div>
+    <h2>Contador de Usuários</h2>
+    <p id="userCount">0</p>
+  </div>
+
+  <div class="card">
+    <h2>Últimos Logins</h2>
+    <table>
+      <thead>
+        <tr><th>E-mail</th><th>Data/Hora</th></tr>
+      </thead>
+      <tbody id="lastLogins">
+        <tr><td colspan="2">Nenhum login ainda</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="card">
     <h2>Exportar CSV</h2>
-    <button id="exportBtn">Baixar CSV</button>
-  </div>
-
-  <div class="card">
-    <h2>Contador de usuários</h2>
-    <div id="userCount">0</div>
-    <ul id="userList"></ul>
+    <button id="exportCSV">Gerar CSV</button>
+    <div class="msg" id="csvMsg"></div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
   authDomain: "simulados-concursos-22c91.firebaseapp.com",
   projectId: "simulados-concursos-22c91"
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const $ = id=>document.getElementById(id);
 
-// Carrega dados do localStorage
-const email = localStorage.getItem("auth_user");
-const lastLogin = localStorage.getItem("last_login");
-$("userEmail").innerText=email||"--";
-$("lastLogin").innerText="Último login: "+(lastLogin||"--");
+function mockLastLogins(){
+  // MOCK: você pode trocar para buscar de um banco real
+  return [
+    {email:"user1@gmail.com", date:"2026-01-28 12:01"},
+    {email:"user2@gmail.com", date:"2026-01-28 11:45"},
+    {email:"user3@gmail.com", date:"2026-01-27 18:30"},
+  ];
+}
 
-// Sair
+function mockUserCount(){
+  return 25;
+}
+
+// ======== CHECAGEM DE LOGIN ========
+onAuthStateChanged(auth, user=>{
+  if(user){
+    $("userEmail").innerText = user.email;
+    // últimos logins
+    const logins = mockLastLogins();
+    const tbody = $("lastLogins");
+    tbody.innerHTML="";
+    logins.forEach(l=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${l.email}</td><td>${l.date}</td>`;
+      tbody.appendChild(tr);
+    });
+    // contador
+    $("userCount").innerText=mockUserCount();
+  } else {
+    // redireciona para login se não estiver logado
+    window.location.href="login.html";
+  }
+});
+
+// LOGOUT
 $("btnLogout").onclick=async()=>{
   await signOut(auth);
-  localStorage.removeItem("auth_user");
-  localStorage.removeItem("last_login");
   window.location.href="login.html";
 };
 
-// Simulação de lista de usuários
-const users=["lomateco@gmail.com","teste@dominio.com"];
-$("userCount").innerText=users.length;
-const ul=$("userList");
-users.forEach(u=>{
-  const li=document.createElement("li");
-  li.innerText=u;
-  ul.appendChild(li);
-});
-
-// Export CSV
-$("exportBtn").onclick=()=>{
-  const csvContent="data:text/csv;charset=utf-8,"+users.join("\n");
-  const encoded=encodeURI(csvContent);
-  const a=document.createElement("a");
-  a.setAttribute("href",encoded);
-  a.setAttribute("download","usuarios.csv");
+// EXPORTAR CSV
+$("exportCSV").onclick=()=>{
+  const rows = [["E-mail","Data/Hora"],...mockLastLogins().map(l=>[l.email,l.date])];
+  const csvContent = rows.map(e=>e.join(",")).join("\n");
+  const blob = new Blob([csvContent], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url;
+  a.download="logins.csv";
   a.click();
+  $("csvMsg").innerText="CSV gerado com sucesso!";
+  setTimeout(()=>{$("csvMsg").innerText="";},3000);
 };
 </script>
+
 </body>
 </html>
