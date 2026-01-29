@@ -1,121 +1,53 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Login — Simulado Guarda Civil</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+<meta charset="utf-8">
+<title>Admin</title>
 <style>
-*{box-sizing:border-box;font-family:Inter}
-
 body{
 margin:0;
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-background:linear-gradient(135deg,#0f172a,#020617);
+font-family:Arial;
+background:#020617;
 color:white;
+padding:30px
 }
 
 .card{
-width:360px;
-padding:40px;
-border-radius:20px;
-background:rgba(255,255,255,.06);
-backdrop-filter:blur(20px);
-box-shadow:0 30px 60px rgba(0,0,0,.6);
-text-align:center;
+background:#0b1220;
+padding:20px;
+border-radius:15px;
+margin-bottom:20px
 }
-
-h1{margin-bottom:10px}
-p{opacity:.7;margin-bottom:30px}
-
-input{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:none;
-margin-bottom:15px;
-outline:none;
-}
-
-button{
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
-background:#2563eb;
-color:white;
-font-weight:600;
-cursor:pointer;
-transition:.3s;
-}
-
-button:hover{transform:translateY(-2px)}
 </style>
 </head>
 
 <body>
 
-<div class="card">
-<h1>Entrar</h1>
-<p>Acesse sua conta</p>
+<h1>Painel Admin</h1>
 
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Senha">
-
-<button id="btnLogin">Entrar</button>
-
-<div id="msg"></div>
-</div>
+<div class="card" id="users">Carregando…</div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-  authDomain: "simulados-concursos-22c91.firebaseapp.com",
-  projectId: "simulados-concursos-22c91"
+apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+authDomain: "simulados-concursos-22c91.firebaseapp.com",
+projectId: "simulados-concursos-22c91"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 
-btnLogin.onclick = async () => {
-
-try{
-
-const cred = await signInWithEmailAndPassword(
-auth,
-email.value,
-password.value
-);
-
-await setDoc(
-doc(db,"users",cred.user.uid),
-{
-email:cred.user.email,
-lastLogin:serverTimestamp()
-},
-{merge:true}
-);
-
-location.href="admin/index.html";
-
-}catch(e){
-msg.innerHTML="Erro ao entrar";
+onAuthStateChanged(auth,u=>{
+if(!u){
+location.href="../login.html";
+}else{
+users.innerHTML="Logado como:<br>"+u.email;
 }
-
-};
-
+});
 </script>
+
 </body>
 </html>
