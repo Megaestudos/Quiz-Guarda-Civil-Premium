@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Quiz Guarda Civil — App (Paga)</title>
+<title>Quiz Guarda Civil — App</title>
 <meta name="theme-color" content="#1e3c72"/>
 <style>
 :root{ --bg1:#0f3b6b; --bg2:#1f6fb0; --card-bg: rgba(255,255,255,0.06); --muted: rgba(255,255,255,0.92); --accent: #00ff9d; --card-scale: 1.10; }
@@ -73,32 +73,17 @@ button.opt[disabled]{ opacity:.8; cursor:not-allowed; }
 }
 @media (max-width:420px){ .title { font-size:15px; } .controls { justify-content:flex-start; gap:6px; } }
 @media (max-width:520px){ .opts{ grid-template-columns:1fr; } }
+
 </style>
 </head>
 <body>
-  <div id="accessBlocker" style="
-  position:fixed;
-  inset:0;
-  background:linear-gradient(135deg,#0f3b6b,#1f6fb0);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:99999;
-  font-family:Inter,system-ui,Arial;
-">
-  <div style="text-align:center">
-    <div style="font-size:20px;font-weight:900">🔐 Verificando acesso…</div>
-    <div style="opacity:.8;margin-top:8px">Aguarde alguns segundos</div>
-  </div>
-</div>
-<div class="app" id="appRoot" style="display:none">
+
+<div class="app" id="appRoot">
 
 <!-- HEADER -->
 <div class="card header" id="cardHeader">
 <div>
 <h1 class="title">APP DE ESTUDOS - Guarda Civil 👮‍♂️</h1>
-<div id="trialInfo" style="font-size:13px;opacity:.85;margin-top:6px"></div>
 <div class="subtitle">Estude por tópicos </div>
 </div>
 
@@ -183,84 +168,6 @@ Resumos
 </div>
 
 </div>
-<!-- ===== SEGURANÇA / GATE DE ACESSO ===== -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-  authDomain: "simulados-concursos-22c91.firebaseapp.com",
-  projectId: "simulados-concursos-22c91"
-};
-
-const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const functions = getFunctions(app, "us-central1");
-
-const meCall = httpsCallable(functions, "me");
-
-const appRoot = document.getElementById("appRoot");
-const blocker = document.getElementById("accessBlocker");
-const trialInfo = document.getElementById("trialInfo");
-
-function deny() {
-  window.location.replace(LOGIN_URL);
-}
-
-function allow(data) {
-  // libera o app
-  blocker.remove();
-  appRoot.style.display = "block";
-
-  if (trialInfo && data.expiresAt) {
-    const fim = new Date(data.expiresAt);
-    trialInfo.innerText =
-      data.plan === "trial"
-        ? "⏳ Teste gratuito até: " + fim.toLocaleString()
-        : "✅ Premium ativo até: " + fim.toLocaleString();
-  }
-}
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    deny();
-    return;
-  }
-
-  try {
-    const resp = await meCall();
-    const data = resp.data;
-
-    console.log("🔐 GATE /me:", data);
-
-    if (!data.authenticated) {
-      deny();
-      return;
-    }
-
-    if (!data.entitled) {
-      window.location.replace(LOGIN_URL + "?expired=1");
-      return;
-    }
-
-    allow(data);
-
-  } catch (e) {
-    console.error("Erro no gate:", e);
-    deny();
-  }
-});
-</script>
-</script>
-
-</script>
-<!-- ===== FIM DA SEGURANÇA ===== -->
-
-
 
 <script>
 /* ========== CONFIG ========== */
@@ -570,13 +477,36 @@ window.addEventListener('click', function unlock(){ try{ ensureAudio(); }catch(e
 document.getElementById('quizSizeLabel').innerText = TEMPLATE_QUIZ_SIZE || 20;
 })();
 </script>
+
+ <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+const firebaseConfig = {
+ apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+ authDomain: "simulados-concursos-22c91.firebaseapp.com",
+ projectId: "simulados-concursos-22c91"
+};
+
+const LOGIN_URL = "https://megaestudos.github.io/login-simulados/";
+
+initializeApp(firebaseConfig);
+const auth = getAuth();
+
+const appRoot = document.getElementById("appRoot");
+
+appRoot.style.display = "none";
+
+onAuthStateChanged(auth, (user) => {
+if (!user) {
+ if (location.href.includes("login-simulados")) return;
+ window.location.replace(LOGIN_URL);
+ return;
+}
+
+ // logado → libera app
+ appRoot.style.display = "";
+});
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
