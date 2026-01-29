@@ -16,7 +16,7 @@
             --muted: rgba(255, 255, 255, 0.92);
             --accent: #00ff9d;
             --accent-dark: #00d68a;
-            --card-scale: 1.10;
+            --card-scale: 1.0; /* Reset para 1.0 para melhor controle responsivo */
             --glass-border: rgba(255, 255, 255, 0.12);
             --shadow-3d: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
             --btn-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
@@ -28,16 +28,22 @@
         *::-webkit-scrollbar-track { background: transparent; }
         *::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
 
-        html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; }
+        html, body { 
+            height: 100%; 
+            margin: 0; 
+            padding: 0; 
+            overflow-x: hidden;
+            background: radial-gradient(circle at top right, var(--bg2), var(--bg1));
+            background-attachment: fixed;
+        }
 
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: radial-gradient(circle at top right, var(--bg2), var(--bg1));
             color: #fff;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 12px) 12px;
+            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 80px) 12px;
             line-height: 1.5;
         }
 
@@ -47,7 +53,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            perspective: 1000px;
+            margin-top: 10px;
         }
 
         .card {
@@ -58,9 +64,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
-            transform: scale(var(--card-scale)) translateZ(0);
-            transform-origin: top center;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .header {
@@ -69,10 +73,13 @@
             align-items: center;
             gap: 15px;
             background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+            position: sticky;
+            top: 10px;
+            z-index: 100;
         }
 
         .title {
-            font-size: clamp(18px, 4vw, 24px);
+            font-size: clamp(18px, 5vw, 24px);
             margin: 0;
             font-weight: 800;
             letter-spacing: -0.5px;
@@ -80,15 +87,15 @@
         }
 
         .subtitle {
-            font-size: 14px;
+            font-size: 12px;
             color: #b0d4ff;
-            margin-top: 4px;
+            margin-top: 2px;
             font-weight: 500;
         }
 
         .controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
@@ -107,6 +114,7 @@
             justify-content: center;
             gap: 8px;
             text-decoration: none;
+            font-size: 14px;
         }
 
         .btn:hover {
@@ -121,12 +129,12 @@
         }
 
         .icon-btn {
-            width: 42px;
-            height: 42px;
+            width: 38px;
+            height: 38px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 1px solid var(--glass-border);
             background: rgba(255, 255, 255, 0.08);
             color: #fff;
@@ -142,18 +150,17 @@
         }
 
         .scale-label {
-            min-width: 65px;
+            min-width: 55px;
             text-align: center;
             font-weight: 800;
             background: rgba(0,0,0,0.2);
-            padding: 4px 8px;
+            padding: 4px 6px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .pages {
-            min-height: 380px;
-            padding-bottom: 80px; /* Espaço extra para botões no mobile */
+            min-height: 400px;
             position: relative;
         }
 
@@ -169,7 +176,7 @@
         }
 
         .welcome {
-            font-size: 18px;
+            font-size: 16px;
             margin: 10px 0 20px 0;
             color: var(--muted);
             line-height: 1.6;
@@ -177,7 +184,7 @@
 
         .home-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 12px;
             margin-top: 10px;
         }
@@ -226,7 +233,7 @@
 
         .track {
             flex: 1;
-            height: 14px;
+            height: 12px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 999px;
             overflow: hidden;
@@ -244,8 +251,8 @@
         }
 
         .question {
-            margin: 20px 0;
-            font-size: 19px;
+            margin: 15px 0;
+            font-size: 18px;
             font-weight: 600;
             color: #fff;
             line-height: 1.5;
@@ -258,14 +265,14 @@
 
         .opts {
             display: grid;
-            gap: 12px;
+            gap: 10px;
             grid-template-columns: 1fr 1fr;
         }
 
         button.opt {
-            padding: 16px;
-            min-height: 70px;
-            border-radius: 16px;
+            padding: 14px;
+            min-height: 60px;
+            border-radius: 14px;
             border: 1px solid var(--glass-border);
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
@@ -274,7 +281,7 @@
             text-align: left;
             transition: all 0.2s ease;
             box-shadow: var(--btn-shadow);
-            font-size: 15px;
+            font-size: 14px;
             display: flex;
             align-items: center;
         }
@@ -306,6 +313,7 @@
             border-radius: 14px;
             border: 1px solid var(--glass-border);
             color: #fff;
+            font-size: 14px;
         }
 
         .next-btn {
@@ -313,10 +321,10 @@
             border: none;
             color: #012;
             font-weight: 800;
-            padding: 14px 24px;
-            border-radius: 14px;
+            padding: 12px 20px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             box-shadow: 0 4px 0 #00a86b;
             transition: all 0.2s ease;
             text-transform: uppercase;
@@ -333,8 +341,8 @@
             box-shadow: 0 1px 0 #00a86b;
         }
 
-        /* Flashcards 3D - CORREÇÃO SCROLLBAR */
-        .flashcard { perspective: 1000px; cursor: pointer; height: 180px; }
+        /* Flashcards 3D */
+        .flashcard { perspective: 1000px; cursor: pointer; height: 160px; }
         .flash-inner {
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
@@ -347,7 +355,7 @@
             position: absolute;
             inset: 0;
             border-radius: 16px;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -355,7 +363,7 @@
             text-align: center;
             box-shadow: var(--shadow-3d);
             border: 1px solid var(--glass-border);
-            overflow: hidden; /* Remove scrollbar visível */
+            overflow: hidden;
         }
         .flash-front { background: rgba(255, 255, 255, 0.05); color: #fff; }
         .flash-back {
@@ -371,31 +379,44 @@
             display: flex;
             justify-content: space-around;
             gap: 8px;
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: fixed;
+            bottom: 10px;
+            left: 12px;
+            right: 12px;
+            max-width: 920px;
+            margin: 0 auto;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            z-index: 1000;
         }
 
         .tabbtn {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             border-radius: 12px;
             border: 1px solid transparent;
             background: transparent;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.5);
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
         }
 
         .tabbtn.active {
             background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-color: var(--glass-border);
+            color: var(--accent);
+            border-color: rgba(0, 255, 157, 0.2);
         }
 
-        /* CORREÇÃO SELECT */
         select {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--glass-border);
@@ -406,41 +427,51 @@
             font-family: inherit;
             font-weight: 600;
             cursor: pointer;
+            font-size: 14px;
         }
         select option { background: #0f3b6b; color: #fff; }
 
+        /* RESPONSIVIDADE ULTRA PROFISSIONAL */
         @media (max-width: 600px) {
+            body { padding-top: 5px; }
+            .app { gap: 12px; }
+            .card { padding: 15px; border-radius: 16px; }
+            .header { 
+                flex-direction: column; 
+                align-items: stretch; 
+                padding: 12px;
+                top: 5px;
+            }
+            .controls { 
+                justify-content: space-between; 
+                width: 100%; 
+                margin-top: 8px;
+                padding-top: 8px;
+                border-top: 1px solid rgba(255,255,255,0.05);
+            }
             .opts { grid-template-columns: 1fr; }
-            .header { flex-direction: column; align-items: flex-start; }
-            .controls { width: 100%; justify-content: space-between; }
-            /* Ajuste para o seletor de tópicos no mobile */
+            .title { text-align: center; }
+            .subtitle { text-align: center; }
+            
             #quiz .page-header-actions {
                 flex-direction: column;
                 align-items: stretch !important;
             }
-            #quiz select, #loadTopicBtn {
-                width: 100%;
-            }
-            /* Garantir que o botão próxima não suma */
-            #quiz .next-btn {
-                width: 100%;
-                margin-top: 10px;
-            }
+            #quiz select, #loadTopicBtn { width: 100%; }
+            #quiz .next-btn { width: 100%; margin-top: 10px; }
             #quiz div[style*="display:flex; justify-content:space-between"] {
                 flex-direction: column;
-                gap: 15px;
+                gap: 12px;
             }
+            .tabbtn { font-size: 11px; padding: 8px 4px; }
         }
 
-        /* Estilo para links clicáveis */
         .study-content a {
             color: var(--accent);
             text-decoration: underline;
             font-weight: 600;
         }
-        .study-content a:hover {
-            color: #fff;
-        }
+        .study-content a:hover { color: #fff; }
     </style>
 </head>
 <body>
@@ -453,12 +484,12 @@
         </div>
         <div class="controls">
             <div style="display:flex; gap:5px">
-                <button class="icon-btn" id="scaleDownBtn">A−</button>
-                <div class="scale-label" id="scaleLabel">x1.10</div>
-                <button class="icon-btn" id="scaleUpBtn">A+</button>
+                <button class="icon-btn" id="scaleDownBtn" title="Diminuir">A−</button>
+                <div class="scale-label" id="scaleLabel">x1.00</div>
+                <button class="icon-btn" id="scaleUpBtn" title="Aumentar">A+</button>
             </div>
-            <button class="icon-btn" id="fullscreenBtn">⛶</button>
-            <button class="btn" id="soundToggle">🔊 Som: On</button>
+            <button class="icon-btn" id="soundToggle" title="Alternar Som">🔊</button>
+            <button class="icon-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
         </div>
     </div>
 
@@ -469,17 +500,17 @@
                 <button class="btn" onclick="go('study')">📘 Estudar Leis</button>
                 <button class="btn" onclick="go('quiz')">🎯 Fazer Simulado</button>
                 <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
-                <a href="https://megaestudos.github.io/Resumos-PlenAula/" class="btn" target="_blank">Resumos</a>
+                <a href="https://megaestudos.github.io/Resumos-PlenAula/" class="btn" target="_blank">📄 Resumos</a>
             </div>
-            <div style="margin-top:25px; padding:15px; background:rgba(0,0,0,0.1); border-radius:12px;">
-                <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent)">Carregando recorde...</div>
+            <div style="margin-top:25px; padding:15px; background:rgba(0,0,0,0.1); border-radius:12px; border: 1px solid rgba(255,255,255,0.05);">
+                <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent); text-align: center;">Carregando recorde...</div>
             </div>
         </section>
 
         <section id="study" class="page">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0">📚 Conteúdos de Estudo</h3>
-                <button class="btn" onclick="go('home')" style="padding:8px 15px; font-size:13px;">🏠 Voltar</button>
+                <h3 style="margin:0">📚 Conteúdos</h3>
+                <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
             </div>
             <div id="studyList" class="study-list">Carregando conteúdos...</div>
         </section>
@@ -487,23 +518,23 @@
         <section id="quiz" class="page">
             <div class="page-header-actions" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1;">
-                    <span style="font-weight:700">Tópico:</span>
-                    <select id="topicSelect" style="flex:1; min-width:150px;"></select>
+                    <span style="font-weight:700; font-size: 14px;">Tópico:</span>
+                    <select id="topicSelect" style="flex:1; min-width:140px;"></select>
                     <button class="next-btn" id="loadTopicBtn" style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap;">Iniciar</button>
                 </div>
-                <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px;">
+                <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px; font-size: 12px;">
                     Questões: <strong id="quizSizeLabel"></strong>
                 </div>
             </div>
             <div class="progress">
                 <div class="track"><div class="bar" id="bar"></div></div>
-                <div style="font-size:13px; font-weight:800; min-width:45px;" id="progressInfo">0 / 0</div>
+                <div style="font-size:12px; font-weight:800; min-width:40px;" id="progressInfo">0 / 0</div>
             </div>
             <div class="question" id="question">Selecione um tópico para começar.</div>
             <div class="opts" id="opts"></div>
             <div class="explain" id="explain" style="display:none"></div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-                <div id="progressText" style="font-weight:700; color:var(--accent)"></div>
+                <div id="progressText" style="font-weight:700; color:var(--accent); font-size: 14px;"></div>
                 <div style="display:flex; gap:10px">
                     <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄 Reiniciar</button>
                     <button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
@@ -513,25 +544,25 @@
 
         <section id="cards" class="page">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0">🃏 Flashcards de Revisão</h3>
-                <button class="btn" onclick="go('home')" style="padding:8px 15px; font-size:13px;">🏠 Voltar</button>
+                <h3 style="margin:0">🃏 Flashcards</h3>
+                <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
             </div>
-            <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:20px; margin-top:15px;"></div>
+            <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:15px; margin-top:15px;"></div>
         </section>
     </div>
 
-    <div class="tabs card" role="navigation">
-        <button class="tabbtn active" data-target="home" onclick="go('home')">Início</button>
-        <button class="tabbtn" data-target="study" onclick="go('study')">Estudo</button>
-        <button class="tabbtn" data-target="quiz" onclick="go('quiz')">Simulado</button>
-        <button class="tabbtn" data-target="cards" onclick="go('cards')">Cartões</button>
+    <div class="tabs" role="navigation">
+        <button class="tabbtn active" data-target="home" onclick="go('home')"><span>🏠</span>Início</button>
+        <button class="tabbtn" data-target="study" onclick="go('study')"><span>📘</span>Estudo</button>
+        <button class="tabbtn" data-target="quiz" onclick="go('quiz')"><span>🎯</span>Simulado</button>
+        <button class="tabbtn" data-target="cards" onclick="go('cards')"><span>🃏</span>Cartões</button>
     </div>
 </div>
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec';
     const TEMPLATE_QUIZ_SIZE = 20;
-    let POOL = []; let currentIndex = 0; let score = 0; let errors = []; let quizStarted = false;
+    let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
     const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
 
     function q_text(q){ return q.pergunta || q.perguntas || q.question || ''; }
@@ -541,16 +572,16 @@
     function q_option(q, letter){ return q[letter.toUpperCase()] || q[letter.toLowerCase()] || ''; }
 
     function setScale(v){ 
-        v = Math.max(0.8, Math.min(1.6, Number(v))); 
-        document.documentElement.style.setProperty('--card-scale', v.toFixed(2)); 
+        v = Math.max(0.8, Math.min(1.4, Number(v))); 
+        document.getElementById('appRoot').style.transform = `scale(${v.toFixed(2)})`;
+        document.getElementById('appRoot').style.transformOrigin = 'top center';
         document.getElementById('scaleLabel').innerText = 'x' + v.toFixed(2); 
         localStorage.setItem(SCALE_KEY, v.toFixed(2)); 
     }
-    document.getElementById('scaleUpBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.1) + 0.05);
-    document.getElementById('scaleDownBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.1) - 0.05);
-    setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.1));
+    document.getElementById('scaleUpBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) + 0.05);
+    document.getElementById('scaleDownBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) - 0.05);
+    setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0));
 
-    /* ===== SISTEMA DE SOM RESTAURADO ===== */
     let audioCtx = null;
     function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
     function playTone(freq, dur=120, type='sine', gainVal=0.06){ 
@@ -574,15 +605,16 @@
     document.getElementById('soundToggle').onclick = function() {
         const current = localStorage.getItem(SOUND_KEY) !== '0';
         localStorage.setItem(SOUND_KEY, current ? '0' : '1');
-        this.innerText = current ? '🔇 Som: Off' : '🔊 Som: On';
+        this.innerText = current ? '🔇' : '🔊';
     };
     if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY, '1');
-    document.getElementById('soundToggle').innerText = localStorage.getItem(SOUND_KEY) === '0' ? '🔇 Som: Off' : '🔊 Som: On';
+    document.getElementById('soundToggle').innerText = localStorage.getItem(SOUND_KEY) === '0' ? '🔇' : '🔊';
 
     window.go = function(target){
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(target).classList.add('active');
         document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
+        window.scrollTo({top: 0, behavior: 'smooth'});
         if (target === 'home') showBestRecord();
         if (target === 'study') renderStudies();
         if (target === 'cards') renderCards();
@@ -596,7 +628,7 @@
 
     async function renderStudies(){
         const container = document.getElementById('studyList');
-        container.innerHTML = 'Carregando...';
+        container.innerHTML = '<div style="text-align:center; padding:20px;">Carregando...</div>';
         try {
             const res = await fetch(`${SCRIPT_URL}?action=getStudies`);
             const js = await res.json();
@@ -702,7 +734,7 @@
 
     async function renderCards(){
         const container = document.getElementById('cardsContainer');
-        container.innerHTML = 'Carregando...';
+        container.innerHTML = '<div style="text-align:center; padding:20px;">Carregando...</div>';
         const sheetName = 'cartões';
         try {
             const urlCards = `${SCRIPT_URL}?action=getCards&sheet=${encodeURIComponent(sheetName)}`;
@@ -718,7 +750,7 @@
             }
 
             if (!list.length) {
-                container.innerHTML = 'Nenhum cartão encontrado.';
+                container.innerHTML = '<div style="text-align:center; padding:20px;">Nenhum cartão encontrado.</div>';
                 return;
             }
 
@@ -738,15 +770,15 @@
                 const front = document.createElement('div'); front.className = 'flash-front';
                 const back = document.createElement('div'); back.className = 'flash-back';
 
-                front.innerHTML = `<div style="font-size:12px;opacity:0.7">${topicText}</div><div style="font-weight:800;margin-top:10px">${frontText}</div><div style="margin-top:15px;font-size:12px;color:var(--accent)">Clique para ver resposta</div>`;
-                back.innerHTML = `<div style="font-size:12px;opacity:0.7">${topicText}</div><div style="font-weight:600;margin-top:10px">${backText}</div>`;
+                front.innerHTML = `<div style="font-size:11px;opacity:0.7">${topicText}</div><div style="font-weight:800;margin-top:8px;font-size:14px;">${frontText}</div><div style="margin-top:12px;font-size:11px;color:var(--accent)">Clique para ver resposta</div>`;
+                back.innerHTML = `<div style="font-size:11px;opacity:0.7">${topicText}</div><div style="font-weight:600;margin-top:8px;font-size:13px;">${backText}</div>`;
 
                 inner.appendChild(front); inner.appendChild(back);
                 wrapper.appendChild(inner);
                 wrapper.onclick = () => inner.classList.toggle('flipped');
                 container.appendChild(wrapper);
             });
-        } catch(e) { container.innerHTML = 'Erro ao carregar cartões.'; }
+        } catch(e) { container.innerHTML = '<div style="text-align:center; padding:20px;">Erro ao carregar cartões.</div>'; }
     }
 
     showBestRecord();
