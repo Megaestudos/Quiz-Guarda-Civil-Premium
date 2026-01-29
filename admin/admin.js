@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -11,24 +11,38 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const $ = id => document.getElementById(id);
 
-const $ = (id) => document.getElementById(id);
-
-// ✅ Aqui é onde você coloca o onAuthStateChanged
-onAuthStateChanged(auth, (user) => {
+// Proteção do painel
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    // não está logado → volta pro login
     window.location.href = "login.html";
   } else {
-    // está logado → carregar dados do painel
     $("userEmail").innerText = user.email;
-    carregarUsuarios(); // função que você vai ter para puxar dados do Firebase
+    await carregarUsuarios();
   }
 });
 
-// Função exemplo para puxar usuários
+// Carregar dados de usuários
 async function carregarUsuarios() {
-  const usersCol = collection(db, "usuarios");
-  const usersSnapshot = await getDocs(usersCol);
-  $("totalUsers").innerText = usersSnapshot.size;
+  try {
+    const usuariosCol = collection(db, "usuarios");
+    const snapshot = await getDocs(usuariosCol);
+    $("totalUsers").innerText = snapshot.size;
+
+    let last = snapshot.docs
+      .map(doc => doc.data().lastLogin)
+      .filter(Boolean)
+      .sort((a,b)=>new Date(b)-new Date(a))[0];
+
+    $("lastLogin").innerText = last ? new Date(last).toLocaleString("pt-BR") : "—";
+  } catch(err) {
+    console.error("Erro ao carregar usuários:", err);
+  }
 }
+
+// Logout
+$("btnLogout").onclick = async () => {
+  await signOut(auth);
+  window.location.href = "login.html";
+};
