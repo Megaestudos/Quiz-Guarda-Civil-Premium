@@ -19,6 +19,7 @@
   --text:#e5e7eb;
   --muted:#94a3b8;
   --danger:#f87171;
+  --success:#22c55e;
   --radius:16px;
 }
 
@@ -34,6 +35,7 @@ body{
   color: var(--text);
 }
 
+/* CARD PRINCIPAL */
 .card{
   background: var(--card);
   border-radius: var(--radius);
@@ -120,6 +122,24 @@ button.primary:hover{
   box-shadow:0 8px 20px rgba(37,99,235,0.6);
 }
 
+.links{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-top:10px;
+}
+
+.link{
+  background:none;
+  border:0;
+  color: #93c5fd;
+  cursor:pointer;
+  font-weight:600;
+  transition: color 0.2s;
+}
+
+.link:hover{ color: var(--primary); }
+
 .msg{
   margin-top:12px;
   font-size:13px;
@@ -127,6 +147,45 @@ button.primary:hover{
   font-weight:600;
   color: var(--danger);
 }
+
+/* MODAIS */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,0.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:1000;
+}
+
+.overlay.show{ display:flex; }
+
+.modal{
+  background: var(--card);
+  border:1px solid var(--border);
+  border-radius: var(--radius);
+  padding:28px 24px;
+  width:100%;
+  max-width:380px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.modal h3{
+  text-align:center;
+  font-weight:800;
+  font-size:22px;
+  margin-bottom:10px;
+}
+
+.modal input{
+  padding:12px 14px;
+}
+
+.modal .primary{margin-top:10px;}
 </style>
 </head>
 <body>
@@ -146,12 +205,41 @@ button.primary:hover{
 
   <button class="primary" id="btnLogin">Entrar</button>
 
+  <div class="links">
+    <button class="link" id="btnSignupOpen">Criar conta</button>
+    <button class="link" id="btnResetOpen">Esqueci a senha</button>
+  </div>
+
   <div id="msg" class="msg"></div>
+</div>
+
+<!-- MODAL CRIAR CONTA -->
+<div id="signupModal" class="overlay">
+  <div class="modal">
+    <h3>Criar conta</h3>
+    <input type="email" id="sEmail" placeholder="E-mail">
+    <input type="password" id="sPass" placeholder="Senha">
+    <input type="password" id="sPass2" placeholder="Confirmar senha">
+    <button class="primary" id="btnSignup">Criar conta</button>
+    <button class="link" id="btnSignupClose">Cancelar</button>
+    <div id="sMsg" class="msg"></div>
+  </div>
+</div>
+
+<!-- MODAL RESET -->
+<div id="resetModal" class="overlay">
+  <div class="modal">
+    <h3>Recuperar senha</h3>
+    <input type="email" id="rEmail" placeholder="E-mail">
+    <button class="primary" id="btnResetSend">Enviar link</button>
+    <button class="link" id="btnResetClose">Cancelar</button>
+    <div id="rMsg" class="msg"></div>
+  </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
@@ -161,28 +249,64 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const $ = id=>document.getElementById(id);
 
-const $ = id => document.getElementById(id);
-
+/* LOGIN */
 $("toggleSenha").onclick = () => {
-  const i = $("senha");
-  i.type = i.type === "password" ? "text" : "password";
+  const i=$("senha");
+  i.type=i.type==="password"?"text":"password";
 };
 
-$("btnLogin").onclick = async () => {
-  const email = $("email").value.trim();
-  const senha = $("senha").value.trim();
-  $("msg").innerText = "";
-  if(!email || !senha){ $("msg").innerText = "Preencha todos os campos."; return; }
+$("btnLogin").onclick=async()=>{
+  const email=$("email").value.trim();
+  const senha=$("senha").value.trim();
+  $("msg").innerText="";
+  if(!email||!senha){ $("msg").innerText="Preencha todos os campos."; return; }
   try{
-    const cred = await signInWithEmailAndPassword(auth, email, senha);
-    localStorage.setItem("auth_user", cred.user.email);
+    const cred = await signInWithEmailAndPassword(auth,email,senha);
+    localStorage.setItem("auth_user",cred.user.email);
+    window.location.href="https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
+  }catch{
+    $("msg").innerText="E-mail ou senha inválidos.";
+  }
+};
 
-    // REDIRECIONA PARA A PÁGINA DO APP
-    window.location.href = "https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
+/* MODAIS */
+$("btnSignupOpen").onclick=()=>$("signupModal").classList.add("show");
+$("btnSignupClose").onclick=()=>$("signupModal").classList.remove("show");
+$("btnResetOpen").onclick=()=>$("resetModal").classList.add("show");
+$("btnResetClose").onclick=()=>$("resetModal").classList.remove("show");
 
+/* SIGNUP */
+$("btnSignup").onclick=async()=>{
+  const email=$("sEmail").value.trim();
+  const pass=$("sPass").value.trim();
+  const pass2=$("sPass2").value.trim();
+  $("sMsg").innerText="";
+  if(!email||!pass||!pass2){ $("sMsg").innerText="Preencha todos os campos."; return; }
+  if(pass!==pass2){ $("sMsg").innerText="Senhas não conferem."; return; }
+  try{
+    await createUserWithEmailAndPassword(auth,email,pass);
+    $("sMsg").style.color="#22c55e";
+    $("sMsg").innerText="Conta criada. Verifique seu e-mail.";
   }catch(e){
-    $("msg").innerText = "E-mail ou senha inválidos.";
+    $("sMsg").style.color="#f87171";
+    $("sMsg").innerText="Não foi possível criar a conta.";
+  }
+};
+
+/* RESET */
+$("btnResetSend").onclick=async()=>{
+  const email=$("rEmail").value.trim();
+  $("rMsg").innerText="";
+  if(!email){ $("rMsg").innerText="Preencha o e-mail."; return; }
+  try{
+    await sendPasswordResetEmail(auth,email);
+    $("rMsg").style.color="#22c55e";
+    $("rMsg").innerText="Link enviado para o e-mail.";
+  }catch{
+    $("rMsg").style.color="#f87171";
+    $("rMsg").innerText="Não foi possível enviar o link.";
   }
 };
 </script>
