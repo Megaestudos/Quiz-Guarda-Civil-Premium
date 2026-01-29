@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin | Quiz</title>
+<style>
+body {
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:linear-gradient(135deg,#0f172a,#111827);
+  color:#fff;
+}
+header {
+  padding:20px;
+  background:#111827;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 5px 15px rgba(0,0,0,0.5);
+}
+header h1 {margin:0;color:#60a5fa;}
+button {padding:10px 15px;border:none;border-radius:10px;background:#2563eb;color:white;cursor:pointer;}
+
+.dashboard {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+  padding:30px;
+}
+.card {
+  background:linear-gradient(145deg,#111827,#1f2937);
+  padding:20px;
+  border-radius:20px;
+  box-shadow:10px 10px 30px rgba(0,0,0,0.4), -10px -10px 30px rgba(37,99,235,0.3);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.card h2 {margin:0;color:#60a5fa;}
+.card p {margin:5px 0 0;font-size:18px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Painel Admin</h1>
+  <button id="btnLogout">Sair</button>
+</header>
+
+<div class="dashboard">
+  <div class="card">
+    <h2>Usuários</h2>
+    <p id="totalUsers">0</p>
+  </div>
+  <div class="card">
+    <h2>Último login</h2>
+    <p id="lastLogin">-</p>
+  </div>
+  <div class="card">
+    <h2>Relatórios CSV</h2>
+    <p>Exportar disponível</p>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
