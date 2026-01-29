@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Painel Admin 3D | Plataforma de Simulados</title>
+<title>Painel Admin | Plataforma de Simulados</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,30 +12,29 @@
 <style>
 :root{
   --bg:#0b1220;
-  --card:#111827;
+  --card:#0f172a;
   --border:#1e293b;
   --primary:#2563eb;
   --primary-dark:#1e40af;
   --text:#e5e7eb;
   --muted:#94a3b8;
+  --danger:#f87171;
   --success:#22c55e;
-  --radius:20px;
-  --shadow1:0 20px 50px rgba(0,0,0,0.5);
-  --shadow2:0 0 30px rgba(37,99,235,0.2);
+  --radius:16px;
+  --shadow:0 20px 50px rgba(0,0,0,0.5);
 }
 
 body{
   margin:0;
   font-family:Inter,system-ui,-apple-system,Arial,sans-serif;
-  background: radial-gradient(900px 600px at 20% 15%, rgba(37,99,235,.2), transparent 60%),
-              radial-gradient(800px 600px at 80% 20%, rgba(16,185,129,.12), transparent 60%),
-              var(--bg);
+  background:radial-gradient(900px 600px at 15% 15%, rgba(37,99,235,.18), transparent 60%),
+             radial-gradient(800px 600px at 85% 20%, rgba(16,185,129,.12), transparent 60%),
+             var(--bg);
   color:var(--text);
   min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  perspective:1200px;
   padding:24px;
 }
 
@@ -43,67 +42,51 @@ body{
   background: linear-gradient(145deg, #111827, #1e293b);
   border-radius: var(--radius);
   padding: 32px;
-  box-shadow: var(--shadow1), var(--shadow2);
+  box-shadow: var(--shadow);
   width: 100%;
-  max-width: 900px;
-  backdrop-filter: blur(10px);
-  transform-style: preserve-3d;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.card:hover{
-  transform: rotateY(3deg) rotateX(3deg) translateZ(10px);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 40px rgba(37,99,235,0.3);
+  max-width: 800px;
+  backdrop-filter: blur(8px);
 }
 
-h1{margin:0 0 20px;font-size:32px;}
+h1{margin:0 0 20px;font-size:28px;}
 h2{margin:16px 0 8px;font-size:20px;color:#60a5fa;}
 p{margin:0 0 20px;font-size:14px;color:var(--muted);}
 table{
   width:100%;
   border-collapse: collapse;
   margin-top:12px;
-  border-radius:12px;
-  overflow:hidden;
 }
 th, td{
   padding:12px 10px;
   text-align:left;
+  border-bottom:1px solid var(--border);
   font-size:14px;
 }
 th{
-  background: linear-gradient(135deg,#2563eb,#1e40af);
-  color:#fff;
+  color:#60a5fa;
   font-weight:700;
 }
 td{
-  background:#111827;
   color:var(--text);
 }
-tr td:first-child{
-  border-right:1px solid var(--border);
-}
 button{
-  padding:10px 20px;
-  border-radius:12px;
+  padding:10px 18px;
+  border-radius:10px;
   border:none;
   cursor:pointer;
-  font-weight:700;
+  font-weight:600;
   font-size:14px;
-  background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
   color:#fff;
   transition:0.3s;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 }
-button:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
+button:hover{opacity:0.85;}
 </style>
 </head>
 
 <body>
 <div class="card">
-  <h1>Painel Admin 3D</h1>
+  <h1>Painel Admin</h1>
   <p>Logado como: <span id="adminEmail">...</span></p>
   <button id="btnLogout">Sair</button>
 
@@ -149,7 +132,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const $ = id => document.getElementById(id);
+
+const $ = (id)=>document.getElementById(id);
 
 // ======================
 // CHECAR USUÁRIO LOGADO
