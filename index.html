@@ -375,6 +375,7 @@
         }
         .flash-front, .flash-back {
             backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
             position: absolute;
             inset: 0;
             border-radius: 16px;
@@ -386,6 +387,7 @@
             text-align: center;
             box-shadow: var(--shadow-3d);
             border: 1px solid var(--glass-border);
+            overflow-y: auto;
         }
         .flash-front { background: rgba(255, 255, 255, 0.05); color: #fff; }
         .flash-back {
@@ -395,6 +397,7 @@
             font-weight: 700;
         }
         .flash-inner.flipped { transform: rotateY(180deg); }
+        .flash-inner.flipped .flash-back { z-index: 2; }
 
         /* Tabs Navigation */
         .tabs {
