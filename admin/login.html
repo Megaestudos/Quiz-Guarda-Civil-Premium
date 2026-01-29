@@ -1,48 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Login Admin | Plataforma de Simulados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0f172a;
-  --card:#1e293b;
+  --bg:#0b1220;
+  --card:#0f172a;
+  --border:#1e293b;
   --primary:#2563eb;
   --primary-dark:#1e40af;
   --text:#e5e7eb;
   --muted:#94a3b8;
-  --success:#22c55e;
-  --danger:#f87171;
   --radius:20px;
 }
-*{box-sizing:border-box;}
-html,body{height:100%;margin:0;font-family:Inter,system-ui,sans-serif;background:radial-gradient(800px 600px at 15% 15%, rgba(37,99,235,.18), transparent 60%), radial-gradient(700px 500px at 85% 20%, rgba(16,185,129,.12), transparent 60%), var(--bg); display:flex; justify-content:center; align-items:center;}
-
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,Arial,sans-serif;
+  background:
+    radial-gradient(900px 600px at 15% 15%, rgba(37,99,235,.18), transparent 60%),
+    radial-gradient(800px 600px at 85% 20%, rgba(16,185,129,.12), transparent 60%),
+    var(--bg);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
 .card{
   background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
-  border:1px solid var(--card);
+  border:1px solid var(--border);
   border-radius:var(--radius);
   padding:32px;
-  width:360px;
-  box-shadow:0 20px 40px rgba(0,0,0,.5);
+  width:320px;
+  box-shadow:0 30px 60px rgba(0,0,0,.45);
+  backdrop-filter: blur(12px);
+  text-align:center;
 }
-
-h2{margin:0 0 16px;color:var(--text); text-align:center;}
-
-.field{margin-bottom:18px;position:relative;}
+.card h2{
+  margin:0 0 16px;
+}
+.input-wrap{
+  position:relative;
+  margin-bottom:18px;
+}
 input{
   width:100%;
   padding:14px 44px 14px 14px;
   border-radius:14px;
-  border:1px solid var(--card);
+  border:1px solid var(--border);
   background:#020617;
   color:var(--text);
   font-size:14px;
 }
-input:focus{border-color:#60a5fa; box-shadow:0 0 0 4px rgba(59,130,246,.25);}
-
 .eye-btn{
   position:absolute;
   right:12px;
@@ -53,7 +66,7 @@ input:focus{border-color:#60a5fa; box-shadow:0 0 0 4px rgba(59,130,246,.25);}
   color:#94a3b8;
   cursor:pointer;
 }
-
+.eye-btn:hover{color:#e5e7eb}
 button.primary{
   width:100%;
   padding:14px;
@@ -63,28 +76,40 @@ button.primary{
   color:#fff;
   font-weight:800;
   cursor:pointer;
+  margin-top:6px;
 }
-
-.msg{margin-top:14px; text-align:center; color:var(--danger); font-weight:600;}
+.msg{
+  margin-top:14px;
+  font-size:13px;
+  font-weight:600;
+  color:#f87171;
+  min-height:18px;
+}
 </style>
 </head>
 <body>
+
 <div class="card">
   <h2>Login Admin</h2>
-  <div class="field">
-    <input type="email" id="email" placeholder="Email">
+
+  <div class="input-wrap">
+    <input id="email" type="email" placeholder="Email">
   </div>
-  <div class="field">
-    <input type="password" id="senha" placeholder="Senha">
-    <button type="button" class="eye-btn" id="toggleSenha">👁️</button>
+
+  <div class="input-wrap">
+    <input id="senha" type="password" placeholder="Senha">
+    <button type="button" id="toggleSenha" class="eye-btn">👁️</button>
   </div>
+
   <button class="primary" id="btnLogin">Entrar</button>
-  <div class="msg" id="msg"></div>
+
+  <div id="msg" class="msg"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
@@ -94,24 +119,38 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
+
 const $ = id => document.getElementById(id);
 
-const painelUrl = "painel.html";
+$("toggleSenha").onclick = ()=>{
+  const input = $("senha");
+  input.type = input.type==="password"?"text":"password";
+}
 
-$("btnLogin").onclick = async () => {
-  try {
-    const cred = await signInWithEmailAndPassword(auth, $("email").value, $("senha").value);
-    localStorage.setItem("admin_user", cred.user.email);
-    window.location.href = painelUrl; // redireciona corretamente
-  } catch {
-    $("msg").innerText = "Email ou senha incorretos!";
+$("btnLogin").onclick = async ()=>{
+  $("msg").innerText="";
+  const email = $("email").value;
+  const senha = $("senha").value;
+
+  try{
+    const cred = await signInWithEmailAndPassword(auth,email,senha);
+
+    // Salva último login no Firestore
+    const userRef = doc(db,"users",cred.user.uid);
+    await setDoc(userRef,{
+      email:cred.user.email,
+      lastLogin:Date.now()
+    }, { merge:true });
+
+    // Redireciona para painel
+    window.location.href="painel.html";
+  }catch(e){
+    $("msg").innerText="E-mail ou senha inválidos.";
+    console.error(e);
   }
-};
-
-$("toggleSenha").onclick = () => {
-  const i = $("senha");
-  i.type = i.type === "password" ? "text" : "password";
-};
+}
 </script>
+
 </body>
 </html>
