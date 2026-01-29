@@ -16,7 +16,6 @@
             --muted: rgba(255, 255, 255, 0.92);
             --accent: #00ff9d;
             --accent-dark: #00d68a;
-            --card-scale: 1.0; /* Reset para 1.0 para melhor controle responsivo */
             --glass-border: rgba(255, 255, 255, 0.12);
             --shadow-3d: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
             --btn-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
@@ -43,7 +42,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 80px) 12px;
+            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 90px) 12px;
             line-height: 1.5;
         }
 
@@ -64,7 +63,6 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .header {
@@ -261,6 +259,8 @@
             background: rgba(255,255,255,0.03);
             border-radius: 12px;
             border-left: 4px solid var(--accent);
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .opts {
@@ -314,6 +314,8 @@
             border: 1px solid var(--glass-border);
             color: #fff;
             font-size: 14px;
+            max-height: 150px;
+            overflow-y: auto;
         }
 
         .next-btn {
@@ -329,6 +331,7 @@
             transition: all 0.2s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: inline-block;
         }
 
         .next-btn:hover:not(:disabled) {
@@ -458,10 +461,11 @@
                 align-items: stretch !important;
             }
             #quiz select, #loadTopicBtn { width: 100%; }
-            #quiz .next-btn { width: 100%; margin-top: 10px; }
-            #quiz div[style*="display:flex; justify-content:space-between"] {
+            #quiz .next-btn { width: 100%; margin-top: 10px; display: block !important; }
+            #quiz .quiz-footer {
                 flex-direction: column;
                 gap: 12px;
+                align-items: stretch !important;
             }
             .tabbtn { font-size: 11px; padding: 8px 4px; }
         }
@@ -533,9 +537,9 @@
             <div class="question" id="question">Selecione um tópico para começar.</div>
             <div class="opts" id="opts"></div>
             <div class="explain" id="explain" style="display:none"></div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+            <div class="quiz-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
                 <div id="progressText" style="font-weight:700; color:var(--accent); font-size: 14px;"></div>
-                <div style="display:flex; gap:10px">
+                <div style="display:flex; gap:10px; flex-wrap: wrap;">
                     <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄 Reiniciar</button>
                     <button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
                 </div>
