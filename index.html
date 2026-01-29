@@ -47,7 +47,6 @@
             perspective: 1000px;
         }
 
-        /* Glassmorphism Cards with 3D depth */
         .card {
             background: var(--card-bg);
             border-radius: 20px;
@@ -59,10 +58,6 @@
             transform: scale(var(--card-scale)) translateZ(0);
             transform-origin: top center;
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.2);
         }
 
         .header {
@@ -94,7 +89,6 @@
             align-items: center;
         }
 
-        /* 3D Buttons */
         .btn {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--glass-border);
@@ -144,16 +138,10 @@
             transform: translateY(-2px);
         }
 
-        .icon-btn:active {
-            transform: translateY(2px);
-            box-shadow: var(--btn-shadow-active);
-        }
-
         .scale-label {
             min-width: 65px;
             text-align: center;
             font-weight: 800;
-            font-variant-numeric: tabular-nums;
             background: rgba(0,0,0,0.2);
             padding: 4px 8px;
             border-radius: 8px;
@@ -192,9 +180,9 @@
         }
 
         .study-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
             margin-top: 15px;
         }
 
@@ -204,11 +192,6 @@
             border: 1px solid var(--glass-border);
             overflow: hidden;
             transition: all 0.3s ease;
-        }
-
-        details.summary[open] {
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
         }
 
         summary {
@@ -231,7 +214,6 @@
             transform: rotate(90deg);
         }
 
-        /* Progress Bar 3D */
         .progress {
             display: flex;
             align-items: center;
@@ -297,24 +279,16 @@
         button.opt:hover:not([disabled]) {
             transform: translateY(-2px);
             box-shadow: 0 6px 0 #d0d0d0;
-            background: #f8faff;
         }
 
-        button.opt:active:not([disabled]) {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #d0d0d0;
-        }
-
-        button.opt[disabled] { opacity: 0.8; cursor: not-allowed; }
-
-        .opt.correct {
+        button.opt.correct {
             background: #e9fff2 !important;
             border-color: #2fa764 !important;
             color: #155724 !important;
             box-shadow: 0 4px 0 #2fa764 !important;
         }
 
-        .opt.wrong {
+        button.opt.wrong {
             background: #fff0f0 !important;
             border-color: #ff6b6b !important;
             color: #721c24 !important;
@@ -328,10 +302,8 @@
             border-radius: 14px;
             border: 1px solid var(--glass-border);
             color: #fff;
-            animation: fadeIn 0.3s ease;
         }
 
-        /* Next Button 3D */
         .next-btn {
             background: linear-gradient(135deg, var(--accent), #00d2ff);
             border: none;
@@ -350,7 +322,6 @@
         .next-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 6px 0 #00a86b;
-            filter: brightness(1.1);
         }
 
         .next-btn:active:not(:disabled) {
@@ -358,15 +329,8 @@
             box-shadow: 0 1px 0 #00a86b;
         }
 
-        .next-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-
         /* Flashcards 3D */
-        .flashcard { perspective: 1000px; cursor: pointer; height: 160px; }
+        .flashcard { perspective: 1000px; cursor: pointer; height: 180px; }
         .flash-inner {
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
@@ -394,13 +358,11 @@
             transform: rotateY(180deg);
             background: linear-gradient(135deg, #1a2a3a, #0f172a);
             color: #fff;
-            font-weight: 500;
             border: 1px solid var(--accent);
         }
         .flash-inner.flipped { transform: rotateY(180deg); }
         .flash-inner.flipped .flash-back { z-index: 2; }
 
-        /* Tabs Navigation */
         .tabs {
             display: flex;
             justify-content: space-around;
@@ -427,15 +389,8 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: var(--glass-border);
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
         }
 
-        .tabbtn:hover:not(.active) {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        /* Select Styling */
         select {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--glass-border);
@@ -447,23 +402,16 @@
             font-weight: 600;
         }
 
-        select option { background: var(--bg1); color: #fff; }
-
         @media (max-width: 600px) {
             .opts { grid-template-columns: 1fr; }
             .header { flex-direction: column; align-items: flex-start; }
             .controls { width: 100%; justify-content: space-between; }
-            .app { gap: 12px; }
-            .card { padding: 15px; }
         }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="app" id="appRoot">
-    <!-- HEADER -->
     <div class="card header" id="cardHeader">
         <div>
             <h1 class="title">Guarda Civil 👮‍♂️</h1>
@@ -471,29 +419,23 @@
         </div>
         <div class="controls">
             <div style="display:flex; gap:5px">
-                <button class="icon-btn" id="scaleDownBtn" title="Diminuir">A−</button>
+                <button class="icon-btn" id="scaleDownBtn">A−</button>
                 <div class="scale-label" id="scaleLabel">x1.10</div>
-                <button class="icon-btn" id="scaleUpBtn" title="Aumentar">A+</button>
+                <button class="icon-btn" id="scaleUpBtn">A+</button>
             </div>
-            <button class="icon-btn" id="fullscreenBtn" title="Tela cheia">⛶</button>
+            <button class="icon-btn" id="fullscreenBtn">⛶</button>
             <button class="btn" id="soundToggle">🔊 Som: On</button>
         </div>
     </div>
 
-    <!-- PAGES -->
     <div class="card pages" id="pages">
         <section id="home" class="page active">
             <div class="welcome">Bem-vindo! Prepare-se para sua aprovação. Escolha uma modalidade abaixo:</div>
             <div class="home-actions">
-                <button class="btn" onclick="go('study')" id="btnStudy">📘 Estudar Leis</button>
-                <button class="btn" onclick="go('quiz')" id="btnQuiz">🎯 Fazer Simulado</button>
-                <button class="btn" onclick="go('cards')" id="btnCards">🃏 Flashcards</button>
-                <a href="https://megaestudos.github.io/Resumos-PlenAula/" class="btn" target="_blank">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Resumos
-                </a>
+                <button class="btn" onclick="go('study')">📘 Estudar Leis</button>
+                <button class="btn" onclick="go('quiz')">🎯 Fazer Simulado</button>
+                <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
+                <a href="https://megaestudos.github.io/Resumos-PlenAula/" class="btn" target="_blank">Resumos</a>
             </div>
             <div style="margin-top:25px; padding:15px; background:rgba(0,0,0,0.1); border-radius:12px;">
                 <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent)">Carregando recorde...</div>
@@ -505,7 +447,7 @@
                 <h3 style="margin:0">📚 Conteúdos de Estudo</h3>
                 <button class="btn" onclick="go('home')" style="padding:8px 15px; font-size:13px;">🏠 Voltar</button>
             </div>
-            <div id="studyList" class="study-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">Carregando conteúdos...</div>
+            <div id="studyList" class="study-list">Carregando conteúdos...</div>
         </section>
 
         <section id="quiz" class="page">
@@ -515,20 +457,17 @@
                     <select id="topicSelect"></select>
                     <button class="next-btn" id="loadTopicBtn" style="padding:8px 15px; font-size:13px; border-radius:8px;">Iniciar</button>
                 </div>
-                <div class="small" id="quizNote" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px;">
+                <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px;">
                     Questões: <strong id="quizSizeLabel"></strong>
                 </div>
             </div>
-
             <div class="progress">
                 <div class="track"><div class="bar" id="bar"></div></div>
                 <div style="font-size:13px; font-weight:800; min-width:45px;" id="progressInfo">0 / 0</div>
             </div>
-
-            <div class="question" id="question">Selecione um tópico para começar o simulado.</div>
+            <div class="question" id="question">Selecione um tópico para começar.</div>
             <div class="opts" id="opts"></div>
             <div class="explain" id="explain" style="display:none"></div>
-
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
                 <div id="progressText" style="font-weight:700; color:var(--accent)"></div>
                 <div style="display:flex; gap:10px">
@@ -547,7 +486,6 @@
         </section>
     </div>
 
-    <!-- TABS -->
     <div class="tabs card" role="navigation">
         <button class="tabbtn active" data-target="home" onclick="go('home')">Início</button>
         <button class="tabbtn" data-target="study" onclick="go('study')">Estudo</button>
@@ -557,171 +495,84 @@
 </div>
 
 <script>
-    /* ========== CONFIG ========== */
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec';
-    const TEMPLATE_QUESTIONS = null;
-    const TEMPLATE_STUDIES = [];
     const TEMPLATE_QUIZ_SIZE = 20;
-
-    /* ========== STATE ========== */
     let POOL = []; let currentIndex = 0; let score = 0; let errors = []; let quizStarted = false;
     const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
-    const scaleMin = 0.8, scaleMax = 1.6, scaleStep = 0.05;
 
-    /* ====== UI HELPERS ====== */
-    function q_text(q){ if (!q) return ''; return q.pergunta || q.perguntas || q.question || q.Pergunta || ''; }
-    function q_topic(q){ if (!q) return ''; return q.materia || q.topico || q.tópico || q.topic || ''; }
-    function q_expl(q){ return q.explicacao || q.explicação || q.explanation || q.Explanation || ''; }
-    function q_answer_letter(q){ const a = (q.resposta || q.answer || q.Resposta || q.Answer || '').toString().trim(); if (!a) return ''; return a.substr(0,1).toUpperCase(); }
-    function q_option(q, letter){ const up = q[letter.toUpperCase()]; if (up !== undefined && up !== null && up !== '') return up; const low = q[letter.toLowerCase()]; if (low !== undefined && low !== null && low !== '') return low; return ''; }
+    function q_text(q){ return q.pergunta || q.perguntas || q.question || ''; }
+    function q_topic(q){ return q.materia || q.topico || q.tópico || q.topic || ''; }
+    function q_expl(q){ return q.explicacao || q.explicação || q.explanation || ''; }
+    function q_answer_letter(q){ const a = (q.resposta || q.answer || '').toString().trim(); return a.substr(0,1).toUpperCase(); }
+    function q_option(q, letter){ return q[letter.toUpperCase()] || q[letter.toLowerCase()] || ''; }
 
-    function linkify(text){ 
-        if (!text) return ''; 
-        let out = text.toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); 
-        const urlPattern = /(\bhttps?:\/\/[^\s<]+[^\s<.,;:!?])/gi; 
-        out = out.replace(urlPattern, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:var(--accent); font-weight:600;">$1</a>'); 
-        out = out.replace(/\n/g, '<br>'); 
-        return out; 
-    }
-
-    /* ===== SCALE CONTROLS ===== */
-    function readSavedScale(){ const s = parseFloat(localStorage.getItem(SCALE_KEY)); if (!isNaN(s)) return Math.max(scaleMin, Math.min(scaleMax, s)); return 1.10; }
     function setScale(v){ 
-        v = Math.max(scaleMin, Math.min(scaleMax, Number(v))); 
+        v = Math.max(0.8, Math.min(1.6, Number(v))); 
         document.documentElement.style.setProperty('--card-scale', v.toFixed(2)); 
-        const lbl = document.getElementById('scaleLabel'); 
-        if (lbl) lbl.innerText = 'x' + v.toFixed(2); 
+        document.getElementById('scaleLabel').innerText = 'x' + v.toFixed(2); 
         localStorage.setItem(SCALE_KEY, v.toFixed(2)); 
     }
-    document.getElementById('scaleUpBtn').addEventListener('click', ()=> setScale(readSavedScale() + scaleStep));
-    document.getElementById('scaleDownBtn').addEventListener('click', ()=> setScale(readSavedScale() - scaleStep));
-    setScale(readSavedScale());
+    document.getElementById('scaleUpBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.1) + 0.05);
+    document.getElementById('scaleDownBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.1) - 0.05);
+    setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.1));
 
-    /* ===== FULLSCREEN ===== */
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    function updateFullscreenButton(){ const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement); fullscreenBtn.innerText = isFs ? '🡼' : '⛶'; }
-    fullscreenBtn.addEventListener('click', async ()=>{ try { if (!document.fullscreenElement && !document.webkitFullscreenElement) { if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen(); else if (document.documentElement.webkitRequestFullscreen) await document.documentElement.webkitRequestFullscreen(); } else { if (document.exitFullscreen) await document.exitFullscreen(); else if (document.webkitExitFullscreen) await document.webkitExitFullscreen(); } } catch(e){} });
-    document.addEventListener('fullscreenchange', updateFullscreenButton);
-
-    /* ===== SOUND ===== */
-    function isSoundOn(){ return localStorage.getItem(SOUND_KEY) !== '0'; }
-    function setSoundOn(v){ localStorage.setItem(SOUND_KEY, v ? '1' : '0'); updateSoundBtn(); }
-    function updateSoundBtn(){ document.getElementById('soundToggle').innerText = isSoundOn() ? '🔊 Som: On' : '🔇 Som: Off'; }
-    document.getElementById('soundToggle').addEventListener('click', ()=> setSoundOn(!isSoundOn()));
-    if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY,'1');
-    updateSoundBtn();
-
-    let audioCtx = null;
-    function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    function playTone(freq, dur=120, type='sine', gainVal=0.06){ if (!isSoundOn()) return; try{ ensureAudio(); const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = type; o.frequency.value = freq; g.gain.value = gainVal; o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, dur); }catch(e){} }
-    function playCorrect(){ playTone(880,120,'sine',0.06); }
-    function playWrong(){ playTone(220,220,'sawtooth',0.08); }
-
-    /* ===== NAVIGATION ===== */
     window.go = function(target){
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const tEl = document.getElementById(target);
-        if (tEl) tEl.classList.add('active');
+        document.getElementById(target).classList.add('active');
         document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
         if (target === 'home') showBestRecord();
         if (target === 'study') renderStudies();
         if (target === 'cards') renderCards();
-        if (target === 'quiz') { if (!quizStarted) showTopicSelection(); }
+        if (target === 'quiz' && !quizStarted) showTopicSelection();
     };
 
-    /* ===== STUDIES ===== */
     async function renderStudies(){
         const container = document.getElementById('studyList');
-        container.innerHTML = '<div style="text-align:center; padding:20px;">Carregando conteúdos...</div>';
+        container.innerHTML = 'Carregando...';
         try {
-            const res = await fetch(`${SCRIPT_URL}?action=getStudies`, { cache: 'no-store' });
+            const res = await fetch(`${SCRIPT_URL}?action=getStudies`);
             const js = await res.json();
-            if (js && js.ok && js.studies && Array.isArray(js.studies) && js.studies.length){
+            if (js.ok && js.studies){
                 container.innerHTML = '';
-                js.studies.forEach((s,i)=>{
+                js.studies.forEach(s => {
                     const d = document.createElement('details'); d.className = 'summary';
-                    const sum = document.createElement('summary'); sum.innerText = s.topico || s.topic || `Tópico ${i+1}`;
-                    d.appendChild(sum);
-                    const div = document.createElement('div'); div.style.padding='15px'; div.style.color='#dfeff5';
-                    div.innerHTML = linkify(s.conteudo || s.texto || '');
-                    d.appendChild(div);
+                    d.innerHTML = `<summary>${s.topico || 'Tópico'}</summary><div style="padding:15px">${s.conteudo || ''}</div>`;
                     container.appendChild(d);
                 });
-                return;
             }
-        } catch (err){ console.warn('Erro ao buscar estudos:', err); }
-        container.innerHTML = '<div class="small">Nenhum conteúdo disponível no momento.</div>';
+        } catch (e) { container.innerHTML = 'Erro ao carregar.'; }
     }
-
-    /* ===== QUIZ LOGIC ===== */
-    const quizSizeLabel = document.getElementById('quizSizeLabel');
-    quizSizeLabel.innerText = TEMPLATE_QUIZ_SIZE || 20;
-    const topicSelect = document.getElementById('topicSelect');
-    const loadTopicBtn = document.getElementById('loadTopicBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const optsDiv = document.getElementById('opts');
-    const qEl = document.getElementById('question');
-    const explainEl = document.getElementById('explain');
-    const progressBar = document.getElementById('bar');
-    const progressInfo = document.getElementById('progressInfo');
-    const progressText = document.getElementById('progressText');
-    const btnRestart = document.getElementById('btnRestart');
-
-    loadTopicBtn.addEventListener('click', ()=> { loadTopicQuestions(topicSelect.value); });
-    nextBtn.addEventListener('click', ()=> { if (!quizStarted) return; currentIndex++; renderQuestion(); });
 
     async function showTopicSelection(){
-        populateTopicSelect(['Todos']);
         try {
-            const res = await fetch(`${SCRIPT_URL}?action=getTopics`, {cache:'no-store'});
+            const res = await fetch(`${SCRIPT_URL}?action=getTopics`);
             const js = await res.json();
-            if (js && js.ok && js.topics) { populateTopicSelect(js.topics || []); return; }
-        } catch (e) { console.warn('Erro fetch topics', e); }
-    }
-    function populateTopicSelect(topics){ 
-        topicSelect.innerHTML = ''; 
-        const optAll = document.createElement('option'); optAll.value='Todos'; optAll.textContent='Todos'; 
-        topicSelect.appendChild(optAll); 
-        if (topics && topics.length){ 
-            topics.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; topicSelect.appendChild(o); }); 
-        } 
+            const select = document.getElementById('topicSelect');
+            select.innerHTML = '<option value="Todos">Todos</option>';
+            if (js.ok && js.topics) js.topics.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+        } catch (e) {}
     }
 
     async function loadTopicQuestions(topic){
-        qEl.innerText = 'Carregando perguntas...';
-        optsDiv.innerHTML = '';
+        document.getElementById('question').innerText = 'Carregando...';
         try {
-            const encoded = encodeURIComponent(topic || 'Todos');
-            const res = await fetch(`${SCRIPT_URL}?action=getQuestionsByTopic&topic=${encoded}`, {cache:'no-store'});
+            const res = await fetch(`${SCRIPT_URL}?action=getQuestionsByTopic&topic=${encodeURIComponent(topic)}`);
             const js = await res.json();
-            let data = (js && js.ok && js.questions) ? js.questions.slice() : [];
-            POOL = data.slice(0, TEMPLATE_QUIZ_SIZE);
-            currentIndex = 0; score = 0; errors = []; quizStarted = true;
-            btnRestart.style.display = 'none';
+            POOL = (js.ok && js.questions) ? js.questions.slice(0, TEMPLATE_QUIZ_SIZE) : [];
+            currentIndex = 0; score = 0; quizStarted = true;
             renderQuestion();
-        } catch (err){ 
-            console.error('Erro:', err); 
-            qEl.innerText = 'Erro ao carregar questões. Verifique sua conexão.'; 
-        }
+        } catch (e) {}
     }
+    document.getElementById('loadTopicBtn').onclick = () => loadTopicQuestions(document.getElementById('topicSelect').value);
 
     function renderQuestion(){
-        explainEl.style.display = 'none';
-        nextBtn.disabled = true;
-        if (!POOL || POOL.length === 0) {
-            qEl.innerText = 'Nenhuma questão disponível para este tópico.';
-            optsDiv.innerHTML = '';
-            return;
-        }
+        document.getElementById('explain').style.display = 'none';
+        document.getElementById('nextBtn').disabled = true;
         if (currentIndex >= POOL.length) { finishQuiz(); return; }
         const q = POOL[currentIndex];
-        qEl.style.opacity = 0;
-        setTimeout(()=>{ 
-            qEl.innerText = `📘 ${q_topic(q) || ''}\n${q_text(q)}`; 
-            qEl.style.opacity = 1; 
-        }, 120);
-
-        optsDiv.innerHTML = '';
+        document.getElementById('question').innerText = `📘 ${q_topic(q)}\n${q_text(q)}`;
+        const opts = document.getElementById('opts');
+        opts.innerHTML = '';
         ['A','B','C','D'].forEach(letter => {
             const txt = q_option(q, letter);
             if (!txt) return;
@@ -729,117 +580,103 @@
             btn.className = 'opt';
             btn.id = 'opt_' + letter;
             btn.innerText = `${letter}) ${txt}`;
-            btn.onclick = ()=> selectOption(letter);
-            optsDiv.appendChild(btn);
+            btn.onclick = () => selectOption(letter);
+            opts.appendChild(btn);
         });
         updateProgressUI();
     }
 
     function selectOption(letter){
-        if (!quizStarted) return;
         const q = POOL[currentIndex];
         const correct = q_answer_letter(q);
-        const chosen = letter.toUpperCase();
-        document.querySelectorAll('.opt').forEach(el => el.disabled = true);
-        
+        document.querySelectorAll('.opt').forEach(b => b.disabled = true);
         const elCorrect = document.getElementById('opt_' + correct);
         if (elCorrect) elCorrect.classList.add('correct');
-        
-        const elChosen = document.getElementById('opt_' + chosen);
-        if (elChosen) {
-            if (chosen === correct) { playCorrect(); score++; }
-            else { elChosen.classList.add('wrong'); playWrong(); errors.push(q); }
-        }
-        
-        const title = (chosen === correct) ? '✅ Resposta Correta!' : ('❌ Resposta Errada! A correta é: ' + (correct || '—'));
-        showExplanation(title, q_expl(q));
-        nextBtn.disabled = false;
+        if (letter !== correct) document.getElementById('opt_' + letter).classList.add('wrong');
+        else score++;
+        document.getElementById('explain').style.display = 'block';
+        document.getElementById('explain').innerHTML = `<strong>${letter === correct ? '✅ Correto!' : '❌ Errado!'}</strong><br>${q_expl(q)}`;
+        document.getElementById('nextBtn').disabled = false;
+    }
+    document.getElementById('nextBtn').onclick = () => { currentIndex++; renderQuestion(); };
+
+    function updateProgressUI(){
+        const pct = Math.round((currentIndex / POOL.length) * 100);
+        document.getElementById('bar').style.width = pct + '%';
+        document.getElementById('progressInfo').innerText = `${currentIndex + 1} / ${POOL.length}`;
+        document.getElementById('progressText').innerText = `Pontos: ${score}`;
     }
 
-    function showExplanation(title, explanation){ 
-        explainEl.style.display = 'block'; 
-        explainEl.innerHTML = `<strong style="font-size:1.1em">${title}</strong><div style="margin-top:10px; color:#dfeff5; line-height:1.5">${explanation || 'Sem explicação disponível.'}</div>`; 
+    function finishQuiz(){
+        quizStarted = false;
+        document.getElementById('question').innerText = `Fim! Você acertou ${score} de ${POOL.length}`;
+        document.getElementById('opts').innerHTML = '';
+        document.getElementById('btnRestart').style.display = 'block';
+        saveRecord(score, POOL.length);
     }
 
-    function updateProgressUI(){ 
-        const total = POOL.length || 0; 
-        const pct = total ? Math.round((currentIndex / total) * 100) : 0; 
-        progressBar.style.width = pct + '%'; 
-        progressInfo.innerText = `${currentIndex + 1} / ${total}`; 
-        progressText.innerText = `Pontuação: ${score}`; 
+    function saveRecord(s, t){
+        const pct = Math.round((s/t)*100);
+        const prev = JSON.parse(localStorage.getItem(BEST_KEY) || '{"pct":0}');
+        if (pct > prev.pct) localStorage.setItem(BEST_KEY, JSON.stringify({score:s, total:t, pct:pct}));
     }
 
-    function finishQuiz(){ 
-        quizStarted = false; 
-        const total = POOL.length || 1; 
-        const pct = Math.round((score / total) * 100); 
-        const badge = pct >= 80 ? '🏆' : pct >= 60 ? '🎉' : pct >= 40 ? '👍' : '📘'; 
-        qEl.innerText = `${badge} Simulado Concluído!\nVocê acertou ${score} de ${total} (${pct}%)`; 
-        optsDiv.innerHTML = ''; 
-        explainEl.style.display = 'block'; 
-        const rec = saveRecord(score, total); 
-        explainEl.innerHTML = `<div style="text-align:center; padding:10px;">
-            <div style="font-size:1.2em; margin-bottom:10px;">${rec && rec.isNew ? '🎯 NOVO RECORDE!' : 'Bom trabalho!'}</div>
-            <div style="color:var(--accent); font-weight:800;">Melhor Desempenho: ${rec.record.score}/${rec.record.total} (${rec.record.pct}%)</div>
-        </div>`; 
-        btnRestart.style.display = 'inline-block'; 
-        progressBar.style.width = '100%'; 
+    function showBestRecord(){
+        const rec = JSON.parse(localStorage.getItem(BEST_KEY));
+        document.getElementById('bestRecord').innerText = rec ? `🏆 Melhor: ${rec.score}/${rec.total} (${rec.pct}%)` : '🚀 Sem recorde.';
     }
 
-    function restartQuiz(){ if (topicSelect.value) loadTopicQuestions(topicSelect.value); else loadTopicQuestions('Todos'); }
-
-    /* ===== RECORDS ===== */
-    function saveRecord(score, total){ 
-        try { 
-            const pct = Math.round((score/total)*100); 
-            const current = {score, total, pct, when: new Date().toISOString()}; 
-            const prev = JSON.parse(localStorage.getItem(BEST_KEY) || 'null'); 
-            if (!prev || pct > prev.pct) { 
-                localStorage.setItem(BEST_KEY, JSON.stringify(current)); 
-                return {isNew:true, record: current}; 
-            } 
-            return {isNew:false, record: prev}; 
-        } catch(e){ return null; } 
-    }
-    function showBestRecord(){ 
-        const rec = JSON.parse(localStorage.getItem(BEST_KEY) || 'null'); 
-        const el = document.getElementById('bestRecord');
-        if (rec) el.innerText = `🏆 Seu melhor recorde: ${rec.score}/${rec.total} (${rec.pct}%)`;
-        else el.innerText = '🚀 Comece um simulado para registrar seu recorde!';
-    }
-
-    /* ===== FLASHCARDS ===== */
+    /* ===== FLASHCARDS MECANISMO ORIGINAL ===== */
     async function renderCards(){
         const container = document.getElementById('cardsContainer');
-        container.innerHTML = 'Carregando cartões...';
+        container.innerHTML = 'Carregando...';
+        const sheetName = 'cartões';
         try {
-            const res = await fetch(`${SCRIPT_URL}?action=getCards`, {cache:'no-store'});
-            const js = await res.json();
-            if (js && js.ok && js.cards && js.cards.length){
-                container.innerHTML = '';
-                js.cards.forEach(c => {
-                    const card = document.createElement('div'); card.className = 'flashcard';
-                    const inner = document.createElement('div'); inner.className = 'flash-inner';
-                    card.onclick = () => inner.classList.toggle('flipped');
-                    const front = document.createElement('div'); front.className = 'flash-front';
-                    // Mapeamento robusto para garantir que pegue os dados da planilha
-                    const pergunta = c.frente || c.pergunta || c.Pergunta || c.question || c.Question || '';
-                    const resposta = c.verso || c.resposta || c.Resposta || c.answer || c.Answer || c.explicacao || c.explicação || '';
-                    const topico = c.topico || c.tópico || c.topic || c.materia || '';
+            const urlCards = `${SCRIPT_URL}?action=getCards&sheet=${encodeURIComponent(sheetName)}`;
+            let res = await fetch(urlCards, {cache:'no-store'});
+            let js = await res.json();
+            let list = (js.ok && js.cards) ? js.cards : (js.ok && js.questions ? js.questions : []);
+            
+            if (!list.length) {
+                const urlAll = `${SCRIPT_URL}?action=getAllQuestions`;
+                res = await fetch(urlAll, {cache:'no-store'});
+                js = await res.json();
+                list = (js.ok && js.questions) ? js.questions : [];
+            }
 
-                    front.innerHTML = `<div style="font-size:12px; opacity:0.7; margin-bottom:8px;">${topico}</div><div style="font-weight:600;">${pergunta}</div>`;
-                    const back = document.createElement('div'); back.className = 'flash-back';
-                    back.innerHTML = `<div style="font-size:12px; opacity:0.7; margin-bottom:8px; color:rgba(255,255,255,0.5);">Resposta</div><div>${resposta}</div>`;
-                    inner.appendChild(front); inner.appendChild(back);
-                    card.appendChild(inner); container.appendChild(card);
-                });
+            if (!list.length) {
+                container.innerHTML = 'Nenhum cartão encontrado.';
                 return;
             }
-        } catch(e){}
-        container.innerHTML = '<div class="small">Nenhum cartão disponível.</div>';
+
+            container.innerHTML = '';
+            // Shuffle
+            for (let i = list.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [list[i], list[j]] = [list[j], list[i]];
+            }
+
+            list.forEach(q => {
+                const frontText = (q.pergunta || q.perguntas || q.question || q[Object.keys(q).find(k=>/perg/i.test(k))] || '').toString();
+                const topicText = (q.topico || q.tópico || q.materia || q.topic || '').toString();
+                const backText = (q.resposta || q.respostas || q.explanation || q.explicacao || q.answer || q[Object.keys(q).find(k=>/resp/i.test(k))] || '').toString();
+
+                const wrapper = document.createElement('div'); wrapper.className = 'flashcard';
+                const inner = document.createElement('div'); inner.className = 'flash-inner';
+                const front = document.createElement('div'); front.className = 'flash-front';
+                const back = document.createElement('div'); back.className = 'flash-back';
+
+                front.innerHTML = `<div style="font-size:12px;opacity:0.7">${topicText}</div><div style="font-weight:800;margin-top:10px">${frontText}</div><div style="margin-top:15px;font-size:12px;color:var(--accent)">Clique para ver resposta</div>`;
+                back.innerHTML = `<div style="font-size:12px;opacity:0.7">${topicText}</div><div style="font-weight:600;margin-top:10px">${backText}</div>`;
+
+                inner.appendChild(front); inner.appendChild(back);
+                wrapper.appendChild(inner);
+                wrapper.onclick = () => inner.classList.toggle('flipped');
+                container.appendChild(wrapper);
+            });
+        } catch(e) { container.innerHTML = 'Erro ao carregar cartões.'; }
     }
 
-    // Init
     showBestRecord();
 </script>
 </body>
