@@ -19,12 +19,12 @@
   --text:#e5e7eb;
   --muted:#94a3b8;
   --danger:#f87171;
-  --success:#22c55e;
   --radius:16px;
 }
 
+* { box-sizing:border-box; margin:0; padding:0; }
+
 body{
-  margin:0;
   font-family:Inter,system-ui,-apple-system,Arial,sans-serif;
   height:100vh;
   display:flex;
@@ -43,11 +43,11 @@ body{
   box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(37,99,235,0.3);
   display:flex;
   flex-direction:column;
-  gap:16px;
+  gap:20px;
+  align-items: stretch;
 }
 
 .card h2{
-  margin:0;
   font-weight:800;
   font-size:28px;
   text-align:center;
@@ -57,11 +57,10 @@ body{
   font-size:14px;
   color: var(--muted);
   text-align:center;
-  margin-bottom:16px;
+  margin-bottom:10px;
 }
 
 .field{
-  margin-bottom:16px;
   position:relative;
   display:flex;
   flex-direction:column;
