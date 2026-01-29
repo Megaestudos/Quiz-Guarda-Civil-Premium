@@ -1,74 +1,192 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<title>Admin Dashboard</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Painel Admin 3D | Plataforma de Simulados</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-body{
-margin:0;
-font-family:Inter;
-background:#020617;
-color:white;
-padding:30px
+:root{
+  --bg:#0b1220;
+  --card:#111827;
+  --border:#1e293b;
+  --primary:#2563eb;
+  --primary-dark:#1e40af;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --success:#22c55e;
+  --radius:20px;
+  --shadow1:0 20px 50px rgba(0,0,0,0.5);
+  --shadow2:0 0 30px rgba(37,99,235,0.2);
 }
 
-h1{margin-bottom:20px}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:20px
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,Arial,sans-serif;
+  background: radial-gradient(900px 600px at 20% 15%, rgba(37,99,235,.2), transparent 60%),
+              radial-gradient(800px 600px at 80% 20%, rgba(16,185,129,.12), transparent 60%),
+              var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  perspective:1200px;
+  padding:24px;
 }
 
 .card{
-background:#0b1220;
-padding:20px;
-border-radius:20px;
-box-shadow:0 20px 50px rgba(0,0,0,.5)
+  background: linear-gradient(145deg, #111827, #1e293b);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow1), var(--shadow2);
+  width: 100%;
+  max-width: 900px;
+  backdrop-filter: blur(10px);
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover{
+  transform: rotateY(3deg) rotateX(3deg) translateZ(10px);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 40px rgba(37,99,235,0.3);
+}
+
+h1{margin:0 0 20px;font-size:32px;}
+h2{margin:16px 0 8px;font-size:20px;color:#60a5fa;}
+p{margin:0 0 20px;font-size:14px;color:var(--muted);}
+table{
+  width:100%;
+  border-collapse: collapse;
+  margin-top:12px;
+  border-radius:12px;
+  overflow:hidden;
+}
+th, td{
+  padding:12px 10px;
+  text-align:left;
+  font-size:14px;
+}
+th{
+  background: linear-gradient(135deg,#2563eb,#1e40af);
+  color:#fff;
+  font-weight:700;
+}
+td{
+  background:#111827;
+  color:var(--text);
+}
+tr td:first-child{
+  border-right:1px solid var(--border);
+}
+button{
+  padding:10px 20px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+  font-size:14px;
+  background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  transition:0.3s;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+button:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 }
 </style>
 </head>
 
 <body>
+<div class="card">
+  <h1>Painel Admin 3D</h1>
+  <p>Logado como: <span id="adminEmail">...</span></p>
+  <button id="btnLogout">Sair</button>
 
-<h1>Dashboard Admin</h1>
-
-<div class="grid">
-  <div class="card">
-    <b>Administrador</b>
-    <div id="adminEmail"></div>
-  </div>
-
-  <div class="card">
-    <b>Status</b>
-    <div>Conectado</div>
-  </div>
+  <h2>Últimos logins</h2>
+  <table>
+    <thead>
+      <tr><th>Email</th><th>Data/Hora</th></tr>
+    </thead>
+    <tbody id="loginTable">
+      <tr><td colspan="2" style="text-align:center;color:var(--muted)">Carregando...</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+// ======================
+// CONFIGURAÇÃO FIREBASE
+// ======================
 const firebaseConfig = {
-apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-authDomain: "simulados-concursos-22c91.firebaseapp.com",
-projectId: "simulados-concursos-22c91"
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = id => document.getElementById(id);
 
-onAuthStateChanged(auth,user=>{
- if(!user){
-   location.href="../login.html";
- }else{
-   adminEmail.innerText=user.email;
- }
+// ======================
+// CHECAR USUÁRIO LOGADO
+// ======================
+onAuthStateChanged(auth, async user => {
+  if(!user){
+    window.location.href = "login.html"; // volta pro login se não logado
+    return;
+  }
+  $("adminEmail").innerText = user.email;
+
+  // salva login no Firestore
+  await addDoc(collection(db, "logins"), {
+    email: user.email,
+    timestamp: serverTimestamp()
+  });
+
+  // carrega últimos 10 logins
+  const q = query(collection(db, "logins"), orderBy("timestamp","desc"), limit(10));
+  const snapshot = await getDocs(q);
+  $("loginTable").innerHTML = "";
+  snapshot.forEach(doc=>{
+    const data = doc.data();
+    const d = data.timestamp?.toDate?.() || new Date();
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${data.email}</td><td>${d.toLocaleString()}</td>`;
+    $("loginTable").appendChild(tr);
+  });
 });
-</script>
 
+// ======================
+// LOGOUT
+// ======================
+$("btnLogout").onclick = async ()=>{
+  await signOut(auth);
+  window.location.href = "login.html";
+};
+</script>
 </body>
 </html>
