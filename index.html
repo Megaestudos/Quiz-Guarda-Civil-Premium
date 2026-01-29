@@ -153,7 +153,7 @@
 
         .pages {
             min-height: 380px;
-            padding-bottom: 20px;
+            padding-bottom: 80px; /* Espaço extra para botões no mobile */
             position: relative;
         }
 
@@ -420,6 +420,15 @@
             }
             #quiz select, #loadTopicBtn {
                 width: 100%;
+            }
+            /* Garantir que o botão próxima não suma */
+            #quiz .next-btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+            #quiz div[style*="display:flex; justify-content:space-between"] {
+                flex-direction: column;
+                gap: 15px;
             }
         }
 
