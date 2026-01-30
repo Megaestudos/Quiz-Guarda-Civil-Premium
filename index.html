@@ -42,7 +42,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 90px) 12px;
+            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 100px) 12px;
             line-height: 1.5;
         }
 
@@ -332,6 +332,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             display: inline-block;
+            min-width: 120px;
         }
 
         .next-btn:hover:not(:disabled) {
@@ -436,7 +437,7 @@
 
         /* RESPONSIVIDADE ULTRA PROFISSIONAL */
         @media (max-width: 600px) {
-            body { padding-top: 5px; }
+            body { padding-top: 5px; padding-bottom: 120px; }
             .app { gap: 12px; }
             .card { padding: 15px; border-radius: 16px; }
             .header { 
@@ -461,11 +462,22 @@
                 align-items: stretch !important;
             }
             #quiz select, #loadTopicBtn { width: 100%; }
-            #quiz .next-btn { width: 100%; margin-top: 10px; display: block !important; }
-            #quiz .quiz-footer {
-                flex-direction: column;
-                gap: 12px;
+            
+            /* Correção definitiva para o botão próxima no mobile */
+            .quiz-footer {
+                flex-direction: column !important;
+                gap: 15px !important;
                 align-items: stretch !important;
+                margin-top: 25px !important;
+                padding-bottom: 20px;
+            }
+            .next-btn {
+                width: 100% !important;
+                padding: 16px !important;
+                font-size: 16px !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
             .tabbtn { font-size: 11px; padding: 8px 4px; }
         }
