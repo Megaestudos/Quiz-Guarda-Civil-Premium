@@ -43,7 +43,7 @@
             flex-direction: column;
             align-items: center;
             padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 100px) 12px;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         .app {
@@ -51,14 +51,14 @@
             max-width: 920px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-top: 10px;
+            gap: 12px;
+            margin-top: 5px;
         }
 
         .card {
             background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 16px;
             box-shadow: var(--shadow-3d);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -69,15 +69,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
             position: sticky;
-            top: 10px;
+            top: 5px;
             z-index: 100;
+            padding: 12px 16px;
         }
 
         .title {
-            font-size: clamp(18px, 5vw, 24px);
+            font-size: clamp(16px, 4.5vw, 22px);
             margin: 0;
             font-weight: 800;
             letter-spacing: -0.5px;
@@ -85,15 +86,15 @@
         }
 
         .subtitle {
-            font-size: 12px;
+            font-size: 11px;
             color: #b0d4ff;
-            margin-top: 2px;
+            margin-top: 1px;
             font-weight: 500;
         }
 
         .controls {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
         }
 
@@ -101,8 +102,8 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--glass-border);
             color: #fff;
-            padding: 10px 16px;
-            border-radius: 12px;
+            padding: 8px 14px;
+            border-radius: 10px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -110,29 +111,29 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .btn:hover {
             background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
         }
 
         .btn:active {
-            transform: translateY(2px);
+            transform: translateY(1px);
             box-shadow: var(--btn-shadow-active);
         }
 
         .icon-btn {
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid var(--glass-border);
             background: rgba(255, 255, 255, 0.08);
             color: #fff;
@@ -140,25 +141,26 @@
             font-weight: 800;
             transition: all 0.2s ease;
             box-shadow: var(--btn-shadow);
+            font-size: 12px;
         }
 
         .icon-btn:hover {
             background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         .scale-label {
-            min-width: 55px;
+            min-width: 45px;
             text-align: center;
             font-weight: 800;
             background: rgba(0,0,0,0.2);
-            padding: 4px 6px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 3px 5px;
+            border-radius: 6px;
+            font-size: 11px;
         }
 
         .pages {
-            min-height: 400px;
+            min-height: 350px;
             position: relative;
         }
 
@@ -169,34 +171,34 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .welcome {
-            font-size: 16px;
-            margin: 10px 0 20px 0;
+            font-size: 14px;
+            margin: 5px 0 15px 0;
             color: var(--muted);
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .home-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-top: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 5px;
         }
 
         .study-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
         }
 
         details.summary {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
+            border-radius: 12px;
             border: 1px solid var(--glass-border);
             overflow: hidden;
             transition: all 0.3s ease;
@@ -205,12 +207,13 @@
         summary {
             font-weight: 700;
             cursor: pointer;
-            padding: 14px 18px;
+            padding: 12px 16px;
             outline: none;
             list-style: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 14px;
         }
 
         summary::after {
@@ -225,17 +228,17 @@
         .progress {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
         .track {
             flex: 1;
-            height: 12px;
+            height: 8px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 999px;
             overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.05);
         }
 
@@ -245,34 +248,34 @@
             background: linear-gradient(90deg, var(--accent), #2fb6ff);
             transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             border-radius: 999px;
-            box-shadow: 0 0 15px rgba(0, 255, 157, 0.4);
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
         }
 
         .question {
-            margin: 15px 0;
-            font-size: 18px;
+            margin: 10px 0;
+            font-size: 15px;
             font-weight: 600;
             color: #fff;
-            line-height: 1.5;
+            line-height: 1.4;
             white-space: pre-wrap;
-            padding: 15px;
+            padding: 12px;
             background: rgba(255,255,255,0.03);
-            border-radius: 12px;
-            border-left: 4px solid var(--accent);
-            max-height: 200px;
+            border-radius: 10px;
+            border-left: 3px solid var(--accent);
+            max-height: 140px;
             overflow-y: auto;
         }
 
         .opts {
             display: grid;
-            gap: 10px;
+            gap: 8px;
             grid-template-columns: 1fr 1fr;
         }
 
         button.opt {
-            padding: 14px;
-            min-height: 60px;
-            border-radius: 14px;
+            padding: 10px 12px;
+            min-height: 50px;
+            border-radius: 10px;
             border: 1px solid var(--glass-border);
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
@@ -281,40 +284,40 @@
             text-align: left;
             transition: all 0.2s ease;
             box-shadow: var(--btn-shadow);
-            font-size: 14px;
+            font-size: 13px;
             display: flex;
             align-items: center;
         }
 
         button.opt:hover:not([disabled]) {
             background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
         }
 
         button.opt.correct {
             background: #2fa764 !important;
             border-color: #00ff9d !important;
             color: #fff !important;
-            box-shadow: 0 4px 0 #1a5c37 !important;
+            box-shadow: 0 3px 0 #1a5c37 !important;
         }
 
         button.opt.wrong {
             background: #ff6b6b !important;
             border-color: #ffcdd2 !important;
             color: #fff !important;
-            box-shadow: 0 4px 0 #a33c3c !important;
+            box-shadow: 0 3px 0 #a33c3c !important;
         }
 
         .explain {
-            margin-top: 15px;
-            padding: 16px;
+            margin-top: 10px;
+            padding: 12px;
             background: rgba(255, 255, 255, 0.06);
-            border-radius: 14px;
+            border-radius: 10px;
             border: 1px solid var(--glass-border);
             color: #fff;
-            font-size: 14px;
-            max-height: 150px;
+            font-size: 13px;
+            max-height: 100px;
             overflow-y: auto;
         }
 
@@ -323,16 +326,16 @@
             border: none;
             color: #012;
             font-weight: 800;
-            padding: 10px 18px;
-            border-radius: 10px;
+            padding: 8px 16px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             box-shadow: 0 3px 0 #00a86b;
             transition: all 0.2s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: inline-block;
-            min-width: 100px;
+            min-width: 90px;
         }
 
         .next-btn:hover:not(:disabled) {
@@ -346,7 +349,7 @@
         }
 
         /* Flashcards 3D */
-        .flashcard { perspective: 1000px; cursor: pointer; height: 160px; }
+        .flashcard { perspective: 1000px; cursor: pointer; height: 140px; }
         .flash-inner {
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
@@ -358,8 +361,8 @@
             -webkit-backface-visibility: hidden;
             position: absolute;
             inset: 0;
-            border-radius: 16px;
-            padding: 15px;
+            border-radius: 14px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -382,37 +385,37 @@
         .tabs {
             display: flex;
             justify-content: space-around;
-            gap: 8px;
-            padding: 12px;
+            gap: 6px;
+            padding: 10px;
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             position: fixed;
-            bottom: 10px;
-            left: 12px;
-            right: 12px;
+            bottom: 8px;
+            left: 10px;
+            right: 10px;
             max-width: 920px;
             margin: 0 auto;
-            border-radius: 20px;
+            border-radius: 16px;
             border: 1px solid var(--glass-border);
             z-index: 1000;
         }
 
         .tabbtn {
             flex: 1;
-            padding: 10px;
-            border-radius: 12px;
+            padding: 8px;
+            border-radius: 10px;
             border: 1px solid transparent;
             background: transparent;
             color: rgba(255,255,255,0.5);
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 13px;
+            font-size: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
 
         .tabbtn.active {
@@ -425,69 +428,62 @@
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--glass-border);
             color: #fff;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 8px;
+            border-radius: 8px;
             outline: none;
             font-family: inherit;
             font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
         }
         select option { background: #0f3b6b; color: #fff; }
 
-        /* RESPONSIVIDADE ULTRA PROFISSIONAL */
+        /* RESPONSIVIDADE ULTRA COMPACTA */
         @media (max-width: 600px) {
-            body { padding-top: 5px; padding-bottom: 160px; }
-            .app { gap: 12px; }
-            .card { padding: 15px; border-radius: 16px; }
+            body { padding-top: 2px; padding-bottom: 140px; }
+            .app { gap: 8px; }
+            .card { padding: 12px; border-radius: 14px; }
             .header { 
-                flex-direction: column; 
-                align-items: stretch; 
-                padding: 12px;
-                top: 5px;
+                flex-direction: row; 
+                align-items: center; 
+                padding: 8px 12px;
+                top: 2px;
             }
-            .controls { 
-                justify-content: space-between; 
-                width: 100%; 
-                margin-top: 8px;
-                padding-top: 8px;
-                border-top: 1px solid rgba(255,255,255,0.05);
-            }
-            .opts { grid-template-columns: 1fr; }
-            .title { text-align: center; }
-            .subtitle { text-align: center; }
+            .controls { gap: 4px; }
+            .icon-btn { width: 30px; height: 30px; font-size: 11px; }
+            .scale-label { min-width: 40px; font-size: 10px; }
+            
+            .opts { grid-template-columns: 1fr; gap: 6px; }
+            button.opt { min-height: 44px; padding: 8px 10px; font-size: 12px; }
+            .question { font-size: 14px; padding: 10px; max-height: 120px; margin: 8px 0; }
+            .explain { font-size: 12px; padding: 10px; max-height: 80px; }
             
             #quiz .page-header-actions {
-                flex-direction: column;
-                align-items: stretch !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 8px !important;
             }
-            #quiz select, #loadTopicBtn { width: 100%; }
+            #quiz select { flex: 1; font-size: 12px; padding: 6px; }
+            #loadTopicBtn { width: auto !important; padding: 6px 12px !important; font-size: 12px !important; }
             
-            /* Correção definitiva para o botão próxima no mobile */
             .quiz-footer {
-                flex-direction: column !important;
-                gap: 15px !important;
-                align-items: stretch !important;
-                margin-top: 25px !important;
-                padding-bottom: 40px;
+                margin-top: 15px !important;
+                padding-bottom: 30px;
             }
             .next-btn {
                 width: auto !important;
-                padding: 12px 24px !important;
-                font-size: 14px !important;
-                display: block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
+                padding: 10px 20px !important;
+                font-size: 13px !important;
                 position: fixed !important;
-                bottom: 85px !important; /* Acima da barra de abas */
+                bottom: 75px !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
                 z-index: 2000 !important;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
-                border: 1px solid var(--accent) !important;
-                min-width: 140px !important;
+                box-shadow: 0 3px 12px rgba(0,0,0,0.4) !important;
+                min-width: 120px !important;
             }
-            .tabbtn { font-size: 11px; padding: 8px 4px; }
+            .tabbtn { font-size: 10px; padding: 6px 2px; }
+            .tabbtn span { font-size: 14px; }
         }
 
         .study-content a {
@@ -504,10 +500,10 @@
     <div class="card header" id="cardHeader">
         <div>
             <h1 class="title">Guarda Civil 👮‍♂️</h1>
-            <div class="subtitle">Plataforma de Estudos Inteligente</div>
+            <div class="subtitle">Estudos Inteligente</div>
         </div>
         <div class="controls">
-            <div style="display:flex; gap:5px">
+            <div style="display:flex; gap:4px">
                 <button class="icon-btn" id="scaleDownBtn" title="Diminuir">A−</button>
                 <div class="scale-label" id="scaleLabel">x1.00</div>
                 <button class="icon-btn" id="scaleUpBtn" title="Aumentar">A+</button>
@@ -519,59 +515,58 @@
 
     <div class="card pages" id="pages">
         <section id="home" class="page active">
-            <div class="welcome">Bem-vindo! Prepare-se para sua aprovação. Escolha uma modalidade abaixo:</div>
+            <div class="welcome">Prepare-se para sua aprovação:</div>
             <div class="home-actions">
-                <button class="btn" onclick="go('study')">📘 Estudar Leis</button>
-                <button class="btn" onclick="go('quiz')">🎯 Fazer Simulado</button>
-                <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
+                <button class="btn" onclick="go('study')">📘 Estudar</button>
+                <button class="btn" onclick="go('quiz')">🎯 Simulado</button>
+                <button class="btn" onclick="go('cards')">🃏 Cartões</button>
                 <a href="https://megaestudos.github.io/Resumos-PlenAula/" class="btn" target="_blank">📄 Resumos</a>
             </div>
-            <div style="margin-top:25px; padding:15px; background:rgba(0,0,0,0.1); border-radius:12px; border: 1px solid rgba(255,255,255,0.05);">
-                <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent); text-align: center;">Carregando recorde...</div>
+            <div style="margin-top:15px; padding:10px; background:rgba(0,0,0,0.1); border-radius:10px; border: 1px solid rgba(255,255,255,0.05);">
+                <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent); text-align: center; font-size:13px;">Carregando recorde...</div>
             </div>
         </section>
 
         <section id="study" class="page">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0">📚 Conteúdos</h3>
-                <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0; font-size:16px;">📚 Conteúdos</h3>
+                <button class="btn" onclick="go('home')" style="padding:5px 10px; font-size:11px;">🏠 Voltar</button>
             </div>
-            <div id="studyList" class="study-list">Carregando conteúdos...</div>
+            <div id="studyList" class="study-list">Carregando...</div>
         </section>
 
         <section id="quiz" class="page">
-            <div class="page-header-actions" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1;">
-                    <span style="font-weight:700; font-size: 14px;">Tópico:</span>
-                    <select id="topicSelect" style="flex:1; min-width:140px;"></select>
-                    <button class="next-btn" id="loadTopicBtn" style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap; position:static !important; box-shadow:none !important; border:none !important; width:auto !important; min-width:80px !important; transform:none !important;">Iniciar</button>
+            <div class="page-header-actions" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px;">
+                <div style="display:flex; align-items:center; gap:6px; flex:1;">
+                    <select id="topicSelect" style="flex:1;"></select>
+                    <button class="next-btn" id="loadTopicBtn" style="position:static !important; box-shadow:none !important; border:none !important; transform:none !important; min-width:70px !important;">Iniciar</button>
                 </div>
-                <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px; font-size: 12px;">
-                    Questões: <strong id="quizSizeLabel"></strong>
+                <div style="background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:6px; font-size: 11px; white-space:nowrap;">
+                    Q: <strong id="quizSizeLabel"></strong>
                 </div>
             </div>
             <div class="progress">
                 <div class="track"><div class="bar" id="bar"></div></div>
-                <div style="font-size:12px; font-weight:800; min-width:40px;" id="progressInfo">0 / 0</div>
+                <div style="font-size:11px; font-weight:800; min-width:35px;" id="progressInfo">0/0</div>
             </div>
-            <div class="question" id="question">Selecione um tópico para começar.</div>
+            <div class="question" id="question">Selecione um tópico.</div>
             <div class="opts" id="opts"></div>
             <div class="explain" id="explain" style="display:none"></div>
-            <div class="quiz-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-                <div id="progressText" style="font-weight:700; color:var(--accent); font-size: 14px;"></div>
-                <div style="display:flex; gap:10px; flex-wrap: wrap;">
-                    <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄 Reiniciar</button>
+            <div class="quiz-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                <div id="progressText" style="font-weight:700; color:var(--accent); font-size: 13px;"></div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none; padding:5px 10px; font-size:11px;">🔄 Reiniciar</button>
                     <button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
                 </div>
             </div>
         </section>
 
         <section id="cards" class="page">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0">🃏 Flashcards</h3>
-                <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0; font-size:16px;">🃏 Flashcards</h3>
+                <button class="btn" onclick="go('home')" style="padding:5px 10px; font-size:11px;">🏠 Voltar</button>
             </div>
-            <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:15px; margin-top:15px;"></div>
+            <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:10px;"></div>
         </section>
     </div>
 
@@ -652,7 +647,7 @@
 
     async function renderStudies(){
         const container = document.getElementById('studyList');
-        container.innerHTML = '<div style="text-align:center; padding:20px;">Carregando...</div>';
+        container.innerHTML = '<div style="text-align:center; padding:20px; font-size:13px;">Carregando...</div>';
         try {
             const res = await fetch(`${SCRIPT_URL}?action=getStudies`);
             const js = await res.json();
@@ -661,7 +656,7 @@
                 js.studies.forEach(s => {
                     const d = document.createElement('details'); d.className = 'summary';
                     const content = linkify(s.conteudo || '');
-                    d.innerHTML = `<summary>${s.topico || 'Tópico'}</summary><div class="study-content" style="padding:15px">${content}</div>`;
+                    d.innerHTML = `<summary>${s.topico || 'Tópico'}</summary><div class="study-content" style="padding:12px; font-size:13px;">${content}</div>`;
                     container.appendChild(d);
                 });
             }
@@ -733,8 +728,8 @@
     function updateProgressUI(){
         const pct = Math.round((currentIndex / POOL.length) * 100);
         document.getElementById('bar').style.width = pct + '%';
-        document.getElementById('progressInfo').innerText = `${currentIndex + 1} / ${POOL.length}`;
-        document.getElementById('progressText').innerText = `Pontos: ${score}`;
+        document.getElementById('progressInfo').innerText = `${currentIndex + 1}/${POOL.length}`;
+        document.getElementById('progressText').innerText = `Pts: ${score}`;
     }
 
     function finishQuiz(){
@@ -758,7 +753,7 @@
 
     async function renderCards(){
         const container = document.getElementById('cardsContainer');
-        container.innerHTML = '<div style="text-align:center; padding:20px;">Carregando...</div>';
+        container.innerHTML = '<div style="text-align:center; padding:20px; font-size:13px;">Carregando...</div>';
         const sheetName = 'cartões';
         try {
             const urlCards = `${SCRIPT_URL}?action=getCards&sheet=${encodeURIComponent(sheetName)}`;
@@ -774,7 +769,7 @@
             }
 
             if (!list.length) {
-                container.innerHTML = '<div style="text-align:center; padding:20px;">Nenhum cartão encontrado.</div>';
+                container.innerHTML = '<div style="text-align:center; padding:20px; font-size:13px;">Nenhum cartão encontrado.</div>';
                 return;
             }
 
@@ -794,15 +789,15 @@
                 const front = document.createElement('div'); front.className = 'flash-front';
                 const back = document.createElement('div'); back.className = 'flash-back';
 
-                front.innerHTML = `<div style="font-size:11px;opacity:0.7">${topicText}</div><div style="font-weight:800;margin-top:8px;font-size:14px;">${frontText}</div><div style="margin-top:12px;font-size:11px;color:var(--accent)">Clique para ver resposta</div>`;
-                back.innerHTML = `<div style="font-size:11px;opacity:0.7">${topicText}</div><div style="font-weight:600;margin-top:8px;font-size:13px;">${backText}</div>`;
+                front.innerHTML = `<div style="font-size:10px;opacity:0.7">${topicText}</div><div style="font-weight:800;margin-top:5px;font-size:13px;">${frontText}</div><div style="margin-top:8px;font-size:10px;color:var(--accent)">Ver resposta</div>`;
+                back.innerHTML = `<div style="font-size:10px;opacity:0.7">${topicText}</div><div style="font-weight:600;margin-top:5px;font-size:12px;">${backText}</div>`;
 
                 inner.appendChild(front); inner.appendChild(back);
                 wrapper.appendChild(inner);
                 wrapper.onclick = () => inner.classList.toggle('flipped');
                 container.appendChild(wrapper);
             });
-        } catch(e) { container.innerHTML = '<div style="text-align:center; padding:20px;">Erro ao carregar cartões.</div>'; }
+        } catch(e) { container.innerHTML = '<div style="text-align:center; padding:20px; font-size:13px;">Erro ao carregar cartões.</div>'; }
     }
 
     showBestRecord();
