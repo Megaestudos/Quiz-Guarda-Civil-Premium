@@ -42,7 +42,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 100px) 12px;
+            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 120px) 12px;
             line-height: 1.5;
         }
 
@@ -437,7 +437,7 @@
 
         /* RESPONSIVIDADE ULTRA PROFISSIONAL */
         @media (max-width: 600px) {
-            body { padding-top: 5px; padding-bottom: 120px; }
+            body { padding-top: 5px; padding-bottom: 140px; }
             .app { gap: 12px; }
             .card { padding: 15px; border-radius: 16px; }
             .header { 
@@ -469,7 +469,7 @@
                 gap: 15px !important;
                 align-items: stretch !important;
                 margin-top: 25px !important;
-                padding-bottom: 20px;
+                padding-bottom: 30px; /* Espaço extra para não ser coberto */
             }
             .next-btn {
                 width: 100% !important;
@@ -478,6 +478,8 @@
                 display: block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
+                position: relative !important;
+                z-index: 10 !important;
             }
             .tabbtn { font-size: 11px; padding: 8px 4px; }
         }
