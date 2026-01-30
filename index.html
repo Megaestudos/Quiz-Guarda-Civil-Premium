@@ -42,7 +42,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 120px) 12px;
+            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 100px) 12px;
             line-height: 1.5;
         }
 
@@ -437,7 +437,7 @@
 
         /* RESPONSIVIDADE ULTRA PROFISSIONAL */
         @media (max-width: 600px) {
-            body { padding-top: 5px; padding-bottom: 140px; }
+            body { padding-top: 5px; padding-bottom: 160px; }
             .app { gap: 12px; }
             .card { padding: 15px; border-radius: 16px; }
             .header { 
@@ -469,17 +469,23 @@
                 gap: 15px !important;
                 align-items: stretch !important;
                 margin-top: 25px !important;
-                padding-bottom: 30px; /* Espaço extra para não ser coberto */
+                padding-bottom: 40px;
             }
             .next-btn {
                 width: 100% !important;
-                padding: 16px !important;
-                font-size: 16px !important;
+                padding: 18px !important;
+                font-size: 18px !important;
                 display: block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
-                position: relative !important;
-                z-index: 10 !important;
+                position: fixed !important;
+                bottom: 85px !important; /* Acima da barra de abas */
+                left: 0 !important;
+                right: 0 !important;
+                margin: 0 12px !important;
+                z-index: 2000 !important;
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.4) !important;
+                border: 2px solid var(--accent) !important;
             }
             .tabbtn { font-size: 11px; padding: 8px 4px; }
         }
@@ -538,7 +544,7 @@
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1;">
                     <span style="font-weight:700; font-size: 14px;">Tópico:</span>
                     <select id="topicSelect" style="flex:1; min-width:140px;"></select>
-                    <button class="next-btn" id="loadTopicBtn" style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap;">Iniciar</button>
+                    <button class="next-btn" id="loadTopicBtn" style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap; position:static !important; box-shadow:none !important; border:none !important; width:auto !important;">Iniciar</button>
                 </div>
                 <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px; font-size: 12px;">
                     Questões: <strong id="quizSizeLabel"></strong>
