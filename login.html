@@ -1,1 +1,364 @@
-.........
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Login | Plataforma de Simulados</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0f111a;
+  --card:#171924;
+  --border:#2b2f42;
+  --primary:#2563eb;
+  --primary-dark:#1e40af;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --danger:#f87171;
+  --success:#22c55e;
+  --radius:16px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body{
+  font-family:Inter,system-ui,-apple-system,Arial,sans-serif;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: linear-gradient(135deg, #1f2233, #0f111a);
+  color: var(--text);
+}
+
+/* CARD PRINCIPAL */
+.card{
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 40px 32px 36px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(37,99,235,0.3);
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  align-items: stretch;
+}
+
+.card h2{
+  font-weight:800;
+  font-size:28px;
+  text-align:center;
+}
+
+.sub{
+  font-size:14px;
+  color: var(--muted);
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.field{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+
+input{
+  width:100%;
+  padding:14px 48px 14px 16px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#0c0e18;
+  color: var(--text);
+  font-size:14px;
+  outline:none;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+  transition: all 0.2s ease-in-out;
+}
+
+input::placeholder { color: var(--muted); }
+
+input:focus{
+  border-color: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+}
+
+.eye-btn{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  background:transparent;
+  border:0;
+  cursor:pointer;
+  color: var(--muted);
+  font-size:18px;
+  transition: color 0.2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* size the embedded svg inside the eye button */
+.eye-btn svg{
+  width:20px;
+  height:20px;
+  stroke: currentColor;
+}
+
+.eye-btn:hover{ color: var(--primary); }
+
+button.primary{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:0;
+  background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  font-weight:700;
+  font-size:16px;
+  cursor:pointer;
+  box-shadow:0 5px 15px rgba(37,99,235,0.4);
+  transition: all 0.2s;
+}
+
+button.primary:hover{
+  transform: translateY(-2px);
+  box-shadow:0 8px 20px rgba(37,99,235,0.6);
+}
+
+.links{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-top:10px;
+}
+
+.link{
+  background:none;
+  border:0;
+  color: #93c5fd;
+  cursor:pointer;
+  font-weight:600;
+  transition: color 0.2s;
+}
+
+.link:hover{ color: var(--primary); }
+
+.msg{
+  margin-top:12px;
+  font-size:13px;
+  text-align:center;
+  font-weight:600;
+  color: var(--danger);
+}
+
+/* MODAIS */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,0.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:1000;
+}
+
+.overlay.show{ display:flex; }
+
+.modal{
+  background: var(--card);
+  border:1px solid var(--border);
+  border-radius: var(--radius);
+  padding:28px 24px;
+  width:100%;
+  max-width:380px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.modal h3{
+  text-align:center;
+  font-weight:800;
+  font-size:22px;
+  margin-bottom:10px;
+}
+
+.modal input{
+  padding:12px 14px;
+}
+
+.modal .primary{margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Login</h2>
+  <div class="sub">Acesse sua conta</div>
+
+  <div class="field">
+    <input type="email" id="email" placeholder="E-mail">
+  </div>
+
+  <div class="field">
+    <input type="password" id="senha" placeholder="Senha">
+    <button class="eye-btn" id="toggleSenha" aria-label="mostrar ou ocultar senha"></button>
+  </div>
+
+  <!-- Botão para efetuar login -->
+  <button class="primary" id="btnLogin">Entrar</button>
+
+  <!-- Botão para retornar ao app se sessão recente -->
+  <button class="primary" id="btnReturnApp" style="display:none;">Voltar ao app</button>
+
+  <div class="links">
+    <button class="link" id="btnSignupOpen">Criar conta</button>
+    <button class="link" id="btnResetOpen">Esqueci a senha</button>
+  </div>
+
+  <div id="msg" class="msg"></div>
+</div>
+
+<!-- MODAL CRIAR CONTA -->
+<div id="signupModal" class="overlay">
+  <div class="modal">
+    <h3>Criar conta</h3>
+    <input type="email" id="sEmail" placeholder="E-mail">
+    <input type="password" id="sPass" placeholder="Senha">
+    <input type="password" id="sPass2" placeholder="Confirmar senha">
+    <button class="primary" id="btnSignup">Criar conta</button>
+    <button class="link" id="btnSignupClose">Cancelar</button>
+    <div id="sMsg" class="msg"></div>
+  </div>
+</div>
+
+<!-- MODAL RESET -->
+<div id="resetModal" class="overlay">
+  <div class="modal">
+    <h3>Recuperar senha</h3>
+    <input type="email" id="rEmail" placeholder="E-mail">
+    <button class="primary" id="btnResetSend">Enviar link</button>
+    <button class="link" id="btnResetClose">Cancelar</button>
+    <div id="rMsg" class="msg"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const $ = id=>document.getElementById(id);
+
+/* Icons for show/hide password.  Feather icons licensed under MIT. */
+const iconEye = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+const iconEyeOff = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+// reference to the eye button
+const eyeBtn = $("toggleSenha");
+// set initial icon to eye (password hidden)
+eyeBtn.innerHTML = iconEye;
+
+/* LOGIN */
+eyeBtn.onclick = () => {
+  const i=$("senha");
+  if(i.type==="password"){
+    i.type="text";
+    eyeBtn.innerHTML = iconEyeOff;
+  }else{
+    i.type="password";
+    eyeBtn.innerHTML = iconEye;
+  }
+};
+
+// Session expiry time in milliseconds (e.g., 30 minutes)
+const SESSION_EXPIRY_MS = 30 * 60 * 1000;
+
+// On page load, check if user has a valid recent session and show "Voltar ao app"
+(() => {
+  const authUser = localStorage.getItem("auth_user");
+  const lastLoginTime = parseInt(localStorage.getItem("last_login_time") || "0", 10);
+  const now = Date.now();
+  const returnBtn = $("btnReturnApp");
+  if(authUser && (now - lastLoginTime < SESSION_EXPIRY_MS)){
+    returnBtn.style.display = "block";
+    returnBtn.onclick = () => {
+      // redirect user back to the app
+      window.location.href = "https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
+    };
+  }
+})();
+
+$("btnLogin").onclick=async()=>{
+  const email=$("email").value.trim();
+  const senha=$("senha").value.trim();
+  $("msg").innerText="";
+  if(!email||!senha){ $("msg").innerText="Preencha todos os campos."; return; }
+  try{
+    const cred = await signInWithEmailAndPassword(auth,email,senha);
+    // salva credenciais e horário de login para permitir retorno rápido
+    localStorage.setItem("auth_user",cred.user.email);
+    localStorage.setItem("last_login_time", Date.now().toString());
+    window.location.href="https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
+  }catch{
+    $("msg").innerText="E-mail ou senha inválidos.";
+  }
+};
+
+/* MODAIS */
+$("btnSignupOpen").onclick=()=>$("signupModal").classList.add("show");
+$("btnSignupClose").onclick=()=>$("signupModal").classList.remove("show");
+$("btnResetOpen").onclick=()=>$("resetModal").classList.add("show");
+$("btnResetClose").onclick=()=>$("resetModal").classList.remove("show");
+
+/* SIGNUP */
+$("btnSignup").onclick=async()=>{
+  const email=$("sEmail").value.trim();
+  const pass=$("sPass").value.trim();
+  const pass2=$("sPass2").value.trim();
+  $("sMsg").innerText="";
+  if(!email||!pass||!pass2){ $("sMsg").innerText="Preencha todos os campos."; return; }
+  if(pass!==pass2){ $("sMsg").innerText="Senhas não conferem."; return; }
+  try{
+    await createUserWithEmailAndPassword(auth,email,pass);
+    $("sMsg").style.color="#22c55e";
+    $("sMsg").innerText="Conta criada. Verifique seu e-mail.";
+  }catch(e){
+    $("sMsg").style.color="#f87171";
+    $("sMsg").innerText="Não foi possível criar a conta.";
+  }
+};
+
+/* RESET */
+$("btnResetSend").onclick=async()=>{
+  const email=$("rEmail").value.trim();
+  $("rMsg").innerText="";
+  if(!email){ $("rMsg").innerText="Preencha o e-mail."; return; }
+  try{
+    await sendPasswordResetEmail(auth,email);
+    $("rMsg").style.color="#22c55e";
+    $("rMsg").innerText="Link enviado para o e-mail.";
+  }catch{
+    $("rMsg").style.color="#f87171";
+    $("rMsg").innerText="Não foi possível enviar o link.";
+  }
+};
+</script>
+
+</body>
+</html>
