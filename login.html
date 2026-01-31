@@ -99,6 +99,16 @@ input:focus{
   color: var(--muted);
   font-size:18px;
   transition: color 0.2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* size the embedded svg inside the eye button */
+.eye-btn svg{
+  width:20px;
+  height:20px;
+  stroke: currentColor;
 }
 
 .eye-btn:hover{ color: var(--primary); }
@@ -200,10 +210,14 @@ button.primary:hover{
 
   <div class="field">
     <input type="password" id="senha" placeholder="Senha">
-    <button class="eye-btn" id="toggleSenha">👁</button>
+    <button class="eye-btn" id="toggleSenha" aria-label="mostrar ou ocultar senha"></button>
   </div>
 
+  <!-- Botão para efetuar login -->
   <button class="primary" id="btnLogin">Entrar</button>
+
+  <!-- Botão para retornar ao app se sessão recente -->
+  <button class="primary" id="btnReturnApp" style="display:none;">Voltar ao app</button>
 
   <div class="links">
     <button class="link" id="btnSignupOpen">Criar conta</button>
@@ -251,11 +265,44 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const $ = id=>document.getElementById(id);
 
+/* Icons for show/hide password.  Feather icons licensed under MIT. */
+const iconEye = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+const iconEyeOff = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+// reference to the eye button
+const eyeBtn = $("toggleSenha");
+// set initial icon to eye (password hidden)
+eyeBtn.innerHTML = iconEye;
+
 /* LOGIN */
-$("toggleSenha").onclick = () => {
+eyeBtn.onclick = () => {
   const i=$("senha");
-  i.type=i.type==="password"?"text":"password";
+  if(i.type==="password"){
+    i.type="text";
+    eyeBtn.innerHTML = iconEyeOff;
+  }else{
+    i.type="password";
+    eyeBtn.innerHTML = iconEye;
+  }
 };
+
+// Session expiry time in milliseconds (e.g., 30 minutes)
+const SESSION_EXPIRY_MS = 30 * 60 * 1000;
+
+// On page load, check if user has a valid recent session and show "Voltar ao app"
+(() => {
+  const authUser = localStorage.getItem("auth_user");
+  const lastLoginTime = parseInt(localStorage.getItem("last_login_time") || "0", 10);
+  const now = Date.now();
+  const returnBtn = $("btnReturnApp");
+  if(authUser && (now - lastLoginTime < SESSION_EXPIRY_MS)){
+    returnBtn.style.display = "block";
+    returnBtn.onclick = () => {
+      // redirect user back to the app
+      window.location.href = "https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
+    };
+  }
+})();
 
 $("btnLogin").onclick=async()=>{
   const email=$("email").value.trim();
@@ -264,7 +311,9 @@ $("btnLogin").onclick=async()=>{
   if(!email||!senha){ $("msg").innerText="Preencha todos os campos."; return; }
   try{
     const cred = await signInWithEmailAndPassword(auth,email,senha);
+    // salva credenciais e horário de login para permitir retorno rápido
     localStorage.setItem("auth_user",cred.user.email);
+    localStorage.setItem("last_login_time", Date.now().toString());
     window.location.href="https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
   }catch{
     $("msg").innerText="E-mail ou senha inválidos.";
