@@ -217,7 +217,7 @@ button.primary:hover{
   <button class="primary" id="btnLogin">Entrar</button>
 
   <!-- Botão para retornar ao app se sessão recente -->
-  <button class="primary" id="btnReturnApp" style="display:none;">Voltar ao app</button>
+  <button class="primary" id="btnReturnApp" style="display:none;">Voltar ao Estudo</button>
 
   <div class="links">
     <button class="link" id="btnSignupOpen">Criar conta</button>
@@ -253,7 +253,7 @@ button.primary:hover{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
@@ -289,20 +289,23 @@ eyeBtn.onclick = () => {
 // Session expiry time in milliseconds (e.g., 30 minutes)
 const SESSION_EXPIRY_MS = 30 * 60 * 1000;
 
-// On page load, check if user has a valid recent session and show "Voltar ao app"
-(() => {
-  const authUser = localStorage.getItem("auth_user");
-  const lastLoginTime = parseInt(localStorage.getItem("last_login_time") || "0", 10);
-  const now = Date.now();
-  const returnBtn = $("btnReturnApp");
-  if(authUser && (now - lastLoginTime < SESSION_EXPIRY_MS)){
-    returnBtn.style.display = "block";
-    returnBtn.onclick = () => {
-      // redirect user back to the app
-      window.location.href = "https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
-    };
+// Verifica de forma reativa se há usuário logado e se ele usou o app recentemente;
+// se sim, exibe o botão "Voltar ao Estudo".
+const returnBtn = $("btnReturnApp");
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    const lastLoginTime = parseInt(localStorage.getItem("last_login_time") || "0", 10);
+    const now = Date.now();
+    if (now - lastLoginTime < SESSION_EXPIRY_MS) {
+      returnBtn.style.display = "block";
+      // Altere o texto para refletir o propósito: voltar aos estudos
+      returnBtn.textContent = "Voltar ao Estudo";
+      returnBtn.onclick = () => {
+        window.location.href = "https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/";
+      };
+    }
   }
-})();
+});
 
 $("btnLogin").onclick=async()=>{
   const email=$("email").value.trim();
