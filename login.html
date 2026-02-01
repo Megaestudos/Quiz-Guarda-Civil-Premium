@@ -196,6 +196,17 @@ button.primary:hover{
 }
 
 .modal .primary{margin-top:10px;}
+
+/* Destaque para o botão de retorno ao estudo */
+button.highlight{
+  background: linear-gradient(135deg,var(--success),#15803d);
+  color:#fff;
+  box-shadow:0 5px 15px rgba(34,197,94,0.4);
+}
+button.highlight:hover{
+  transform: translateY(-2px);
+  box-shadow:0 8px 20px rgba(34,197,94,0.6);
+}
 </style>
 </head>
 <body>
@@ -217,7 +228,7 @@ button.primary:hover{
   <button class="primary" id="btnLogin">Entrar</button>
 
   <!-- Botão para retornar ao app se sessão recente -->
-  <button class="primary" id="btnReturnApp" style="display:none;">Voltar ao Estudo</button>
+  <button class="primary highlight" id="btnReturnApp" style="display:none;">Voltar ao Estudo</button>
 
   <div class="links">
     <button class="link" id="btnSignupOpen">Criar conta</button>
@@ -287,17 +298,23 @@ eyeBtn.onclick = () => {
 };
 
 // Session expiry time in milliseconds (e.g., 30 minutes)
-const SESSION_EXPIRY_MS = 30 * 60 * 1000;
+const SESSION_EXPIRY_MS = 10;
 
 // Verifica de forma reativa se há usuário logado e se ele usou o app recentemente;
 // se sim, exibe o botão "Voltar ao Estudo".
 const returnBtn = $("btnReturnApp");
 onAuthStateChanged(auth, (user) => {
+  const loginBtn = $("btnLogin");
+  // Por padrão, mostrar botão de login e ocultar botão de retorno
+  if(loginBtn) loginBtn.style.display = "block";
+  returnBtn.style.display = "none";
   if (user) {
     const lastLoginTime = parseInt(localStorage.getItem("last_login_time") || "0", 10);
     const now = Date.now();
     if (now - lastLoginTime < SESSION_EXPIRY_MS) {
+      // Mostrar botão de retorno e ocultar botão de login
       returnBtn.style.display = "block";
+      if(loginBtn) loginBtn.style.display = "none";
       // Altere o texto para refletir o propósito: voltar aos estudos
       returnBtn.textContent = "Voltar ao Estudo";
       returnBtn.onclick = () => {
