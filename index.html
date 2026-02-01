@@ -408,12 +408,14 @@
     .study-content a:hover{ color:#fff; }
 
     /* ============================
-       MOBILE: SIMULADO “SEM ROLAGEM” (página), tudo encaixado e organizado
+       MOBILE: SIMULADO “SEM ROLAGEM”, cabendo na tela,
+       e ESCONDE O BLOCO DO TOPO só quando entra em SIMULADO
        ============================ */
     @media (max-width: 600px){
       body{ padding-top:5px; padding-bottom:160px; }
       .app{ gap:12px; }
       .card{ padding:15px; border-radius:16px; }
+
       .header{
         flex-direction:column;
         align-items:stretch;
@@ -430,6 +432,17 @@
       .opts{ grid-template-columns:1fr; }
       .title,.subtitle{ text-align:center; }
       .tabbtn{ font-size:11px; padding:8px 4px; }
+
+      /* (NOVO) Quando estiver no simulado: esconde o bloco do topo e ganha espaço */
+      body.quiz-mode #cardHeader{
+        display:none !important;
+      }
+      body.quiz-mode{
+        padding-top: env(safe-area-inset-top) !important; /* quase zero */
+      }
+      body.quiz-mode .app{
+        margin-top:0 !important;
+      }
 
       /* Quando estiver no quiz, travar rolagem do body (só rola dentro das áreas) */
       body.lock-scroll{
@@ -482,7 +495,7 @@
         gap:10px;
       }
 
-      /* Pergunta: área rolável (caso seja grande), mas com tamanho bem controlado */
+      /* Pergunta: área rolável (caso seja grande), mas com tamanho controlado */
       .question{
         font-size:15px;
         padding:12px;
@@ -523,12 +536,8 @@
         margin-top:0 !important;
       }
 
-      #nextBtn{
-        width:100% !important;
-      }
-      #btnRestart{
-        width:100% !important;
-      }
+      #nextBtn{ width:100% !important; }
+      #btnRestart{ width:100% !important; }
     }
   </style>
 </head>
@@ -649,14 +658,17 @@
     const header = document.getElementById('cardHeader');
     const tabs = document.getElementById('tabsBar');
 
-    const headerH = header ? Math.ceil(header.getBoundingClientRect().height) : 140;
+    // Se estiver no modo quiz (header escondido), headerH vira 0
+    const headerVisible = header && getComputedStyle(header).display !== 'none';
+    const headerH = headerVisible ? Math.ceil(header.getBoundingClientRect().height) : 0;
+
     const tabsH = tabs ? Math.ceil(tabs.getBoundingClientRect().height + 20) : 86; // + respiro
 
     document.documentElement.style.setProperty('--header-h', headerH + 'px');
     document.documentElement.style.setProperty('--tabs-h', tabsH + 'px');
 
     // margem extra (cards/paddings)
-    const extra = 36;
+    const extra = 26;
     const quizH = Math.max(360, Math.floor(window.innerHeight - headerH - tabsH - extra));
     document.documentElement.style.setProperty('--quiz-h', quizH + 'px');
   }
@@ -665,13 +677,21 @@
     const quizEl = document.getElementById('quiz');
     if(!quizEl) return;
 
+    // (NOVO) classe que esconde o topo só no mobile e só no simulado
+    document.body.classList.toggle('quiz-mode', !!on);
+
     if(isMobile() && on){
       document.body.classList.add('lock-scroll');
       quizEl.classList.add('quiz-viewport');
-      updateMobileQuizHeight();
+
+      // espera o CSS aplicar (header sumir) e recalcula altura certinho
+      requestAnimationFrame(() => {
+        updateMobileQuizHeight();
+      });
     }else{
       document.body.classList.remove('lock-scroll');
       quizEl.classList.remove('quiz-viewport');
+      updateMobileQuizHeight();
     }
   }
 
@@ -729,7 +749,7 @@
     document.getElementById(target).classList.add('active');
     document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
 
-    // modo “sem rolagem” só no quiz (mobile)
+    // modo “sem rolagem” + esconder topo só no quiz (mobile)
     applyQuizViewportMode(target === 'quiz');
 
     window.scrollTo({top: 0, behavior: 'smooth'});
@@ -807,7 +827,7 @@
     });
 
     updateProgressUI();
-    updateMobileQuizHeight(); // garante encaixe após render
+    updateMobileQuizHeight();
   }
 
   function selectOption(letter){
@@ -829,7 +849,7 @@
     expl.innerHTML = `<strong>${letter === correct ? '✅ Correto!' : '❌ Errado!'}</strong><br>${q_expl(q)}`;
     document.getElementById('nextBtn').disabled = false;
 
-    updateMobileQuizHeight(); // encaixa após abrir explicação
+    updateMobileQuizHeight();
   }
   document.getElementById('nextBtn').onclick = () => { currentIndex++; renderQuestion(); };
 
