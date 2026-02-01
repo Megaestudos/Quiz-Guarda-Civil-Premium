@@ -308,6 +308,15 @@ onAuthStateChanged(auth, (user) => {
   // Por padrão, mostrar botão de login e ocultar botão de retorno
   if(loginBtn) loginBtn.style.display = "block";
   returnBtn.style.display = "none";
+
+  // Seleciona campos de e-mail/senha e os links para manipulação de exibição
+  const fields = document.querySelectorAll('.field');
+  const linksContainer = document.querySelector('.links');
+  const msgDiv = $("msg");
+  // Por padrão, mostrar campos e links
+  fields.forEach(f => { f.style.display = 'flex'; });
+  if(linksContainer) linksContainer.style.display = 'flex';
+  if(msgDiv) msgDiv.style.display = '';
   if (user) {
     const lastLoginTime = parseInt(localStorage.getItem("last_login_time") || "0", 10);
     const now = Date.now();
@@ -315,6 +324,10 @@ onAuthStateChanged(auth, (user) => {
       // Mostrar botão de retorno e ocultar botão de login
       returnBtn.style.display = "block";
       if(loginBtn) loginBtn.style.display = "none";
+      // Ocultar campos de e-mail/senha e links quando o retorno for exibido
+      fields.forEach(f => { f.style.display = 'none'; });
+      if(linksContainer) linksContainer.style.display = 'none';
+      if(msgDiv) msgDiv.style.display = 'none';
       // Altere o texto para refletir o propósito: voltar aos estudos
       returnBtn.textContent = "Voltar ao Estudo";
       returnBtn.onclick = () => {
