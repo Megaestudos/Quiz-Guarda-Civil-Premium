@@ -379,6 +379,7 @@
         .flash-inner.flipped { transform: rotateY(180deg); }
         .flash-inner.flipped .flash-back { z-index: 2; }
 
+        /* Tabs ficam FORA do appRoot (pra não serem afetadas pelo scale/transform) */
         .tabs {
             display: flex;
             justify-content: space-around;
@@ -462,31 +463,29 @@
                 align-items: stretch !important;
             }
             #quiz select, #loadTopicBtn { width: 100%; }
-            
-            /* Correção definitiva para o botão próxima no mobile */
+
+            /* Dá espaço extra pro conteúdo do quiz (evita briga com as tabs fixas) */
+            #quiz { padding-bottom: 120px; }
+
+            /* Botão Próxima: em vez de fixed (que desajusta com scale), fica no fluxo normal e grande no mobile */
             .quiz-footer {
                 flex-direction: column !important;
-                gap: 15px !important;
+                gap: 12px !important;
                 align-items: stretch !important;
-                margin-top: 25px !important;
-                padding-bottom: 40px;
+                margin-top: 20px !important;
+                padding-bottom: 20px;
             }
             .next-btn {
-                width: auto !important;
-                padding: 12px 24px !important;
-                font-size: 14px !important;
-                display: block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                position: fixed !important;
-                bottom: 85px !important; /* Acima da barra de abas */
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                z-index: 2000 !important;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
-                border: 1px solid var(--accent) !important;
-                min-width: 140px !important;
+                position: static !important;
+                transform: none !important;
+                bottom: auto !important;
+                left: auto !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                box-shadow: 0 3px 0 #00a86b !important;
+                border: none !important;
             }
+
             .tabbtn { font-size: 11px; padding: 8px 4px; }
         }
 
@@ -524,7 +523,7 @@
                 <button class="btn" onclick="go('study')">📘 Estudar Leis</button>
                 <button class="btn" onclick="go('quiz')">🎯 Fazer Simulado</button>
                 <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
-                <a href="https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/" class="btn">📄 Resumos</a>
+                <a href="./resumos/" class="btn">📄 Resumos</a>
             </div>
             <div style="margin-top:25px; padding:15px; background:rgba(0,0,0,0.1); border-radius:12px; border: 1px solid rgba(255,255,255,0.05);">
                 <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent); text-align: center;">Carregando recorde...</div>
@@ -574,13 +573,14 @@
             <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:15px; margin-top:15px;"></div>
         </section>
     </div>
+</div>
 
-    <div class="tabs" role="navigation">
-        <button class="tabbtn active" data-target="home" onclick="go('home')"><span>🏠</span>Início</button>
-        <button class="tabbtn" data-target="study" onclick="go('study')"><span>📘</span>Estudo</button>
-        <button class="tabbtn" data-target="quiz" onclick="go('quiz')"><span>🎯</span>Simulado</button>
-        <button class="tabbtn" data-target="cards" onclick="go('cards')"><span>🃏</span>Cartões</button>
-    </div>
+<!-- ✅ Tabs fora do appRoot: não sofrem com scale/transform -->
+<div class="tabs" role="navigation">
+    <button class="tabbtn active" data-target="home" onclick="go('home')"><span>🏠</span>Início</button>
+    <button class="tabbtn" data-target="study" onclick="go('study')"><span>📘</span>Estudo</button>
+    <button class="tabbtn" data-target="quiz" onclick="go('quiz')"><span>🎯</span>Simulado</button>
+    <button class="tabbtn" data-target="cards" onclick="go('cards')"><span>🃏</span>Cartões</button>
 </div>
 
 <script>
@@ -745,6 +745,18 @@
         saveRecord(score, POOL.length);
     }
 
+    function restartQuiz(){
+        document.getElementById('btnRestart').style.display = 'none';
+        quizStarted = false;
+        showTopicSelection();
+        document.getElementById('question').innerText = 'Selecione um tópico para começar.';
+        document.getElementById('opts').innerHTML = '';
+        document.getElementById('explain').style.display = 'none';
+        document.getElementById('bar').style.width = '0%';
+        document.getElementById('progressInfo').innerText = '0 / 0';
+        document.getElementById('progressText').innerText = '';
+    }
+
     function saveRecord(s, t){
         const pct = Math.round((s/t)*100);
         const prev = JSON.parse(localStorage.getItem(BEST_KEY) || '{"pct":0}');
@@ -809,5 +821,3 @@
 </script>
 </body>
 </html>
-
-
