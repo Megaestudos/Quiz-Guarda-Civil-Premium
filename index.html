@@ -3,591 +3,375 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-    <title>Quiz Guarda Civil — App Profissional</title>
-    <meta name="theme-color" content="#1e3c72"/>
+    <title>PlenAula — 3D Elite Edition</title>
+    <meta name="theme-color" content="#020617"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg1: #0f3b6b;
-            --bg2: #1f6fb0;
-            --card-bg: rgba(255, 255, 255, 0.08);
-            --muted: rgba(255, 255, 255, 0.92);
-            --accent: #00ff9d;
-            --accent-dark: #00d68a;
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --shadow-3d: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-            --btn-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
-            --btn-shadow-active: 0 1px 0 rgba(0, 0, 0, 0.2);
+            --brand-primary: #6366f1;
+            --brand-secondary: #0ea5e9;
+            --brand-accent: #10b981;
+            --bg-deep: #020617;
+            --bg-surface: rgba(15, 23, 42, 0.7);
+            --bg-card: rgba(30, 41, 59, 0.5);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --shadow-3d: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            --transition-3d: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        * { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
-        *::-webkit-scrollbar { width: 6px; }
-        *::-webkit-scrollbar-track { background: transparent; }
-        *::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-font-smoothing: antialiased;
+            margin: 0; padding: 0;
+        }
 
         html, body { 
             height: 100%; 
-            margin: 0; 
-            padding: 0; 
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
             overflow-x: hidden;
-            background: radial-gradient(circle at top right, var(--bg2), var(--bg1));
-            background-attachment: fixed;
+        }
+
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.15) 0%, transparent 50%),
+                        #020617;
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 100px) 12px;
-            line-height: 1.5;
+            padding: 40px 20px 140px 20px;
         }
 
-        .app {
+        /* Container que mantém a perspectiva 3D apenas para o conteúdo */
+        .perspective-wrapper {
+            perspective: 1000px;
             width: 100%;
-            max-width: 920px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-top: 10px;
+            gap: 40px;
+            transform-style: preserve-3d;
         }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: var(--shadow-3d);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-        }
-
+        /* HEADER 3D */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
-            position: sticky;
-            top: 10px;
-            z-index: 100;
+            padding: 24px 32px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-3d);
+            transform: translateZ(20px);
         }
 
-        .title {
-            font-size: clamp(18px, 5vw, 24px);
-            margin: 0;
+        .brand h1 {
+            font-size: 28px;
             font-weight: 800;
-            letter-spacing: -0.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .subtitle {
-            font-size: 12px;
-            color: #b0d4ff;
-            margin-top: 2px;
-            font-weight: 500;
-        }
-
-        .controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: var(--btn-shadow);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
-        }
-
-        .btn:active {
-            transform: translateY(2px);
-            box-shadow: var(--btn-shadow-active);
-        }
-
-        .icon-btn {
-            width: 38px;
-            height: 38px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            cursor: pointer;
-            font-weight: 800;
-            transition: all 0.2s ease;
-            box-shadow: var(--btn-shadow);
-        }
-
-        .icon-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .scale-label {
-            min-width: 55px;
-            text-align: center;
-            font-weight: 800;
-            background: rgba(0,0,0,0.2);
-            padding: 4px 6px;
-            border-radius: 8px;
-            font-size: 12px;
-        }
-
-        .pages {
-            min-height: 400px;
-            position: relative;
-        }
-
-        .page { display: none; }
-        .page.active { 
-            display: block; 
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .welcome {
-            font-size: 16px;
-            margin: 10px 0 20px 0;
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        .home-actions {
+        /* CARDS COM EFEITO 3D E MOVIMENTO */
+        .action-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-top: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
         }
 
-        .study-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        details.summary {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
-            border: 1px solid var(--glass-border);
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        summary {
-            font-weight: 700;
+        .action-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            transition: var(--transition-3d);
             cursor: pointer;
-            padding: 14px 18px;
-            outline: none;
-            list-style: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        summary::after {
-            content: '→';
-            transition: transform 0.3s ease;
-        }
-
-        details[open] summary::after {
-            transform: rotate(90deg);
-        }
-
-        .progress {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .track {
-            flex: 1;
-            height: 12px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 999px;
-            overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .bar {
-            height: 100%;
-            width: 0;
-            background: linear-gradient(90deg, var(--accent), #2fb6ff);
-            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border-radius: 999px;
-            box-shadow: 0 0 15px rgba(0, 255, 157, 0.4);
-        }
-
-        .question {
-            margin: 15px 0;
-            font-size: 18px;
-            font-weight: 600;
-            color: #fff;
-            line-height: 1.5;
-            white-space: pre-wrap;
-            padding: 15px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 12px;
-            border-left: 4px solid var(--accent);
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .opts {
-            display: grid;
-            gap: 10px;
-            grid-template-columns: 1fr 1fr;
-        }
-
-        button.opt {
-            padding: 14px;
-            min-height: 60px;
-            border-radius: 14px;
-            border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-weight: 700;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.2s ease;
-            box-shadow: var(--btn-shadow);
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-
-        button.opt:hover:not([disabled]) {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
-        }
-
-        button.opt.correct {
-            background: #2fa764 !important;
-            border-color: #00ff9d !important;
-            color: #fff !important;
-            box-shadow: 0 4px 0 #1a5c37 !important;
-        }
-
-        button.opt.wrong {
-            background: #ff6b6b !important;
-            border-color: #ffcdd2 !important;
-            color: #fff !important;
-            box-shadow: 0 4px 0 #a33c3c !important;
-        }
-
-        .explain {
-            margin-top: 15px;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 14px;
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            font-size: 14px;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .next-btn {
-            background: linear-gradient(135deg, var(--accent), #00d2ff);
-            border: none;
-            color: #012;
-            font-weight: 800;
-            padding: 10px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            box-shadow: 0 3px 0 #00a86b;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            min-width: 100px;
-        }
-
-        .next-btn:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 0 #00a86b;
-        }
-
-        .next-btn:active:not(:disabled) {
-            transform: translateY(1px);
-            box-shadow: 0 1px 0 #00a86b;
-        }
-
-        /* Flashcards 3D */
-        .flashcard { perspective: 1000px; cursor: pointer; height: 160px; }
-        .flash-inner {
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-style: preserve-3d;
-            position: relative;
-            height: 100%;
-        }
-        .flash-front, .flash-back {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            padding: 15px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+            gap: 16px;
+            position: relative;
+            transform-style: preserve-3d;
             box-shadow: var(--shadow-3d);
-            border: 1px solid var(--glass-border);
-            overflow: hidden;
         }
-        .flash-front { background: rgba(255, 255, 255, 0.05); color: #fff; }
-        .flash-back {
-            transform: rotateY(180deg);
-            background: linear-gradient(135deg, #1a2a3a, #0f172a);
-            color: #fff;
-            border: 1px solid var(--accent);
-        }
-        .flash-inner.flipped { transform: rotateY(180deg); }
-        .flash-inner.flipped .flash-back { z-index: 2; }
 
-        .tabs {
-            display: flex;
-            justify-content: space-around;
-            gap: 8px;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.4);
+        .action-card:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(2deg);
+            border-color: var(--brand-primary);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 20px rgba(99, 102, 241, 0.3);
+            background: rgba(30, 41, 59, 0.7);
+        }
+
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+            transform: translateZ(30px);
+            display: block;
+        }
+
+        .action-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            transform: translateZ(20px);
+        }
+
+        .action-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            transform: translateZ(10px);
+        }
+
+        /* BOTÃO 3D */
+        .btn-3d {
+            background: var(--brand-primary);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-3d);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: fit-content;
+            text-decoration: none;
+            box-shadow: 0 4px 0 #4338ca;
+            transform: translateZ(25px);
+        }
+
+        .btn-3d:hover {
+            transform: translateZ(35px) translateY(-2px);
+            box-shadow: 0 8px 0 #4338ca, 0 10px 20px rgba(0,0,0,0.3);
+            background: #4f46e5;
+        }
+
+        /* PAGE SYSTEM */
+        .page { display: none; }
+        .page.active { display: block; animation: pageIn 0.6s ease-out; }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* NAV DOCK - FIXADO DE FORMA INDEPENDENTE NO RODAPÉ */
+        .nav-dock {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.9);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            position: fixed;
-            bottom: 10px;
-            left: 12px;
-            right: 12px;
-            max-width: 920px;
-            margin: 0 auto;
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            z-index: 1000;
+            padding: 8px;
+            border-radius: 24px;
+            display: flex;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            z-index: 9999; /* Garantir que fique acima de tudo */
+            width: auto;
+            pointer-events: auto;
         }
 
-        .tabbtn {
-            flex: 1;
-            padding: 10px;
-            border-radius: 12px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: rgba(255,255,255,0.5);
-            font-weight: 700;
+        .nav-item {
+            padding: 12px 20px;
+            border-radius: 16px;
+            color: var(--text-secondary);
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 13px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
+            border: none; background: transparent;
+            display: flex; align-items: center; gap: 8px;
+            white-space: nowrap;
         }
 
-        .tabbtn.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--accent);
-            border-color: rgba(0, 255, 157, 0.2);
+        .nav-item.active { 
+            background: var(--brand-primary); 
+            color: #fff; 
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); 
         }
 
-        select {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border);
+        /* QUIZ & STUDY */
+        .quiz-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-3d);
+        }
+
+        .progress-bar {
+            height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%; width: 0%; background: var(--brand-primary); transition: width 0.5s ease;
+        }
+
+        .opt-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-light);
+            padding: 18px 24px;
+            border-radius: var(--radius-lg);
             color: #fff;
-            padding: 10px;
-            border-radius: 10px;
-            outline: none;
-            font-family: inherit;
-            font-weight: 600;
+            font-size: 16px;
+            text-align: left;
             cursor: pointer;
-            font-size: 14px;
-        }
-        select option { background: #0f3b6b; color: #fff; }
-
-        /* RESPONSIVIDADE ULTRA PROFISSIONAL */
-        @media (max-width: 600px) {
-            body { padding-top: 5px; padding-bottom: 160px; }
-            .app { gap: 12px; }
-            .card { padding: 15px; border-radius: 16px; }
-            .header { 
-                flex-direction: column; 
-                align-items: stretch; 
-                padding: 12px;
-                top: 5px;
-            }
-            .controls { 
-                justify-content: space-between; 
-                width: 100%; 
-                margin-top: 8px;
-                padding-top: 8px;
-                border-top: 1px solid rgba(255,255,255,0.05);
-            }
-            .opts { grid-template-columns: 1fr; }
-            .title { text-align: center; }
-            .subtitle { text-align: center; }
-            
-            #quiz .page-header-actions {
-                flex-direction: column;
-                align-items: stretch !important;
-            }
-            #quiz select, #loadTopicBtn { width: 100%; }
-            
-            /* Correção definitiva para o botão próxima no mobile */
-            .quiz-footer {
-                flex-direction: column !important;
-                gap: 15px !important;
-                align-items: stretch !important;
-                margin-top: 25px !important;
-                padding-bottom: 40px;
-            }
-            .next-btn {
-                width: auto !important;
-                padding: 12px 24px !important;
-                font-size: 14px !important;
-                display: block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                position: fixed !important;
-                bottom: 85px !important; /* Acima da barra de abas */
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                z-index: 2000 !important;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
-                border: 1px solid var(--accent) !important;
-                min-width: 140px !important;
-            }
-            .tabbtn { font-size: 11px; padding: 8px 4px; }
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            width: 100%;
         }
 
-        .study-content a {
-            color: var(--accent);
-            text-decoration: underline;
-            font-weight: 600;
+        .opt-btn:hover { background: rgba(255,255,255,0.08); transform: translateX(10px); border-color: var(--brand-primary); }
+        .opt-btn.correct { background: rgba(16, 185, 129, 0.2); border-color: var(--brand-accent); }
+        .opt-btn.wrong { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; }
+
+        .record-badge {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 20px; border-radius: 16px; border: 1px solid var(--border-glow);
+            text-align: center; color: var(--brand-secondary); margin-top: 40px; font-weight: 700;
         }
-        .study-content a:hover { color: #fff; }
+
+        @media (max-width: 640px) {
+            .nav-item span { display: none; }
+            .nav-item { padding: 12px 16px; }
+            .nav-dock { bottom: 20px; width: 90%; justify-content: space-around; }
+        }
     </style>
 </head>
 <body>
 
-<div class="app" id="appRoot">
-    <div class="card header" id="cardHeader">
-        <div>
-            <h1 class="title">Guarda Civil 👮‍♂️</h1>
-            <div class="subtitle">Plataforma de Estudos Inteligente</div>
-        </div>
-        <div class="controls">
-            <div style="display:flex; gap:5px">
-                <button class="icon-btn" id="scaleDownBtn" title="Diminuir">A−</button>
-                <div class="scale-label" id="scaleLabel">x1.00</div>
-                <button class="icon-btn" id="scaleUpBtn" title="Aumentar">A+</button>
-            </div>
-            <button class="icon-btn" id="soundToggle" title="Alternar Som">🔊</button>
-            <button class="icon-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
-        </div>
-    </div>
+<div class="bg-mesh"></div>
 
-    <div class="card pages" id="pages">
-        <section id="home" class="page active">
-            <div class="welcome">Bem-vindo! Prepare-se para sua aprovação. Escolha uma modalidade abaixo:</div>
-            <div class="home-actions">
-                <button class="btn" onclick="go('study')">📘 Estudar Leis</button>
-                <button class="btn" onclick="go('quiz')">🎯 Fazer Simulado</button>
-                <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
-                <a href="https://megaestudos.github.io/Resumos-PlenAula/" class="btn" target="_blank">📄 Resumos</a>
+<!-- Wrapper para perspectiva 3D apenas no conteúdo -->
+<div class="perspective-wrapper">
+    <div class="container" id="appRoot">
+        <header class="header">
+            <div class="brand">
+                <h1>PlenAula</h1>
+                <p style="font-size:12px; color:var(--brand-secondary); font-weight:700; text-transform:uppercase; letter-spacing:2px;">Elite Intelligence</p>
             </div>
-            <div style="margin-top:25px; padding:15px; background:rgba(0,0,0,0.1); border-radius:12px; border: 1px solid rgba(255,255,255,0.05);">
-                <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent); text-align: center;">Carregando recorde...</div>
+            <div style="display:flex; gap:12px;">
+                <button class="nav-item" id="soundToggle" style="padding:10px;">🔊</button>
+                <button class="nav-item" id="fullscreenBtn" style="padding:10px;">⛶</button>
             </div>
-        </section>
+        </header>
 
-        <section id="study" class="page">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0">📚 Conteúdos</h3>
-                <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
-            </div>
-            <div id="studyList" class="study-list">Carregando conteúdos...</div>
-        </section>
-
-        <section id="quiz" class="page">
-            <div class="page-header-actions" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1;">
-                    <span style="font-weight:700; font-size: 14px;">Tópico:</span>
-                    <select id="topicSelect" style="flex:1; min-width:140px;"></select>
-                    <button class="next-btn" id="loadTopicBtn" style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap; position:static !important; box-shadow:none !important; border:none !important; width:auto !important; min-width:80px !important; transform:none !important;">Iniciar</button>
+        <main id="content">
+            <!-- HOME -->
+            <section id="home" class="page active">
+                <div style="text-align:center; margin-bottom:50px;">
+                    <h2 style="font-size:48px; font-weight:800; letter-spacing:-2px; margin-bottom:10px;">Excelência Acadêmica</h2>
+                    <p style="color:var(--text-secondary); font-size:18px;">A plataforma definitiva para sua aprovação profissional.</p>
                 </div>
-                <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px; font-size: 12px;">
-                    Questões: <strong id="quizSizeLabel"></strong>
-                </div>
-            </div>
-            <div class="progress">
-                <div class="track"><div class="bar" id="bar"></div></div>
-                <div style="font-size:12px; font-weight:800; min-width:40px;" id="progressInfo">0 / 0</div>
-            </div>
-            <div class="question" id="question">Selecione um tópico para começar.</div>
-            <div class="opts" id="opts"></div>
-            <div class="explain" id="explain" style="display:none"></div>
-            <div class="quiz-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-                <div id="progressText" style="font-weight:700; color:var(--accent); font-size: 14px;"></div>
-                <div style="display:flex; gap:10px; flex-wrap: wrap;">
-                    <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄 Reiniciar</button>
-                    <button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
-                </div>
-            </div>
-        </section>
 
-        <section id="cards" class="page">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0">🃏 Flashcards</h3>
-                <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
-            </div>
-            <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:15px; margin-top:15px;"></div>
-        </section>
-    </div>
+                <div class="action-grid">
+                    <div class="action-card" onclick="go('study')">
+                        <span class="card-icon">📘</span>
+                        <h3>Biblioteca</h3>
+                        <p>Legislação completa e comentada para estudo aprofundado.</p>
+                        <button class="btn-3d">Explorar</button>
+                    </div>
+                    <div class="action-card" onclick="go('quiz')">
+                        <span class="card-icon">🎯</span>
+                        <h3>Simulados</h3>
+                        <p>Treine com questões reais e análise de performance instantânea.</p>
+                        <button class="btn-3d">Iniciar</button>
+                    </div>
+                    <div class="action-card" onclick="go('cards')">
+                        <span class="card-icon">🃏</span>
+                        <h3>Flashcards</h3>
+                        <p>Memorização ativa com sistema de repetição inteligente.</p>
+                        <button class="btn-3d">Praticar</button>
+                    </div>
+                    <div class="action-card">
+                        <span class="card-icon">📄</span>
+                        <h3>Resumos</h3>
+                        <p>Material de alta qualidade e foco total nos pontos essenciais.</p>
+                        <a href="https://megaestudos.github.io/Resumos-PlenAula/" target="_blank" class="btn-3d">Acessar</a>
+                    </div>
+                </div>
 
-    <div class="tabs" role="navigation">
-        <button class="tabbtn active" data-target="home" onclick="go('home')"><span>🏠</span>Início</button>
-        <button class="tabbtn" data-target="study" onclick="go('study')"><span>📘</span>Estudo</button>
-        <button class="tabbtn" data-target="quiz" onclick="go('quiz')"><span>🎯</span>Simulado</button>
-        <button class="tabbtn" data-target="cards" onclick="go('cards')"><span>🃏</span>Cartões</button>
+                <div id="bestRecord" class="record-badge">Carregando performance...</div>
+            </section>
+
+            <!-- STUDY -->
+            <section id="study" class="page">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                    <h2>Conteúdos</h2>
+                    <button class="btn-3d" onclick="go('home')">Voltar</button>
+                </div>
+                <div id="studyList" style="display:grid; gap:16px;"></div>
+            </section>
+
+            <!-- QUIZ -->
+            <section id="quiz" class="page">
+                <div class="quiz-card">
+                    <div id="quizSetup">
+                        <h3 style="margin-bottom:20px;">Selecione o Tópico</h3>
+                        <div style="display:flex; gap:12px;">
+                            <select id="topicSelect" style="flex:1; padding:15px; background:rgba(255,255,255,0.05); border:1px solid var(--border-light); color:#fff; border-radius:12px; font-family:inherit;"></select>
+                            <button class="btn-3d" id="loadTopicBtn">Iniciar</button>
+                        </div>
+                    </div>
+                    <div id="quizPlay" style="display:none;">
+                        <div class="progress-bar"><div class="progress-fill" id="bar"></div></div>
+                        <div id="progressInfo" style="font-size:12px; margin-bottom:20px; font-weight:700; color:var(--brand-secondary);"></div>
+                        <h3 id="question" style="font-size:22px; margin-bottom:30px; line-height:1.4;"></h3>
+                        <div id="opts"></div>
+                        <div id="explain" style="display:none; margin-top:20px; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; border-left:4px solid var(--brand-primary);"></div>
+                        <div style="display:flex; justify-content:flex-end; margin-top:30px; gap:15px;">
+                            <button class="btn-3d" id="btnRestart" onclick="restartQuiz()" style="display:none; background:transparent; border:1px solid var(--border-light); box-shadow:none;">Reiniciar</button>
+                            <button class="btn-3d" id="nextBtn" disabled>Próxima</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CARDS -->
+            <section id="cards" class="page">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                    <h2>Flashcards</h2>
+                    <button class="btn-3d" onclick="go('home')">Voltar</button>
+                </div>
+                <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;"></div>
+            </section>
+        </main>
     </div>
 </div>
 
+<!-- NAV DOCK - FORA DO CONTAINER DE PERSPECTIVA -->
+<nav class="nav-dock">
+    <button class="nav-item active" data-target="home" onclick="go('home')">🏠 <span>Início</span></button>
+    <button class="nav-item" data-target="study" onclick="go('study')">📘 <span>Estudo</span></button>
+    <button class="nav-item" data-target="quiz" onclick="go('quiz')">🎯 <span>Simulado</span></button>
+    <button class="nav-item" data-target="cards" onclick="go('cards')">🃏 <span>Cartões</span></button>
+</nav>
+
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec';
-    const TEMPLATE_QUIZ_SIZE = 20;
     let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
-    const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
+    const SOUND_KEY = 'quiz_sound_on'; const BEST_KEY = 'quiz_best_record';
 
     function q_text(q){ return q.pergunta || q.perguntas || q.question || ''; }
     function q_topic(q){ return q.materia || q.topico || q.tópico || q.topic || ''; }
@@ -595,95 +379,69 @@
     function q_answer_letter(q){ const a = (q.resposta || q.answer || '').toString().trim(); return a.substr(0,1).toUpperCase(); }
     function q_option(q, letter){ return q[letter.toUpperCase()] || q[letter.toLowerCase()] || ''; }
 
-    function setScale(v){ 
-        v = Math.max(0.8, Math.min(1.4, Number(v))); 
-        document.getElementById('appRoot').style.transform = `scale(${v.toFixed(2)})`;
-        document.getElementById('appRoot').style.transformOrigin = 'top center';
-        document.getElementById('scaleLabel').innerText = 'x' + v.toFixed(2); 
-        localStorage.setItem(SCALE_KEY, v.toFixed(2)); 
-    }
-    document.getElementById('scaleUpBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) + 0.05);
-    document.getElementById('scaleDownBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) - 0.05);
-    setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0));
-
-    let audioCtx = null;
-    function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    function playTone(freq, dur=120, type='sine', gainVal=0.06){ 
-        if (localStorage.getItem(SOUND_KEY) === '0') return; 
-        try{ 
-            ensureAudio(); 
-            const o = audioCtx.createOscillator(); 
-            const g = audioCtx.createGain(); 
-            o.type = type; 
-            o.frequency.value = freq; 
-            g.gain.value = gainVal; 
-            o.connect(g); 
-            g.connect(audioCtx.destination); 
-            o.start(); 
-            setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, dur); 
-        }catch(e){} 
-    }
-    function playCorrect(){ playTone(880,120,'sine',0.06); }
-    function playWrong(){ playTone(220,220,'sawtooth',0.08); }
-
-    document.getElementById('soundToggle').onclick = function() {
-        const current = localStorage.getItem(SOUND_KEY) !== '0';
-        localStorage.setItem(SOUND_KEY, current ? '0' : '1');
-        this.innerText = current ? '🔇' : '🔊';
-    };
-    if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY, '1');
-    document.getElementById('soundToggle').innerText = localStorage.getItem(SOUND_KEY) === '0' ? '🔇' : '🔊';
-
     window.go = function(target){
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(target).classList.add('active');
-        document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.target === target));
         if (target === 'home') showBestRecord();
         if (target === 'study') renderStudies();
         if (target === 'cards') renderCards();
         if (target === 'quiz' && !quizStarted) showTopicSelection();
     };
 
-    function linkify(text) {
-        const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-        return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
-    }
+    // Tilt Effect corrigido para não afetar o dock
+    document.addEventListener('mousemove', (e) => {
+        const container = document.getElementById('appRoot');
+        if (!container) return;
+        const x = (window.innerWidth / 2 - e.pageX) / 80;
+        const y = (window.innerHeight / 2 - e.pageY) / 80;
+        container.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+    });
 
     async function renderStudies(){
         const container = document.getElementById('studyList');
-        container.innerHTML = '<div style="text-align:center; padding:20px;">Carregando...</div>';
+        container.innerHTML = '<div style="text-align:center; padding:40px;">Sincronizando base de dados...</div>';
         try {
             const res = await fetch(`${SCRIPT_URL}?action=getStudies`);
             const js = await res.json();
             if (js.ok && js.studies){
                 container.innerHTML = '';
                 js.studies.forEach(s => {
-                    const d = document.createElement('details'); d.className = 'summary';
-                    const content = linkify(s.conteudo || '');
-                    d.innerHTML = `<summary>${s.topico || 'Tópico'}</summary><div class="study-content" style="padding:15px">${content}</div>`;
-                    container.appendChild(d);
+                    const item = document.createElement('div');
+                    item.className = 'action-card';
+                    item.style.cursor = 'pointer';
+                    item.innerHTML = `
+                        <div style="font-weight:700; display:flex; justify-content:space-between;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+                            ${s.topico || 'Tópico'} <span>▼</span>
+                        </div>
+                        <div style="display:none; margin-top:15px; color:var(--text-secondary); line-height:1.6;">${s.conteudo || ''}</div>
+                    `;
+                    container.appendChild(item);
                 });
             }
         } catch (e) { container.innerHTML = 'Erro ao carregar.'; }
     }
 
     async function showTopicSelection(){
+        document.getElementById('quizSetup').style.display = 'block';
+        document.getElementById('quizPlay').style.display = 'none';
         try {
             const res = await fetch(`${SCRIPT_URL}?action=getTopics`);
             const js = await res.json();
             const select = document.getElementById('topicSelect');
-            select.innerHTML = '<option value="Todos">Todos</option>';
+            select.innerHTML = '<option value="Todos">Todos os Tópicos</option>';
             if (js.ok && js.topics) js.topics.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
         } catch (e) {}
     }
 
     async function loadTopicQuestions(topic){
-        document.getElementById('question').innerText = 'Carregando...';
+        document.getElementById('quizSetup').style.display = 'none';
+        document.getElementById('quizPlay').style.display = 'block';
+        document.getElementById('question').innerText = 'Preparando questões elite...';
         try {
             const res = await fetch(`${SCRIPT_URL}?action=getQuestionsByTopic&topic=${encodeURIComponent(topic)}`);
             const js = await res.json();
-            POOL = (js.ok && js.questions) ? js.questions.slice(0, TEMPLATE_QUIZ_SIZE) : [];
+            POOL = (js.ok && js.questions) ? js.questions.slice(0, 20) : [];
             currentIndex = 0; score = 0; quizStarted = true;
             renderQuestion();
         } catch (e) {}
@@ -695,14 +453,14 @@
         document.getElementById('nextBtn').disabled = true;
         if (currentIndex >= POOL.length) { finishQuiz(); return; }
         const q = POOL[currentIndex];
-        document.getElementById('question').innerText = `📘 ${q_topic(q)}\n${q_text(q)}`;
+        document.getElementById('question').innerText = q_text(q);
         const opts = document.getElementById('opts');
         opts.innerHTML = '';
         ['A','B','C','D'].forEach(letter => {
             const txt = q_option(q, letter);
             if (!txt) return;
             const btn = document.createElement('button');
-            btn.className = 'opt';
+            btn.className = 'opt-btn';
             btn.id = 'opt_' + letter;
             btn.innerText = `${letter}) ${txt}`;
             btn.onclick = () => selectOption(letter);
@@ -714,98 +472,87 @@
     function selectOption(letter){
         const q = POOL[currentIndex];
         const correct = q_answer_letter(q);
-        document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+        document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
         const elCorrect = document.getElementById('opt_' + correct);
         if (elCorrect) elCorrect.classList.add('correct');
-        if (letter !== correct) {
-            document.getElementById('opt_' + letter).classList.add('wrong');
-            playWrong();
-        } else {
-            score++;
-            playCorrect();
+        if (letter !== correct) document.getElementById('opt_' + letter).classList.add('wrong');
+        else score++;
+        const expl = q_expl(q);
+        if (expl) {
+            const elExp = document.getElementById('explain');
+            elExp.innerHTML = `<strong>Análise:</strong><br>${expl}`;
+            elExp.style.display = 'block';
         }
-        document.getElementById('explain').style.display = 'block';
-        document.getElementById('explain').innerHTML = `<strong>${letter === correct ? '✅ Correto!' : '❌ Errado!'}</strong><br>${q_expl(q)}`;
         document.getElementById('nextBtn').disabled = false;
     }
+
     document.getElementById('nextBtn').onclick = () => { currentIndex++; renderQuestion(); };
 
     function updateProgressUI(){
-        const pct = Math.round((currentIndex / POOL.length) * 100);
+        const pct = (currentIndex / POOL.length) * 100;
         document.getElementById('bar').style.width = pct + '%';
-        document.getElementById('progressInfo').innerText = `${currentIndex + 1} / ${POOL.length}`;
-        document.getElementById('progressText').innerText = `Pontos: ${score}`;
+        document.getElementById('progressInfo').innerText = `Questão ${currentIndex + 1} de ${POOL.length}`;
     }
 
     function finishQuiz(){
         quizStarted = false;
-        document.getElementById('question').innerText = `Fim! Você acertou ${score} de ${POOL.length}`;
+        document.getElementById('question').innerHTML = `
+            <div style="text-align:center;">
+                <h2 style="font-size:32px;">Simulado Concluído!</h2>
+                <div style="font-size:48px; color:var(--brand-primary); margin:20px 0;">${score} / ${POOL.length}</div>
+            </div>
+        `;
         document.getElementById('opts').innerHTML = '';
+        document.getElementById('nextBtn').style.display = 'none';
         document.getElementById('btnRestart').style.display = 'block';
         saveRecord(score, POOL.length);
     }
 
-    function saveRecord(s, t){
-        const pct = Math.round((s/t)*100);
-        const prev = JSON.parse(localStorage.getItem(BEST_KEY) || '{"pct":0}');
-        if (pct > prev.pct) localStorage.setItem(BEST_KEY, JSON.stringify({score:s, total:t, pct:pct}));
+    function restartQuiz(){
+        document.getElementById('nextBtn').style.display = 'block';
+        document.getElementById('btnRestart').style.display = 'none';
+        showTopicSelection();
+        quizStarted = false;
+    }
+
+    function saveRecord(s, total){
+        const last = JSON.parse(localStorage.getItem(BEST_KEY) || '{"score":0, "total":0}');
+        if (s > last.score) localStorage.setItem(BEST_KEY, JSON.stringify({score: s, total: total, date: new Date().toLocaleDateString()}));
     }
 
     function showBestRecord(){
-        const rec = JSON.parse(localStorage.getItem(BEST_KEY));
-        document.getElementById('bestRecord').innerText = rec ? `🏆 Melhor: ${rec.score}/${rec.total} (${rec.pct}%)` : '🚀 Sem recorde.';
+        const last = JSON.parse(localStorage.getItem(BEST_KEY) || 'null');
+        const el = document.getElementById('bestRecord');
+        if (last) el.innerHTML = `🏆 Melhor Performance: ${last.score}/${last.total} (${last.date})`;
+        else el.innerText = 'Nenhum recorde registrado ainda.';
     }
 
     async function renderCards(){
         const container = document.getElementById('cardsContainer');
-        container.innerHTML = '<div style="text-align:center; padding:20px;">Carregando...</div>';
-        const sheetName = 'cartões';
+        container.innerHTML = '<div style="text-align:center; padding:40px; grid-column:1/-1;">Sincronizando...</div>';
         try {
-            const urlCards = `${SCRIPT_URL}?action=getCards&sheet=${encodeURIComponent(sheetName)}`;
-            let res = await fetch(urlCards, {cache:'no-store'});
-            let js = await res.json();
-            let list = (js.ok && js.cards) ? js.cards : (js.ok && js.questions ? js.questions : []);
-            
-            if (!list.length) {
-                const urlAll = `${SCRIPT_URL}?action=getAllQuestions`;
-                res = await fetch(urlAll, {cache:'no-store'});
-                js = await res.json();
-                list = (js.ok && js.questions) ? js.questions : [];
+            const res = await fetch(`${SCRIPT_URL}?action=getCards`);
+            const js = await res.json();
+            if (js.ok && js.cards){
+                container.innerHTML = '';
+                js.cards.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'action-card';
+                    card.style.textAlign = 'center';
+                    card.innerHTML = `<div style="font-weight:600;">${c.frente || ''}</div>`;
+                    let flipped = false;
+                    card.onclick = () => {
+                        flipped = !flipped;
+                        card.innerHTML = flipped ? `<div style="color:var(--brand-secondary);">${c.verso || ''}</div>` : `<div style="font-weight:600;">${c.frente || ''}</div>`;
+                    };
+                    container.appendChild(card);
+                });
             }
-
-            if (!list.length) {
-                container.innerHTML = '<div style="text-align:center; padding:20px;">Nenhum cartão encontrado.</div>';
-                return;
-            }
-
-            container.innerHTML = '';
-            for (let i = list.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [list[i], list[j]] = [list[j], list[i]];
-            }
-
-            list.forEach(q => {
-                const frontText = (q.pergunta || q.perguntas || q.question || q[Object.keys(q).find(k=>/perg/i.test(k))] || '').toString();
-                const topicText = (q.topico || q.tópico || q.materia || q.topic || '').toString();
-                const backText = (q.resposta || q.respostas || q.explanation || q.explicacao || q.answer || q[Object.keys(q).find(k=>/resp/i.test(k))] || '').toString();
-
-                const wrapper = document.createElement('div'); wrapper.className = 'flashcard';
-                const inner = document.createElement('div'); inner.className = 'flash-inner';
-                const front = document.createElement('div'); front.className = 'flash-front';
-                const back = document.createElement('div'); back.className = 'flash-back';
-
-                front.innerHTML = `<div style="font-size:11px;opacity:0.7">${topicText}</div><div style="font-weight:800;margin-top:8px;font-size:14px;">${frontText}</div><div style="margin-top:12px;font-size:11px;color:var(--accent)">Clique para ver resposta</div>`;
-                back.innerHTML = `<div style="font-size:11px;opacity:0.7">${topicText}</div><div style="font-weight:600;margin-top:8px;font-size:13px;">${backText}</div>`;
-
-                inner.appendChild(front); inner.appendChild(back);
-                wrapper.appendChild(inner);
-                wrapper.onclick = () => inner.classList.toggle('flipped');
-                container.appendChild(wrapper);
-            });
-        } catch(e) { container.innerHTML = '<div style="text-align:center; padding:20px;">Erro ao carregar cartões.</div>'; }
+        } catch (e) { container.innerHTML = 'Erro ao carregar.'; }
     }
 
     showBestRecord();
 </script>
+
 </body>
 </html>
