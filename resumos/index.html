@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlenAula - Resumos Profissionais</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(60px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #60A5FA;
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06B6D4;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .logo-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #2563EB;
+            margin-top: 2px;
+        }
+
+        .header-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .header-content h1 span {
+            background: linear-gradient(135deg, #06B6D4 0%, #7DD3FC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        /* Grid de Cards */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+        .card:nth-child(7) { animation-delay: 0.7s; }
+        .card:nth-child(8) { animation-delay: 0.8s; }
+        .card:nth-child(9) { animation-delay: 0.9s; }
+        .card:nth-child(10) { animation-delay: 1.0s; }
+        .card:nth-child(11) { animation-delay: 1.1s; }
+        .card:nth-child(12) { animation-delay: 1.2s; }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-15px) scale(1.02);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 50px rgba(14, 165, 233, 0.3);
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card:nth-child(1) .icon-box { background: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%); }
+        .card:nth-child(2) .icon-box { background: linear-gradient(135deg, #EF4444 0%, #F97316 100%); }
+        .card:nth-child(3) .icon-box { background: linear-gradient(135deg, #FBBF24 0%, #FCD34D 100%); }
+        .card:nth-child(4) .icon-box { background: linear-gradient(135deg, #10B981 0%, #34D399 100%); }
+        .card:nth-child(5) .icon-box { background: linear-gradient(135deg, #06B6D4 0%, #22D3EE 100%); }
+        .card:nth-child(6) .icon-box { background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%); }
+        .card:nth-child(7) .icon-box { background: linear-gradient(135deg, #6366F1 0%, #818CF8 100%); }
+        .card:nth-child(8) .icon-box { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); }
+        /* Cores para os novos cards */
+        .card:nth-child(9) .icon-box { background: linear-gradient(135deg, #F97316 0%, #FB923C 100%); }
+        .card:nth-child(10) .icon-box { background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%); }
+        .card:nth-child(11) .icon-box { background: linear-gradient(135deg, #059669 0%, #10B981 100%); }
+        .card:nth-child(12) .icon-box { background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%); }
+
+        .card:hover .icon-box {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            transition: color 0.3s ease;
+        }
+
+        .card:hover h3 {
+            color: #06B6D4;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #06B6D4;
+            font-weight: 600;
+            font-size: 14px;
+            transition: gap 0.3s ease;
+        }
+
+        .card:hover .card-footer {
+            gap: 15px;
+        }
+
+        .card-footer i {
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .card-footer i {
+            transform: translateX(5px);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        footer .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            .header-content h1 { font-size: 32px; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <div class="logo-text">PA</div>
+                <div class="logo-sub">PLENAULA</div>
+            </div>
+            <div class="header-content">
+                <h1>Resumos <span>Profissionais</span></h1>
+                <p>Acesse conteúdos organizados e focados para sua aprovação. Material de alta qualidade para concursos e exames.</p>
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Card 1: Direito Constitucional -->
+            <a href="direito-constitucional.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <h3>Direito Constitucional</h3>
+                <p>Fundamentos, direitos e garantias fundamentais, organização do Estado e dos Poderes.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 2: Direito Administrativo -->
+            <a href="direito-administrativo.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <h3>Direito Administrativo</h3>
+                <p>Princípios, atos administrativos, agentes públicos, poderes e responsabilidade civil.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 3: Código Penal -->
+            <a href="codigo-penal.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h3>Código Penal</h3>
+                <p>Teoria do crime, penas, crimes contra a pessoa, patrimônio e administração pública.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 4: Maria da Penha -->
+            <a href="maria-da-penha.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Lei Maria da Penha</h3>
+                <p>Mecanismos para coibir a violência doméstica e familiar contra a mulher.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 5: Lei de Drogas -->
+            <a href="lei-de-drogas.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <h3>Lei de Drogas</h3>
+                <p>Políticas públicas sobre drogas, crimes, infrações e procedimentos penais.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 6: Procedimentos Penais -->
+            <a href="procedimentos-penais.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Procedimentos Penais</h3>
+                <p>Ritos, fases processuais, medidas cautelares e recursos</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 7: Abuso de Autoridade -->
+            <a href="abuso-de-autoridade.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Abuso de Autoridade</h3>
+                <p>Esta Lei define os crimes de abuso de autoridade, cometidos por agente público</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 8: Crimes de Tortura -->
+            <a href="crimes-de-tortura.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>Crimes de Tortura</h3>
+                <p>Esta Lei Define os crimes de tortura e dá outras providências.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- NOVOS CARDS ADICIONADOS -->
+
+            <!-- Card 9: ECA -->
+            <a href="estatuto-da-criança-e-do-adolescente.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-child"></i>
+                </div>
+                <h3>Estatuto da Criança e do Adolescente</h3>
+                <p>Proteção integral à criança e ao adolescente, direitos fundamentais e medidas de proteção.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 10: Crimes de Preconceito -->
+            <a href="crimes-preconceito-raça-cor.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <h3>Crimes de Preconceito de Raça ou Cor</h3>
+                <p>Definição dos crimes resultantes de preconceito de raça ou de cor e suas penalidades.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 11: Crimes Ambientais -->
+            <a href="crimes-ambientais.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h3>Crimes Ambientais</h3>
+                <p>Sanções penais e administrativas derivadas de condutas e atividades lesivas ao meio ambiente.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Card 12: Crimes Hediondos -->
+            <a href="crimes-hediondos.html" class="card">
+                <div class="icon-box">
+                    <i class="fas fa-skull-crossbones"></i>
+                </div>
+                <h3>Crimes Hediondos</h3>
+                <p>Dispõe sobre os crimes hediondos, nos termos do art. 5º, inciso XLIII, da Constituição Federal.</p>
+                <div class="card-footer">
+                    <span>Acessar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© PlenAula Concursos — Material feito para revisão rápida e estudo orientado.</p>
+        <p class="sub">Desenvolvido com dedicação para sua aprovação</p>
+    </footer>
+</body>
+</html>
