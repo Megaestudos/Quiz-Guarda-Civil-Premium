@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lei de Abuso de Autoridade - Resumo Profissional</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(60px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #60A5FA;
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06B6D4;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .logo-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #EF4444;
+            margin-top: 2px;
+        }
+
+        .header-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .header-content h1 span {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #06B6D4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Seções de Conteúdo */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+        .content-section:nth-child(7) { animation-delay: 0.6s; }
+
+        .content-section h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-section h2 i {
+            color: #EF4444;
+            font-size: 28px;
+        }
+
+        .content-section h3 {
+            font-size: 22px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #06B6D4;
+        }
+
+        .content-section p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        /* Cards de Informação */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .info-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #06B6D4;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Listas */
+        .content-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .content-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+        }
+
+        .content-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #06B6D4;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: rgba(239, 68, 68, 0.2);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #EF4444;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Destaque */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            border-left: 4px solid #EF4444;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: #EF4444;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+            margin-top: 50px;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        footer .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .logo-box {
+                width: 80px;
+                height: 80px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .header-content h1 {
+                font-size: 36px;
+            }
+
+            .header-content p {
+                font-size: 14px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .content-section h3 {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 28px;
+            }
+
+            .header-content p {
+                font-size: 13px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .content-section h2 {
+                font-size: 20px;
+            }
+
+            .content-section h3 {
+                font-size: 16px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Botão Voltar -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Índice
+        </a>
+
+        <!-- Header -->
+        <header>
+            <div class="logo-box">
+                <div class="logo-text">AA</div>
+                <div class="logo-sub">Lei 13.869</div>
+            </div>
+            <div class="header-content">
+                <h1>Lei de Abuso de Autoridade<br><span>Resumo Profissional Completo</span></h1>
+                <p>Análise detalhada dos crimes de abuso de autoridade, condutas criminosas, penas, efeitos da condenação e procedimentos com foco em concursos públicos.</p>
+            </div>
+        </header>
+
+        <!-- Seção 1: Conceito e Fundamentos -->
+        <div class="content-section">
+            <h2><i class="fas fa-book"></i> Conceito e Fundamentos</h2>
+            
+            <p>A Lei nº 13.869, de 5 de setembro de 2019, define os crimes de abuso de autoridade cometidos por agentes públicos, servidores ou não, que, no exercício de suas funções ou a pretexto de exercê-las, abusem do poder que lhes tenha sido atribuído.</p>
+
+            <h3>Características Fundamentais</h3>
+            <ul class="content-list">
+                <li>Lei que tipifica crimes de abuso de autoridade</li>
+                <li>Aplica-se a qualquer agente público</li>
+                <li>Revoga a Lei nº 4.898/1965</li>
+                <li>Vigência: 5 de setembro de 2019</li>
+                <li>Reforma: Lei nº 14.321/2022 (incluiu violência institucional)</li>
+            </ul>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Lei nº 13.869/2019</h4>
+                    <p>Lei de Abuso de Autoridade</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-user-tie"></i> Sujeitos</h4>
+                    <p>Qualquer agente público ou servidor</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Ação Penal</h4>
+                    <p>Pública incondicionada</p>
+                </div>
+            </div>
+
+            <h3>Elemento Subjetivo (Art. 1º, § 1º)</h3>
+            <p>O crime de abuso de autoridade é caracterizado quando praticado com finalidade específica de:</p>
+            <ul class="content-list">
+                <li>Prejudicar outrem</li>
+                <li>Beneficiar a si mesmo ou a terceiro</li>
+                <li>Mero capricho ou satisfação pessoal</li>
+            </ul>
+
+            <div class="highlight-box">
+                <p><strong>Importante:</strong> A divergência na interpretação de lei ou na avaliação de fatos e provas NÃO configura abuso de autoridade (Art. 1º, § 2º)</p>
+            </div>
+        </div>
+
+        <!-- Seção 2: Sujeitos do Crime -->
+        <div class="content-section">
+            <h2><i class="fas fa-users"></i> Sujeitos do Crime (Art. 2º)</h2>
+            
+            <p>É sujeito ativo do crime de abuso de autoridade qualquer agente público, servidor ou não, da administração direta, indireta ou fundacional de qualquer dos Poderes.</p>
+
+            <h3>Categorias de Sujeitos Ativos</h3>
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-user-check"></i> Servidores Públicos</h4>
+                    <p>Militares ou pessoas a eles equiparadas</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-landmark"></i> Poder Legislativo</h4>
+                    <p>Deputados, Senadores e membros</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-crown"></i> Poder Executivo</h4>
+                    <p>Presidente, Governadores, Prefeitos</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Poder Judiciário</h4>
+                    <p>Juízes, Desembargadores, Ministros</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-balance-scale"></i> Ministério Público</h4>
+                    <p>Promotores e Procuradores</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-file-contract"></i> Tribunais de Contas</h4>
+                    <p>Conselheiros e membros</p>
+                </div>
+            </div>
+
+            <h3>Definição de Agente Público (Parágrafo Único)</h3>
+            <p>Reputa-se agente público, para efeitos desta Lei, todo aquele que exerce, ainda que transitoriamente ou sem remuneração, por eleição, nomeação, designação, contratação ou qualquer outra forma de investidura ou vínculo, mandato, cargo, emprego ou função em órgão ou entidade abrangidos.</p>
+        </div>
+
+        <!-- Seção 3: Condutas Criminosas - Prisão Ilegal -->
+        <div class="content-section">
+            <h2><i class="fas fa-lock"></i> Condutas Criminosas - Prisão Ilegal</h2>
+            
+            <h3>Art. 9º - Decretar Medida de Privação da Liberdade Ilegal</h3>
+            <p>Decretar medida de privação da liberdade em manifesta desconformidade com as hipóteses legais.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Detenção de 1 a 4 anos + multa</p>
+            </div>
+
+            <h3>Condutas Equiparadas (Parágrafo Único)</h3>
+            <ul class="content-list">
+                <li>Deixar de relaxar prisão manifestamente ilegal</li>
+                <li>Deixar de substituir prisão preventiva por medida cautelar diversa quando manifestamente cabível</li>
+                <li>Deixar de deferir liminar ou ordem de habeas corpus quando manifestamente cabível</li>
+            </ul>
+
+            <h3>Art. 10 - Condução Coercitiva Descabida</h3>
+            <p>Decretar a condução coercitiva de testemunha ou investigado manifestamente descabida ou sem prévia intimação de comparecimento ao juízo.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Detenção de 1 a 4 anos + multa</p>
+            </div>
+
+            <h3>Art. 12 - Omissão de Comunicação de Prisão</h3>
+            <p>Deixar injustificadamente de comunicar prisão em flagrante à autoridade judiciária no prazo legal.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Detenção de 6 meses a 2 anos + multa</p>
+            </div>
+
+            <h3>Condutas Equiparadas (Parágrafo Único do Art. 12)</h3>
+            <ul class="content-list">
+                <li>Deixar de comunicar imediatamente execução de prisão temporária ou preventiva</li>
+                <li>Deixar de comunicar imediatamente prisão e local onde se encontra à família</li>
+                <li>Deixar de entregar nota de culpa em 24 horas</li>
+                <li>Prolongar execução de pena sem motivo justo e excepcionalíssimo</li>
+            </ul>
+        </div>
+
+        <!-- Seção 4: Condutas Criminosas - Violência e Constrangimento -->
+        <div class="content-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Condutas Criminosas - Violência e Constrangimento</h2>
+            
+            <h3>Art. 13 - Constrangimento com Violência</h3>
+            <p>Constranger o preso ou detento, mediante violência, grave ameaça ou redução de sua capacidade de resistência, a:</p>
+            <ul class="content-list">
+                <li>Exibir-se ou ter seu corpo exibido à curiosidade pública</li>
+                <li>Submeter-se a situação vexatória ou constrangimento não autorizado em lei</li>
+                <li>Produzir prova contra si mesmo ou contra terceiro</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Detenção de 1 a 4 anos + multa, sem prejuízo da pena cominada à violência</p>
+            </div>
+
+            <h3>Art. 15 - Constrangimento de Sigilo Profissional</h3>
+            <p>Constranger a depor, sob ameaça de prisão, pessoa que, em razão de função, ministério, ofício ou profissão, deva guardar segredo ou resguardar sigilo.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Detenção de 1 a 4 anos + multa</p>
+            </div>
+
+            <h3>Condutas Equiparadas (Parágrafo Único do Art. 15)</h3>
+            <ul class="content-list">
+                <li>Prosseguir com interrogatório de pessoa que decidiu exercer direito ao silêncio</li>
+                <li>Prosseguir com interrogatório sem presença de advogado ou defensor público</li>
+            </ul>
+
+            <h3>Art. 15-A - Violência Institucional (Lei nº 14.321/2022)</h3>
+            <p>Submeter a vítima de infração penal ou testemunha de crimes violentos a procedimentos desnecessários, repetitivos ou invasivos, que a leve a reviver situação de violência ou sofrimento.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Detenção de 3 meses a 1 ano + multa</p>
+            </div>
+
+            <ul class="content-list">
+                <li>Aumentada de 2/3 se permitir intimidação por terceiro</li>
+                <li>Em dobro se o agente intimidar a vítima</li>
+            </ul>
+        </div>
+
+        <!-- Seção 5: Efeitos da Condenação e Penas -->
+        <div class="content-section">
+            <h2><i class="fas fa-balance-scale"></i> Efeitos da Condenação e Penas (Art. 4º-5º)</h2>
+            
+            <h3>Efeitos da Condenação (Art. 4º)</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Efeito</th>
+                            <th>Descrição</th>
+                            <th>Condição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Indenização</strong></td>
+                            <td>Obrigação de indenizar dano causado</td>
+                            <td>Sempre</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Inabilitação</strong></td>
+                            <td>1 a 5 anos para cargo/mandato/função</td>
+                            <td>Com reincidência</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Perda do Cargo</strong></td>
+                            <td>Perda de cargo, mandato ou função</td>
+                            <td>Com reincidência</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>Importante:</strong> Os efeitos de inabilitação e perda de cargo são condicionados à reincidência em crime de abuso de autoridade e não são automáticos (Parágrafo Único do Art. 4º)</p>
+            </div>
+
+            <h3>Penas Restritivas de Direitos (Art. 5º)</h3>
+            <ul class="content-list">
+                <li><strong>Prestação de Serviços:</strong> À comunidade ou a entidades públicas</li>
+                <li><strong>Suspensão:</strong> Do exercício do cargo, função ou mandato por 1 a 6 meses, com perda de vencimentos</li>
+            </ul>
+
+            <p>As penas restritivas de direitos podem ser aplicadas autônoma ou cumulativamente.</p>
+
+            <div class="chart-container">
+                <canvas id="chartPenas"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 6: Responsabilidades Civil e Administrativa -->
+        <div class="content-section">
+            <h2><i class="fas fa-gavel"></i> Responsabilidades Civil e Administrativa (Art. 6º-8º)</h2>
+            
+            <h3>Independência das Responsabilidades (Art. 6º-7º)</h3>
+            <ul class="content-list">
+                <li>As penas criminais são independentes das sanções civis ou administrativas</li>
+                <li>As responsabilidades civil e administrativa são independentes da criminal</li>
+                <li>Não se pode questionar existência ou autoria do fato quando decididas no juízo criminal</li>
+            </ul>
+
+            <h3>Coisa Julgada em Âmbito Cível e Administrativo (Art. 8º)</h3>
+            <p>Faz coisa julgada em âmbito cível e administrativo-disciplinar a sentença penal que reconhecer:</p>
+            <ul class="content-list">
+                <li>Estado de necessidade</li>
+                <li>Legítima defesa</li>
+                <li>Estrito cumprimento de dever legal</li>
+                <li>Exercício regular de direito</li>
+            </ul>
+
+            <div class="highlight-box">
+                <p><strong>Consequência:</strong> Se reconhecido algum desses fundamentos na sentença penal, não poderá haver condenação civil ou administrativa</p>
+            </div>
+        </div>
+
+        <!-- Seção 7: Ação Penal e Procedimento -->
+        <div class="content-section">
+            <h2><i class="fas fa-file-contract"></i> Ação Penal e Procedimento (Art. 3º)</h2>
+            
+            <h3>Tipo de Ação Penal</h3>
+            <p>Os crimes previstos na Lei são de ação penal pública incondicionada, ou seja, o Ministério Público pode oferecer denúncia sem necessidade de autorização de qualquer pessoa.</p>
+
+            <h3>Ação Privada Subsidiária (§ 1º)</h3>
+            <p>Será admitida ação privada se a ação penal pública não for intentada no prazo legal, cabendo ao Ministério Público:</p>
+            <ul class="content-list">
+                <li>Aditar a queixa</li>
+                <li>Repudiá-la</li>
+                <li>Oferecer denúncia substitutiva</li>
+                <li>Intervir em todos os termos do processo</li>
+                <li>Fornecer elementos de prova</li>
+                <li>Interpor recurso</li>
+                <li>Retomar a ação como parte principal em caso de negligência do querelante</li>
+            </ul>
+
+            <h3>Prazo para Ação Privada Subsidiária (§ 2º)</h3>
+            <p>A ação privada subsidiária será exercida no prazo de 6 (seis) meses, contado da data em que se esgotar o prazo para oferecimento da denúncia.</p>
+
+            <div class="chart-container">
+                <canvas id="chartAçãoPenal"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 8: Pontos-Chave para Concursos -->
+        <div class="content-section">
+            <h2><i class="fas fa-star"></i> Pontos-Chave para Concursos</h2>
+            
+            <div class="highlight-box">
+                <p><strong>1. Lei nº 13.869/2019:</strong> Lei de Abuso de Autoridade, sancionada em 5 de setembro de 2019</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>2. Definição:</strong> Crime de abuso de autoridade cometido por agente público no exercício de suas funções ou a pretexto de exercê-las</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>3. Elemento Subjetivo:</strong> Finalidade específica de prejudicar, beneficiar ou mero capricho (§ 1º do Art. 1º)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>4. Sujeitos Ativos:</strong> Qualquer agente público (legislativo, executivo, judiciário, MP, tribunais de contas)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>5. Prisão Ilegal (Art. 9º):</strong> Decretar privação de liberdade em manifesta desconformidade com lei (1 a 4 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>6. Condução Coercitiva (Art. 10):</strong> Decretar condução descabida ou sem intimação (1 a 4 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>7. Omissão de Comunicação (Art. 12):</strong> Deixar de comunicar prisão em flagrante (6 meses a 2 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>8. Constrangimento com Violência (Art. 13):</strong> Constranger preso com violência (1 a 4 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>9. Violência Institucional (Art. 15-A):</strong> Submeter vítima a procedimentos desnecessários (3 meses a 1 ano) - Lei nº 14.321/2022</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>10. Efeitos da Condenação:</strong> Indenização (sempre), inabilitação 1-5 anos (com reincidência), perda do cargo (com reincidência)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© PlenAula Concursos — Resumo Profissional da Lei de Abuso de Autoridade</p>
+        <p class="sub">Material feito para revisão intensiva e aprovação em concursos públicos</p>
+    </footer>
+
+    <script>
+        // Gráfico 1: Penas por Crime
+        const ctx1 = document.getElementById('chartPenas').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['Prisão Ilegal', 'Condução Coercitiva', 'Omissão Comunicação', 'Constrangimento', 'Violência Institucional'],
+                datasets: [{
+                    label: 'Anos de Detenção (Mínimo)',
+                    data: [1, 1, 0.5, 1, 0.25],
+                    backgroundColor: '#EF4444',
+                    borderRadius: 8
+                },
+                {
+                    label: 'Anos de Detenção (Máximo)',
+                    data: [4, 4, 2, 4, 1],
+                    backgroundColor: '#DC2626',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 2: Tipos de Ação Penal
+        const ctx2 = document.getElementById('chartAçãoPenal').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Ação Pública Incondicionada', 'Ação Privada Subsidiária'],
+                datasets: [{
+                    data: [85, 15],
+                    backgroundColor: [
+                        '#EF4444',
+                        '#DC2626'
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 13
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>

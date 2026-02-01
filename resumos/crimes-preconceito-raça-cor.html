@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lei de Crimes de Racismo - Resumo Profissional</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(60px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #60A5FA;
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06B6D4;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .logo-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #F59E0B;
+            margin-top: 2px;
+        }
+
+        .header-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .header-content h1 span {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #06B6D4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Seções de Conteúdo */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+        .content-section:nth-child(7) { animation-delay: 0.6s; }
+
+        .content-section h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-section h2 i {
+            color: #F59E0B;
+            font-size: 28px;
+        }
+
+        .content-section h3 {
+            font-size: 22px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #06B6D4;
+        }
+
+        .content-section p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        /* Cards de Informação */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .info-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #06B6D4;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Listas */
+        .content-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .content-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+        }
+
+        .content-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #06B6D4;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: rgba(245, 158, 11, 0.2);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #F59E0B;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Destaque */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+            border-left: 4px solid #F59E0B;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: #F59E0B;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+            margin-top: 50px;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        footer .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .logo-box {
+                width: 80px;
+                height: 80px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .header-content h1 {
+                font-size: 36px;
+            }
+
+            .header-content p {
+                font-size: 14px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .content-section h3 {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 28px;
+            }
+
+            .header-content p {
+                font-size: 13px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .content-section h2 {
+                font-size: 20px;
+            }
+
+            .content-section h3 {
+                font-size: 16px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Botão Voltar -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Índice
+        </a>
+
+        <!-- Header -->
+        <header>
+            <div class="logo-box">
+                <div class="logo-text">CR</div>
+                <div class="logo-sub">Lei 7.716</div>
+            </div>
+            <div class="header-content">
+                <h1>Crimes de Racismo<br><span>Resumo Profissional Completo</span></h1>
+                <p>Análise detalhada da Lei nº 7.716/1989, crimes de discriminação racial e religiosa, condutas criminosas, penas e procedimentos com foco em concursos públicos.</p>
+            </div>
+        </header>
+
+        <!-- Seção 1: Conceito e Fundamentos -->
+        <div class="content-section">
+            <h2><i class="fas fa-book"></i> Conceito e Fundamentos</h2>
+            
+            <p>A Lei nº 7.716, de 5 de janeiro de 1989, define e pune crimes resultantes de discriminação ou preconceito de raça, cor, etnia, religião ou procedência nacional. É uma lei fundamental para proteção dos direitos humanos e dignidade da pessoa.</p>
+
+            <h3>Características Fundamentais</h3>
+            <ul class="content-list">
+                <li>Lei que tipifica crimes de racismo e discriminação</li>
+                <li>Sancionada em 5 de janeiro de 1989</li>
+                <li>Reformas: Lei nº 9.459/1997, Lei nº 12.288/2010, Lei nº 14.532/2023</li>
+                <li>Protege contra discriminação por raça, cor, etnia, religião ou procedência nacional</li>
+                <li>Crimes imprescritíveis (não prescrevem)</li>
+            </ul>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Lei nº 7.716/1989</h4>
+                    <p>Lei de Crimes de Racismo</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-ban"></i> Natureza</h4>
+                    <p>Crimes imprescritíveis</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-heart"></i> Proteção</h4>
+                    <p>Direitos humanos e dignidade</p>
+                </div>
+            </div>
+
+            <h3>Sujeitos Protegidos</h3>
+            <ul class="content-list">
+                <li>Pessoas de qualquer raça ou cor</li>
+                <li>Pessoas de qualquer etnia ou procedência nacional</li>
+                <li>Pessoas de qualquer religião ou crença</li>
+                <li>Proteção coletiva (grupos, comunidades)</li>
+            </ul>
+        </div>
+
+        <!-- Seção 2: Tipos de Crimes -->
+        <div class="content-section">
+            <h2><i class="fas fa-exclamation-circle"></i> Tipos de Crimes de Racismo</h2>
+            
+            <h3>Art. 2º-A - Injúria Racial (Lei nº 14.532/2023)</h3>
+            <p>Injuriar alguém, ofendendo-lhe a dignidade ou o decoro, em razão de raça, cor, etnia ou procedência nacional.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de 2 a 5 anos + multa</p>
+            </div>
+            <ul class="content-list">
+                <li>Aumentada de metade se cometida mediante concurso de 2 ou mais pessoas</li>
+            </ul>
+
+            <h3>Art. 3º - Impedimento ou Obstáculo de Acesso</h3>
+            <p>Impedir ou obstar o acesso de alguém, devidamente habilitado, a qualquer cargo da Administração Direta ou Indireta, bem como das concessionárias de serviços públicos.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de dois a cinco anos</p>
+            </div>
+
+            <h3>Art. 4º - Negação de Emprego em Empresa Privada</h3>
+            <p>Negar ou obstar emprego em empresa privada.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de um a três anos</p>
+            </div>
+
+            <h3>Art. 5º - Recusa de Serviços</h3>
+            <p>Recusar ou impedir acesso a estabelecimento comercial, negando-se a servir, atender ou receber cliente ou comprador.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de um a três anos</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartTiposCrimes"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 3: Condutas Qualificadas -->
+        <div class="content-section">
+            <h2><i class="fas fa-link"></i> Condutas Qualificadas</h2>
+            
+            <h3>Art. 20 - Discriminação e Preconceito</h3>
+            <p>Praticar, induzir ou incitar a discriminação ou preconceito de raça, cor, etnia, religião ou procedência nacional.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de 1 a 3 anos + multa</p>
+            </div>
+
+            <h3>Art. 20, § 1º - Símbolos Nazistas</h3>
+            <p>Fabricar, comercializar, distribuir ou veicular símbolos, emblemas, ornamentos, distintivos ou propaganda que utilizem a cruz suástica ou gamada, para fins de divulgação do nazismo.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de 2 a 5 anos + multa</p>
+            </div>
+
+            <h3>Art. 20, § 2º - Meios de Comunicação (Lei nº 14.532/2023)</h3>
+            <p>Se qualquer dos crimes previstos for cometido por intermédio dos meios de comunicação social, publicação em redes sociais, rede mundial de computadores ou publicação de qualquer natureza.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de 2 a 5 anos + multa</p>
+            </div>
+
+            <h3>Art. 20, § 2º-A - Atividades Esportivas, Religiosas, Artísticas ou Culturais</h3>
+            <p>Se cometido no contexto de atividades esportivas, religiosas, artísticas ou culturais destinadas ao público.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de 2 a 5 anos + proibição de frequência por 3 anos a locais destinados a práticas esportivas, religiosas, artísticas ou culturais</p>
+            </div>
+
+            <h3>Art. 20, § 2º-B - Obstáculo a Manifestações Religiosas</h3>
+            <p>Obstar, impedir ou empregar violência contra quaisquer manifestações ou práticas religiosas.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Mesmas penas do caput, sem prejuízo da pena correspondente à violência</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartPenas"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 4: Outras Condutas Criminosas -->
+        <div class="content-section">
+            <h2><i class="fas fa-ban"></i> Outras Condutas Criminosas</h2>
+            
+            <h3>Art. 6º - Recusa de Inscrição em Estabelecimento de Ensino</h3>
+            <p>Recusar, negar ou impedir inscrição ou ingresso de aluno em estabelecimento de ensino público ou privado de qualquer grau.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de três a cinco anos</p>
+            </div>
+
+            <h3>Art. 7º - Impedimento de Acesso a Hospedagem</h3>
+            <p>Impedir o acesso ou recusar hospedagem em hotel, pensão, estalagem, ou qualquer estabelecimento similar.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de três a cinco anos</p>
+            </div>
+
+            <h3>Art. 8º - Impedimento de Acesso a Restaurantes e Bares</h3>
+            <p>Impedir o acesso ou recusar atendimento em restaurantes, bares, confeitarias, ou locais semelhantes abertos ao público.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de um a três anos</p>
+            </div>
+
+            <h3>Art. 9º - Impedimento de Acesso a Estabelecimentos Esportivos</h3>
+            <p>Impedir o acesso ou recusar atendimento em estabelecimentos esportivos, casas de diversões, ou clubes sociais abertos ao público.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de um a três anos</p>
+            </div>
+
+            <h3>Art. 10 - Impedimento de Acesso a Salões de Cabeleireiro</h3>
+            <p>Impedir o acesso ou recusar atendimento em salões de cabeleireiros, barbearias, termas ou casas de massagem com as mesmas finalidades.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> Reclusão de um a três anos</p>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Artigo</th>
+                            <th>Conduta</th>
+                            <th>Pena</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Art. 3º</strong></td>
+                            <td>Impedimento de acesso a cargo público</td>
+                            <td>2 a 5 anos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Art. 4º</strong></td>
+                            <td>Negação de emprego em empresa privada</td>
+                            <td>1 a 3 anos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Art. 5º</strong></td>
+                            <td>Recusa de serviços</td>
+                            <td>1 a 3 anos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Art. 6º</strong></td>
+                            <td>Recusa de inscrição em escola</td>
+                            <td>3 a 5 anos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Art. 7º</strong></td>
+                            <td>Impedimento de hospedagem</td>
+                            <td>3 a 5 anos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Art. 8º</strong></td>
+                            <td>Impedimento em restaurantes/bares</td>
+                            <td>1 a 3 anos</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Seção 5: Medidas Processuais e Efeitos -->
+        <div class="content-section">
+            <h2><i class="fas fa-balance-scale"></i> Medidas Processuais e Efeitos</h2>
+            
+            <h3>Medidas Judiciais Preventivas (Art. 20, § 3º)</h3>
+            <p>O juiz pode determinar, ouvido o Ministério Público ou a pedido deste, ainda antes do inquérito policial:</p>
+            <ul class="content-list">
+                <li>Recolhimento imediato ou busca e apreensão dos exemplares do material</li>
+                <li>Cessação das transmissões radiofônicas, televisivas, eletrônicas ou publicação por qualquer meio</li>
+                <li>Interdição das mensagens ou páginas de informação na rede mundial de computadores</li>
+            </ul>
+
+            <h3>Efeitos da Condenação (Art. 20, § 4º)</h3>
+            <p>Constitui efeito da condenação, após o trânsito em julgado da decisão, a destruição do material apreendido.</p>
+
+            <h3>Características Especiais</h3>
+            <ul class="content-list">
+                <li>Crimes imprescritíveis (não prescrevem)</li>
+                <li>Ação penal pública incondicionada</li>
+                <li>Possibilidade de medidas cautelares antes da sentença</li>
+                <li>Destruição do material após condenação</li>
+            </ul>
+        </div>
+
+        <!-- Seção 6: Pontos-Chave para Concursos -->
+        <div class="content-section">
+            <h2><i class="fas fa-star"></i> Pontos-Chave para Concursos</h2>
+            
+            <div class="highlight-box">
+                <p><strong>1. Lei nº 7.716/1989:</strong> Lei de Crimes de Racismo, sancionada em 5 de janeiro de 1989</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>2. Objeto:</strong> Protege contra discriminação por raça, cor, etnia, religião ou procedência nacional</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>3. Injúria Racial (Art. 2º-A):</strong> Ofender dignidade por raça, cor, etnia ou procedência (2 a 5 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>4. Impedimento de Acesso (Art. 3º):</strong> Impedir acesso a cargo público (2 a 5 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>5. Negação de Emprego (Art. 4º):</strong> Negar emprego em empresa privada (1 a 3 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>6. Discriminação Geral (Art. 20):</strong> Praticar, induzir ou incitar discriminação (1 a 3 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>7. Símbolos Nazistas (Art. 20, § 1º):</strong> Fabricar ou distribuir símbolos nazistas (2 a 5 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>8. Meios de Comunicação (Art. 20, § 2º):</strong> Discriminação por redes sociais ou internet (2 a 5 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>9. Atividades Públicas (Art. 20, § 2º-A):</strong> Discriminação em esportes, religião, arte ou cultura (2 a 5 anos + proibição 3 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>10. Imprescritibilidade:</strong> Crimes de racismo não prescrevem (não há prazo para ação penal)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© PlenAula Concursos — Resumo Profissional de Crimes de Racismo</p>
+        <p class="sub">Material feito para revisão intensiva e aprovação em concursos públicos</p>
+    </footer>
+
+    <script>
+        // Gráfico 1: Tipos de Crimes (Linha)
+        const ctx1 = document.getElementById('chartTiposCrimes').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Injúria Racial', 'Impedimento Acesso', 'Negação Emprego', 'Recusa Serviços', 'Recusa Hospedagem', 'Recusa Educação'],
+                datasets: [{
+                    label: 'Gravidade (Escala 1-10)',
+                    data: [8, 9, 7, 6, 8, 9],
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#F59E0B',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 2: Penas por Crime (Barras Horizontais)
+        const ctx2 = document.getElementById('chartPenas').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Art. 2º-A (Injúria)', 'Art. 3º (Cargo)', 'Art. 4º (Emprego)', 'Art. 20 (Discriminação)', 'Art. 20 § 1º (Nazismo)', 'Art. 20 § 2º (Mídia)'],
+                datasets: [{
+                    label: 'Anos de Reclusão (Mínimo)',
+                    data: [2, 2, 1, 1, 2, 2],
+                    backgroundColor: '#F59E0B',
+                    borderRadius: 8
+                },
+                {
+                    label: 'Anos de Reclusão (Máximo)',
+                    data: [5, 5, 3, 3, 5, 5],
+                    backgroundColor: '#D97706',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>

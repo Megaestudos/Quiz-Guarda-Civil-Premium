@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procedimentos Penais - Resumo Profissional</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(60px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #60A5FA;
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06B6D4;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .logo-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #8B5CF6;
+            margin-top: 2px;
+        }
+
+        .header-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .header-content h1 span {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #06B6D4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Seções de Conteúdo */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+        .content-section:nth-child(7) { animation-delay: 0.6s; }
+
+        .content-section h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-section h2 i {
+            color: #8B5CF6;
+            font-size: 28px;
+        }
+
+        .content-section h3 {
+            font-size: 22px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #06B6D4;
+        }
+
+        .content-section p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        /* Cards de Informação */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .info-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #06B6D4;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Listas */
+        .content-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .content-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+        }
+
+        .content-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #06B6D4;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #8B5CF6;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Destaque */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.1));
+            border-left: 4px solid #8B5CF6;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: #8B5CF6;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+            margin-top: 50px;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        footer .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .logo-box {
+                width: 80px;
+                height: 80px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .header-content h1 {
+                font-size: 36px;
+            }
+
+            .header-content p {
+                font-size: 14px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .content-section h3 {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 28px;
+            }
+
+            .header-content p {
+                font-size: 13px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .content-section h2 {
+                font-size: 20px;
+            }
+
+            .content-section h3 {
+                font-size: 16px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Botão Voltar -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Índice
+        </a>
+
+        <!-- Header -->
+        <header>
+            <div class="logo-box">
+                <div class="logo-text">PP</div>
+                <div class="logo-sub">CPP</div>
+            </div>
+            <div class="header-content">
+                <h1>Procedimentos Penais<br><span>Resumo Profissional Completo</span></h1>
+                <p>Análise detalhada do Código de Processo Penal, fases do processo, procedimentos, competência e direitos processuais com foco em concursos públicos.</p>
+            </div>
+        </header>
+
+        <!-- Seção 1: Conceito e Fundamentos -->
+        <div class="content-section">
+            <h2><i class="fas fa-book"></i> Conceito e Fundamentos</h2>
+            
+            <p>O Procedimento Penal é o conjunto de normas que regulam o processo penal no Brasil, estabelecendo as regras e procedimentos para a investigação, acusação, defesa e julgamento de crimes. O Código de Processo Penal (CPP) é a lei fundamental que disciplina esses procedimentos.</p>
+
+            <h3>Características Fundamentais</h3>
+            <ul class="content-list">
+                <li>Código de Processo Penal (Decreto-Lei nº 3.689/1941)</li>
+                <li>Estrutura acusatória (separação entre acusação e julgamento)</li>
+                <li>Princípios constitucionais (legalidade, contraditório, ampla defesa)</li>
+                <li>Garantias processuais do acusado</li>
+                <li>Participação do Ministério Público na acusação</li>
+            </ul>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Código de Processo Penal</h4>
+                    <p>Decreto-Lei nº 3.689/1941</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-balance-scale"></i> Estrutura</h4>
+                    <p>Sistema Acusatório</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-shield-alt"></i> Princípios</h4>
+                    <p>Legalidade, Contraditório, Ampla Defesa</p>
+                </div>
+            </div>
+
+            <h3>Princípios Fundamentais</h3>
+            <ul class="content-list">
+                <li><strong>Legalidade:</strong> Ninguém será processado senão pela autoridade competente</li>
+                <li><strong>Contraditório:</strong> Direito de ser ouvido e de contraditar as acusações</li>
+                <li><strong>Ampla Defesa:</strong> Direito de se defender com todos os meios lícitos</li>
+                <li><strong>Presunção de Inocência:</strong> Toda pessoa é inocente até prova em contrário</li>
+                <li><strong>Publicidade:</strong> Processo público, salvo exceções legais</li>
+                <li><strong>Celeridade:</strong> Processo sem dilações indevidas</li>
+            </ul>
+        </div>
+
+        <!-- Seção 2: Fases do Processo Penal -->
+        <div class="content-section">
+            <h2><i class="fas fa-stream"></i> Fases do Processo Penal</h2>
+            
+            <h3>Fase 1: Investigação Criminal (Inquérito Policial)</h3>
+            <div class="highlight-box">
+                <p><strong>Objetivo:</strong> Apurar a autoria e materialidade do crime</p>
+            </div>
+            <ul class="content-list">
+                <li>Realizado pela Polícia Civil ou Federal</li>
+                <li>Dirigido pelo Delegado de Polícia</li>
+                <li>Duração: 30 dias (prorrogável por mais 30 dias)</li>
+                <li>Resultado: Relatório final</li>
+                <li>Encaminhamento: Ministério Público ou Juiz</li>
+            </ul>
+
+            <h3>Fase 2: Ação Penal</h3>
+            <div class="highlight-box">
+                <p><strong>Objetivo:</strong> Formalizar a acusação perante o Poder Judiciário</p>
+            </div>
+            <ul class="content-list">
+                <li><strong>Denúncia:</strong> Ação penal pública (Ministério Público)</li>
+                <li><strong>Queixa:</strong> Ação penal privada (vítima ou representante)</li>
+                <li>Prazo para denúncia: 15 dias (crime comum) ou 5 dias (crime de menor potencial)</li>
+                <li>Recebimento da denúncia pelo juiz</li>
+            </ul>
+
+            <h3>Fase 3: Instrução Processual</h3>
+            <div class="highlight-box">
+                <p><strong>Objetivo:</strong> Produzir provas e esclarecer os fatos</p>
+            </div>
+            <ul class="content-list">
+                <li>Resposta à acusação (10 dias)</li>
+                <li>Audiência de instrução e julgamento</li>
+                <li>Produção de provas (testemunhas, documentos, perícias)</li>
+                <li>Interrogatório do acusado</li>
+                <li>Alegações finais (Ministério Público e Defesa)</li>
+            </ul>
+
+            <h3>Fase 4: Julgamento e Sentença</h3>
+            <div class="highlight-box">
+                <p><strong>Objetivo:</strong> Decidir sobre a culpabilidade e aplicar pena</p>
+            </div>
+            <ul class="content-list">
+                <li>Sentença condenatória ou absolutória</li>
+                <li>Fundamentação da decisão</li>
+                <li>Fixação da pena (se condenado)</li>
+                <li>Direitos do condenado</li>
+            </ul>
+
+            <h3>Fase 5: Recursos</h3>
+            <div class="highlight-box">
+                <p><strong>Objetivo:</strong> Revisar decisões judiciais</p>
+            </div>
+            <ul class="content-list">
+                <li><strong>Apelação:</strong> Contra sentença de primeira instância</li>
+                <li><strong>Recurso Especial:</strong> Contra violação de lei federal</li>
+                <li><strong>Recurso Extraordinário:</strong> Contra violação de Constituição</li>
+                <li><strong>Habeas Corpus:</strong> Contra ilegalidade ou abuso de poder</li>
+            </ul>
+
+            <h3>Fase 6: Execução Penal</h3>
+            <div class="highlight-box">
+                <p><strong>Objetivo:</strong> Executar a sentença condenatória</p>
+            </div>
+            <ul class="content-list">
+                <li>Cumprimento da pena privativa de liberdade</li>
+                <li>Progressão de regime</li>
+                <li>Livramento condicional</li>
+                <li>Remição de pena</li>
+            </ul>
+
+            <div class="chart-container">
+                <canvas id="chartFases"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 3: Competência Judicial -->
+        <div class="content-section">
+            <h2><i class="fas fa-gavel"></i> Competência Judicial</h2>
+            
+            <h3>Competência por Matéria</h3>
+            <ul class="content-list">
+                <li><strong>Supremo Tribunal Federal:</strong> Crimes de responsabilidade do Presidente, Vice e Ministros</li>
+                <li><strong>Superior Tribunal de Justiça:</strong> Crimes contra a administração pública</li>
+                <li><strong>Tribunal Regional Federal:</strong> Crimes federais</li>
+                <li><strong>Juiz Federal:</strong> Crimes contra a União</li>
+                <li><strong>Tribunal de Justiça:</strong> Crimes estaduais</li>
+                <li><strong>Juiz Estadual:</strong> Crimes comuns</li>
+            </ul>
+
+            <h3>Competência por Valor</h3>
+            <ul class="content-list">
+                <li><strong>Juizado Especial Criminal:</strong> Infrações de menor potencial ofensivo</li>
+                <li><strong>Tribunal do Júri:</strong> Crimes dolosos contra a vida</li>
+                <li><strong>Juiz Singular:</strong> Demais crimes</li>
+            </ul>
+
+            <h3>Competência por Pessoa</h3>
+            <ul class="content-list">
+                <li><strong>Foro de Domicílio:</strong> Regra geral</li>
+                <li><strong>Foro do Crime:</strong> Onde ocorreu o crime</li>
+                <li><strong>Foro de Residência:</strong> Onde reside o acusado</li>
+                <li><strong>Foro de Localização de Bens:</strong> Crimes contra patrimônio</li>
+            </ul>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo de Crime</th>
+                            <th>Competência</th>
+                            <th>Procedimento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Homicídio Doloso</strong></td>
+                            <td>Tribunal do Júri</td>
+                            <td>Ordinário</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Roubo</strong></td>
+                            <td>Juiz Singular</td>
+                            <td>Ordinário</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Furto Simples</strong></td>
+                            <td>Juiz Singular</td>
+                            <td>Sumário</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lesão Corporal Leve</strong></td>
+                            <td>Juizado Especial</td>
+                            <td>Especial</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Crime Federal</strong></td>
+                            <td>Juiz Federal</td>
+                            <td>Ordinário</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Crime de Trânsito</strong></td>
+                            <td>Juiz Singular</td>
+                            <td>Sumário</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Seção 4: Direitos Processuais -->
+        <div class="content-section">
+            <h2><i class="fas fa-shield-alt"></i> Direitos Processuais do Acusado</h2>
+            
+            <h3>Direitos Fundamentais</h3>
+            <ul class="content-list">
+                <li>Direito à defesa técnica (advogado)</li>
+                <li>Presunção de inocência</li>
+                <li>Direito ao silêncio (não ser obrigado a confessar)</li>
+                <li>Direito de ser informado da acusação</li>
+                <li>Direito de confrontar acusadores</li>
+                <li>Direito de produzir provas</li>
+                <li>Direito a recurso</li>
+            </ul>
+
+            <h3>Direitos Específicos</h3>
+            <ul class="content-list">
+                <li>Direito a intérprete (se não fala português)</li>
+                <li>Direito a assistência judiciária (se pobre)</li>
+                <li>Direito a ser julgado por juiz competente</li>
+                <li>Direito a processo público</li>
+                <li>Direito a processo sem dilações indevidas</li>
+                <li>Direito a revisão criminal</li>
+            </ul>
+
+            <h3>Garantias Processuais</h3>
+            <ul class="content-list">
+                <li>Proibição de tortura e tratamento desumano</li>
+                <li>Proibição de prova ilícita</li>
+                <li>Direito ao contraditório</li>
+                <li>Direito à ampla defesa</li>
+                <li>Direito à publicidade do processo</li>
+            </ul>
+
+            <div class="chart-container">
+                <canvas id="chartDireitos"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 5: Prazos Processuais -->
+        <div class="content-section">
+            <h2><i class="fas fa-clock"></i> Prazos Processuais</h2>
+            
+            <h3>Prazos Principais</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ato Processual</th>
+                            <th>Prazo</th>
+                            <th>Observações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Inquérito Policial</strong></td>
+                            <td>30 dias</td>
+                            <td>Prorrogável por mais 30 dias</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Denúncia</strong></td>
+                            <td>15 dias</td>
+                            <td>Após recebimento do inquérito</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Resposta à Acusação</strong></td>
+                            <td>10 dias</td>
+                            <td>Defesa técnica</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Audiência de Instrução</strong></td>
+                            <td>Até 90 dias</td>
+                            <td>Após resposta à acusação</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sentença</strong></td>
+                            <td>Sem prazo específico</td>
+                            <td>Juiz decide quando oportuno</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Apelação</strong></td>
+                            <td>10 dias</td>
+                            <td>Após sentença condenatória</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartPrazos"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 6: Pontos-Chave para Concursos -->
+        <div class="content-section">
+            <h2><i class="fas fa-star"></i> Pontos-Chave para Concursos</h2>
+            
+            <div class="highlight-box">
+                <p><strong>1. Código de Processo Penal:</strong> Decreto-Lei nº 3.689/1941, com múltiplas reformas</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>2. Estrutura Acusatória:</strong> Separação entre acusação (MP) e julgamento (Juiz)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>3. Seis Fases:</strong> Investigação, Ação Penal, Instrução, Julgamento, Recursos, Execução</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>4. Inquérito Policial:</strong> 30 dias (prorrogável), dirigido pelo Delegado de Polícia</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>5. Denúncia:</strong> Ação penal pública (MP) ou privada (vítima), prazo de 15 dias</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>6. Resposta à Acusação:</strong> Defesa técnica tem 10 dias para responder</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>7. Tribunal do Júri:</strong> Competente para crimes dolosos contra a vida</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>8. Direitos Processuais:</strong> Defesa técnica, presunção de inocência, contraditório, ampla defesa</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>9. Competência:</strong> Definida por matéria, valor, pessoa e foro</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>10. Recursos:</strong> Apelação, Recurso Especial, Recurso Extraordinário, Habeas Corpus</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© PlenAula Concursos — Resumo Profissional de Procedimentos Penais</p>
+        <p class="sub">Material feito para revisão intensiva e aprovação em concursos públicos</p>
+    </footer>
+
+    <script>
+        // Gráfico 1: Fases do Processo Penal
+        const ctx1 = document.getElementById('chartFases').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Investigação', 'Ação Penal', 'Instrução', 'Julgamento', 'Recursos', 'Execução'],
+                datasets: [{
+                    label: 'Duração Média (Meses)',
+                    data: [2, 1, 6, 3, 6, 24],
+                    borderColor: '#8B5CF6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#8B5CF6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 2: Direitos Processuais
+        const ctx2 = document.getElementById('chartDireitos').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Defesa Técnica', 'Presunção Inocência', 'Direito Silêncio', 'Confrontar Acusadores', 'Produzir Provas', 'Recurso'],
+                datasets: [{
+                    label: 'Importância (Escala 1-10)',
+                    data: [10, 10, 9, 9, 8, 9],
+                    backgroundColor: '#8B5CF6',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 3: Prazos Processuais
+        const ctx3 = document.getElementById('chartPrazos').getContext('2d');
+        new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                labels: ['Inquérito', 'Denúncia', 'Resposta', 'Instrução', 'Apelação'],
+                datasets: [{
+                    data: [30, 15, 10, 90, 10],
+                    backgroundColor: [
+                        '#8B5CF6',
+                        '#7C3AED',
+                        '#6D28D9',
+                        '#5B21B6',
+                        '#4C1D95'
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>

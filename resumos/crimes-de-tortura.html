@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lei de Tortura - Resumo Profissional</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(60px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #60A5FA;
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06B6D4;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .logo-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #EC4899;
+            margin-top: 2px;
+        }
+
+        .header-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .header-content h1 span {
+            background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #06B6D4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Seções de Conteúdo */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+        .content-section:nth-child(7) { animation-delay: 0.6s; }
+
+        .content-section h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-section h2 i {
+            color: #EC4899;
+            font-size: 28px;
+        }
+
+        .content-section h3 {
+            font-size: 22px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #06B6D4;
+        }
+
+        .content-section p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        /* Cards de Informação */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .info-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #06B6D4;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Listas */
+        .content-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .content-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+        }
+
+        .content-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #06B6D4;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: rgba(236, 72, 153, 0.2);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #EC4899;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Destaque */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(219, 39, 119, 0.1));
+            border-left: 4px solid #EC4899;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: #EC4899;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+            margin-top: 50px;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        footer .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .logo-box {
+                width: 80px;
+                height: 80px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .header-content h1 {
+                font-size: 36px;
+            }
+
+            .header-content p {
+                font-size: 14px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .content-section h3 {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 28px;
+            }
+
+            .header-content p {
+                font-size: 13px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .content-section h2 {
+                font-size: 20px;
+            }
+
+            .content-section h3 {
+                font-size: 16px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Botão Voltar -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Índice
+        </a>
+
+        <!-- Header -->
+        <header>
+            <div class="logo-box">
+                <div class="logo-text">CT</div>
+                <div class="logo-sub">Lei 9.455</div>
+            </div>
+            <div class="header-content">
+                <h1>Crimes de Tortura<br><span>Resumo Profissional Completo</span></h1>
+                <p>Análise detalhada da Lei nº 9.455/1997, condutas criminosas, penas, circunstâncias qualificadoras e procedimentos com foco em concursos públicos.</p>
+            </div>
+        </header>
+
+        <!-- Seção 1: Conceito e Fundamentos -->
+        <div class="content-section">
+            <h2><i class="fas fa-book"></i> Conceito e Fundamentos</h2>
+            
+            <p>A Lei nº 9.455, de 7 de abril de 1997, define os crimes de tortura. A tortura é um crime contra a dignidade humana, caracterizado pelo constrangimento com emprego de violência ou grave ameaça, causando sofrimento físico ou mental.</p>
+
+            <h3>Características Fundamentais</h3>
+            <ul class="content-list">
+                <li>Lei que tipifica crimes de tortura</li>
+                <li>Sancionada em 7 de abril de 1997</li>
+                <li>Crime contra a dignidade humana</li>
+                <li>Inafianável e insuscetível de graça ou anistia</li>
+                <li>Cumprimento inicial em regime fechado</li>
+            </ul>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Lei nº 9.455/1997</h4>
+                    <p>Lei de Crimes de Tortura</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-ban"></i> Natureza</h4>
+                    <p>Inafianável e insuscetível de graça/anistia</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-lock"></i> Regime</h4>
+                    <p>Cumprimento inicial em regime fechado</p>
+                </div>
+            </div>
+
+            <h3>Aplicação Extraterritorial (Art. 2º)</h3>
+            <p>A Lei aplica-se ainda quando o crime não tenha sido cometido em território nacional, sendo a vítima brasileira ou encontrando-se o agente em local sob jurisdição brasileira.</p>
+        </div>
+
+        <!-- Seção 2: Tipos de Tortura -->
+        <div class="content-section">
+            <h2><i class="fas fa-exclamation-circle"></i> Tipos de Tortura (Art. 1º)</h2>
+            
+            <p>A Lei define dois tipos principais de tortura, cada um com suas características e finalidades específicas.</p>
+
+            <h3>Tipo I - Tortura para Obtenção de Informação (Art. 1º, I)</h3>
+            <p>Constranger alguém com emprego de violência ou grave ameaça, causando-lhe sofrimento físico ou mental:</p>
+            
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-question"></i> Obtenção de Informação</h4>
+                    <p>Obter informação, declaração ou confissão da vítima ou de terceira pessoa</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-ban"></i> Provocar Ação/Omissão</h4>
+                    <p>Para provocar ação ou omissão de natureza criminosa</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-heart-broken"></i> Discriminação</h4>
+                    <p>Em razão de discriminação racial ou religiosa</p>
+                </div>
+            </div>
+
+            <h3>Tipo II - Tortura como Castigo ou Medida Preventiva (Art. 1º, II)</h3>
+            <p>Submeter alguém, sob sua guarda, poder ou autoridade, com emprego de violência ou grave ameaça, a intenso sofrimento físico ou mental, como forma de aplicar castigo pessoal ou medida de caráter preventivo.</p>
+
+            <div class="highlight-box">
+                <p><strong>Pena Base:</strong> Reclusão de 2 a 8 anos</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartTiposTortura"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 3: Condutas Equiparadas -->
+        <div class="content-section">
+            <h2><i class="fas fa-link"></i> Condutas Equiparadas</h2>
+            
+            <h3>§ 1º - Tortura de Pessoa Presa ou em Medida de Segurança</h3>
+            <p>Incorre na mesma pena (2 a 8 anos) quem submete pessoa presa ou sujeita a medida de segurança a sofrimento físico ou mental, por intermédio da prática de ato não previsto em lei ou não resultante de medida legal.</p>
+
+            <div class="highlight-box">
+                <p><strong>Exemplo:</strong> Aplicar castigo corporal não autorizado por lei, submeter a condições degradantes, negar acesso a água/alimento como punição</p>
+            </div>
+
+            <h3>§ 2º - Omissão de Denúncia</h3>
+            <p>Aquele que se omite em face dessas condutas, quando tinha o dever de evitá-las ou apurá-las, incorre na pena de detenção de 1 a 4 anos.</p>
+
+            <ul class="content-list">
+                <li>Aplica-se a agentes públicos que presenciam tortura</li>
+                <li>Aplica-se a superiores hierárquicos que sabem e não impedem</li>
+                <li>Pena menor que a tortura em si</li>
+            </ul>
+        </div>
+
+        <!-- Seção 4: Penas Qualificadas -->
+        <div class="content-section">
+            <h2><i class="fas fa-balance-scale"></i> Penas Qualificadas</h2>
+            
+            <h3>§ 3º - Qualificadoras por Resultado</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Resultado</th>
+                            <th>Pena</th>
+                            <th>Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Sem Lesão Grave</strong></td>
+                            <td>2 a 8 anos</td>
+                            <td>Pena base</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lesão Corporal Grave</strong></td>
+                            <td>4 a 10 anos</td>
+                            <td>Qualificada</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lesão Corporal Gravíssima</strong></td>
+                            <td>4 a 10 anos</td>
+                            <td>Qualificada</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Morte</strong></td>
+                            <td>8 a 16 anos</td>
+                            <td>Qualificada</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>§ 4º - Circunstâncias Agravantes</h3>
+            <p>Aumenta-se a pena de 1/6 a 1/3 (um sexto a um terço) nos seguintes casos:</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-user-tie"></i> Agente Público</h4>
+                    <p>Se o crime é cometido por agente público</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-child"></i> Vítima Vulnerável</h4>
+                    <p>Se contra criança, gestante, portador de deficiência, adolescente ou maior de 60 anos</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-lock"></i> Sequestro</h4>
+                    <p>Se o crime é cometido mediante sequestro</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartPenas"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 5: Efeitos da Condenação -->
+        <div class="content-section">
+            <h2><i class="fas fa-gavel"></i> Efeitos da Condenação (§ 5º)</h2>
+            
+            <h3>Consequências Automáticas</h3>
+            <ul class="content-list">
+                <li><strong>Perda do Cargo:</strong> Perda do cargo, função ou emprego público</li>
+                <li><strong>Interdição:</strong> Interdição para exercício pelo dobro do prazo da pena aplicada</li>
+            </ul>
+
+            <div class="highlight-box">
+                <p><strong>Exemplo:</strong> Se condenado a 5 anos de reclusão, fica proibido de exercer cargo público por 10 anos (dobro)</p>
+            </div>
+
+            <h3>Características Especiais do Crime (§ 6º-7º)</h3>
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-ban"></i> Inafianável</h4>
+                    <p>Não pode ser concedida fiança</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Sem Graça</h4>
+                    <p>Insuscetível de graça ou anistia</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-lock"></i> Regime Fechado</h4>
+                    <p>Cumprimento inicial em regime fechado</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 6: Análise Comparativa de Penas -->
+        <div class="content-section">
+            <h2><i class="fas fa-chart-bar"></i> Análise Comparativa de Penas</h2>
+            
+            <h3>Escalas Penais por Situação</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Situação</th>
+                            <th>Pena Mínima</th>
+                            <th>Pena Máxima</th>
+                            <th>Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Tortura Simples</strong></td>
+                            <td>2 anos</td>
+                            <td>8 anos</td>
+                            <td>Pena base</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Omissão</strong></td>
+                            <td>1 ano</td>
+                            <td>4 anos</td>
+                            <td>Detenção</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Com Lesão Grave</strong></td>
+                            <td>4 anos</td>
+                            <td>10 anos</td>
+                            <td>Qualificada</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Com Morte</strong></td>
+                            <td>8 anos</td>
+                            <td>16 anos</td>
+                            <td>Qualificada</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Com Agravante</strong></td>
+                            <td>2,33 anos</td>
+                            <td>10,67 anos</td>
+                            <td>Aumentada 1/6 a 1/3</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartComparativoPenas"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 7: Pontos-Chave para Concursos -->
+        <div class="content-section">
+            <h2><i class="fas fa-star"></i> Pontos-Chave para Concursos</h2>
+            
+            <div class="highlight-box">
+                <p><strong>1. Lei nº 9.455/1997:</strong> Lei de Crimes de Tortura, sancionada em 7 de abril de 1997</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>2. Definição:</strong> Constranger com violência ou grave ameaça, causando sofrimento físico ou mental</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>3. Dois Tipos:</strong> Tortura para obtenção de informação (Art. 1º, I) e tortura como castigo/medida preventiva (Art. 1º, II)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>4. Pena Base:</strong> Reclusão de 2 a 8 anos</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>5. Omissão (§ 2º):</strong> Detenção de 1 a 4 anos para quem se omite tendo dever de evitar ou apurar</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>6. Lesão Grave (§ 3º):</strong> Reclusão de 4 a 10 anos</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>7. Morte (§ 3º):</strong> Reclusão de 8 a 16 anos</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>8. Agravantes (§ 4º):</strong> Aumenta 1/6 a 1/3 se agente público, contra vulnerável, ou com sequestro</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>9. Efeitos (§ 5º):</strong> Perda do cargo e interdição pelo dobro da pena</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>10. Características:</strong> Inafianável, insuscetível de graça/anistia, cumprimento inicial em regime fechado</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© PlenAula Concursos — Resumo Profissional de Crimes de Tortura</p>
+        <p class="sub">Material feito para revisão intensiva e aprovação em concursos públicos</p>
+    </footer>
+
+    <script>
+        // Gráfico 1: Tipos de Tortura
+        const ctx1 = document.getElementById('chartTiposTortura').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Obtenção de Informação', 'Castigo/Medida Preventiva'],
+                datasets: [{
+                    data: [50, 50],
+                    backgroundColor: [
+                        '#EC4899',
+                        '#DB2777'
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 13
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 2: Penas por Situação
+        const ctx2 = document.getElementById('chartPenas').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Tortura Simples', 'Lesão Grave', 'Morte'],
+                datasets: [{
+                    label: 'Anos de Reclusão (Mínimo)',
+                    data: [2, 4, 8],
+                    backgroundColor: '#EC4899',
+                    borderRadius: 8
+                },
+                {
+                    label: 'Anos de Reclusão (Máximo)',
+                    data: [8, 10, 16],
+                    backgroundColor: '#DB2777',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 3: Comparativo de Penas
+        const ctx3 = document.getElementById('chartComparativoPenas').getContext('2d');
+        new Chart(ctx3, {
+            type: 'radar',
+            data: {
+                labels: ['Mínima', 'Média', 'Máxima', 'Com Agravante', 'Com Morte'],
+                datasets: [{
+                    label: 'Anos de Reclusão',
+                    data: [2, 5, 8, 6, 12],
+                    borderColor: '#EC4899',
+                    backgroundColor: 'rgba(236, 72, 153, 0.2)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#EC4899',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            backdropColor: 'transparent'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Código Penal - Resumo Profissional</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(60px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #60A5FA;
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06B6D4;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .logo-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #EF4444;
+            margin-top: 2px;
+        }
+
+        .header-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .header-content h1 span {
+            background: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #06B6D4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Seções de Conteúdo */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+        .content-section:nth-child(7) { animation-delay: 0.6s; }
+
+        .content-section h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-section h2 i {
+            color: #EF4444;
+            font-size: 28px;
+        }
+
+        .content-section h3 {
+            font-size: 22px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #06B6D4;
+        }
+
+        .content-section p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        /* Cards de Informação */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .info-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #06B6D4;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Listas */
+        .content-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .content-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+        }
+
+        .content-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #06B6D4;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: rgba(239, 68, 68, 0.2);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #EF4444;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Destaque */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.1));
+            border-left: 4px solid #EF4444;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: #EF4444;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+            margin-top: 50px;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        footer .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .logo-box {
+                width: 80px;
+                height: 80px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .header-content h1 {
+                font-size: 36px;
+            }
+
+            .header-content p {
+                font-size: 14px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .content-section h3 {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 28px;
+            }
+
+            .header-content p {
+                font-size: 13px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .content-section h2 {
+                font-size: 20px;
+            }
+
+            .content-section h3 {
+                font-size: 16px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Botão Voltar -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Índice
+        </a>
+
+        <!-- Header -->
+        <header>
+            <div class="logo-box">
+                <div class="logo-text">CP</div>
+                <div class="logo-sub">Decreto-Lei 2.848</div>
+            </div>
+            <div class="header-content">
+                <h1>Código Penal<br><span>Resumo Profissional Completo</span></h1>
+                <p>Análise detalhada do Código Penal Brasileiro com foco em crimes, elementos do tipo, penas e causas de aumento e diminuição.</p>
+            </div>
+        </header>
+
+        <!-- Seção 1: Introdução e Estrutura -->
+        <div class="content-section">
+            <h2><i class="fas fa-book"></i> Introdução e Estrutura do Código Penal</h2>
+            
+            <p>O Código Penal Brasileiro é o Decreto-Lei nº 2.848, de 7 de dezembro de 1940, que estabelece as normas gerais de direito penal no Brasil. Sofreu grande reforma com a Lei nº 7.209, de 11 de julho de 1984, que modernizou a legislação penal.</p>
+
+            <h3>Estrutura Geral</h3>
+            <p>O Código Penal divide-se em duas partes principais:</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-layer-group"></i> Parte Geral</h4>
+                    <p>Princípios fundamentais, aplicação da lei penal, conceitos de crime, culpabilidade, penas e medidas de segurança</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-list"></i> Parte Especial</h4>
+                    <p>Descrição específica dos crimes contra a pessoa, patrimônio, administração pública, fé pública, etc.</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-calendar"></i> Data de Sanção</h4>
+                    <p>7 de dezembro de 1940 (com reforma em 1984)</p>
+                </div>
+            </div>
+
+            <h3>Princípios Fundamentais</h3>
+            <ul class="content-list">
+                <li><strong>Princípio da Legalidade:</strong> Não há crime sem lei anterior que o defina</li>
+                <li><strong>Princípio da Irretroatividade:</strong> Lei penal não retroage, exceto quando favorável ao réu</li>
+                <li><strong>Princípio da Territorialidade:</strong> Lei brasileira aplica-se a crimes cometidos no território nacional</li>
+                <li><strong>Princípio da Culpabilidade:</strong> Ninguém pode ser punido sem culpa comprovada</li>
+            </ul>
+        </div>
+
+        <!-- Seção 2: Conceitos Fundamentais de Crime -->
+        <div class="content-section">
+            <h2><i class="fas fa-gavel"></i> Conceitos Fundamentais de Crime</h2>
+            
+            <h3>Definição de Crime</h3>
+            <p>Crime é a ação ou omissão típica, antijurídica e culpável que viola a lei penal e causa dano social, sujeitando o agente a uma pena.</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-check-circle"></i> Tipicidade</h4>
+                    <p>Adequação da conduta ao tipo legal descrito na lei</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-ban"></i> Antijuridicidade</h4>
+                    <p>Violação da ordem jurídica, contrariando o ordenamento legal</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-user-check"></i> Culpabilidade</h4>
+                    <p>Responsabilidade pessoal do agente pela prática do crime</p>
+                </div>
+            </div>
+
+            <h3>Classificação de Crimes</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Classificação</th>
+                            <th>Descrição</th>
+                            <th>Exemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Crime Doloso</strong></td>
+                            <td>Agente quer o resultado ou assume o risco de produzi-lo</td>
+                            <td>Homicídio intencional</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Crime Culposo</strong></td>
+                            <td>Agente causa resultado por imprudência, negligência ou imperícia</td>
+                            <td>Homicídio culposo (acidente de trânsito)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Crime Consumado</strong></td>
+                            <td>Reúnem-se todos os elementos da definição legal</td>
+                            <td>Roubo com posse da coisa</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Crime Tentado</strong></td>
+                            <td>Iniciada execução, não se consuma por circunstâncias alheias</td>
+                            <td>Disparo contra vítima que não é atingida</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Seção 3: Elementos do Tipo Penal -->
+        <div class="content-section">
+            <h2><i class="fas fa-puzzle-piece"></i> Elementos do Tipo Penal</h2>
+            
+            <p>O tipo penal é a descrição legal abstrata de um comportamento proibido. Seus elementos são essenciais para caracterizar um crime.</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-user"></i> Sujeito Ativo</h4>
+                    <p>Pessoa que pratica a ação ou omissão criminosa (pode ser qualquer pessoa, salvo exceções)</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-user-slash"></i> Sujeito Passivo</h4>
+                    <p>Pessoa que sofre o crime (vítima ou titular do bem jurídico violado)</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-hand-fist"></i> Conduta</h4>
+                    <p>Ação ou omissão voluntária que constitui o núcleo do crime</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-bullseye"></i> Resultado</h4>
+                    <p>Modificação no mundo externo causada pela conduta</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-link"></i> Nexo Causal</h4>
+                    <p>Relação de causa e efeito entre conduta e resultado</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-lightbulb"></i> Dolo ou Culpa</h4>
+                    <p>Intenção ou negligência do agente na prática do crime</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartElementosTipo"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 4: Penas e Sanções -->
+        <div class="content-section">
+            <h2><i class="fas fa-balance-scale"></i> Penas e Sanções</h2>
+            
+            <h3>Tipos de Penas</h3>
+            <p>O Código Penal estabelece três categorias principais de penas:</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-lock"></i> Penas Privativas de Liberdade</h4>
+                    <p><strong>Reclusão:</strong> 1 a 30 anos (crimes graves)<br><strong>Detenção:</strong> 0 a 5 anos (crimes menos graves)</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-ban"></i> Penas Restritivas de Direitos</h4>
+                    <p>Prestação de serviços, limitação de fim de semana, interdição de direitos</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-money-bill"></i> Pena de Multa</h4>
+                    <p>Condenação ao pagamento de quantia em dinheiro fixada em dias-multa</p>
+                </div>
+            </div>
+
+            <h3>Penas para Crimes Comuns</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Crime</th>
+                            <th>Pena</th>
+                            <th>Tipo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Homicídio Simples</strong></td>
+                            <td>6 a 20 anos de reclusão</td>
+                            <td>Privativa de Liberdade</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lesão Corporal Leve</strong></td>
+                            <td>1 a 3 meses de detenção ou multa</td>
+                            <td>Privativa/Multa</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Roubo</strong></td>
+                            <td>5 a 8 anos de reclusão</td>
+                            <td>Privativa de Liberdade</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Furto</strong></td>
+                            <td>1 a 4 anos de reclusão</td>
+                            <td>Privativa de Liberdade</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Estelionato</strong></td>
+                            <td>1 a 5 anos de reclusão e multa</td>
+                            <td>Privativa/Multa</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartPenas"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 5: Causas de Aumento e Diminuição de Pena -->
+        <div class="content-section">
+            <h2><i class="fas fa-arrow-up-down"></i> Causas de Aumento e Diminuição de Pena</h2>
+            
+            <h3>Circunstâncias Agravantes (Aumentam a Pena)</h3>
+            <ul class="content-list">
+                <li>Reincidência: Ter sido condenado anteriormente por crime</li>
+                <li>Motivo fútil ou torpe: Razões insignificantes ou desprezíveis</li>
+                <li>Violência ou grave ameaça: Uso de força ou intimidação</li>
+                <li>Abuso de autoridade: Cometido por funcionário público</li>
+                <li>Traição ou deslealdade: Violação de confiança</li>
+                <li>Premeditação: Planejamento prévio do crime</li>
+            </ul>
+
+            <h3>Circunstâncias Atenuantes (Diminuem a Pena)</h3>
+            <ul class="content-list">
+                <li>Menoridade: Idade inferior a 21 anos</li>
+                <li>Inimputabilidade relativa: Reduzida capacidade de entendimento</li>
+                <li>Confissão espontânea: Reconhecimento voluntário do crime</li>
+                <li>Reparação do dano: Restituição do bem ou indenização</li>
+                <li>Desistência voluntária: Abandono voluntário da execução</li>
+                <li>Arrependimento eficaz: Impedir o resultado do crime</li>
+            </ul>
+
+            <div class="chart-container">
+                <canvas id="chartCircunstancias"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 6: Tentativa e Desistência -->
+        <div class="content-section">
+            <h2><i class="fas fa-hand-paper"></i> Tentativa, Desistência e Arrependimento</h2>
+            
+            <h3>Tentativa (Art. 14, II)</h3>
+            <p>Ocorre quando o agente inicia a execução do crime, mas não o consuma por circunstâncias alheias à sua vontade.</p>
+
+            <div class="highlight-box">
+                <p><strong>Pena de Tentativa:</strong> Reduzida de um a dois terços em relação ao crime consumado</p>
+            </div>
+
+            <h3>Desistência Voluntária (Art. 15)</h3>
+            <p>O agente que voluntariamente desiste de prosseguir na execução ou impede que o resultado se produza, só responde pelos atos já praticados.</p>
+
+            <div class="highlight-box">
+                <p><strong>Consequência:</strong> Não há punição pelo crime que se tentava cometer, apenas pelos atos preparatórios já realizados</p>
+            </div>
+
+            <h3>Arrependimento Posterior (Art. 16)</h3>
+            <p>Nos crimes cometidos sem violência ou grave ameaça, reparado o dano ou restituída a coisa até o recebimento da denúncia, a pena será reduzida de um a dois terços.</p>
+
+            <div class="highlight-box">
+                <p><strong>Requisitos:</strong> Reparação do dano, restituição da coisa e voluntariedade até o recebimento da denúncia</p>
+            </div>
+        </div>
+
+        <!-- Seção 7: Pontos-Chave para Concursos -->
+        <div class="content-section">
+            <h2><i class="fas fa-star"></i> Pontos-Chave para Concursos</h2>
+            
+            <div class="highlight-box">
+                <p><strong>1. Data e Número:</strong> Decreto-Lei nº 2.848, de 7 de dezembro de 1940 (Reforma: Lei nº 7.209/1984)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>2. Princípio da Legalidade:</strong> Não há crime sem lei anterior que o defina (Art. 1º)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>3. Lei Penal no Tempo:</strong> Lei posterior favorável ao réu retroage (Art. 2º, parágrafo único)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>4. Elementos do Crime:</strong> Tipicidade, Antijuridicidade e Culpabilidade</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>5. Dolo e Culpa:</strong> Dolo = vontade do resultado; Culpa = imprudência, negligência ou imperícia</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>6. Tentativa:</strong> Pena reduzida de 1/3 a 2/3 (Art. 14, parágrafo único)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>7. Desistência Voluntária:</strong> Não há punição pelo crime tentado (Art. 15)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>8. Penas Privativas:</strong> Reclusão (1-30 anos) e Detenção (até 5 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>9. Circunstâncias Agravantes:</strong> Reincidência, motivo fútil, violência, abuso de autoridade</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>10. Circunstâncias Atenuantes:</strong> Menoridade, confissão, reparação do dano, desistência</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© PlenAula Concursos — Resumo Profissional do Código Penal</p>
+        <p class="sub">Material feito para revisão intensiva e aprovação em concursos públicos</p>
+    </footer>
+
+    <script>
+        // Gráfico 1: Elementos do Tipo Penal
+        const ctx1 = document.getElementById('chartElementosTipo').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['Sujeito Ativo', 'Sujeito Passivo', 'Conduta', 'Resultado', 'Nexo Causal', 'Dolo/Culpa'],
+                datasets: [{
+                    label: 'Importância no Tipo Penal',
+                    data: [90, 85, 95, 90, 95, 100],
+                    backgroundColor: [
+                        '#EF4444',
+                        '#F43F5E',
+                        '#F97316',
+                        '#FBBF24',
+                        '#10B981',
+                        '#06B6D4'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 2: Penas por Tipo de Crime
+        const ctx2 = document.getElementById('chartPenas').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Privativas de Liberdade', 'Restritivas de Direitos', 'Multa', 'Combinadas'],
+                datasets: [{
+                    data: [50, 20, 15, 15],
+                    backgroundColor: [
+                        '#EF4444',
+                        '#F97316',
+                        '#FBBF24',
+                        '#06B6D4'
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 13
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 3: Circunstâncias Agravantes vs Atenuantes
+        const ctx3 = document.getElementById('chartCircunstancias').getContext('2d');
+        new Chart(ctx3, {
+            type: 'radar',
+            data: {
+                labels: ['Reincidência', 'Confissão', 'Violência', 'Reparação', 'Premeditação', 'Desistência'],
+                datasets: [
+                    {
+                        label: 'Agravantes',
+                        data: [90, 20, 95, 15, 85, 10],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#EF4444',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Atenuantes',
+                        data: [10, 95, 5, 90, 15, 95],
+                        borderColor: '#06B6D4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#06B6D4',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            backdropColor: 'transparent'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>

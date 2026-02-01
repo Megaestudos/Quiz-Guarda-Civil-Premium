@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estatuto da Criança e do Adolescente - Resumo Profissional</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(60px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #60A5FA;
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06B6D4;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .logo-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #10B981;
+            margin-top: 2px;
+        }
+
+        .header-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .header-content h1 span {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #06B6D4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Seções de Conteúdo */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+        .content-section:nth-child(7) { animation-delay: 0.6s; }
+
+        .content-section h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-section h2 i {
+            color: #10B981;
+            font-size: 28px;
+        }
+
+        .content-section h3 {
+            font-size: 22px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #06B6D4;
+        }
+
+        .content-section p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        /* Cards de Informação */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .info-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #06B6D4;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Listas */
+        .content-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .content-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+        }
+
+        .content-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #06B6D4;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: rgba(16, 185, 129, 0.2);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #10B981;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Destaque */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border-left: 4px solid #10B981;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: #10B981;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+            margin-top: 50px;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        footer .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .logo-box {
+                width: 80px;
+                height: 80px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .header-content h1 {
+                font-size: 36px;
+            }
+
+            .header-content p {
+                font-size: 14px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .content-section h3 {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 28px;
+            }
+
+            .header-content p {
+                font-size: 13px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .content-section h2 {
+                font-size: 20px;
+            }
+
+            .content-section h3 {
+                font-size: 16px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Botão Voltar -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Índice
+        </a>
+
+        <!-- Header -->
+        <header>
+            <div class="logo-box">
+                <div class="logo-text">ECA</div>
+                <div class="logo-sub">Lei 8.069</div>
+            </div>
+            <div class="header-content">
+                <h1>Estatuto da Criança e do Adolescente<br><span>Resumo Profissional Completo</span></h1>
+                <p>Análise detalhada da Lei nº 8.069/1990, direitos fundamentais, proteção integral, medidas socioeducativas e crimes contra crianças e adolescentes com foco em concursos públicos.</p>
+            </div>
+        </header>
+
+        <!-- Seção 1: Conceito e Fundamentos -->
+        <div class="content-section">
+            <h2><i class="fas fa-book"></i> Conceito e Fundamentos</h2>
+            
+            <p>O Estatuto da Criança e do Adolescente (ECA), Lei nº 8.069 de 13 de julho de 1990, é a lei que dispõe sobre a proteção integral à criança e ao adolescente, estabelecendo direitos fundamentais e garantias especiais para essa população.</p>
+
+            <h3>Definições Básicas (Art. 1º-2º)</h3>
+            <ul class="content-list">
+                <li><strong>Criança:</strong> Pessoa até 12 anos de idade incompletos</li>
+                <li><strong>Adolescente:</strong> Pessoa entre 12 e 18 anos de idade</li>
+                <li><strong>Aplicação Excepcional:</strong> Pode aplicar-se a pessoas entre 18 e 21 anos em casos expressos em lei</li>
+            </ul>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Lei nº 8.069/1990</h4>
+                    <p>Estatuto da Criança e do Adolescente</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-shield-alt"></i> Proteção</h4>
+                    <p>Proteção integral à criança e adolescente</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-heart"></i> Princípio</h4>
+                    <p>Melhor interesse da criança</p>
+                </div>
+            </div>
+
+            <h3>Princípios Fundamentais (Art. 3º-6º)</h3>
+            <ul class="content-list">
+                <li>Proteção integral à criança e ao adolescente</li>
+                <li>Direitos fundamentais inerentes à pessoa humana</li>
+                <li>Sem discriminação de nascimento, situação familiar, idade, sexo, raça, etnia, religião, deficiência ou condição econômica</li>
+                <li>Dever da família, comunidade, sociedade e poder público</li>
+                <li>Absoluta prioridade na efetivação de direitos</li>
+            </ul>
+        </div>
+
+        <!-- Seção 2: Direitos Fundamentais -->
+        <div class="content-section">
+            <h2><i class="fas fa-heart"></i> Direitos Fundamentais</h2>
+            
+            <h3>Direito à Vida e à Saúde (Art. 7º-14º)</h3>
+            <ul class="content-list">
+                <li>Proteção à vida e à saúde</li>
+                <li>Desenvolvimento sadio e harmonioso</li>
+                <li>Atenção pré-natal, perinatal e pós-natal integral</li>
+                <li>Aleitamento materno e alimentação adequada</li>
+                <li>Vacinação e prevenção de doenças</li>
+                <li>Atendimento médico e odontológico</li>
+            </ul>
+
+            <h3>Direito à Liberdade, Respeito e Dignidade (Art. 15º-18º)</h3>
+            <ul class="content-list">
+                <li>Liberdade de consciência e crença</li>
+                <li>Liberdade de pensamento e expressão</li>
+                <li>Direito de brincar, praticar esportes e divertir-se</li>
+                <li>Direito de participar da vida familiar e comunitária</li>
+                <li>Proteção contra negligência, discriminação, exploração e violência</li>
+            </ul>
+
+            <h3>Direito à Educação, Cultura e Lazer (Art. 53º-59º)</h3>
+            <ul class="content-list">
+                <li>Direito à educação visando desenvolvimento pleno</li>
+                <li>Acesso ao ensino público e gratuito</li>
+                <li>Direito à cultura, esporte e lazer</li>
+                <li>Proteção contra exploração do trabalho</li>
+                <li>Direito à profissionalização e proteção no trabalho</li>
+            </ul>
+
+            <div class="chart-container">
+                <canvas id="chartDireitos"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 3: Medidas Protetivas -->
+        <div class="content-section">
+            <h2><i class="fas fa-shield-alt"></i> Medidas Protetivas (Art. 101º)</h2>
+            
+            <p>São medidas aplicáveis quando os direitos da criança ou adolescente são ameaçados ou violados, por ação ou omissão da sociedade ou do Estado.</p>
+
+            <h3>Tipos de Medidas Protetivas</h3>
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-home"></i> Orientação</h4>
+                    <p>Orientação e apoio sócio-familiar</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-graduation-cap"></i> Tratamento</h4>
+                    <p>Tratamento médico, psicológico ou psiquiátrico</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-book"></i> Inclusão</h4>
+                    <p>Inclusão em programa de educação ou profissionalização</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-hands-helping"></i> Acolhimento</h4>
+                    <p>Acolhimento institucional ou familiar</p>
+                </div>
+            </div>
+
+            <h3>Medidas Específicas</h3>
+            <ul class="content-list">
+                <li>Encaminhamento aos pais ou responsável</li>
+                <li>Orientação, apoio e acompanhamento temporário</li>
+                <li>Matrícula e frequência obrigatória em estabelecimento oficial de ensino fundamental</li>
+                <li>Inclusão em programa comunitário ou oficial de auxílio à família, à criança e ao adolescente</li>
+                <li>Requisição de tratamento médico, psicológico ou psiquiátrico</li>
+                <li>Inclusão em programa de educação ou profissionalização</li>
+                <li>Acolhimento institucional ou familiar</li>
+            </ul>
+        </div>
+
+        <!-- Seção 4: Medidas Socioeducativas -->
+        <div class="content-section">
+            <h2><i class="fas fa-gavel"></i> Medidas Socioeducativas (Art. 112º)</h2>
+            
+            <p>São medidas aplicadas ao adolescente que pratica ato infracional, visando sua educação e reinserção social.</p>
+
+            <h3>Tipos de Medidas Socioeducativas</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Medida</th>
+                            <th>Descrição</th>
+                            <th>Características</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Advertência</strong></td>
+                            <td>Repreensão verbal</td>
+                            <td>Menos gravosa</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Obrigação de Reparar</strong></td>
+                            <td>Reparar dano causado</td>
+                            <td>Responsabilização</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prestação de Serviços</strong></td>
+                            <td>Serviços à comunidade</td>
+                            <td>Até 6 meses</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Liberdade Assistida</strong></td>
+                            <td>Acompanhamento especializado</td>
+                            <td>6 meses a 3 anos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Semiliberdade</strong></td>
+                            <td>Regime intermediário</td>
+                            <td>Até 3 anos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Internação</strong></td>
+                            <td>Privação de liberdade</td>
+                            <td>Até 3 anos</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>Importante:</strong> A internação é medida privativa de liberdade, aplicada apenas em casos de ato infracional cometido mediante grave ameaça ou violência à pessoa, reiteração no cometimento de outras infrações graves, ou descumprimento reiterado de medida anterior</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartMedidasSocioeducativas"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 5: Crimes Contra Crianças e Adolescentes -->
+        <div class="content-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Crimes Contra Crianças e Adolescentes</h2>
+            
+            <h3>Principais Tipos de Crimes</h3>
+            <ul class="content-list">
+                <li><strong>Negligência:</strong> Deixar de fornecer alimento, vestuário, higiene ou cuidados médicos</li>
+                <li><strong>Abuso Sexual:</strong> Praticar ato libidinoso com criança ou adolescente</li>
+                <li><strong>Exploração Sexual:</strong> Submeter a prostituição ou pornografia</li>
+                <li><strong>Exploração do Trabalho:</strong> Submeter a trabalho prejudicial</li>
+                <li><strong>Abandono:</strong> Deixar criança em local perigoso ou sem proteção</li>
+                <li><strong>Maus-Tratos:</strong> Submeter a castigos corporais, psicológicos ou humilhantes</li>
+            </ul>
+
+            <h3>Penas Agravadas</h3>
+            <p>As penas são aumentadas quando:</p>
+            <ul class="content-list">
+                <li>O crime é cometido por parente ou responsável</li>
+                <li>Resulta em lesão corporal grave ou morte</li>
+                <li>Envolve violência ou grave ameaça</li>
+                <li>Há reiteração (crime anterior similar)</li>
+            </ul>
+
+            <div class="chart-container">
+                <canvas id="chartCrimes"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 6: Direitos Processuais e Garantias -->
+        <div class="content-section">
+            <h2><i class="fas fa-balance-scale"></i> Direitos Processuais e Garantias</h2>
+            
+            <h3>Garantias Processuais do Adolescente Acusado (Art. 111º)</h3>
+            <ul class="content-list">
+                <li>Direito à defesa técnica por advogado</li>
+                <li>Presunção de inocência</li>
+                <li>Direito ao silêncio</li>
+                <li>Direito de ser informado de acusação</li>
+                <li>Direito de confrontar acusadores</li>
+                <li>Direito de produzir provas</li>
+                <li>Direito a recurso</li>
+            </ul>
+
+            <h3>Sigilo do Processo (Art. 143º)</h3>
+            <p>Os processos envolvendo adolescentes são sigilosos, protegendo a identidade e privacidade do menor.</p>
+
+            <h3>Internação Provisória (Art. 108º-109º)</h3>
+            <ul class="content-list">
+                <li>Máximo de 45 dias</li>
+                <li>Apenas em casos de grave ameaça ou violência</li>
+                <li>Reiteração de infrações graves</li>
+                <li>Descumprimento reiterado de medida anterior</li>
+            </ul>
+        </div>
+
+        <!-- Seção 7: Pontos-Chave para Concursos -->
+        <div class="content-section">
+            <h2><i class="fas fa-star"></i> Pontos-Chave para Concursos</h2>
+            
+            <div class="highlight-box">
+                <p><strong>1. Lei nº 8.069/1990:</strong> Estatuto da Criança e do Adolescente, sancionada em 13 de julho de 1990</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>2. Definições:</strong> Criança (até 12 anos), Adolescente (12 a 18 anos), Aplicação excepcional (18 a 21 anos)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>3. Proteção Integral:</strong> Direito à vida, saúde, liberdade, educação, cultura, lazer e profissionalização</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>4. Princípio da Prioridade Absoluta:</strong> Proteção e socorro em quaisquer circunstâncias, precedência de atendimento, preferência em políticas públicas</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>5. Medidas Protetivas:</strong> Aplicadas quando direitos são ameaçados ou violados (orientação, tratamento, acolhimento)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>6. Medidas Socioeducativas:</strong> Advertência, reparação, prestação de serviços, liberdade assistida, semiliberdade, internação</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>7. Ato Infracional:</strong> Conduta descrita como crime ou contravenção penal, praticada por adolescente</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>8. Internação:</strong> Medida privativa de liberdade, máximo 3 anos, apenas em casos graves (ameaça/violência, reiteração, descumprimento)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>9. Sigilo do Processo:</strong> Processos de adolescentes são sigilosos, protegendo identidade e privacidade</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>10. Crimes Contra Crianças:</strong> Negligência, abuso sexual, exploração, maus-tratos com penas agravadas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© PlenAula Concursos — Resumo Profissional do Estatuto da Criança e do Adolescente</p>
+        <p class="sub">Material feito para revisão intensiva e aprovação em concursos públicos</p>
+    </footer>
+
+    <script>
+        // Gráfico 1: Direitos Fundamentais
+        const ctx1 = document.getElementById('chartDireitos').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['Vida e Saúde', 'Liberdade e Dignidade', 'Educação e Cultura', 'Convivência Familiar', 'Profissionalização'],
+                datasets: [{
+                    label: 'Direitos Fundamentais',
+                    data: [20, 18, 22, 20, 20],
+                    backgroundColor: '#10B981',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 2: Medidas Socioeducativas
+        const ctx2 = document.getElementById('chartMedidasSocioeducativas').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Advertência', 'Reparação', 'Prestação de Serviços', 'Liberdade Assistida', 'Semiliberdade', 'Internação'],
+                datasets: [{
+                    data: [15, 10, 20, 25, 20, 10],
+                    backgroundColor: [
+                        '#10B981',
+                        '#059669',
+                        '#047857',
+                        '#065F46',
+                        '#064E3B',
+                        '#022C22'
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 3: Crimes Contra Crianças
+        const ctx3 = document.getElementById('chartCrimes').getContext('2d');
+        new Chart(ctx3, {
+            type: 'radar',
+            data: {
+                labels: ['Negligência', 'Abuso Sexual', 'Exploração Sexual', 'Exploração do Trabalho', 'Abandono', 'Maus-Tratos'],
+                datasets: [{
+                    label: 'Gravidade Relativa',
+                    data: [7, 9, 10, 6, 8, 9],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#10B981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            backdropColor: 'transparent'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>

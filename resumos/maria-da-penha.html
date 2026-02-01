@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lei Maria da Penha - Resumo Profissional</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(60px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #60A5FA;
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06B6D4;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .logo-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #EC4899;
+            margin-top: 2px;
+        }
+
+        .header-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .header-content h1 span {
+            background: linear-gradient(135deg, #EC4899 0%, #F97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #06B6D4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Seções de Conteúdo */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+        .content-section:nth-child(7) { animation-delay: 0.6s; }
+
+        .content-section h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-section h2 i {
+            color: #EC4899;
+            font-size: 28px;
+        }
+
+        .content-section h3 {
+            font-size: 22px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #06B6D4;
+        }
+
+        .content-section p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        /* Cards de Informação */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .info-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #06B6D4;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Listas */
+        .content-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .content-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+        }
+
+        .content-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #06B6D4;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: rgba(6, 182, 212, 0.2);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #06B6D4;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Destaque */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(249, 115, 22, 0.1));
+            border-left: 4px solid #EC4899;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: #EC4899;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+            margin-top: 50px;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        footer .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .logo-box {
+                width: 80px;
+                height: 80px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .header-content h1 {
+                font-size: 36px;
+            }
+
+            .header-content p {
+                font-size: 14px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .content-section h3 {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 28px;
+            }
+
+            .header-content p {
+                font-size: 13px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .content-section h2 {
+                font-size: 20px;
+            }
+
+            .content-section h3 {
+                font-size: 16px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Botão Voltar -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Índice
+        </a>
+
+        <!-- Header -->
+        <header>
+            <div class="logo-box">
+                <div class="logo-text">LMP</div>
+                <div class="logo-sub">Lei Nº 11.340</div>
+            </div>
+            <div class="header-content">
+                <h1>Lei Maria da Penha<br><span>Resumo Profissional Completo</span></h1>
+                <p>Análise detalhada da Lei nº 11.340 de 7 de agosto de 2006 com foco em proteção à mulher, medidas protetivas e procedimentos jurídicos.</p>
+            </div>
+        </header>
+
+        <!-- Seção 1: Introdução e Objetivos -->
+        <div class="content-section">
+            <h2><i class="fas fa-book"></i> Introdução e Objetivos</h2>
+            
+            <p>A Lei Maria da Penha, sancionada em 7 de agosto de 2006, é um marco fundamental na proteção dos direitos humanos das mulheres no Brasil. Ela cria mecanismos específicos para coibir e prevenir a violência doméstica e familiar contra a mulher, estabelecendo um sistema integrado de proteção e assistência.</p>
+
+            <h3>Objetivo Principal</h3>
+            <p>Criar mecanismos para coibir e prevenir a violência doméstica e familiar contra a mulher, nos termos da Constituição Federal e de tratados internacionais ratificados pelo Brasil.</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Fundamento Legal</h4>
+                    <p>Art. 226, § 8º da Constituição Federal e Convenções Internacionais</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-calendar"></i> Data de Sanção</h4>
+                    <p>7 de agosto de 2006</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-shield-alt"></i> Abrangência</h4>
+                    <p>Todas as mulheres, independente de classe, raça, etnia, orientação sexual, renda, cultura, nível educacional, idade e religião</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 2: Definição de Violência Doméstica -->
+        <div class="content-section">
+            <h2><i class="fas fa-exclamation-circle"></i> Definição de Violência Doméstica e Familiar</h2>
+            
+            <p>Segundo o Art. 5º da Lei, configura violência doméstica e familiar contra a mulher qualquer ação ou omissão baseada no gênero que lhe cause morte, lesão, sofrimento físico, sexual ou psicológico e dano moral ou patrimonial.</p>
+
+            <h3>Âmbitos de Aplicação</h3>
+            <ul class="content-list">
+                <li><strong>Unidade Doméstica:</strong> Espaço de convívio permanente de pessoas, com ou sem vínculo familiar</li>
+                <li><strong>Família:</strong> Comunidade formada por indivíduos aparentados, unidos por laços naturais, afinidade ou vontade expressa</li>
+                <li><strong>Relação Íntima de Afeto:</strong> Qualquer relação onde o agressor conviva ou tenha convivido com a ofendida, independentemente de coabitação</li>
+            </ul>
+
+            <div class="highlight-box">
+                <strong>Importante:</strong> As relações pessoais independem de orientação sexual, protegendo todas as mulheres em situações de violência doméstica.
+            </div>
+        </div>
+
+        <!-- Seção 3: Formas de Violência -->
+        <div class="content-section">
+            <h2><i class="fas fa-shield-alt"></i> Formas de Violência Doméstica</h2>
+            
+            <p>A Lei Maria da Penha reconhece cinco formas principais de violência doméstica e familiar contra a mulher, conforme Art. 7º:</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-fist-raised"></i> Violência Física</h4>
+                    <p>Qualquer conduta que ofenda a integridade ou saúde corporal da mulher.</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-brain"></i> Violência Psicológica</h4>
+                    <p>Conduta que cause dano emocional, diminuição da autoestima, ameaça, constrangimento, humilhação, manipulação, isolamento, vigilância constante.</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-user-shield"></i> Violência Sexual</h4>
+                    <p>Conduta que constranja a participar de relação sexual não desejada, mediante intimidação, ameaça, coação ou uso da força.</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-money-bill"></i> Violência Patrimonial</h4>
+                    <p>Retenção, subtração, destruição de bens, documentos pessoais, valores e direitos econômicos.</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-megaphone"></i> Violência Moral</h4>
+                    <p>Conduta que configure calúnia, difamação ou injúria contra a mulher.</p>
+                </div>
+            </div>
+
+            <!-- Gráfico de Formas de Violência -->
+            <div class="chart-container">
+                <canvas id="chartFormasViolencia"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 4: Medidas Protetivas -->
+        <div class="content-section">
+            <h2><i class="fas fa-lock"></i> Medidas Protetivas de Urgência</h2>
+            
+            <p>As medidas protetivas de urgência são decisões judiciais que visam proteger a integridade física e psicológica da mulher em situação de violência. Podem ser concedidas de forma imediata, inclusive em finais de semana e feriados.</p>
+
+            <h3>Medidas Protetivas que Obrigam o Agressor</h3>
+            <ul class="content-list">
+                <li>Suspensão da posse ou restrição do porte de armas</li>
+                <li>Afastamento do lar, domicílio ou local de convivência com a ofendida</li>
+                <li>Proibição de aproximação da ofendida, de seus familiares e das testemunhas</li>
+                <li>Proibição de contato com a ofendida, seus familiares e testemunhas por qualquer meio</li>
+                <li>Proibição de frequentar determinados lugares onde a ofendida frequente</li>
+                <li>Restrição ou suspensão de visitas aos filhos e filhas menores</li>
+                <li>Prestação de alimentos provisionais ou provisórios</li>
+                <li>Comparecimento do agressor em programas de reeducação e reabilitação</li>
+            </ul>
+
+            <h3>Medidas Protetivas à Ofendida</h3>
+            <ul class="content-list">
+                <li>Encaminhamento a programa de proteção ou atendimento</li>
+                <li>Abrigamento em local seguro, quando necessário</li>
+                <li>Manutenção do vínculo trabalhista, quando necessário o afastamento</li>
+                <li>Acesso prioritário à remoção quando servidora pública</li>
+                <li>Encaminhamento à assistência judiciária</li>
+                <li>Prioridade na remoção de filhos da escola ou creche</li>
+            </ul>
+
+            <div class="chart-container">
+                <canvas id="chartMedidasProtetivas"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 5: Procedimentos e Competência -->
+        <div class="content-section">
+            <h2><i class="fas fa-gavel"></i> Procedimentos e Competência Judicial</h2>
+            
+            <h3>Juizados de Violência Doméstica e Familiar</h3>
+            <p>A Lei cria os Juizados de Violência Doméstica e Familiar contra a Mulher, órgãos da Justiça Ordinária com competência cível e criminal.</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspecto</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Competência Criminal</strong></td>
+                            <td>Processar crimes de violência doméstica e familiar contra a mulher</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Competência Cível</strong></td>
+                            <td>Processar ações civis decorrentes da violência doméstica</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medidas Protetivas</strong></td>
+                            <td>Conceder medidas protetivas de urgência, inclusive em finais de semana</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Investigação</strong></td>
+                            <td>Delegacias especializadas de atendimento à mulher</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Denúncia</strong></td>
+                            <td>Ministério Público obrigatoriamente denunciará</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Procedimento Penal</h3>
+            <ul class="content-list">
+                <li>Não se aplica a Lei nº 9.099/1995 (Juizados Especiais Criminais)</li>
+                <li>Aplicam-se as normas do Código de Processo Penal</li>
+                <li>Ação penal é pública incondicionada (obrigatoriedade de denúncia)</li>
+                <li>Penas aumentadas em relação aos crimes comuns</li>
+                <li>Possibilidade de prisão preventiva do agressor</li>
+            </ul>
+        </div>
+
+        <!-- Seção 6: Penas e Sanções -->
+        <div class="content-section">
+            <h2><i class="fas fa-balance-scale"></i> Penas e Sanções</h2>
+            
+            <h3>Penas para Violência Doméstica</h3>
+            <p>A Lei Maria da Penha aumenta as penas para crimes de violência doméstica e familiar contra a mulher:</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4>Lesão Corporal Leve</h4>
+                    <p>3 meses a 3 anos de detenção (em vez de 1 a 3 meses)</p>
+                </div>
+                <div class="info-card">
+                    <h4>Lesão Corporal Grave</h4>
+                    <p>6 meses a 2 anos de detenção (em vez de 1 a 5 meses)</p>
+                </div>
+                <div class="info-card">
+                    <h4>Ameaça</h4>
+                    <p>6 meses a 2 anos de prisão (em vez de 1 a 6 meses)</p>
+                </div>
+            </div>
+
+            <h3>Circunstâncias Agravantes</h3>
+            <ul class="content-list">
+                <li>Violência praticada contra mulher grávida</li>
+                <li>Violência praticada contra mulher idosa ou com deficiência</li>
+                <li>Violência praticada na presença de filhos menores</li>
+                <li>Reincidência em crime de violência doméstica</li>
+                <li>Violência praticada por ex-companheiro ou ex-cônjuge</li>
+            </ul>
+        </div>
+
+        <!-- Seção 7: Direitos da Mulher em Situação de Violência -->
+        <div class="content-section">
+            <h2><i class="fas fa-heart"></i> Direitos da Mulher em Situação de Violência</h2>
+            
+            <p>A Lei assegura às mulheres em situação de violência doméstica e familiar uma série de direitos fundamentais:</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-heartbeat"></i> Saúde</h4>
+                    <p>Atendimento prioritário no Sistema Único de Saúde (SUS)</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-shield-alt"></i> Segurança</h4>
+                    <p>Atendimento especializado em delegacias de polícia</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-briefcase"></i> Trabalho</h4>
+                    <p>Manutenção do vínculo trabalhista por até 6 meses</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-home"></i> Moradia</h4>
+                    <p>Abrigamento seguro quando necessário</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Justiça</h4>
+                    <p>Acesso gratuito à assistência judiciária</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-graduation-cap"></i> Educação</h4>
+                    <p>Prioridade na remoção de filhos de escola ou creche</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartDireitos"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 8: Pontos-Chave para Concursos -->
+        <div class="content-section">
+            <h2><i class="fas fa-star"></i> Pontos-Chave para Concursos</h2>
+            
+            <div class="highlight-box">
+                <p><strong>1. Data e Número:</strong> Lei nº 11.340, de 7 de agosto de 2006 (Lei Maria da Penha)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>2. Cinco Formas de Violência:</strong> Física, Psicológica, Sexual, Patrimonial e Moral</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>3. Âmbitos de Aplicação:</strong> Unidade doméstica, família e relações íntimas de afeto</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>4. Ação Penal:</strong> Pública incondicionada (obrigatoriedade de denúncia)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>5. Não Aplicação:</strong> Lei nº 9.099/1995 (Juizados Especiais Criminais) não se aplica</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>6. Medidas Protetivas:</strong> Podem ser concedidas de forma imediata, inclusive em finais de semana e feriados</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>7. Penas Aumentadas:</strong> Lesão corporal leve: 3 meses a 3 anos (em vez de 1 a 3 meses)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>8. Competência:</strong> Juizados de Violência Doméstica e Familiar com competência cível e criminal</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© PlenAula Concursos — Resumo Profissional da Lei Maria da Penha</p>
+        <p class="sub">Material feito para revisão intensiva e aprovação em concursos públicos</p>
+    </footer>
+
+    <script>
+        // Gráfico 1: Formas de Violência
+        const ctx1 = document.getElementById('chartFormasViolencia').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Física', 'Psicológica', 'Sexual', 'Patrimonial', 'Moral'],
+                datasets: [{
+                    data: [25, 35, 15, 15, 10],
+                    backgroundColor: [
+                        '#EC4899',
+                        '#F43F5E',
+                        '#F97316',
+                        '#FBBF24',
+                        '#10B981'
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 13
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 2: Medidas Protetivas
+        const ctx2 = document.getElementById('chartMedidasProtetivas').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Afastamento', 'Proibição de Contato', 'Suspensão de Armas', 'Alimentos', 'Reabilitação'],
+                datasets: [{
+                    label: 'Medidas Protetivas',
+                    data: [95, 90, 85, 75, 70],
+                    backgroundColor: [
+                        '#EC4899',
+                        '#F43F5E',
+                        '#F97316',
+                        '#06B6D4',
+                        '#8B5CF6'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 3: Direitos da Mulher
+        const ctx3 = document.getElementById('chartDireitos').getContext('2d');
+        new Chart(ctx3, {
+            type: 'radar',
+            data: {
+                labels: ['Saúde', 'Segurança', 'Trabalho', 'Moradia', 'Justiça', 'Educação'],
+                datasets: [{
+                    label: 'Direitos Garantidos',
+                    data: [90, 95, 85, 80, 95, 85],
+                    borderColor: '#06B6D4',
+                    backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#EC4899',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            backdropColor: 'transparent'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>

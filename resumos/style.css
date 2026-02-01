@@ -1,0 +1,637 @@
+/* ============================================
+   PLENAULA REDESIGN - ESTILOS AVANÇADOS
+   Design: Premium Modern Gradient
+   Paleta: Azul Claro Vibrante + Glassmorphism
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
+/* ============================================
+   BACKGROUND ANIMATIONS
+   ============================================ */
+
+.bg-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: multiply;
+    filter: blur(60px);
+    opacity: 0.2;
+}
+
+.blob-1 {
+    width: 400px;
+    height: 400px;
+    background: #60A5FA;
+    top: -50px;
+    right: -50px;
+    animation: float 8s ease-in-out infinite;
+}
+
+.blob-2 {
+    width: 400px;
+    height: 400px;
+    background: #06B6D4;
+    bottom: -50px;
+    left: -50px;
+    animation: float 8s ease-in-out infinite 2s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+    }
+    50% {
+        transform: translateY(30px) scale(1.05);
+    }
+}
+
+/* ============================================
+   LAYOUT PRINCIPAL
+   ============================================ */
+
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 20px;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 60px;
+    animation: slideInDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.logo-box {
+    width: 110px;
+    height: 110px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.logo-box:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-5px);
+    box-shadow: 
+        0 15px 40px rgba(14, 165, 233, 0.3),
+        inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.logo-text {
+    font-size: 32px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+    position: relative;
+    z-index: 1;
+}
+
+.logo-sub {
+    font-size: 10px;
+    font-weight: 700;
+    color: #2563EB;
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+}
+
+.header-content {
+    flex: 1;
+}
+
+.header-content h1 {
+    font-size: 56px;
+    font-weight: 900;
+    margin-bottom: 18px;
+    line-height: 1.1;
+    letter-spacing: -2px;
+}
+
+.header-content h1 span {
+    background: linear-gradient(135deg, #06B6D4 0%, #7DD3FC 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+}
+
+.header-content p {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.7;
+    max-width: 650px;
+    font-weight: 400;
+}
+
+/* ============================================
+   GRID DE CARDS
+   ============================================ */
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 28px;
+    margin-bottom: 60px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease-out forwards;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Staggered animations */
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+.card:nth-child(5) { animation-delay: 0.5s; }
+.card:nth-child(6) { animation-delay: 0.6s; }
+.card:nth-child(7) { animation-delay: 0.7s; }
+.card:nth-child(8) { animation-delay: 0.8s; }
+
+/* Shimmer effect on hover */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.6s ease;
+    z-index: 1;
+}
+
+.card:hover::before {
+    left: 100%;
+}
+
+/* 3D Hover Effect */
+.card:hover {
+    transform: translateY(-18px) scale(1.03) rotateX(5deg);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 
+        0 25px 60px rgba(14, 165, 233, 0.35),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   ICON BOX (3D EFFECT)
+   ============================================ */
+
+.icon-box {
+    width: 70px;
+    height: 70px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Gradient backgrounds para cada card */
+.card:nth-child(1) .icon-box {
+    background: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%);
+}
+
+.card:nth-child(2) .icon-box {
+    background: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
+}
+
+.card:nth-child(3) .icon-box {
+    background: linear-gradient(135deg, #FBBF24 0%, #FCD34D 100%);
+}
+
+.card:nth-child(4) .icon-box {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+}
+
+.card:nth-child(5) .icon-box {
+    background: linear-gradient(135deg, #06B6D4 0%, #22D3EE 100%);
+}
+
+.card:nth-child(6) .icon-box {
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+}
+
+.card:nth-child(7) .icon-box {
+    background: linear-gradient(135deg, #6366F1 0%, #818CF8 100%);
+}
+
+.card:nth-child(8) .icon-box {
+    background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+}
+
+.card:hover .icon-box {
+    transform: scale(1.2) rotate(8deg) translateY(-5px);
+    box-shadow: 
+        0 18px 45px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   CARD CONTENT
+   ============================================ */
+
+.card h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    transition: color 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.card:hover h3 {
+    color: #06B6D4;
+}
+
+.card p {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.7;
+    flex-grow: 1;
+    position: relative;
+    z-index: 2;
+}
+
+.card-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #06B6D4;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.card:hover .card-footer {
+    gap: 18px;
+}
+
+.card-footer i {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-size: 14px;
+}
+
+.card:hover .card-footer i {
+    transform: translateX(8px) rotate(45deg);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 1s ease-out 0.8s forwards;
+    opacity: 0;
+    position: relative;
+    z-index: 1;
+}
+
+footer p {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+footer .sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 400;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+    }
+
+    .header-content h1 {
+        font-size: 44px;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .logo-box {
+        width: 90px;
+        height: 90px;
+    }
+
+    .logo-text {
+        font-size: 26px;
+    }
+
+    .header-content h1 {
+        font-size: 36px;
+        margin-bottom: 14px;
+    }
+
+    .header-content p {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .card {
+        padding: 24px;
+        gap: 18px;
+        border-radius: 18px;
+    }
+
+    .card h3 {
+        font-size: 19px;
+    }
+
+    .card p {
+        font-size: 14px;
+    }
+
+    .icon-box {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+        border-radius: 14px;
+    }
+
+    .container {
+        padding: 30px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .logo-box {
+        width: 75px;
+        height: 75px;
+    }
+
+    .logo-text {
+        font-size: 22px;
+    }
+
+    .logo-sub {
+        font-size: 9px;
+    }
+
+    .header-content h1 {
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+
+    .header-content p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .card {
+        padding: 20px;
+        gap: 16px;
+        border-radius: 16px;
+    }
+
+    .card h3 {
+        font-size: 17px;
+    }
+
+    .card p {
+        font-size: 13px;
+    }
+
+    .card-footer {
+        font-size: 14px;
+    }
+
+    .icon-box {
+        width: 55px;
+        height: 55px;
+        font-size: 24px;
+    }
+
+    .container {
+        padding: 20px 12px;
+    }
+
+    footer p {
+        font-size: 13px;
+    }
+
+    footer .sub {
+        font-size: 11px;
+    }
+}
+
+/* ============================================
+   EFEITOS ESPECIAIS
+   ============================================ */
+
+/* Glow effect para elementos interativos */
+.card::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.2), transparent);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+    pointer-events: none;
+}
+
+.card:hover::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Suporte para navegadores que suportam backdrop-filter */
+@supports (backdrop-filter: blur(10px)) {
+    .card,
+    .logo-box,
+    footer {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+    }
+}
+
+/* Fallback para navegadores sem suporte */
+@supports not (backdrop-filter: blur(10px)) {
+    .card,
+    .logo-box,
+    footer {
+        background: rgba(255, 255, 255, 0.15);
+    }
+}

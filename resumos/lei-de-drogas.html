@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lei de Drogas - Resumo Profissional</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            filter: blur(60px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #60A5FA;
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06B6D4;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .logo-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #8B5CF6;
+            margin-top: 2px;
+        }
+
+        .header-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .header-content h1 span {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #06B6D4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Seções de Conteúdo */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+        .content-section:nth-child(7) { animation-delay: 0.6s; }
+
+        .content-section h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-section h2 i {
+            color: #8B5CF6;
+            font-size: 28px;
+        }
+
+        .content-section h3 {
+            font-size: 22px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #06B6D4;
+        }
+
+        .content-section p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        /* Cards de Informação */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .info-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #06B6D4;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Listas */
+        .content-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .content-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+        }
+
+        .content-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #06B6D4;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #8B5CF6;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Destaque */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
+            border-left: 4px solid #8B5CF6;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: #8B5CF6;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+            margin-top: 50px;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        footer .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .logo-box {
+                width: 80px;
+                height: 80px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .header-content h1 {
+                font-size: 36px;
+            }
+
+            .header-content p {
+                font-size: 14px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .content-section h3 {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 28px;
+            }
+
+            .header-content p {
+                font-size: 13px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .content-section h2 {
+                font-size: 20px;
+            }
+
+            .content-section h3 {
+                font-size: 16px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Botão Voltar -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Índice
+        </a>
+
+        <!-- Header -->
+        <header>
+            <div class="logo-box">
+                <div class="logo-text">LD</div>
+                <div class="logo-sub">Lei 11.343</div>
+            </div>
+            <div class="header-content">
+                <h1>Lei de Drogas<br><span>Resumo Profissional Completo</span></h1>
+                <p>Análise detalhada da Lei nº 11.343/2006 com foco em tráfico, posse, condutas criminosas, penas e medidas de reinserção social.</p>
+            </div>
+        </header>
+
+        <!-- Seção 1: Introdução e Objetivos -->
+        <div class="content-section">
+            <h2><i class="fas fa-book"></i> Introdução e Objetivos</h2>
+            
+            <p>A Lei nº 11.343, de 23 de agosto de 2006, institui o Sistema Nacional de Políticas Públicas sobre Drogas (Sisnad) e estabelece normas para prevenção do uso indevido, atenção e reinserção social de usuários e dependentes de drogas, bem como repressão à produção não autorizada e ao tráfico ilícito de drogas.</p>
+
+            <h3>Objetivo Principal</h3>
+            <p>Criar um sistema integrado que combine prevenção, atenção e reinserção social com repressão ao tráfico ilícito, estabelecendo políticas públicas multidisciplinares.</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-calendar"></i> Data de Sanção</h4>
+                    <p>23 de agosto de 2006</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-shield-alt"></i> Reforma</h4>
+                    <p>Lei nº 13.840, de 5 de junho de 2019</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-network-wired"></i> Sistema</h4>
+                    <p>Sisnad - Sistema Nacional de Políticas sobre Drogas</p>
+                </div>
+            </div>
+
+            <h3>Definição de Drogas</h3>
+            <p>Para fins da Lei, consideram-se como drogas as substâncias ou os produtos capazes de causar dependência, assim especificados em lei ou relacionados em listas atualizadas periodicamente pelo Poder Executivo da União.</p>
+        </div>
+
+        <!-- Seção 2: Condutas Criminosas - Tráfico -->
+        <div class="content-section">
+            <h2><i class="fas fa-exclamation-circle"></i> Condutas Criminosas - Tráfico</h2>
+            
+            <p>A Lei de Drogas tipifica diversas condutas relacionadas ao tráfico ilícito de drogas. O tráfico é considerado um crime hediondo de extrema gravidade.</p>
+
+            <h3>Artigo 33 - Tráfico de Drogas</h3>
+            <p>Constitui crime importar, exportar, remeter, preparar, produzir, fabricar, adquirir, vender, distribuir, entregar, guardar, tiver em depósito, transportar, trazer consigo, ainda que gratuitamente, sem autorização ou em desacordo com determinação legal ou regulamentar, droga, matéria-prima, insumo ou equipamento destinados à sua preparação.</p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-ban"></i> Pena de Tráfico</h4>
+                    <p>5 a 15 anos de reclusão + multa</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Natureza</h4>
+                    <p>Crime hediondo (Lei nº 8.072/1990)</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-gavel"></i> Ação Penal</h4>
+                    <p>Pública incondicionada</p>
+                </div>
+            </div>
+
+            <h3>Condutas Equiparadas ao Tráfico (Art. 33, § 3º)</h3>
+            <ul class="content-list">
+                <li>Importar, exportar, remeter, produzir, fabricar, adquirir, vender, distribuir, entregar, guardar, tiver em depósito, transportar, trazer consigo ou guardar matéria-prima, insumo ou equipamento para fabricação de drogas</li>
+                <li>Financiar ou custear qualquer transação, guarda ou transporte de drogas</li>
+                <li>Organizador ou financiador de organizações criminosas dedicadas ao tráfico</li>
+            </ul>
+
+            <div class="chart-container">
+                <canvas id="chartTrafico"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 3: Posse para Consumo Pessoal -->
+        <div class="content-section">
+            <h2><i class="fas fa-user"></i> Posse para Consumo Pessoal (Art. 28)</h2>
+            
+            <p>A Lei de Drogas descriminalizou a posse para consumo pessoal, substituindo penas privativas de liberdade por medidas educativas e de reinserção social.</p>
+
+            <h3>Medidas Aplicáveis (Art. 28)</h3>
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4><i class="fas fa-exclamation"></i> Advertência</h4>
+                    <p>Advertência sobre os efeitos das drogas</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-hands-helping"></i> Prestação de Serviços</h4>
+                    <p>Até 5 meses (primeira vez) ou 10 meses (reincidência)</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-graduation-cap"></i> Programa Educativo</h4>
+                    <p>Comparecimento a programa ou curso educativo</p>
+                </div>
+            </div>
+
+            <h3>Critérios para Determinar Consumo Pessoal (Art. 28, § 2º)</h3>
+            <ul class="content-list">
+                <li>Natureza e quantidade da substância apreendida</li>
+                <li>Local e condições em que se desenvolveu a ação</li>
+                <li>Circunstâncias sociais e pessoais do agente</li>
+                <li>Conduta e antecedentes do agente</li>
+            </ul>
+
+            <h3>Cultivo para Consumo Pessoal (Art. 28, § 1º)</h3>
+            <p>Submete-se às mesmas medidas quem, para seu consumo pessoal, semeia, cultiva ou colhe plantas destinadas à preparação de pequena quantidade de substância ou produto capaz de causar dependência.</p>
+        </div>
+
+        <!-- Seção 4: Outras Condutas Criminosas -->
+        <div class="content-section">
+            <h2><i class="fas fa-gavel"></i> Outras Condutas Criminosas</h2>
+            
+            <h3>Artigo 34 - Fabricação de Drogas</h3>
+            <p>Fabricar, preparar, produzir ou transformar drogas, sem autorização ou em desacordo com a lei.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> 10 a 15 anos de reclusão</p>
+            </div>
+
+            <h3>Artigo 35 - Uso de Local para Tráfico</h3>
+            <p>Oferecer, vender, distribuir ou entregar, ainda que gratuitamente, local, imóvel ou bem móvel de qualquer natureza para o uso indevido de drogas.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> 2 a 8 anos de reclusão e multa</p>
+            </div>
+
+            <h3>Artigo 36 - Indução ao Uso</h3>
+            <p>Induzir, instigar ou auxiliar alguém ao uso indevido de droga.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> 1 a 3 anos de reclusão e multa</p>
+            </div>
+
+            <h3>Artigo 37 - Apologia e Propaganda</h3>
+            <p>Fazer apologia ao uso indevido de droga ou à sua legalização.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> 1 a 3 anos de reclusão e multa</p>
+            </div>
+
+            <h3>Artigo 38 - Associação para Tráfico</h3>
+            <p>Associar-se para o fim de praticar, reiteradamente ou não, qualquer dos crimes previstos nos artigos 33, 34 e 35.</p>
+            <div class="highlight-box">
+                <p><strong>Pena:</strong> 1 a 3 anos de reclusão e multa</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartCondutasCriminosas"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 5: Penas e Agravantes -->
+        <div class="content-section">
+            <h2><i class="fas fa-balance-scale"></i> Penas e Circunstâncias Agravantes</h2>
+            
+            <h3>Penas Base para Tráfico (Art. 33)</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Conduta</th>
+                            <th>Pena</th>
+                            <th>Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Tráfico Simples</strong></td>
+                            <td>5 a 15 anos + multa</td>
+                            <td>Crime hediondo</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fabricação</strong></td>
+                            <td>10 a 15 anos + multa</td>
+                            <td>Crime hediondo</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Uso de Local</strong></td>
+                            <td>2 a 8 anos + multa</td>
+                            <td>Crime comum</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Indução ao Uso</strong></td>
+                            <td>1 a 3 anos + multa</td>
+                            <td>Crime comum</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Circunstâncias Agravantes (Art. 40)</h3>
+            <ul class="content-list">
+                <li>Crime praticado em local de frequência de menores</li>
+                <li>Crime praticado por servidor público</li>
+                <li>Crime praticado em presença de menores</li>
+                <li>Crime praticado contra menor ou gestante</li>
+                <li>Reincidência em crime de tráfico</li>
+                <li>Crime praticado em estabelecimento de ensino</li>
+            </ul>
+
+            <div class="chart-container">
+                <canvas id="chartPenas"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 6: Medidas de Reinserção Social -->
+        <div class="content-section">
+            <h2><i class="fas fa-heart"></i> Medidas de Reinserção Social</h2>
+            
+            <p>A Lei de Drogas estabelece um sistema de atenção e reinserção social para usuários e dependentes, integrando saúde, assistência social e educação.</p>
+
+            <h3>Direitos do Usuário/Dependente</h3>
+            <ul class="content-list">
+                <li>Atendimento prioritário no Sistema Único de Saúde (SUS)</li>
+                <li>Acesso a programas de prevenção e tratamento</li>
+                <li>Reinserção social e econômica</li>
+                <li>Acesso a educação e qualificação profissional</li>
+                <li>Programas de inserção no mercado de trabalho</li>
+                <li>Assistência social e habitação</li>
+            </ul>
+
+            <h3>Plano Individual de Atendimento (Art. 23)</h3>
+            <p>O juiz estabelecerá plano individual de atendimento para cada usuário ou dependente, considerando:</p>
+            <ul class="content-list">
+                <li>Situação pessoal e social do usuário</li>
+                <li>Necessidades de saúde e assistência social</li>
+                <li>Perspectivas de reinserção social e econômica</li>
+                <li>Participação da família e comunidade</li>
+            </ul>
+
+            <div class="chart-container">
+                <canvas id="chartReinserção"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 7: Pontos-Chave para Concursos -->
+        <div class="content-section">
+            <h2><i class="fas fa-star"></i> Pontos-Chave para Concursos</h2>
+            
+            <div class="highlight-box">
+                <p><strong>1. Data e Número:</strong> Lei nº 11.343, de 23 de agosto de 2006 (Reforma: Lei nº 13.840/2019)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>2. Sistema:</strong> Sisnad - Sistema Nacional de Políticas Públicas sobre Drogas</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>3. Tráfico:</strong> Crime hediondo (5 a 15 anos de reclusão + multa)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>4. Fabricação:</strong> 10 a 15 anos de reclusão + multa (crime hediondo)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>5. Posse para Consumo:</strong> Descriminalizada - medidas educativas (advertência, prestação de serviços, programa educativo)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>6. Critérios de Consumo Pessoal:</strong> Natureza, quantidade, local, circunstâncias sociais e conduta do agente</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>7. Indução ao Uso:</strong> 1 a 3 anos de reclusão + multa</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>8. Apologia:</strong> Fazer apologia ao uso indevido ou à legalização (1 a 3 anos + multa)</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>9. Agravantes:</strong> Crime em local de menores, por servidor público, contra gestante ou menor</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>10. Reinserção Social:</strong> Atendimento prioritário no SUS, programas de prevenção, tratamento e reinserção econômica</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© PlenAula Concursos — Resumo Profissional da Lei de Drogas</p>
+        <p class="sub">Material feito para revisão intensiva e aprovação em concursos públicos</p>
+    </footer>
+
+    <script>
+        // Gráfico 1: Tipos de Tráfico
+        const ctx1 = document.getElementById('chartTrafico').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['Importação', 'Exportação', 'Venda', 'Distribuição', 'Transporte', 'Guarda'],
+                datasets: [{
+                    label: 'Condutas de Tráfico',
+                    data: [95, 90, 100, 95, 90, 85],
+                    backgroundColor: [
+                        '#8B5CF6',
+                        '#7C3AED',
+                        '#6D28D9',
+                        '#5B21B6',
+                        '#4C1D95',
+                        '#3F0F5C'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 2: Condutas Criminosas
+        const ctx2 = document.getElementById('chartCondutasCriminosas').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Tráfico', 'Fabricação', 'Uso de Local', 'Indução', 'Apologia', 'Associação'],
+                datasets: [{
+                    data: [35, 25, 15, 12, 8, 5],
+                    backgroundColor: [
+                        '#8B5CF6',
+                        '#7C3AED',
+                        '#6D28D9',
+                        '#06B6D4',
+                        '#10B981',
+                        '#F59E0B'
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 13
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 3: Penas por Crime
+        const ctx3 = document.getElementById('chartPenas').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['Tráfico', 'Fabricação', 'Uso de Local', 'Indução', 'Apologia'],
+                datasets: [{
+                    label: 'Anos de Reclusão (Mínimo)',
+                    data: [5, 10, 2, 1, 1],
+                    backgroundColor: '#8B5CF6',
+                    borderRadius: 8
+                },
+                {
+                    label: 'Anos de Reclusão (Máximo)',
+                    data: [15, 15, 8, 3, 3],
+                    backgroundColor: '#7C3AED',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico 4: Reinserção Social
+        const ctx4 = document.getElementById('chartReinserção').getContext('2d');
+        new Chart(ctx4, {
+            type: 'radar',
+            data: {
+                labels: ['Saúde', 'Educação', 'Trabalho', 'Assistência Social', 'Habitação', 'Família'],
+                datasets: [{
+                    label: 'Áreas de Reinserção',
+                    data: [95, 85, 80, 90, 75, 85],
+                    borderColor: '#8B5CF6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#8B5CF6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            backdropColor: 'transparent'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>
