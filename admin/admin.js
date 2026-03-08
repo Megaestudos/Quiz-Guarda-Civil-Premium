@@ -37,7 +37,7 @@ async function carregarUsuarios() {
   try {
     setStatus("Carregando usuários...");
 
-    const listUsersCall = httpsCallable(functions, "listUsers");
+    const listUsersCall = httpsCallable(functions, "listUsersV2");
     const result = await listUsersCall();
 
     const tbody = $("tabelaUsuarios");
