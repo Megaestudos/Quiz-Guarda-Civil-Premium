@@ -10,16 +10,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-/*
-  IMPORTANTE:
-  Se sua Cloud Function estiver em outra região, troque aqui.
-  Exemplo:
-  const functions = getFunctions(app, "southamerica-east1");
-*/
 const functions = getFunctions(app, "southamerica-east1");
 
 const $ = (id) => document.getElementById(id);
+
+let allUsers = [];
 
 function setStatus(msg) {
   const el = $("statusMsg");
@@ -33,41 +28,158 @@ function formatDate(value) {
   return date.toLocaleString("pt-BR");
 }
 
+function isToday(value) {
+  if (!value) return false;
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return false;
+
+  const now = new Date();
+
+  return (
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear()
+  );
+}
+
+function escapeHtml(text = "") {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function renderProviders(providers) {
+  if (!providers) return '<span class="badge">Sem provedor</span>';
+
+  const list = String(providers)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (!list.length) return '<span class="badge">Sem provedor</span>';
+
+  return list
+    .map((item) => `<span class="badge">${escapeHtml(item)}</span>`)
+    .join("");
+}
+
+function updateDashboard(users) {
+  const total = users.length;
+  const comEmail = users.filter((u) => u.email).length;
+  const hoje = users.filter((u) => isToday(u.lastLogin)).length;
+  const novosHoje = users.filter((u) => isToday(u.createdAt)).length;
+
+  $("statTotal").textContent = total;
+  $("statComEmail").textContent = comEmail;
+  $("statHoje").textContent = hoje;
+  $("statNovosHoje").textContent = novosHoje;
+}
+
+function updateResultInfo(total, filtered) {
+  const el = $("resultInfo");
+  if (!el) return;
+
+  if (filtered === total) {
+    el.textContent = `${filtered} resultado${filtered === 1 ? "" : "s"}`;
+    return;
+  }
+
+  el.textContent = `${filtered} de ${total} resultado${filtered === 1 ? "" : "s"}`;
+}
+
+function renderTable(users) {
+  const tbody = $("tabelaUsuarios");
+
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  if (!users.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="empty-state">Nenhum usuário encontrado.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  users.forEach((u) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td class="email">${escapeHtml(u.email || "Sem e-mail")}</td>
+      <td class="uid">${escapeHtml(u.uid || "")}</td>
+      <td>${renderProviders(u.providers)}</td>
+      <td>${escapeHtml(formatDate(u.createdAt) || "-")}</td>
+      <td>${escapeHtml(formatDate(u.lastLogin) || "-")}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+function applyFilter() {
+  const term = ($("searchInput")?.value || "").trim().toLowerCase();
+
+  if (!term) {
+    renderTable(allUsers);
+    updateResultInfo(allUsers.length, allUsers.length);
+    return;
+  }
+
+  const filtered = allUsers.filter((u) => {
+    const email = String(u.email || "").toLowerCase();
+    const uid = String(u.uid || "").toLowerCase();
+    const providers = String(u.providers || "").toLowerCase();
+
+    return (
+      email.includes(term) ||
+      uid.includes(term) ||
+      providers.includes(term)
+    );
+  });
+
+  renderTable(filtered);
+  updateResultInfo(allUsers.length, filtered.length);
+}
+
 async function carregarUsuarios() {
   try {
     setStatus("Carregando usuários...");
 
+    const tbody = $("tabelaUsuarios");
+    if (tbody) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty-state">Carregando usuários...</td>
+        </tr>
+      `;
+    }
+
     const listUsersCall = httpsCallable(functions, "listUsersV2");
     const result = await listUsersCall();
 
-    const tbody = $("tabelaUsuarios");
-    tbody.innerHTML = "";
+    allUsers = Array.isArray(result.data) ? result.data : [];
 
-    const users = Array.isArray(result.data) ? result.data : [];
+    allUsers.sort((a, b) => {
+      const da = new Date(a.createdAt || 0).getTime();
+      const db = new Date(b.createdAt || 0).getTime();
+      return db - da;
+    });
 
-    if (!users.length) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="5">Nenhum usuário encontrado.</td>
-        </tr>
-      `;
+    updateDashboard(allUsers);
+    renderTable(allUsers);
+    updateResultInfo(allUsers.length, allUsers.length);
+
+    if (!allUsers.length) {
       setStatus("Nenhum usuário cadastrado.");
       return;
     }
 
-    users.forEach((u) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${u.email || ""}</td>
-        <td>${u.uid || ""}</td>
-        <td>${u.providers || ""}</td>
-        <td>${formatDate(u.createdAt)}</td>
-        <td>${formatDate(u.lastLogin)}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    setStatus(`Usuários carregados: ${users.length}`);
+    setStatus(`Usuários carregados com sucesso: ${allUsers.length}`);
   } catch (e) {
     console.error("Erro ao carregar usuários:", e);
 
@@ -75,17 +187,22 @@ async function carregarUsuarios() {
     if (tbody) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5">Erro ao carregar usuários.</td>
+          <td colspan="5" class="empty-state">Erro ao carregar usuários.</td>
         </tr>
       `;
     }
 
-    setStatus("Erro ao carregar usuários.");
+    $("statTotal").textContent = "0";
+    $("statComEmail").textContent = "0";
+    $("statHoje").textContent = "0";
+    $("statNovosHoje").textContent = "0";
+    updateResultInfo(0, 0);
 
+    setStatus("Erro ao carregar usuários.");
     alert(
       "Erro ao carregar usuários.\n\n" +
       "Verifique:\n" +
-      "1. Se a função 'listUsers' existe no Firebase\n" +
+      "1. Se a função 'listUsersV2' existe no Firebase\n" +
       "2. Se ela está publicada\n" +
       "3. Se a região da função está correta\n" +
       "4. Se o usuário logado tem permissão de admin"
@@ -114,4 +231,16 @@ if (btnLogout) {
       alert("Não foi possível sair.");
     }
   };
+}
+
+const btnRefresh = $("btnRefresh");
+if (btnRefresh) {
+  btnRefresh.onclick = async () => {
+    await carregarUsuarios();
+  };
+}
+
+const searchInput = $("searchInput");
+if (searchInput) {
+  searchInput.addEventListener("input", applyFilter);
 }
