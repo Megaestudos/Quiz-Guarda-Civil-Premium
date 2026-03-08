@@ -17,7 +17,7 @@ const auth = getAuth(app);
   Exemplo:
   const functions = getFunctions(app, "southamerica-east1");
 */
-const functions = getFunctions(app);
+const functions = getFunctions(app, "southamerica-east1");
 
 const $ = (id) => document.getElementById(id);
 
