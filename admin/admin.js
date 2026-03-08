@@ -8,6 +8,8 @@ const firebaseConfig = {
   projectId: "simulados-concursos-22c91"
 };
 
+const ADMIN_EMAIL = "seuemail@gmail.com";
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app, "southamerica-east1");
@@ -345,13 +347,75 @@ async function toggleUserStatus(uid, currentlyDisabled) {
   }
 }
 
+function showAccessDenied() {
+  document.body.innerHTML = `
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      font-family:Inter,sans-serif;
+      background:#0b1220;
+      color:#fff;
+      padding:24px;
+    ">
+      <div style="
+        width:100%;
+        max-width:520px;
+        background:#0f172a;
+        border:1px solid #1e293b;
+        border-radius:18px;
+        padding:32px 24px;
+        text-align:center;
+        box-shadow:0 10px 30px rgba(0,0,0,.35);
+      ">
+        <h1 style="margin:0 0 10px;font-size:30px;">Acesso negado</h1>
+        <p style="margin:0 0 20px;opacity:.8;line-height:1.6;">
+          Este painel é restrito ao administrador autorizado.
+        </p>
+        <button
+          id="btnLogoutBlock"
+          style="
+            padding:12px 18px;
+            border-radius:12px;
+            border:none;
+            background:#2563eb;
+            color:#fff;
+            cursor:pointer;
+            font-weight:700;
+          "
+        >
+          Voltar ao login
+        </button>
+      </div>
+    </div>
+  `;
+
+  const btn = document.getElementById("btnLogoutBlock");
+  if (btn) {
+    btn.onclick = async () => {
+      try {
+        await signOut(auth);
+      } catch (e) {
+        console.error("Erro ao sair:", e);
+      }
+      window.location.href = "./login.html";
+    };
+  }
+}
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "./login.html";
     return;
   }
 
-  setStatus(`Logado como: ${user.email || "usuário sem e-mail"}`);
+  if (user.email !== ADMIN_EMAIL) {
+    showAccessDenied();
+    return;
+  }
+
+  setStatus(`Logado como administrador: ${user.email}`);
   await carregarUsuarios();
 });
 
