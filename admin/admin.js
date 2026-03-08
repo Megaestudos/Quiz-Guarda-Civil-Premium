@@ -8,7 +8,7 @@ const firebaseConfig = {
   projectId: "simulados-concursos-22c91"
 };
 
-const ADMIN_EMAIL = "seuemail@gmail.com";
+const ADMIN_EMAIL = "lomateco@gmail.com";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
