@@ -15,6 +15,7 @@ const functions = getFunctions(app, "southamerica-east1");
 const $ = (id) => document.getElementById(id);
 
 let allUsers = [];
+let usersChart = null;
 
 function setStatus(msg) {
   const el = $("statusMsg");
@@ -66,6 +67,13 @@ function renderProviders(providers) {
     .join("");
 }
 
+function renderStatusBadge(disabled) {
+  if (disabled) {
+    return '<span class="badge badge-disabled">Bloqueado</span>';
+  }
+  return '<span class="badge">Ativo</span>';
+}
+
 function updateDashboard(users) {
   const total = users.length;
   const comEmail = users.filter((u) => u.email).length;
@@ -90,9 +98,107 @@ function updateResultInfo(total, filtered) {
   el.textContent = `${filtered} de ${total} resultado${filtered === 1 ? "" : "s"}`;
 }
 
+function groupUsersByDay(users) {
+  const map = new Map();
+
+  users.forEach((u) => {
+    if (!u.createdAt) return;
+    const date = new Date(u.createdAt);
+    if (isNaN(date.getTime())) return;
+
+    const key = date.toISOString().slice(0, 10);
+    map.set(key, (map.get(key) || 0) + 1);
+  });
+
+  const sortedEntries = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  const lastEntries = sortedEntries.slice(-10);
+
+  return {
+    labels: lastEntries.map(([date]) => {
+      const d = new Date(date + "T00:00:00");
+      return d.toLocaleDateString("pt-BR");
+    }),
+    values: lastEntries.map(([, count]) => count)
+  };
+}
+
+function renderChart(users) {
+  const canvas = $("usersChart");
+  if (!canvas || typeof Chart === "undefined") return;
+
+  const { labels, values } = groupUsersByDay(users);
+
+  if (usersChart) {
+    usersChart.destroy();
+  }
+
+  usersChart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Novos usuários",
+          data: values,
+          tension: 0.35,
+          fill: false,
+          borderWidth: 3,
+          pointRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: "#e5e7eb"
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: "#94a3b8"
+          },
+          grid: {
+            color: "rgba(148,163,184,.12)"
+          }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: "#94a3b8",
+            precision: 0
+          },
+          grid: {
+            color: "rgba(148,163,184,.12)"
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderActionButton(user) {
+  if (user.disabled) {
+    return `
+      <button class="action-btn action-unblock" data-action="toggle-status" data-uid="${escapeHtml(user.uid)}" data-disabled="true">
+        Desbloquear
+      </button>
+    `;
+  }
+
+  return `
+    <button class="action-btn action-block" data-action="toggle-status" data-uid="${escapeHtml(user.uid)}" data-disabled="false">
+      Bloquear
+    </button>
+  `;
+}
+
 function renderTable(users) {
   const tbody = $("tabelaUsuarios");
-
   if (!tbody) return;
 
   tbody.innerHTML = "";
@@ -100,7 +206,7 @@ function renderTable(users) {
   if (!users.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="empty-state">Nenhum usuário encontrado.</td>
+        <td colspan="7" class="empty-state">Nenhum usuário encontrado.</td>
       </tr>
     `;
     return;
@@ -113,8 +219,10 @@ function renderTable(users) {
       <td class="email">${escapeHtml(u.email || "Sem e-mail")}</td>
       <td class="uid">${escapeHtml(u.uid || "")}</td>
       <td>${renderProviders(u.providers)}</td>
+      <td>${renderStatusBadge(!!u.disabled)}</td>
       <td>${escapeHtml(formatDate(u.createdAt) || "-")}</td>
       <td>${escapeHtml(formatDate(u.lastLogin) || "-")}</td>
+      <td>${renderActionButton(u)}</td>
     `;
 
     tbody.appendChild(tr);
@@ -154,7 +262,7 @@ async function carregarUsuarios() {
     if (tbody) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5" class="empty-state">Carregando usuários...</td>
+          <td colspan="7" class="empty-state">Carregando usuários...</td>
         </tr>
       `;
     }
@@ -171,6 +279,7 @@ async function carregarUsuarios() {
     });
 
     updateDashboard(allUsers);
+    renderChart(allUsers);
     renderTable(allUsers);
     updateResultInfo(allUsers.length, allUsers.length);
 
@@ -187,7 +296,7 @@ async function carregarUsuarios() {
     if (tbody) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5" class="empty-state">Erro ao carregar usuários.</td>
+          <td colspan="7" class="empty-state">Erro ao carregar usuários.</td>
         </tr>
       `;
     }
@@ -198,6 +307,11 @@ async function carregarUsuarios() {
     $("statNovosHoje").textContent = "0";
     updateResultInfo(0, 0);
 
+    if (usersChart) {
+      usersChart.destroy();
+      usersChart = null;
+    }
+
     setStatus("Erro ao carregar usuários.");
     alert(
       "Erro ao carregar usuários.\n\n" +
@@ -207,6 +321,27 @@ async function carregarUsuarios() {
       "3. Se a região da função está correta\n" +
       "4. Se o usuário logado tem permissão de admin"
     );
+  }
+}
+
+async function toggleUserStatus(uid, currentlyDisabled) {
+  try {
+    setStatus(currentlyDisabled ? "Desbloqueando usuário..." : "Bloqueando usuário...");
+
+    const toggleStatusCall = httpsCallable(functions, "toggleUserStatus");
+    await toggleStatusCall({
+      uid,
+      disabled: !currentlyDisabled
+    });
+
+    await carregarUsuarios();
+    applyFilter();
+
+    setStatus(currentlyDisabled ? "Usuário desbloqueado com sucesso." : "Usuário bloqueado com sucesso.");
+  } catch (e) {
+    console.error("Erro ao alterar status do usuário:", e);
+    setStatus("Erro ao alterar status do usuário.");
+    alert("Não foi possível alterar o status do usuário.");
   }
 }
 
@@ -237,6 +372,7 @@ const btnRefresh = $("btnRefresh");
 if (btnRefresh) {
   btnRefresh.onclick = async () => {
     await carregarUsuarios();
+    applyFilter();
   };
 }
 
@@ -244,3 +380,20 @@ const searchInput = $("searchInput");
 if (searchInput) {
   searchInput.addEventListener("input", applyFilter);
 }
+
+document.addEventListener("click", async (event) => {
+  const btn = event.target.closest('[data-action="toggle-status"]');
+  if (!btn) return;
+
+  const uid = btn.dataset.uid;
+  const currentlyDisabled = btn.dataset.disabled === "true";
+
+  const confirmMessage = currentlyDisabled
+    ? "Deseja desbloquear este usuário?"
+    : "Deseja bloquear este usuário?";
+
+  const confirmed = window.confirm(confirmMessage);
+  if (!confirmed) return;
+
+  await toggleUserStatus(uid, currentlyDisabled);
+});
