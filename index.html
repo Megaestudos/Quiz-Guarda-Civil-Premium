@@ -107,6 +107,22 @@
     <button class="tabbtn" data-target="cards" onclick="go('cards')"><span>🃏</span>Cartões</button>
   </div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+      authDomain: "simulados-concursos-22c91.firebaseapp.com",
+      projectId: "simulados-concursos-22c91",
+      storageBucket: "simulados-concursos-22c91.firebasestorage.app",
+      messagingSenderId: "863699339166",
+      appId: "1:863699339166:web:8514155da2229b41ae388f"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
   <script src="./js/app.js"></script>
 </body>
 </html>
