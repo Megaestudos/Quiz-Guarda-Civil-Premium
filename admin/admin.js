@@ -12,7 +12,7 @@ const ADMIN_EMAIL = "lomateco@gmail.com";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const functions = getFunctions(app, "southamerica-east1");
+const functions = getFunctions(app, "us-central1");
 
 const $ = (id) => document.getElementById(id);
 
