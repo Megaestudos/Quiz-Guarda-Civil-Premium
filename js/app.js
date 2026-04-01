@@ -349,3 +349,105 @@ async function renderCards(){
 // Inicial
 showBestRecord();
 updateMobileQuizHeight();
+// ====== Lógica do Gráfico Profissional (SaaS Style) ======
+let chartInstance = null;
+
+function renderChart() {
+  const chartContainer = document.getElementById('performanceChart');
+  if (!chartContainer) return;
+
+  // Pega a cor Accent do CSS (ex: #00ff9d)
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+  // Simulação de dados (No futuro, viriam do Firebase)
+  const days = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  // Gera dados aleatórios para demonstração
+  const dataPoints = days.map(() => Math.floor(Math.random() * (98 - 65) + 65));
+
+  const options = {
+    series: [{
+      name: 'Acertos (%)',
+      data: dataPoints
+    }],
+    chart: {
+      type: 'area',
+      height: 240,
+      fontFamily: 'Inter, sans-serif',
+      toolbar: { show: false },
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 1000,
+        animateGradually: { enabled: false },
+        dynamicAnimation: { enabled: true, speed: 350 }
+      }
+    },
+    colors: [accentColor], // Usa a cor do seu tema
+    stroke: {
+      curve: 'smooth',
+      width: 3
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.4,
+        opacityTo: 0.05, // Fade suave até transparent
+        stops: [0, 90, 100],
+        colorStops: []
+      }
+    },
+    dataLabels: { enabled: false },
+    xaxis: {
+      categories: days,
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: {
+        style: { colors: 'rgba(255,255,255,0.6)', fontSize: '12px' }
+      }
+    },
+    yaxis: {
+      show: false, // Minimalista
+      min: 0,
+      max: 100
+    },
+    grid: {
+      show: true,
+      borderColor: 'rgba(255, 255, 255, 0.05)',
+      strokeDashArray: 4,
+      xaxis: { lines: { show: false } }
+    },
+    tooltip: {
+      theme: 'dark',
+      y: {
+        formatter: function (val) {
+          return val + "%";
+        }
+      }
+    }
+  };
+
+  if (chartInstance) {
+    chartInstance.updateSeries([{ data: dataPoints }]);
+  } else {
+    chartInstance = new ApexCharts(chartContainer, options);
+    chartInstance.render();
+  }
+}
+
+// Hook: Garante que o gráfico renderize ao ir para Home
+const originalGo = window.go;
+window.go = function(target) {
+  originalGo(target);
+  if (target === 'home') {
+    // Delay pequeno para garantir que a animação da página não conflite
+    setTimeout(renderChart, 300);
+  }
+};
+
+// Renderiza inicial se já estiver na home
+document.addEventListener('DOMContentLoaded', () => {
+    if(document.getElementById('home').classList.contains('active')){
+        setTimeout(renderChart, 500);
+    }
+});
