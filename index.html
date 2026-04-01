@@ -2,26 +2,33 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="viewport"
+content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"/>
   <title>Quiz Guarda Civil — App Profissional</title>
   <meta name="theme-color" content="#1e3c72"/>
+  <meta name="description" content="Plataforma de Estudos Inteligente para Guarda Civil"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+rel="stylesheet">
+
+  <!-- ApexCharts - Gráfico Profissional -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 
 <body>
   <div class="app" id="appRoot">
+    <!-- HEADER -->
     <div class="card header" id="cardHeader">
-      <div>
+      <div class="header-info">
         <h1 class="title">Guarda Civil 👮‍♂️</h1>
         <div class="subtitle">Plataforma de Estudos Inteligente</div>
       </div>
       <div class="controls">
-        <div style="display:flex; gap:5px">
+        <div class="scale-control">
           <button class="icon-btn" id="scaleDownBtn" title="Diminuir">A−</button>
           <div class="scale-label" id="scaleLabel">x1.00</div>
           <button class="icon-btn" id="scaleUpBtn" title="Aumentar">A+</button>
@@ -31,40 +38,113 @@
       </div>
     </div>
 
+    <!-- PÁGINAS -->
     <div class="card pages" id="pages">
+
+      <!-- ===== HOME ===== -->
       <section id="home" class="page active">
-        <div class="welcome">Bem-vindo! Prepare-se para sua aprovação. Escolha uma modalidade abaixo:</div>
+        <div class="welcome-section">
+          <div class="welcome-badge">🎯 Foco na Aprovação</div>
+          <h2 class="welcome-title">Bem-vindo, Futuro Guarda!</h2>
+          <p class="welcome-text">Prepare-se com a melhor plataforma de estudos. Escolha uma modalidade
+abaixo:</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value" id="bestScoreStat">--</div>
+            <div class="stat-label">Melhor Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value" id="streakStat">0</div>
+            <div class="stat-label">Dias Seguidos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-value" id="questionsStat">0</div>
+            <div class="stat-label">Questões Feitas</div>
+          </div>
+        </div>
+
+        <!-- Ações Principais -->
         <div class="home-actions">
-          <button class="btn" onclick="go('study')">📘 Estudar Leis</button>
-          <button class="btn" onclick="go('quiz')">🎯 Fazer Simulado</button>
-          <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
-          <a href="./resumos/" class="btn">📄 Resumos</a>
+          <button class="btn btn-primary" onclick="go('study')">
+            <span class="btn-icon">📘</span>
+            <span>Estudar Leis</span>
+          </button>
+          <button class="btn btn-primary" onclick="go('quiz')">
+            <span class="btn-icon">🎯</span>
+            <span>Fazer Simulado</span>
+          </button>
+          <button class="btn btn-secondary" onclick="go('cards')">
+            <span class="btn-icon">🃏</span>
+            <span>Flashcards</span>
+          </button>
+          <a href="./resumos/" class="btn btn-secondary">
+            <span class="btn-icon">📄</span>
+            <span>Resumos</span>
+          </a>
         </div>
-        <div style="margin-top:25px; padding:15px; background:rgba(0,0,0,0.1); border-radius:12px; border: 1px solid rgba(255,255,255,0.05);">
-          <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent); text-align: center;">Carregando recorde...</div>
+
+        <!-- Gráfico de Desempenho -->
+        <div class="chart-section">
+          <div class="chart-header">
+            <div>
+              <h3 class="chart-title">📈 Evolução Semanal</h3>
+              <p class="chart-subtitle">Seu desempenho nos últimos 7 dias</p>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-dot"></span>
+              <span>Acertos (%)</span>
+            </div>
+          </div>
+          <div id="performanceChart"></div>
+        </div>
+
+        <!-- Dica do Dia -->
+        <div class="daily-tip">
+          <div class="tip-icon">💡</div>
+          <div class="tip-content">
+            <strong>Dica do Dia</strong>
+            <p id="dailyTipText">Estude 30 minutos por dia para manter o ritmo de aprendizado.</p>
+          </div>
         </div>
       </section>
 
+      <!-- ===== STUDY ===== -->
       <section id="study" class="page">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-          <h3 style="margin:0">📚 Conteúdos</h3>
-          <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
+        <div class="page-header">
+          <h3 class="page-title">📚 Conteúdos</h3>
+          <button class="btn btn-back" onclick="go('home')">🏠 Voltar</button>
         </div>
-        <div id="studyList" class="study-list">Carregando conteúdos...</div>
+        <div id="studyList" class="study-list">
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Carregando conteúdos...</p>
+          </div>
+        </div>
       </section>
 
+      <!-- ===== QUIZ (NÃO MUDAR ESTRUTURA) ===== -->
       <section id="quiz" class="page">
         <div class="quiz-shell">
-          <div class="page-header-actions" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+          <div class="page-header-actions" style="display:flex; justify-content:space-between; align-items:center;
+margin-bottom:15px; flex-wrap:wrap; gap:10px;">
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1;">
               <span style="font-weight:700; font-size: 14px;">Tópico:</span>
               <select id="topicSelect" style="flex:1; min-width:140px;"></select>
               <button class="next-btn" id="loadTopicBtn"
-                style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap; position:static !important; box-shadow:none !important; border:none !important; width:auto !important; min-width:80px !important; transform:none !important;">
+                style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap; position:static
+!important; box-shadow:none !important; border:none !important; width:auto !important; min-width:80px !important;
+transform:none !important;">
                 Iniciar
               </button>
             </div>
-            <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px; font-size: 12px;">
+            <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px;
+font-size: 12px;">
               Questões: <strong id="quizSizeLabel"></strong>
             </div>
           </div>
@@ -80,31 +160,51 @@
             <div class="explain" id="explain" style="display:none"></div>
           </div>
 
-          <div class="quiz-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+          <div class="quiz-footer" style="display:flex; justify-content:space-between; align-items:center;
+margin-top:20px;">
             <div id="progressText" style="font-weight:700; color:var(--accent); font-size: 14px;"></div>
             <div style="display:flex; gap:10px; flex-wrap: wrap;">
-              <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄 Reiniciar</button>
+              <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄
+Reiniciar</button>
               <button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- ===== CARDS ===== -->
       <section id="cards" class="page">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-          <h3 style="margin:0">🃏 Flashcards</h3>
-          <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
+        <div class="page-header">
+          <h3 class="page-title">🃏 Flashcards</h3>
+          <button class="btn btn-back" onclick="go('home')">🏠 Voltar</button>
         </div>
-        <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:15px; margin-top:15px;"></div>
+        <div class="cards-info">
+          <p>👆 Toque no cartão para virar e ver a resposta</p>
+        </div>
+        <div id="cardsContainer" class="cards-grid"></div>
       </section>
+
     </div>
   </div>
 
+  <!-- TABS DE NAVEGAÇÃO -->
   <div class="tabs" role="navigation" id="tabsBar">
-    <button class="tabbtn active" data-target="home" onclick="go('home')"><span>🏠</span>Início</button>
-    <button class="tabbtn" data-target="study" onclick="go('study')"><span>📘</span>Estudo</button>
-    <button class="tabbtn" data-target="quiz" onclick="go('quiz')"><span>🎯</span>Simulado</button>
-    <button class="tabbtn" data-target="cards" onclick="go('cards')"><span>🃏</span>Cartões</button>
+    <button class="tabbtn active" data-target="home" onclick="go('home')">
+      <span class="tab-icon">🏠</span>
+      <span>Início</span>
+    </button>
+    <button class="tabbtn" data-target="study" onclick="go('study')">
+      <span class="tab-icon">📘</span>
+      <span>Estudo</span>
+    </button>
+    <button class="tabbtn" data-target="quiz" onclick="go('quiz')">
+      <span class="tab-icon">🎯</span>
+      <span>Simulado</span>
+    </button>
+    <button class="tabbtn" data-target="cards" onclick="go('cards')">
+      <span class="tab-icon">🃏</span>
+      <span>Cartões</span>
+    </button>
   </div>
 
   <!-- Firebase -->
