@@ -1,3 +1,4 @@
+```javascript
 var SCRIPT_URL="https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQESCRIPT_URL="https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec";
 var POOL=[],currentIndex=0,score=0,quizStarted=false;
 var SOUND_KEY="quiz_sound_on",SCALE_KEY="quiz_card_scale",BEST_KEY="quiz_best_record";
@@ -111,8 +112,8 @@ function selectOption(letter){
   var ex=document.getElementById("explain");
   if(ex){
     ex.style.display="block";
-    ex.innerHTML="<strong style=\"color:var(--accent)\">"+(letter===c?"✅ Correto!":"❌
-Errado!")+"</strong><br>"+(q.explicacao||"");
+    ex.innerHTML="<strong
+style=\"color:var(--accent)\">"+(letter===c?"Correto!":"Errado!")+"</strong><br>"+(q.explicacao||"");
   }
   var n=document.getElementById("nextBtn");
   if(n)n.disabled=false;
@@ -133,7 +134,7 @@ function finishQuiz(){
   var q=document.getElementById("question");
   var o=document.getElementById("opts");
   var r=document.getElementById("btnRestart");
-  if(q)q.innerHTML="🎉 Fim! Acertou <strong>"+score+"</strong> de "+POOL.length;
+  if(q)q.innerHTML="Fim! Acertou "+score+" de "+POOL.length;
   if(o)o.innerHTML="";
   if(r)r.style.display="block";
 }
@@ -159,8 +160,7 @@ function renderChart(){
   var c=document.getElementById("performanceChart");
   if(!c)return;
   if(typeof ApexCharts==="undefined"){
-    c.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted-light)">Carregando
-gráfico...</div>';
+    c.innerHTML='<div style="padding:20px;text-align:center">Carregando grafico...</div>';
     setTimeout(renderChart,1000);
     return;
   }
@@ -170,7 +170,7 @@ gráfico...</div>';
   var opt={
     series:[{name:"Acertos (%)",data:dp}],
     chart:{type:"area",height:240,toolbar:{show:false}},
-    colors:["var(--accent)"],
+    colors:["#00ff9d"],
     stroke:{curve:"smooth",width:3},
     fill:{type:"gradient",gradient:{opacityFrom:0.5,opacityTo:0.05}},
     xaxis:{categories:days,labels:{style:{colors:"rgba(255,255,255,0.6)"}}},
@@ -184,7 +184,7 @@ gráfico...</div>';
 function renderStudies(){
   var c=document.getElementById("studyList");
   if(!c)return;
-  c.innerHTML='<div style="padding:30px;text-align:center">Conteúdos em breve!</div>';
+  c.innerHTML='<div style="padding:30px;text-align:center">Conteudos em breve!</div>';
 }
 
 function renderCards(){
@@ -205,7 +205,7 @@ function initButtons(){
     sound.onclick=function(){
       var c=localStorage.getItem(SOUND_KEY)!=="0";
       localStorage.setItem(SOUND_KEY,c?"0":"1");
-      this.innerText=c?"🔇":"";
+      this.innerText=c?"🔇":"🔊";
     };
   }
 
@@ -250,14 +250,14 @@ function initButtons(){
 }
 
 function init(){
-  console.log("✅ App iniciando...");
+  console.log("App iniciando...");
   initButtons();
   showBestRecord();
   loadStats();
   updateMobileQuizHeight();
   var h=document.getElementById("home");
   if(h&&h.classList.contains("active"))setTimeout(renderChart,500);
-  console.log("✅ App pronto!");
+  console.log("App pronto!");
 }
 
 function updateMobileQuizHeight(){
