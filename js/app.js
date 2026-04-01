@@ -1,4 +1,5 @@
-```javascript
+function doGet(e) {
+  var js = `
 var SCRIPT_URL="https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQESCRIPT_URL="https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec";
 var POOL=[],currentIndex=0,score=0,quizStarted=false;
 var SOUND_KEY="quiz_sound_on",SCALE_KEY="quiz_card_scale",BEST_KEY="quiz_best_record";
@@ -91,7 +92,7 @@ function renderQuestion(){
     var btn=document.createElement("button");
     btn.className="opt";
     btn.id="opt_"+l;
-    btn.innerHTML="<span style=\"color:var(--accent);margin-right:10px;font-weight:900\">"+l+")</span> "+t;
+    btn.innerHTML="<span style=\\"color:var(--accent);margin-right:10px;font-weight:900\\">"+l+")</span> "+t;
     btn.onclick=function(x){return function(){selectOption(x);};}(l);
     if(o)o.appendChild(btn);
   }
@@ -113,7 +114,7 @@ function selectOption(letter){
   if(ex){
     ex.style.display="block";
     ex.innerHTML="<strong
-style=\"color:var(--accent)\">"+(letter===c?"Correto!":"Errado!")+"</strong><br>"+(q.explicacao||"");
+style=\\"color:var(--accent)\\">"+(letter===c?"Correto!":"Errado!")+"</strong><br>"+(q.explicacao||"");
   }
   var n=document.getElementById("nextBtn");
   if(n)n.disabled=false;
@@ -205,7 +206,7 @@ function initButtons(){
     sound.onclick=function(){
       var c=localStorage.getItem(SOUND_KEY)!=="0";
       localStorage.setItem(SOUND_KEY,c?"0":"1");
-      this.innerText=c?"🔇":"🔊";
+      this.innerText=c?"🔇":"";
     };
   }
 
@@ -273,4 +274,8 @@ function updateMobileQuizHeight(){
 }
 
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",init);}else{init();}
-```
+  `;
+
+  return ContentService.createTextOutput(js)
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
