@@ -527,3 +527,28 @@
       #nextBtn{ width:100% !important; }
       #btnRestart{ width:100% !important; }
     }
+/* Ajustes para o Gráfico ApexCharts ficar integrado ao Glassmorphism */
+#performanceChart {
+  background: var(--card-bg) !important; /* Usa o fundo translúcido do site */
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-3d);
+}
+
+/* Força as cores do tooltip a combinarem com o tema escuro */
+.apexcharts-tooltip {
+  background: rgba(15, 59, 107, 0.95) !important; /* Cor do bg1 com opacidade */
+  border: 1px solid var(--glass-border) !important;
+  color: #fff !important;
+  box-shadow: var(--shadow-3d);
+  border-radius: 8px;
+}
+.apexcharts-tooltip-title {
+  background: rgba(0,0,0,0.3) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+  color: var(--accent) !important;
+}
+.apexcharts-xaxistooltip {
+  background: rgba(15, 59, 107, 0.95) !important;
+  color: #fff !important;
+  border: 1px solid var(--glass-border) !important;
+}
