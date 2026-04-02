@@ -13,12 +13,12 @@
   <div class="app" id="appRoot">
     <div class="card header" id="cardHeader">
       <div>
-        <h1 class="title">Guarda Civil 👮‍♂️</h1>
+        <h1 class="title">Guarda Civil</h1>
         <div class="subtitle">Plataforma de Estudos</div>
       </div>
       <div class="controls">
         <div style="display:flex;gap:5px">
-          <button class="icon-btn" id="scaleDownBtn">A−</button>
+          <button class="icon-btn" id="scaleDownBtn">A-</button>
           <div class="scale-label" id="scaleLabel">x1.00</div>
           <button class="icon-btn" id="scaleUpBtn">A+</button>
         </div>
@@ -28,7 +28,7 @@
 
     <div class="card pages" id="pages">
       <section id="home" class="page active">
-        <div class="welcome">Bem-vindo! Escolha uma opção:</div>
+        <div class="welcome">Bem-vindo! Escolha uma opcao:</div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">🏆</div>
@@ -43,13 +43,13 @@
           <div class="stat-card">
             <div class="stat-icon">📚</div>
             <div class="stat-value" id="questionsStat">0</div>
-            <div class="stat-label">Questões</div>
+            <div class="stat-label">Questoes</div>
           </div>
         </div>
         <div class="home-actions">
-          <button class="btn" onclick="go('study')">📘 Estudar</button>
-          <button class="btn" onclick="go('quiz')">🎯 Simulado</button>
-          <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
+          <button class="btn" onclick="goToPage('study')">📘 Estudar</button>
+          <button class="btn" onclick="goToPage('quiz')">🎯 Simulado</button>
+          <button class="btn" onclick="goToPage('cards')">🃏 Flashcards</button>
         </div>
         <div style="margin-top:25px;">
           <h4 style="margin:0 0 10px 0;color:var(--accent)">📈 Desempenho</h4>
@@ -59,8 +59,8 @@
 
       <section id="study" class="page">
         <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
-          <h3>📚 Conteúdos</h3>
-          <button class="btn" onclick="go('home')" style="padding:6px 12px;">🏠 Voltar</button>
+          <h3>📚 Conteudos</h3>
+          <button class="btn" onclick="goToPage('home')" style="padding:6px 12px;">🏠 Voltar</button>
         </div>
         <div id="studyList" style="text-align:center;padding:40px;">Em breve!</div>
       </section>
@@ -70,7 +70,7 @@
           <div
 style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;">
             <div style="display:flex;align-items:center;gap:10px;flex:1;">
-              <span style="font-weight:700;">Tópico:</span>
+              <span style="font-weight:700;">Topico:</span>
               <select id="topicSelect" style="flex:1;min-width:140px;"></select>
               <button class="next-btn" id="loadTopicBtn" style="padding:8px 15px;">Iniciar</button>
             </div>
@@ -80,7 +80,7 @@ style="display:flex;justify-content:space-between;align-items:center;margin-bott
             <div style="font-size:12px;font-weight:800;" id="progressInfo">0 / 0</div>
           </div>
           <div class="quiz-main">
-            <div class="question" id="question">Selecione um tópico.</div>
+            <div class="question" id="question">Selecione um topico.</div>
             <div class="opts" id="opts"></div>
             <div class="explain" id="explain" style="display:none"></div>
           </div>
@@ -88,7 +88,7 @@ style="display:flex;justify-content:space-between;align-items:center;margin-bott
             <div id="progressText" style="font-weight:700;color:var(--accent);"></div>
             <div style="display:flex;gap:10px;">
               <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄</button>
-              <button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
+              <button class="next-btn" id="nextBtn" disabled>Proxima</button>
             </div>
           </div>
         </div>
@@ -97,7 +97,7 @@ style="display:flex;justify-content:space-between;align-items:center;margin-bott
       <section id="cards" class="page">
         <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
           <h3>🃏 Flashcards</h3>
-          <button class="btn" onclick="go('home')" style="padding:6px 12px;">🏠 Voltar</button>
+          <button class="btn" onclick="goToPage('home')" style="padding:6px 12px;">🏠 Voltar</button>
         </div>
         <div id="cardsContainer" style="text-align:center;padding:40px;">Em breve!</div>
       </section>
@@ -105,142 +105,231 @@ style="display:flex;justify-content:space-between;align-items:center;margin-bott
   </div>
 
   <div class="tabs" id="tabsBar">
-    <button class="tabbtn active" onclick="go('home')">🏠 Início</button>
-    <button class="tabbtn" onclick="go('study')">📘 Estudo</button>
-    <button class="tabbtn" onclick="go('quiz')">🎯 Simulado</button>
-    <button class="tabbtn" onclick="go('cards')">🃏 Cartões</button>
+    <button class="tabbtn" data-page="home" onclick="goToPage('home')">🏠 Inicio</button>
+    <button class="tabbtn" data-page="study" onclick="goToPage('study')">📘 Estudo</button>
+    <button class="tabbtn" data-page="quiz" onclick="goToPage('quiz')">🎯 Simulado</button>
+    <button class="tabbtn" data-page="cards" onclick="goToPage('cards')">🃏 Cartoes</button>
   </div>
 
   <script>
-    // ===== JAVASCRIPT EMBUTIDO (SEM ARQUIVO SEPARADO!) =====
-    var POOL=[],currentIndex=0,score=0,quizStarted=false;
-    var SOUND_KEY="quiz_sound",SCALE_KEY="quiz_scale",BEST_KEY="quiz_best";
-    var STREAK_KEY="quiz_streak",QUESTIONS_KEY="quiz_questions";
+    var POOL=[];
+    var currentIndex=0;
+    var score=0;
+    var quizStarted=false;
+    var SOUND_KEY="quiz_sound";
+    var SCALE_KEY="quiz_scale";
+    var BEST_KEY="quiz_best";
+    var QUESTIONS_KEY="quiz_questions";
+    var STREAK_KEY="quiz_streak";
+    var chartInstance=null;
 
-    function go(target){
-      console.log("Indo para:",target);
-      document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});
-      document.getElementById(target).classList.add("active");
-      document.querySelectorAll(".tabbtn").forEach(function(b){
-
-b.classList.toggle("active",b.innerText.toLowerCase().includes(target==="study"?"estudo":target==="quiz"?"simulado"b.classList.toggle("active",b.innerText.toLowerCase().includes(target==="study"?"estudo":target==="quiz"?"smulado":target==="cards"?"cartões":"início"));
-      });
-      if(target==="home"){showBest();loadStats();setTimeout(renderChart,400);}
-      if(target==="quiz"&&!quizStarted){initQuiz();}
+    function goToPage(pageId){
+      console.log("Going to:",pageId);
+      var pages=document.querySelectorAll(".page");
+      for(var i=0;i<pages.length;i++){
+        pages[i].classList.remove("active");
+      }
+      var target=document.getElementById(pageId);
+      if(target){
+        target.classList.add("active");
+      }
+      var tabs=document.querySelectorAll(".tabbtn");
+      for(var i=0;i<tabs.length;i++){
+        if(tabs[i].getAttribute("data-page")===pageId){
+          tabs[i].classList.add("active");
+        }else{
+          tabs[i].classList.remove("active");
+        }
+      }
+      if(pageId==="home"){
+        showBest();
+        loadStats();
+        setTimeout(renderChart,400);
+      }
+      if(pageId==="quiz" && !quizStarted){
+        initQuiz();
+      }
     }
 
     function setScale(v){
       v=Math.max(0.8,Math.min(1.4,Number(v)));
-      document.getElementById("appRoot").style.transform="scale("+v.toFixed(2)+")";
-      document.getElementById("appRoot").style.transformOrigin="top center";
-      document.getElementById("scaleLabel").innerText="x"+v.toFixed(2);
+      var root=document.getElementById("appRoot");
+      var label=document.getElementById("scaleLabel");
+      if(root){
+        root.style.transform="scale("+v.toFixed(2)+")";
+        root.style.transformOrigin="top center";
+      }
+      if(label){
+        label.innerText="x"+v.toFixed(2);
+      }
       localStorage.setItem(SCALE_KEY,v.toFixed(2));
     }
 
     function showBest(){
-      var r=JSON.parse(localStorage.getItem(BEST_KEY)||"null");
+      var rec=localStorage.getItem(BEST_KEY);
       var el=document.getElementById("bestScoreStat");
-      if(el)el.innerText=r?r.pct+"%":"--";
+      if(rec && el){
+        var data=JSON.parse(rec);
+        el.innerText=data.pct+"%";
+      }else if(el){
+        el.innerText="--";
+      }
     }
 
     function loadStats(){
       var q=document.getElementById("questionsStat");
       var s=document.getElementById("streakStat");
-      if(q)q.innerText=localStorage.getItem(QUESTIONS_KEY)||"0";
-      if(s)s.innerText=localStorage.getItem(STREAK_KEY)||"0";
+      if(q){
+        q.innerText=localStorage.getItem(QUESTIONS_KEY)||"0";
+      }
+      if(s){
+        s.innerText=localStorage.getItem(STREAK_KEY)||"0";
+      }
     }
 
     function initQuiz(){
-      var s=document.getElementById("topicSelect");
-      s.innerHTML='<option value="Todos">Todos</option><option value="Demo">Modo Demo</option>';
+      var sel=document.getElementById("topicSelect");
+      if(sel){
+        sel.innerHTML="<option value=\"Todos\">Todos</option><option value=\"Demo\">Modo Demo</option>";
+      }
     }
 
     function loadQuiz(topic){
-      document.getElementById("question").innerText="Carregando...";
+      var qEl=document.getElementById("question");
+      if(qEl)qEl.innerText="Carregando...";
       POOL=[
         {pergunta:"Qual lei regula o Estatuto da Guarda Civil?",A:"Lei 13.022/2014",B:"Lei 8.112/1990",C:"Lei
 10.406/2002",D:"Lei 9.784/1999",resposta:"A",explicacao:"Lei 13.022/2014."},
-        {pergunta:"Qual princípio exige
-publicidade?",A:"Legalidade",B:"Publicidade",C:"Impessoalidade",D:"Moralidade",resposta:"B",explicacao:"Princípio
+        {pergunta:"Qual principio exige
+publicidade?",A:"Legalidade",B:"Publicidade",C:"Impessoalidade",D:"Moralidade",resposta:"B",explicacao:"Principio
 da Publicidade."},
-        {pergunta:"O que significa ECA?",A:"Estatuto do Cidadão",B:"Estatuto da Criança e do
-Adolescente",C:"Estatuto de Capacitação",D:"Estatuto de Conduta",resposta:"B",explicacao:"ECA = Lei 8.069/1990."}
+        {pergunta:"O que significa ECA?",A:"Estatuto do Cidadao",B:"Estatuto da Crianca e do
+Adolescente",C:"Estatuto de Capacitacao",D:"Estatuto de Conduta",resposta:"B",explicacao:"ECA = Lei 8.069/1990."}
       ];
-      currentIndex=0;score=0;quizStarted=true;
+      currentIndex=0;
+      score=0;
+      quizStarted=true;
       renderQuestion();
     }
 
     function renderQuestion(){
-      document.getElementById("explain").style.display="none";
-      document.getElementById("nextBtn").disabled=true;
-      if(currentIndex>=POOL.length){finishQuiz();return;}
+      var expEl=document.getElementById("explain");
+      var nextEl=document.getElementById("nextBtn");
+      if(expEl)expEl.style.display="none";
+      if(nextEl)nextEl.disabled=true;
+      if(currentIndex>=POOL.length){
+        finishQuiz();
+        return;
+      }
       var q=POOL[currentIndex];
-      document.getElementById("question").innerText=q.pergunta;
-      var o=document.getElementById("opts");
-      o.innerHTML="";
-      ["A","B","C","D"].forEach(function(l){
-        if(!q[l])return;
+      var qEl=document.getElementById("question");
+      if(qEl)qEl.innerText=q.pergunta;
+      var optsEl=document.getElementById("opts");
+      if(optsEl)optsEl.innerHTML="";
+      var letters=["A","B","C","D"];
+      for(var i=0;i<letters.length;i++){
+        var l=letters[i];
+        if(!q[l])continue;
         var btn=document.createElement("button");
         btn.className="opt";
         btn.innerHTML="<span style=\"color:var(--accent);margin-right:10px;font-weight:900\">"+l+")</span>"+q[l];
-        btn.onclick=function(){selectOption(l);};
-        o.appendChild(btn);
-      });
+        btn.onclick=(function(letter){
+          return function(){
+            selectOption(letter);
+          };
+        })(l);
+        if(optsEl)optsEl.appendChild(btn);
+      }
       updateProgress();
     }
 
     function selectOption(letter){
       var q=POOL[currentIndex];
-      var c=q.resposta;
-      document.querySelectorAll(".opt").forEach(function(b){b.disabled=true;});
-      document.getElementById("opt_"+c).classList.add("correct");
-      if(letter!==c)document.getElementById("opt_"+letter).classList.add("wrong");
-      else score++;
-      var e=document.getElementById("explain");
-      e.style.display="block";
-      e.innerHTML="<strong style=\"color:var(--accent)\">"+(letter===c?"✅ Correto!":"❌
-Errado!")+"</strong><br>"+q.explicacao;
-      document.getElementById("nextBtn").disabled=false;
+      var correct=q.resposta;
+      var opts=document.querySelectorAll(".opt");
+      for(var i=0;i<opts.length;i++){
+        opts[i].disabled=true;
+      }
+      var elCorrect=document.getElementById("opt_"+correct);
+      if(elCorrect)elCorrect.classList.add("correct");
+      if(letter!==correct){
+        var elWrong=document.getElementById("opt_"+letter);
+        if(elWrong)elWrong.classList.add("wrong");
+      }else{
+        score++;
+      }
+      var expEl=document.getElementById("explain");
+      if(expEl){
+        expEl.style.display="block";
+        var msg=(letter===correct)?"Correto!":"Errado!";
+        expEl.innerHTML="<strong style=\"color:var(--accent)\">"+msg+"</strong><br>"+q.explicacao;
+      }
+      var nextEl=document.getElementById("nextBtn");
+      if(nextEl)nextEl.disabled=false;
       var cq=parseInt(localStorage.getItem(QUESTIONS_KEY)||"0");
       localStorage.setItem(QUESTIONS_KEY,cq+1);
+      loadStats();
     }
 
     function updateProgress(){
-      var p=POOL.length?Math.round((currentIndex/POOL.length)*100):0;
-      document.getElementById("bar").style.width=p+"%";
-      document.getElementById("progressInfo").innerText=(currentIndex+1)+" / "+POOL.length;
-      document.getElementById("progressText").innerText="Pontos: "+score;
+      var bar=document.getElementById("bar");
+      var info=document.getElementById("progressInfo");
+      var text=document.getElementById("progressText");
+      var pct=POOL.length?Math.round((currentIndex/POOL.length)*100):0;
+      if(bar)bar.style.width=pct+"%";
+      if(info)info.innerText=(currentIndex+1)+" / "+POOL.length;
+      if(text)text.innerText="Pontos: "+score;
     }
 
     function finishQuiz(){
       quizStarted=false;
-      document.getElementById("question").innerHTML="🎉 Fim! Acertou <strong>"+score+"</strong> de "+POOL.length;
-      document.getElementById("opts").innerHTML="";
-      document.getElementById("btnRestart").style.display="block";
+      var qEl=document.getElementById("question");
+      var optsEl=document.getElementById("opts");
+      var restEl=document.getElementById("btnRestart");
+      if(qEl)qEl.innerHTML="Fim! Acertou <strong>"+score+"</strong> de "+POOL.length;
+      if(optsEl)optsEl.innerHTML="";
+      if(restEl)restEl.style.display="block";
       var pct=Math.round((score/POOL.length)*100);
-      var prev=JSON.parse(localStorage.getItem(BEST_KEY)||"null");
-      if(!prev||pct>prev.pct)localStorage.setItem(BEST_KEY,JSON.stringify({pct:pct}));
+      var prev=localStorage.getItem(BEST_KEY);
+      var prevData=prev?JSON.parse(prev):null;
+      if(!prevData || pct>prevData.pct){
+        localStorage.setItem(BEST_KEY,JSON.stringify({pct:pct}));
+      }
     }
 
     function restartQuiz(){
-      document.getElementById("btnRestart").style.display="none";
+      var restEl=document.getElementById("btnRestart");
+      var qEl=document.getElementById("question");
+      var optsEl=document.getElementById("opts");
+      var expEl=document.getElementById("explain");
+      var bar=document.getElementById("bar");
+      var info=document.getElementById("progressInfo");
+      var text=document.getElementById("progressText");
+      if(restEl)restEl.style.display="none";
       quizStarted=false;
       initQuiz();
-      document.getElementById("question").innerText="Selecione um tópico.";
-      document.getElementById("opts").innerHTML="";
-      document.getElementById("bar").style.width="0%";
-      document.getElementById("progressInfo").innerText="0 / 0";
-      document.getElementById("progressText").innerText="";
+      if(qEl)qEl.innerText="Selecione um topico.";
+      if(optsEl)optsEl.innerHTML="";
+      if(expEl)expEl.style.display="none";
+      if(bar)bar.style.width="0%";
+      if(info)info.innerText="0 / 0";
+      if(text)text.innerText="";
     }
 
     function renderChart(){
-      var c=document.getElementById("performanceChart");
-      if(!c)return;
-      if(typeof ApexCharts==="undefined"){setTimeout(renderChart,500);return;}
-      var days=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
-      var dp=days.map(function(){return Math.floor(Math.random()*35+60);});
-      var opt={
-        series:[{name:"Acertos",data:dp}],
+      var container=document.getElementById("performanceChart");
+      if(!container)return;
+      if(typeof ApexCharts==="undefined"){
+        setTimeout(renderChart,500);
+        return;
+      }
+      var days=["Seg","Ter","Qua","Qui","Sex","Sab","Dom"];
+      var dataPoints=[];
+      for(var i=0;i<days.length;i++){
+        dataPoints.push(Math.floor(Math.random()*35+60));
+      }
+      var options={
+        series:[{name:"Acertos",data:dataPoints}],
         chart:{type:"area",height:240,toolbar:{show:false}},
         colors:["#00ff9d"],
         stroke:{curve:"smooth",width:3},
@@ -249,31 +338,54 @@ Errado!")+"</strong><br>"+q.explicacao;
         yaxis:{show:false},
         tooltip:{theme:"dark"}
       };
-      new ApexCharts(c,opt).render();
+      if(chartInstance){
+        chartInstance.updateSeries([{data:dataPoints}]);
+      }else{
+        chartInstance=new ApexCharts(container,options);
+        chartInstance.render();
+      }
     }
 
-    // ===== INICIALIZAÇÃO =====
-    document.getElementById("scaleUpBtn").onclick=function(){setScale(parseFloat(localStorage.getItem(SCALE_KEY)||"document.getElementById("scaleUpBtn").onclick=function(){setScale(parseFloat(localStorage.getItem(SCALE_KEY)||"1")+0.05);};
-    document.getElementById("scaleDownBtn").onclick=function(){setScale(parseFloat(localStorage.getItem(SCALE_KEY)|document.getElementById("scaleDownBtn").onclick=function(){setScale(parseFloat(localStorage.getItem(SCALE_KEY)||"1")-0.05);};
-    setScale(localStorage.getItem(SCALE_KEY)||"1");
+    document.getElementById("scaleUpBtn").onclick=function(){
+      var current=parseFloat(localStorage.getItem(SCALE_KEY)||"1");
+      setScale(current+0.05);
+    };
+
+    document.getElementById("scaleDownBtn").onclick=function(){
+      var current=parseFloat(localStorage.getItem(SCALE_KEY)||"1");
+      setScale(current-0.05);
+    };
+
+    var savedScale=localStorage.getItem(SCALE_KEY);
+    setScale(savedScale||"1");
 
     document.getElementById("soundToggle").onclick=function(){
-      var c=localStorage.getItem(SOUND_KEY)!=="0";
-      localStorage.setItem(SOUND_KEY,c?"0":"1");
-      this.innerText=c?"🔇":"";
+      var current=localStorage.getItem(SOUND_KEY);
+      var isOn=(current!=="0");
+      localStorage.setItem(SOUND_KEY,isOn?"0":"1");
+      this.innerText=isOn?"🔇":"";
     };
-    document.getElementById("soundToggle").innerText=localStorage.getItem(SOUND_KEY)==="0"?"🔇":"🔊";
+
+    var soundCurrent=localStorage.getItem(SOUND_KEY);
+    var soundEl=document.getElementById("soundToggle");
+    if(soundEl){
+      soundEl.innerText=(soundCurrent==="0")?"🔇":"";
+    }
 
     document.getElementById("loadTopicBtn").onclick=function(){
-      loadQuiz(document.getElementById("topicSelect").value);
+      var sel=document.getElementById("topicSelect");
+      var topic=sel?sel.value:"Todos";
+      loadQuiz(topic);
     };
 
-    document.getElementById("nextBtn").onclick=function(){currentIndex++;renderQuestion();};
+    document.getElementById("nextBtn").onclick=function(){
+      currentIndex++;
+      renderQuestion();
+    };
 
-    // Inicial
     showBest();
     loadStats();
-    console.log("✅ App pronto!");
+    console.log("App pronto!");
   </script>
 </body>
 </html>
