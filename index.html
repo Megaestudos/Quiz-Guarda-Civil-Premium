@@ -2,227 +2,278 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport"
-content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"/>
-  <title>Quiz Guarda Civil — App Profissional</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Quiz Guarda Civil</title>
   <meta name="theme-color" content="#1e3c72"/>
-  <meta name="description" content="Plataforma de Estudos Inteligente para Guarda Civil"/>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-rel="stylesheet">
-
-  <!-- ApexCharts - Gráfico Profissional -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
   <link rel="stylesheet" href="./css/styles.css">
 </head>
-
 <body>
   <div class="app" id="appRoot">
-    <!-- HEADER -->
     <div class="card header" id="cardHeader">
-      <div class="header-info">
+      <div>
         <h1 class="title">Guarda Civil 👮‍♂️</h1>
-        <div class="subtitle">Plataforma de Estudos Inteligente</div>
+        <div class="subtitle">Plataforma de Estudos</div>
       </div>
       <div class="controls">
-        <div class="scale-control">
-          <button class="icon-btn" id="scaleDownBtn" title="Diminuir">A−</button>
+        <div style="display:flex;gap:5px">
+          <button class="icon-btn" id="scaleDownBtn">A−</button>
           <div class="scale-label" id="scaleLabel">x1.00</div>
-          <button class="icon-btn" id="scaleUpBtn" title="Aumentar">A+</button>
+          <button class="icon-btn" id="scaleUpBtn">A+</button>
         </div>
-        <button class="icon-btn" id="soundToggle" title="Alternar Som">🔊</button>
-        <button class="icon-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
+        <button class="icon-btn" id="soundToggle">🔊</button>
       </div>
     </div>
 
-    <!-- PÁGINAS -->
     <div class="card pages" id="pages">
-
-      <!-- ===== HOME ===== -->
       <section id="home" class="page active">
-        <div class="welcome-section">
-          <div class="welcome-badge">🎯 Foco na Aprovação</div>
-          <h2 class="welcome-title">Bem-vindo, Futuro Guarda!</h2>
-          <p class="welcome-text">Prepare-se com a melhor plataforma de estudos. Escolha uma modalidade
-abaixo:</p>
-        </div>
-
-        <!-- Stats Cards -->
+        <div class="welcome">Bem-vindo! Escolha uma opção:</div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">🏆</div>
             <div class="stat-value" id="bestScoreStat">--</div>
-            <div class="stat-label">Melhor Score</div>
+            <div class="stat-label">Melhor</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🔥</div>
             <div class="stat-value" id="streakStat">0</div>
-            <div class="stat-label">Dias Seguidos</div>
+            <div class="stat-label">Dias</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">📚</div>
             <div class="stat-value" id="questionsStat">0</div>
-            <div class="stat-label">Questões Feitas</div>
+            <div class="stat-label">Questões</div>
           </div>
         </div>
-
-        <!-- Ações Principais -->
         <div class="home-actions">
-          <button class="btn btn-primary" onclick="go('study')">
-            <span class="btn-icon">📘</span>
-            <span>Estudar Leis</span>
-          </button>
-          <button class="btn btn-primary" onclick="go('quiz')">
-            <span class="btn-icon">🎯</span>
-            <span>Fazer Simulado</span>
-          </button>
-          <button class="btn btn-secondary" onclick="go('cards')">
-            <span class="btn-icon">🃏</span>
-            <span>Flashcards</span>
-          </button>
-          <a href="./resumos/" class="btn btn-secondary">
-            <span class="btn-icon">📄</span>
-            <span>Resumos</span>
-          </a>
+          <button class="btn" onclick="go('study')">📘 Estudar</button>
+          <button class="btn" onclick="go('quiz')">🎯 Simulado</button>
+          <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
         </div>
-
-        <!-- Gráfico de Desempenho -->
-        <div class="chart-section">
-          <div class="chart-header">
-            <div>
-              <h3 class="chart-title">📈 Evolução Semanal</h3>
-              <p class="chart-subtitle">Seu desempenho nos últimos 7 dias</p>
-            </div>
-            <div class="chart-legend">
-              <span class="legend-dot"></span>
-              <span>Acertos (%)</span>
-            </div>
-          </div>
-          <div id="performanceChart"></div>
-        </div>
-
-        <!-- Dica do Dia -->
-        <div class="daily-tip">
-          <div class="tip-icon">💡</div>
-          <div class="tip-content">
-            <strong>Dica do Dia</strong>
-            <p id="dailyTipText">Estude 30 minutos por dia para manter o ritmo de aprendizado.</p>
-          </div>
+        <div style="margin-top:25px;">
+          <h4 style="margin:0 0 10px 0;color:var(--accent)">📈 Desempenho</h4>
+          <div id="performanceChart" style="min-height:240px;"></div>
         </div>
       </section>
 
-      <!-- ===== STUDY ===== -->
       <section id="study" class="page">
-        <div class="page-header">
-          <h3 class="page-title">📚 Conteúdos</h3>
-          <button class="btn btn-back" onclick="go('home')">🏠 Voltar</button>
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
+          <h3>📚 Conteúdos</h3>
+          <button class="btn" onclick="go('home')" style="padding:6px 12px;">🏠 Voltar</button>
         </div>
-        <div id="studyList" class="study-list">
-          <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Carregando conteúdos...</p>
-          </div>
-        </div>
+        <div id="studyList" style="text-align:center;padding:40px;">Em breve!</div>
       </section>
 
-      <!-- ===== QUIZ (NÃO MUDAR ESTRUTURA) ===== -->
       <section id="quiz" class="page">
         <div class="quiz-shell">
-          <div class="page-header-actions" style="display:flex; justify-content:space-between; align-items:center;
-margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1;">
-              <span style="font-weight:700; font-size: 14px;">Tópico:</span>
-              <select id="topicSelect" style="flex:1; min-width:140px;"></select>
-              <button class="next-btn" id="loadTopicBtn"
-                style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap; position:static
-!important; box-shadow:none !important; border:none !important; width:auto !important; min-width:80px !important;
-transform:none !important;">
-                Iniciar
-              </button>
-            </div>
-            <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px;
-font-size: 12px;">
-              Questões: <strong id="quizSizeLabel"></strong>
+          <div
+style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;flex:1;">
+              <span style="font-weight:700;">Tópico:</span>
+              <select id="topicSelect" style="flex:1;min-width:140px;"></select>
+              <button class="next-btn" id="loadTopicBtn" style="padding:8px 15px;">Iniciar</button>
             </div>
           </div>
-
           <div class="progress">
             <div class="track"><div class="bar" id="bar"></div></div>
-            <div style="font-size:12px; font-weight:800; min-width:40px;" id="progressInfo">0 / 0</div>
+            <div style="font-size:12px;font-weight:800;" id="progressInfo">0 / 0</div>
           </div>
-
           <div class="quiz-main">
-            <div class="question" id="question">Selecione um tópico para começar.</div>
+            <div class="question" id="question">Selecione um tópico.</div>
             <div class="opts" id="opts"></div>
             <div class="explain" id="explain" style="display:none"></div>
           </div>
-
-          <div class="quiz-footer" style="display:flex; justify-content:space-between; align-items:center;
-margin-top:20px;">
-            <div id="progressText" style="font-weight:700; color:var(--accent); font-size: 14px;"></div>
-            <div style="display:flex; gap:10px; flex-wrap: wrap;">
-              <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄
-Reiniciar</button>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+            <div id="progressText" style="font-weight:700;color:var(--accent);"></div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄</button>
               <button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ===== CARDS ===== -->
       <section id="cards" class="page">
-        <div class="page-header">
-          <h3 class="page-title">🃏 Flashcards</h3>
-          <button class="btn btn-back" onclick="go('home')">🏠 Voltar</button>
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
+          <h3>🃏 Flashcards</h3>
+          <button class="btn" onclick="go('home')" style="padding:6px 12px;">🏠 Voltar</button>
         </div>
-        <div class="cards-info">
-          <p>👆 Toque no cartão para virar e ver a resposta</p>
-        </div>
-        <div id="cardsContainer" class="cards-grid"></div>
+        <div id="cardsContainer" style="text-align:center;padding:40px;">Em breve!</div>
       </section>
-
     </div>
   </div>
 
-  <!-- TABS DE NAVEGAÇÃO -->
-  <div class="tabs" role="navigation" id="tabsBar">
-    <button class="tabbtn active" data-target="home" onclick="go('home')">
-      <span class="tab-icon">🏠</span>
-      <span>Início</span>
-    </button>
-    <button class="tabbtn" data-target="study" onclick="go('study')">
-      <span class="tab-icon">📘</span>
-      <span>Estudo</span>
-    </button>
-    <button class="tabbtn" data-target="quiz" onclick="go('quiz')">
-      <span class="tab-icon">🎯</span>
-      <span>Simulado</span>
-    </button>
-    <button class="tabbtn" data-target="cards" onclick="go('cards')">
-      <span class="tab-icon">🃏</span>
-      <span>Cartões</span>
-    </button>
+  <div class="tabs" id="tabsBar">
+    <button class="tabbtn active" onclick="go('home')">🏠 Início</button>
+    <button class="tabbtn" onclick="go('study')">📘 Estudo</button>
+    <button class="tabbtn" onclick="go('quiz')">🎯 Simulado</button>
+    <button class="tabbtn" onclick="go('cards')">🃏 Cartões</button>
   </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-      authDomain: "simulados-concursos-22c91.firebaseapp.com",
-      projectId: "simulados-concursos-22c91",
-      storageBucket: "simulados-concursos-22c91.firebasestorage.app",
-      messagingSenderId: "863699339166",
-      appId: "1:863699339166:web:8514155da2229b41ae388f"
+    // ===== JAVASCRIPT EMBUTIDO (SEM ARQUIVO SEPARADO!) =====
+    var POOL=[],currentIndex=0,score=0,quizStarted=false;
+    var SOUND_KEY="quiz_sound",SCALE_KEY="quiz_scale",BEST_KEY="quiz_best";
+    var STREAK_KEY="quiz_streak",QUESTIONS_KEY="quiz_questions";
+
+    function go(target){
+      console.log("Indo para:",target);
+      document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});
+      document.getElementById(target).classList.add("active");
+      document.querySelectorAll(".tabbtn").forEach(function(b){
+
+b.classList.toggle("active",b.innerText.toLowerCase().includes(target==="study"?"estudo":target==="quiz"?"simulado"b.classList.toggle("active",b.innerText.toLowerCase().includes(target==="study"?"estudo":target==="quiz"?"smulado":target==="cards"?"cartões":"início"));
+      });
+      if(target==="home"){showBest();loadStats();setTimeout(renderChart,400);}
+      if(target==="quiz"&&!quizStarted){initQuiz();}
+    }
+
+    function setScale(v){
+      v=Math.max(0.8,Math.min(1.4,Number(v)));
+      document.getElementById("appRoot").style.transform="scale("+v.toFixed(2)+")";
+      document.getElementById("appRoot").style.transformOrigin="top center";
+      document.getElementById("scaleLabel").innerText="x"+v.toFixed(2);
+      localStorage.setItem(SCALE_KEY,v.toFixed(2));
+    }
+
+    function showBest(){
+      var r=JSON.parse(localStorage.getItem(BEST_KEY)||"null");
+      var el=document.getElementById("bestScoreStat");
+      if(el)el.innerText=r?r.pct+"%":"--";
+    }
+
+    function loadStats(){
+      var q=document.getElementById("questionsStat");
+      var s=document.getElementById("streakStat");
+      if(q)q.innerText=localStorage.getItem(QUESTIONS_KEY)||"0";
+      if(s)s.innerText=localStorage.getItem(STREAK_KEY)||"0";
+    }
+
+    function initQuiz(){
+      var s=document.getElementById("topicSelect");
+      s.innerHTML='<option value="Todos">Todos</option><option value="Demo">Modo Demo</option>';
+    }
+
+    function loadQuiz(topic){
+      document.getElementById("question").innerText="Carregando...";
+      POOL=[
+        {pergunta:"Qual lei regula o Estatuto da Guarda Civil?",A:"Lei 13.022/2014",B:"Lei 8.112/1990",C:"Lei
+10.406/2002",D:"Lei 9.784/1999",resposta:"A",explicacao:"Lei 13.022/2014."},
+        {pergunta:"Qual princípio exige
+publicidade?",A:"Legalidade",B:"Publicidade",C:"Impessoalidade",D:"Moralidade",resposta:"B",explicacao:"Princípio
+da Publicidade."},
+        {pergunta:"O que significa ECA?",A:"Estatuto do Cidadão",B:"Estatuto da Criança e do
+Adolescente",C:"Estatuto de Capacitação",D:"Estatuto de Conduta",resposta:"B",explicacao:"ECA = Lei 8.069/1990."}
+      ];
+      currentIndex=0;score=0;quizStarted=true;
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      document.getElementById("explain").style.display="none";
+      document.getElementById("nextBtn").disabled=true;
+      if(currentIndex>=POOL.length){finishQuiz();return;}
+      var q=POOL[currentIndex];
+      document.getElementById("question").innerText=q.pergunta;
+      var o=document.getElementById("opts");
+      o.innerHTML="";
+      ["A","B","C","D"].forEach(function(l){
+        if(!q[l])return;
+        var btn=document.createElement("button");
+        btn.className="opt";
+        btn.innerHTML="<span style=\"color:var(--accent);margin-right:10px;font-weight:900\">"+l+")</span>"+q[l];
+        btn.onclick=function(){selectOption(l);};
+        o.appendChild(btn);
+      });
+      updateProgress();
+    }
+
+    function selectOption(letter){
+      var q=POOL[currentIndex];
+      var c=q.resposta;
+      document.querySelectorAll(".opt").forEach(function(b){b.disabled=true;});
+      document.getElementById("opt_"+c).classList.add("correct");
+      if(letter!==c)document.getElementById("opt_"+letter).classList.add("wrong");
+      else score++;
+      var e=document.getElementById("explain");
+      e.style.display="block";
+      e.innerHTML="<strong style=\"color:var(--accent)\">"+(letter===c?"✅ Correto!":"❌
+Errado!")+"</strong><br>"+q.explicacao;
+      document.getElementById("nextBtn").disabled=false;
+      var cq=parseInt(localStorage.getItem(QUESTIONS_KEY)||"0");
+      localStorage.setItem(QUESTIONS_KEY,cq+1);
+    }
+
+    function updateProgress(){
+      var p=POOL.length?Math.round((currentIndex/POOL.length)*100):0;
+      document.getElementById("bar").style.width=p+"%";
+      document.getElementById("progressInfo").innerText=(currentIndex+1)+" / "+POOL.length;
+      document.getElementById("progressText").innerText="Pontos: "+score;
+    }
+
+    function finishQuiz(){
+      quizStarted=false;
+      document.getElementById("question").innerHTML="🎉 Fim! Acertou <strong>"+score+"</strong> de "+POOL.length;
+      document.getElementById("opts").innerHTML="";
+      document.getElementById("btnRestart").style.display="block";
+      var pct=Math.round((score/POOL.length)*100);
+      var prev=JSON.parse(localStorage.getItem(BEST_KEY)||"null");
+      if(!prev||pct>prev.pct)localStorage.setItem(BEST_KEY,JSON.stringify({pct:pct}));
+    }
+
+    function restartQuiz(){
+      document.getElementById("btnRestart").style.display="none";
+      quizStarted=false;
+      initQuiz();
+      document.getElementById("question").innerText="Selecione um tópico.";
+      document.getElementById("opts").innerHTML="";
+      document.getElementById("bar").style.width="0%";
+      document.getElementById("progressInfo").innerText="0 / 0";
+      document.getElementById("progressText").innerText="";
+    }
+
+    function renderChart(){
+      var c=document.getElementById("performanceChart");
+      if(!c)return;
+      if(typeof ApexCharts==="undefined"){setTimeout(renderChart,500);return;}
+      var days=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
+      var dp=days.map(function(){return Math.floor(Math.random()*35+60);});
+      var opt={
+        series:[{name:"Acertos",data:dp}],
+        chart:{type:"area",height:240,toolbar:{show:false}},
+        colors:["#00ff9d"],
+        stroke:{curve:"smooth",width:3},
+        fill:{type:"gradient",gradient:{opacityFrom:0.5,opacityTo:0.05}},
+        xaxis:{categories:days,labels:{style:{colors:"rgba(255,255,255,0.6)"}}},
+        yaxis:{show:false},
+        tooltip:{theme:"dark"}
+      };
+      new ApexCharts(c,opt).render();
+    }
+
+    // ===== INICIALIZAÇÃO =====
+    document.getElementById("scaleUpBtn").onclick=function(){setScale(parseFloat(localStorage.getItem(SCALE_KEY)||"document.getElementById("scaleUpBtn").onclick=function(){setScale(parseFloat(localStorage.getItem(SCALE_KEY)||"1")+0.05);};
+    document.getElementById("scaleDownBtn").onclick=function(){setScale(parseFloat(localStorage.getItem(SCALE_KEY)|document.getElementById("scaleDownBtn").onclick=function(){setScale(parseFloat(localStorage.getItem(SCALE_KEY)||"1")-0.05);};
+    setScale(localStorage.getItem(SCALE_KEY)||"1");
+
+    document.getElementById("soundToggle").onclick=function(){
+      var c=localStorage.getItem(SOUND_KEY)!=="0";
+      localStorage.setItem(SOUND_KEY,c?"0":"1");
+      this.innerText=c?"🔇":"";
+    };
+    document.getElementById("soundToggle").innerText=localStorage.getItem(SOUND_KEY)==="0"?"🔇":"🔊";
+
+    document.getElementById("loadTopicBtn").onclick=function(){
+      loadQuiz(document.getElementById("topicSelect").value);
     };
 
-    firebase.initializeApp(firebaseConfig);
-  </script>
+    document.getElementById("nextBtn").onclick=function(){currentIndex++;renderQuestion();};
 
-  <script src="./js/app.js"></script>
+    // Inicial
+    showBest();
+    loadStats();
+    console.log("✅ App pronto!");
+  </script>
 </body>
 </html>
