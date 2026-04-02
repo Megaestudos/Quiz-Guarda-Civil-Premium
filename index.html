@@ -2,390 +2,127 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Quiz Guarda Civil</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Quiz Guarda Civil — App Profissional</title>
   <meta name="theme-color" content="#1e3c72"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
   <link rel="stylesheet" href="./css/styles.css">
 </head>
+
 <body>
   <div class="app" id="appRoot">
     <div class="card header" id="cardHeader">
       <div>
-        <h1 class="title">Guarda Civil</h1>
-        <div class="subtitle">Plataforma de Estudos</div>
+        <h1 class="title">Guarda Civil 👮‍♂️</h1>
+        <div class="subtitle">Plataforma de Estudos Inteligente</div>
       </div>
       <div class="controls">
-        <div style="display:flex;gap:5px">
-          <button class="icon-btn" id="scaleDownBtn">A-</button>
+        <div style="display:flex; gap:5px">
+          <button class="icon-btn" id="scaleDownBtn" title="Diminuir">A−</button>
           <div class="scale-label" id="scaleLabel">x1.00</div>
-          <button class="icon-btn" id="scaleUpBtn">A+</button>
+          <button class="icon-btn" id="scaleUpBtn" title="Aumentar">A+</button>
         </div>
-        <button class="icon-btn" id="soundToggle">🔊</button>
+        <button class="icon-btn" id="soundToggle" title="Alternar Som">🔊</button>
+        <button class="icon-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
       </div>
     </div>
 
     <div class="card pages" id="pages">
       <section id="home" class="page active">
-        <div class="welcome">Bem-vindo! Escolha uma opcao:</div>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">🏆</div>
-            <div class="stat-value" id="bestScoreStat">--</div>
-            <div class="stat-label">Melhor</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">🔥</div>
-            <div class="stat-value" id="streakStat">0</div>
-            <div class="stat-label">Dias</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">📚</div>
-            <div class="stat-value" id="questionsStat">0</div>
-            <div class="stat-label">Questoes</div>
-          </div>
-        </div>
+        <div class="welcome">Bem-vindo! Prepare-se para sua aprovação. Escolha uma modalidade abaixo:</div>
         <div class="home-actions">
-          <button class="btn" onclick="goToPage('study')">📘 Estudar</button>
-          <button class="btn" onclick="goToPage('quiz')">🎯 Simulado</button>
-          <button class="btn" onclick="goToPage('cards')">🃏 Flashcards</button>
+          <button class="btn" onclick="go('study')">📘 Estudar Leis</button>
+          <button class="btn" onclick="go('quiz')">🎯 Fazer Simulado</button>
+          <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
+          <a href="./resumos/" class="btn">📄 Resumos</a>
         </div>
-        <div style="margin-top:25px;">
-          <h4 style="margin:0 0 10px 0;color:var(--accent)">📈 Desempenho</h4>
-          <div id="performanceChart" style="min-height:240px;"></div>
+        <div style="margin-top:25px; padding:15px; background:rgba(0,0,0,0.1); border-radius:12px; border: 1px solid rgba(255,255,255,0.05);">
+          <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent); text-align: center;">Carregando recorde...</div>
         </div>
       </section>
 
       <section id="study" class="page">
-        <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
-          <h3>📚 Conteudos</h3>
-          <button class="btn" onclick="goToPage('home')" style="padding:6px 12px;">🏠 Voltar</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="margin:0">📚 Conteúdos</h3>
+          <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
         </div>
-        <div id="studyList" style="text-align:center;padding:40px;">Em breve!</div>
+        <div id="studyList" class="study-list">Carregando conteúdos...</div>
       </section>
 
       <section id="quiz" class="page">
         <div class="quiz-shell">
-          <div
-style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;">
-            <div style="display:flex;align-items:center;gap:10px;flex:1;">
-              <span style="font-weight:700;">Topico:</span>
-              <select id="topicSelect" style="flex:1;min-width:140px;"></select>
-              <button class="next-btn" id="loadTopicBtn" style="padding:8px 15px;">Iniciar</button>
+          <div class="page-header-actions" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1;">
+              <span style="font-weight:700; font-size: 14px;">Tópico:</span>
+              <select id="topicSelect" style="flex:1; min-width:140px;"></select>
+              <button class="next-btn" id="loadTopicBtn"
+                style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap; position:static !important; box-shadow:none !important; border:none !important; width:auto !important; min-width:80px !important; transform:none !important;">
+                Iniciar
+              </button>
+            </div>
+            <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px; font-size: 12px;">
+              Questões: <strong id="quizSizeLabel"></strong>
             </div>
           </div>
+
           <div class="progress">
             <div class="track"><div class="bar" id="bar"></div></div>
-            <div style="font-size:12px;font-weight:800;" id="progressInfo">0 / 0</div>
+            <div style="font-size:12px; font-weight:800; min-width:40px;" id="progressInfo">0 / 0</div>
           </div>
+
           <div class="quiz-main">
-            <div class="question" id="question">Selecione um topico.</div>
+            <div class="question" id="question">Selecione um tópico para começar.</div>
             <div class="opts" id="opts"></div>
             <div class="explain" id="explain" style="display:none"></div>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
-            <div id="progressText" style="font-weight:700;color:var(--accent);"></div>
-            <div style="display:flex;gap:10px;">
-              <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄</button>
-              <button class="next-btn" id="nextBtn" disabled>Proxima</button>
+
+          <div class="quiz-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+            <div id="progressText" style="font-weight:700; color:var(--accent); font-size: 14px;"></div>
+            <div style="display:flex; gap:10px; flex-wrap: wrap;">
+              <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄 Reiniciar</button>
+              <button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
             </div>
           </div>
         </div>
       </section>
 
       <section id="cards" class="page">
-        <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
-          <h3>🃏 Flashcards</h3>
-          <button class="btn" onclick="goToPage('home')" style="padding:6px 12px;">🏠 Voltar</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="margin:0">🃏 Flashcards</h3>
+          <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
         </div>
-        <div id="cardsContainer" style="text-align:center;padding:40px;">Em breve!</div>
+        <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:15px; margin-top:15px;"></div>
       </section>
     </div>
   </div>
 
-  <div class="tabs" id="tabsBar">
-    <button class="tabbtn" data-page="home" onclick="goToPage('home')">🏠 Inicio</button>
-    <button class="tabbtn" data-page="study" onclick="goToPage('study')">📘 Estudo</button>
-    <button class="tabbtn" data-page="quiz" onclick="goToPage('quiz')">🎯 Simulado</button>
-    <button class="tabbtn" data-page="cards" onclick="goToPage('cards')">🃏 Cartoes</button>
+  <div class="tabs" role="navigation" id="tabsBar">
+    <button class="tabbtn active" data-target="home" onclick="go('home')"><span>🏠</span>Início</button>
+    <button class="tabbtn" data-target="study" onclick="go('study')"><span>📘</span>Estudo</button>
+    <button class="tabbtn" data-target="quiz" onclick="go('quiz')"><span>🎯</span>Simulado</button>
+    <button class="tabbtn" data-target="cards" onclick="go('cards')"><span>🃏</span>Cartões</button>
   </div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
-    var POOL=[];
-    var currentIndex=0;
-    var score=0;
-    var quizStarted=false;
-    var SOUND_KEY="quiz_sound";
-    var SCALE_KEY="quiz_scale";
-    var BEST_KEY="quiz_best";
-    var QUESTIONS_KEY="quiz_questions";
-    var STREAK_KEY="quiz_streak";
-    var chartInstance=null;
-
-    function goToPage(pageId){
-      console.log("Going to:",pageId);
-      var pages=document.querySelectorAll(".page");
-      for(var i=0;i<pages.length;i++){
-        pages[i].classList.remove("active");
-      }
-      var target=document.getElementById(pageId);
-      if(target){
-        target.classList.add("active");
-      }
-      var tabs=document.querySelectorAll(".tabbtn");
-      for(var i=0;i<tabs.length;i++){
-        if(tabs[i].getAttribute("data-page")===pageId){
-          tabs[i].classList.add("active");
-        }else{
-          tabs[i].classList.remove("active");
-        }
-      }
-      if(pageId==="home"){
-        showBest();
-        loadStats();
-        setTimeout(renderChart,400);
-      }
-      if(pageId==="quiz" && !quizStarted){
-        initQuiz();
-      }
-    }
-
-    function setScale(v){
-      v=Math.max(0.8,Math.min(1.4,Number(v)));
-      var root=document.getElementById("appRoot");
-      var label=document.getElementById("scaleLabel");
-      if(root){
-        root.style.transform="scale("+v.toFixed(2)+")";
-        root.style.transformOrigin="top center";
-      }
-      if(label){
-        label.innerText="x"+v.toFixed(2);
-      }
-      localStorage.setItem(SCALE_KEY,v.toFixed(2));
-    }
-
-    function showBest(){
-      var rec=localStorage.getItem(BEST_KEY);
-      var el=document.getElementById("bestScoreStat");
-      if(rec && el){
-        var data=JSON.parse(rec);
-        el.innerText=data.pct+"%";
-      }else if(el){
-        el.innerText="--";
-      }
-    }
-
-    function loadStats(){
-      var q=document.getElementById("questionsStat");
-      var s=document.getElementById("streakStat");
-      if(q){
-        q.innerText=localStorage.getItem(QUESTIONS_KEY)||"0";
-      }
-      if(s){
-        s.innerText=localStorage.getItem(STREAK_KEY)||"0";
-      }
-    }
-
-    function initQuiz(){
-      var sel=document.getElementById("topicSelect");
-      if(sel){
-        sel.innerHTML="<option value=\"Todos\">Todos</option><option value=\"Demo\">Modo Demo</option>";
-      }
-    }
-
-    function loadQuiz(topic){
-      var qEl=document.getElementById("question");
-      if(qEl)qEl.innerText="Carregando...";
-      POOL=[
-        {pergunta:"Qual lei regula o Estatuto da Guarda Civil?",A:"Lei 13.022/2014",B:"Lei 8.112/1990",C:"Lei
-10.406/2002",D:"Lei 9.784/1999",resposta:"A",explicacao:"Lei 13.022/2014."},
-        {pergunta:"Qual principio exige
-publicidade?",A:"Legalidade",B:"Publicidade",C:"Impessoalidade",D:"Moralidade",resposta:"B",explicacao:"Principio
-da Publicidade."},
-        {pergunta:"O que significa ECA?",A:"Estatuto do Cidadao",B:"Estatuto da Crianca e do
-Adolescente",C:"Estatuto de Capacitacao",D:"Estatuto de Conduta",resposta:"B",explicacao:"ECA = Lei 8.069/1990."}
-      ];
-      currentIndex=0;
-      score=0;
-      quizStarted=true;
-      renderQuestion();
-    }
-
-    function renderQuestion(){
-      var expEl=document.getElementById("explain");
-      var nextEl=document.getElementById("nextBtn");
-      if(expEl)expEl.style.display="none";
-      if(nextEl)nextEl.disabled=true;
-      if(currentIndex>=POOL.length){
-        finishQuiz();
-        return;
-      }
-      var q=POOL[currentIndex];
-      var qEl=document.getElementById("question");
-      if(qEl)qEl.innerText=q.pergunta;
-      var optsEl=document.getElementById("opts");
-      if(optsEl)optsEl.innerHTML="";
-      var letters=["A","B","C","D"];
-      for(var i=0;i<letters.length;i++){
-        var l=letters[i];
-        if(!q[l])continue;
-        var btn=document.createElement("button");
-        btn.className="opt";
-        btn.innerHTML="<span style=\"color:var(--accent);margin-right:10px;font-weight:900\">"+l+")</span>"+q[l];
-        btn.onclick=(function(letter){
-          return function(){
-            selectOption(letter);
-          };
-        })(l);
-        if(optsEl)optsEl.appendChild(btn);
-      }
-      updateProgress();
-    }
-
-    function selectOption(letter){
-      var q=POOL[currentIndex];
-      var correct=q.resposta;
-      var opts=document.querySelectorAll(".opt");
-      for(var i=0;i<opts.length;i++){
-        opts[i].disabled=true;
-      }
-      var elCorrect=document.getElementById("opt_"+correct);
-      if(elCorrect)elCorrect.classList.add("correct");
-      if(letter!==correct){
-        var elWrong=document.getElementById("opt_"+letter);
-        if(elWrong)elWrong.classList.add("wrong");
-      }else{
-        score++;
-      }
-      var expEl=document.getElementById("explain");
-      if(expEl){
-        expEl.style.display="block";
-        var msg=(letter===correct)?"Correto!":"Errado!";
-        expEl.innerHTML="<strong style=\"color:var(--accent)\">"+msg+"</strong><br>"+q.explicacao;
-      }
-      var nextEl=document.getElementById("nextBtn");
-      if(nextEl)nextEl.disabled=false;
-      var cq=parseInt(localStorage.getItem(QUESTIONS_KEY)||"0");
-      localStorage.setItem(QUESTIONS_KEY,cq+1);
-      loadStats();
-    }
-
-    function updateProgress(){
-      var bar=document.getElementById("bar");
-      var info=document.getElementById("progressInfo");
-      var text=document.getElementById("progressText");
-      var pct=POOL.length?Math.round((currentIndex/POOL.length)*100):0;
-      if(bar)bar.style.width=pct+"%";
-      if(info)info.innerText=(currentIndex+1)+" / "+POOL.length;
-      if(text)text.innerText="Pontos: "+score;
-    }
-
-    function finishQuiz(){
-      quizStarted=false;
-      var qEl=document.getElementById("question");
-      var optsEl=document.getElementById("opts");
-      var restEl=document.getElementById("btnRestart");
-      if(qEl)qEl.innerHTML="Fim! Acertou <strong>"+score+"</strong> de "+POOL.length;
-      if(optsEl)optsEl.innerHTML="";
-      if(restEl)restEl.style.display="block";
-      var pct=Math.round((score/POOL.length)*100);
-      var prev=localStorage.getItem(BEST_KEY);
-      var prevData=prev?JSON.parse(prev):null;
-      if(!prevData || pct>prevData.pct){
-        localStorage.setItem(BEST_KEY,JSON.stringify({pct:pct}));
-      }
-    }
-
-    function restartQuiz(){
-      var restEl=document.getElementById("btnRestart");
-      var qEl=document.getElementById("question");
-      var optsEl=document.getElementById("opts");
-      var expEl=document.getElementById("explain");
-      var bar=document.getElementById("bar");
-      var info=document.getElementById("progressInfo");
-      var text=document.getElementById("progressText");
-      if(restEl)restEl.style.display="none";
-      quizStarted=false;
-      initQuiz();
-      if(qEl)qEl.innerText="Selecione um topico.";
-      if(optsEl)optsEl.innerHTML="";
-      if(expEl)expEl.style.display="none";
-      if(bar)bar.style.width="0%";
-      if(info)info.innerText="0 / 0";
-      if(text)text.innerText="";
-    }
-
-    function renderChart(){
-      var container=document.getElementById("performanceChart");
-      if(!container)return;
-      if(typeof ApexCharts==="undefined"){
-        setTimeout(renderChart,500);
-        return;
-      }
-      var days=["Seg","Ter","Qua","Qui","Sex","Sab","Dom"];
-      var dataPoints=[];
-      for(var i=0;i<days.length;i++){
-        dataPoints.push(Math.floor(Math.random()*35+60));
-      }
-      var options={
-        series:[{name:"Acertos",data:dataPoints}],
-        chart:{type:"area",height:240,toolbar:{show:false}},
-        colors:["#00ff9d"],
-        stroke:{curve:"smooth",width:3},
-        fill:{type:"gradient",gradient:{opacityFrom:0.5,opacityTo:0.05}},
-        xaxis:{categories:days,labels:{style:{colors:"rgba(255,255,255,0.6)"}}},
-        yaxis:{show:false},
-        tooltip:{theme:"dark"}
-      };
-      if(chartInstance){
-        chartInstance.updateSeries([{data:dataPoints}]);
-      }else{
-        chartInstance=new ApexCharts(container,options);
-        chartInstance.render();
-      }
-    }
-
-    document.getElementById("scaleUpBtn").onclick=function(){
-      var current=parseFloat(localStorage.getItem(SCALE_KEY)||"1");
-      setScale(current+0.05);
+    const firebaseConfig = {
+      apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
+      authDomain: "simulados-concursos-22c91.firebaseapp.com",
+      projectId: "simulados-concursos-22c91",
+      storageBucket: "simulados-concursos-22c91.firebasestorage.app",
+      messagingSenderId: "863699339166",
+      appId: "1:863699339166:web:8514155da2229b41ae388f"
     };
 
-    document.getElementById("scaleDownBtn").onclick=function(){
-      var current=parseFloat(localStorage.getItem(SCALE_KEY)||"1");
-      setScale(current-0.05);
-    };
-
-    var savedScale=localStorage.getItem(SCALE_KEY);
-    setScale(savedScale||"1");
-
-    document.getElementById("soundToggle").onclick=function(){
-      var current=localStorage.getItem(SOUND_KEY);
-      var isOn=(current!=="0");
-      localStorage.setItem(SOUND_KEY,isOn?"0":"1");
-      this.innerText=isOn?"🔇":"";
-    };
-
-    var soundCurrent=localStorage.getItem(SOUND_KEY);
-    var soundEl=document.getElementById("soundToggle");
-    if(soundEl){
-      soundEl.innerText=(soundCurrent==="0")?"🔇":"";
-    }
-
-    document.getElementById("loadTopicBtn").onclick=function(){
-      var sel=document.getElementById("topicSelect");
-      var topic=sel?sel.value:"Todos";
-      loadQuiz(topic);
-    };
-
-    document.getElementById("nextBtn").onclick=function(){
-      currentIndex++;
-      renderQuestion();
-    };
-
-    showBest();
-    loadStats();
-    console.log("App pronto!");
+    firebase.initializeApp(firebaseConfig);
   </script>
+
+  <script src="./js/app.js"></script>
 </body>
 </html>
