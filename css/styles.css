@@ -177,7 +177,7 @@ button.opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: 
   transform-style: preserve-3d;
   box-shadow: var(--shadow-float); border-radius: 20px;
 }
-.flashcard.flipped .flash-inner { transform: rotateY(180deg); }
+.flash-inner.flipped { transform: rotateY(180deg); }
 
 .flash-front, .flash-back {
   position: absolute; inset: 0; width: 100%; height: 100%;
