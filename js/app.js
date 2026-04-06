@@ -159,6 +159,21 @@ async function renderStudies(){
 
 async function showTopicSelection(){
   try {
+    const motivacionais = [
+      "O sucesso é a soma de pequenos esforços repetidos dia após dia.",
+      "A persistência é o caminho do êxito.",
+      "Estude com dedicação e verá os resultados.",
+      "Não pare até se orgulhar.",
+      "A dor de estudar é passageira, mas a glória da aprovação é eterna.",
+      "Seu futuro é criado pelo que você faz hoje, não amanhã.",
+      "Foco, força e fé rumo à aprovação a Guarda Civil!",
+      "Cada questão resolvida é um passo a mais para sua posse."
+    ];
+    const motivacionalEl = document.getElementById('motivationalText');
+    if (motivacionalEl) {
+      motivacionalEl.innerText = motivacionais[Math.floor(Math.random() * motivacionais.length)];
+    }
+
     const snap = await getFirestoreDb().collection('materias').where('ativo', '==', true).orderBy('ordem', 'asc').get();
     const select = document.getElementById('topicSelect');
     select.innerHTML = '<option value="Todos">Todas as Matérias</option>';
