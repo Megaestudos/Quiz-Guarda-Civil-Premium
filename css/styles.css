@@ -233,3 +233,31 @@ button.opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: 
   .scale-controls { display:none; }
   .deck { width: 100%; }
 }
+
+/* --- Gamificação & Novas Funcionalidades --- */
+.card-inner { background: rgba(0,0,0,0.25); border-radius: 16px; border: 1px solid var(--card-border); padding: 16px; margin-bottom: 24px; }
+.section-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.section-title i { color: var(--primary); font-size: 20px; }
+
+/* Badges */
+.badges-container { display: flex; flex-direction: column; }
+.badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 12px; }
+.badge-item { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.badge-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--secondary-bg); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--text-muted); border: 1px solid var(--card-border); transition: all 0.3s; }
+.badge-item.unlocked .badge-icon { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; border-color: #FBBF24; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+.badge-name { font-size: 11px; font-weight: 600; color: var(--text-muted); line-height: 1.2; }
+.badge-item.unlocked .badge-name { color: var(--text-main); }
+
+/* Chart (Gráfico de Desempenho) */
+.stat-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.stat-row:last-child { margin-bottom: 0; }
+.stat-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
+.stat-name { color: var(--text-main); }
+.stat-pct { color: var(--accent); }
+.stat-bar-container { height: 10px; width: 100%; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+.stat-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 10px; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
+
+/* Timer e Botões Especiais */
+.timer-display { display:none; flex-direction: row; justify-content: center; align-items: center; gap: 10px; padding: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); font-weight: 800; font-size: 24px; font-family: monospace; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.2); letter-spacing: 2px; }
+.btn-grande-dia { background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%); border: none; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); color: white; display: flex; }
+.btn-grande-dia:hover { box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5); transform: translateY(-2px); }
