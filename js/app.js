@@ -1,6 +1,7 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec';
 const TEMPLATE_QUIZ_SIZE = 20;
 let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
+let isGrandeDia = false; let grandeDiaInterval = null;
 const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
 const XP_KEY = 'quiz_xp'; const STREAK_KEY = 'quiz_streak'; const LAST_DATE_KEY = 'quiz_last_date';
 
@@ -125,9 +126,13 @@ window.go = function(target){
   else document.body.classList.remove('quiz-focus');
 
   window.scrollTo({top: 0, behavior: 'smooth'});
-  if (target === 'home') showBestRecord();
-checkStreak();
-updateXPUI();
+  if (target === 'home') {
+    showBestRecord();
+    renderBadges();
+    renderStatsChart();
+  }
+  checkStreak();
+  updateXPUI();
   if (target === 'study') renderStudies();
   if (target === 'cards') renderCards();
   if (target === 'quiz' && !quizStarted) showTopicSelection();
@@ -185,6 +190,9 @@ async function showTopicSelection(){
 }
 
 async function loadTopicQuestions(topic){
+  isGrandeDia = false;
+  if(grandeDiaInterval) { clearInterval(grandeDiaInterval); grandeDiaInterval = null; }
+  document.getElementById('quizTimerContainer').style.display = 'none';
   document.getElementById('quizSetup').style.display = 'none';
   document.getElementById('quizActive').style.display = 'flex';
   document.body.classList.add('quiz-focus');
@@ -256,6 +264,17 @@ function selectOption(letter){
   if (elCorrect) elCorrect.classList.add('correct');
   
   const isCorrect = (letter === correct);
+
+  // Gamificação: Salvar estatísticas
+  try {
+    const topStr = q_topic(q) || 'Gerais';
+    let tStats = JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}');
+    if(!tStats[topStr]) tStats[topStr] = { t:0, c:0 };
+    tStats[topStr].t += 1;
+    if(isCorrect) tStats[topStr].c += 1;
+    localStorage.setItem('quiz_topic_stats', JSON.stringify(tStats));
+  } catch(e) {}
+  
   if (!isCorrect) {
     const chosen = document.getElementById('opt_' + letter);
     if (chosen) chosen.classList.add('wrong');
@@ -291,7 +310,9 @@ document.getElementById('sheetFinishBtn').onclick = () => {
 };
 
 window.quitQuiz = function(){
-  quizStarted = false;
+  quizStarted = false; isGrandeDia = false;
+  if(grandeDiaInterval) { clearInterval(grandeDiaInterval); grandeDiaInterval = null; }
+  document.getElementById('quizTimerContainer').style.display = 'none';
   document.body.classList.remove('quiz-focus');
   document.getElementById('btnRestart').style.display = 'none';
   document.getElementById('btnQuit').style.display = 'block';
@@ -302,6 +323,9 @@ window.quitQuiz = function(){
 
 function finishQuiz(){
   quizStarted = false;
+  if(grandeDiaInterval) { clearInterval(grandeDiaInterval); grandeDiaInterval = null; }
+  document.getElementById('quizTimerContainer').style.display = 'none';
+
   document.getElementById('question').innerHTML = `
     <div class="finish-title">
       <i class="ph-fill ph-check-circle"></i> Fim! Você acertou ${score} de ${POOL.length}
@@ -311,6 +335,7 @@ function finishQuiz(){
   document.getElementById('btnRestart').style.display = 'block';
   document.getElementById('btnQuit').style.display = 'none';
   saveRecord(score, POOL.length);
+  checkBadges(score, POOL.length);
 }
 
 function saveRecord(s, t){
@@ -475,6 +500,141 @@ window.swipeFlashcardRight = function() {
   }
 }
 
+/* --- NOVAS FUNCIONALIDADES: O Grande Dia --- */
+window.startGrandeDia = async function() {
+  document.getElementById('quizSetup').style.display = 'none';
+  document.getElementById('quizActive').style.display = 'flex';
+  document.getElementById('quizTimerContainer').style.display = 'flex';
+  document.body.classList.add('quiz-focus');
+  document.getElementById('question').innerHTML = '<div class="empty-state"><i class="ph ph-spinner-gap ph-spin"></i><p>Preparando O Grande Dia...</p></div>';
+  
+  try {
+    const snap = await getFirestoreDb().collection('questoes').where('ativo', '==', true).get();
+    let allQ = [];
+    snap.forEach(doc => allQ.push({ id: doc.id, ...doc.data() }));
+    // Sorteio
+    for(let i=allQ.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); [allQ[i],allQ[j]]=[allQ[j],allQ[i]]; }
+    POOL = allQ.slice(0, 60); // 60 Questões
+    
+    currentIndex = 0; score = 0; quizStarted = true; isGrandeDia = true;
+    startTimer(3 * 60 * 60); // 3 horas em segundos
+    renderQuestion();
+  } catch (e) {
+    POOL = []; currentIndex = 0; score = 0; quizStarted = true; isGrandeDia = true; renderQuestion();
+  }
+}
+
+function startTimer(duration) {
+  let timer = duration;
+  const display = document.getElementById('quizTimerDisplay');
+  display.style.color = 'var(--danger)'; // Reset color
+  if(grandeDiaInterval) clearInterval(grandeDiaInterval);
+  
+  grandeDiaInterval = setInterval(function () {
+      let hours = parseInt(timer / 3600, 10);
+      let minutes = parseInt((timer % 3600) / 60, 10);
+      let seconds = parseInt(timer % 60, 10);
+
+      hours = hours < 10 ? "0" + hours : hours;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+
+      display.textContent = hours + ":" + minutes + ":" + seconds;
+      
+      if (timer <= 300) { display.style.color = '#ff0000'; } // Perto do fim (5 min)
+
+      if (--timer < 0) {
+          clearInterval(grandeDiaInterval);
+          finishQuiz();
+      }
+  }, 1000);
+}
+
+/* --- NOVAS FUNCIONALIDADES: GAMIFICAÇÃO --- */
+const BADGES_LIST = [
+  { id: 'first_blood', name: 'Iniciante', icon: 'ph-footprints' },
+  { id: 'streak_3', name: 'Focado', icon: 'ph-fire' },
+  { id: 'streak_7', name: 'Maratonista', icon: 'ph-sneaker' },
+  { id: 'mestre', name: 'Mestre GCM', icon: 'ph-crown' },
+  { id: 'grande_dia', name: 'Aprovado', icon: 'ph-star' }
+];
+
+function checkBadges(scoreVal, totalVal) {
+  let unlocked = JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]');
+  let newlyUnlocked = false;
+  
+  const addBadge = (id) => { if(!unlocked.includes(id)) { unlocked.push(id); newlyUnlocked = true; } };
+  
+  if (totalVal > 0) addBadge('first_blood');
+  
+  const streak = parseInt(localStorage.getItem(STREAK_KEY) || '0');
+  if (streak >= 3) addBadge('streak_3');
+  if (streak >= 7) addBadge('streak_7');
+  
+  const xp = parseInt(localStorage.getItem(XP_KEY) || '0');
+  if (xp >= 3000) addBadge('mestre');
+  
+  // Condição para badge O Grande Dia (+80% acertos)
+  if (isGrandeDia && totalVal >= 60 && (scoreVal / totalVal) >= 0.8) {
+    addBadge('grande_dia');
+  }
+  
+  if (newlyUnlocked) {
+    localStorage.setItem('quiz_unlocked_badges', JSON.stringify(unlocked));
+    if (typeof renderBadges === 'function') renderBadges();
+  }
+}
+
+window.renderBadges = function() {
+  const container = document.getElementById('badgesGrid');
+  if(!container) return;
+  const unlocked = JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]');
+  
+  container.innerHTML = '';
+  BADGES_LIST.forEach(b => {
+    const isUnlocked = unlocked.includes(b.id);
+    container.innerHTML += `
+      <div class="badge-item ${isUnlocked ? 'unlocked' : ''}">
+        <div class="badge-icon"><i class="ph-fill ${b.icon}"></i></div>
+        <div class="badge-name">${b.name}</div>
+      </div>
+    `;
+  });
+}
+
+window.renderStatsChart = function() {
+  const container = document.getElementById('statsChartBody');
+  if(!container) return;
+  const tStats = JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}');
+  const topics = Object.keys(tStats);
+  
+  if (topics.length === 0) {
+    container.innerHTML = '<div style="text-align:center; color: var(--text-muted); font-size: 14px;">Responda questões para gerar estatísticas.</div>';
+    return;
+  }
+  
+  container.innerHTML = '';
+  // Ordena os que mais respondeu primeiro
+  topics.sort((a,b) => tStats[b].t - tStats[a].t).forEach(topic => {
+    const data = tStats[topic];
+    if (data.t === 0) return;
+    const pct = Math.round((data.c / data.t) * 100);
+    container.innerHTML += `
+      <div class="stat-row">
+        <div class="stat-header">
+           <span class="stat-name">${topic}</span>
+           <span class="stat-pct">${pct}%</span>
+        </div>
+        <div class="stat-bar-container">
+           <div class="stat-bar-fill" style="width: ${pct}%"></div>
+        </div>
+      </div>
+    `;
+  });
+}
+
 showBestRecord();
 checkStreak();
 updateXPUI();
+if (typeof renderBadges === 'function') renderBadges();
+if (typeof renderStatsChart === 'function') renderStatsChart();
