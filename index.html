@@ -2,109 +2,153 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Quiz Guarda Civil — App Profissional</title>
-  <meta name="theme-color" content="#1e3c72"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0"/>
+  <title>Guarda Civil — App Profissional</title>
+  <meta name="theme-color" content="#0B0F19"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Phosphor Icons para icones premium -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body>
+  <!-- Efeitos de luz ao fundo (Glow Premium) -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
   <div class="app" id="appRoot">
     <div class="card header" id="cardHeader">
-      <div>
-        <h1 class="title">Guarda Civil 👮‍♂️</h1>
-        <div class="subtitle">Plataforma de Estudos Inteligente</div>
+      <div class="header-titles">
+        <div class="header-icon-wrapper">
+          <i class="ph-fill ph-shield-star"></i>
+        </div>
+        <div>
+          <h1 class="title">Guarda Civil</h1>
+          <div class="subtitle">Plataforma de Estudos</div>
+        </div>
       </div>
       <div class="controls">
-        <div style="display:flex; gap:5px">
-          <button class="icon-btn" id="scaleDownBtn" title="Diminuir">A−</button>
-          <div class="scale-label" id="scaleLabel">x1.00</div>
-          <button class="icon-btn" id="scaleUpBtn" title="Aumentar">A+</button>
+        <div class="scale-controls">
+          <button class="icon-btn" id="scaleDownBtn" title="Diminuir"><i class="ph ph-minus"></i></button>
+          <div class="scale-label" id="scaleLabel">1.00x</div>
+          <button class="icon-btn" id="scaleUpBtn" title="Aumentar"><i class="ph ph-plus"></i></button>
         </div>
-        <button class="icon-btn" id="soundToggle" title="Alternar Som">🔊</button>
-        <button class="icon-btn" id="fullscreenBtn" title="Tela Cheia">⛶</button>
+        <button class="icon-btn" id="soundToggle" title="Alternar Som">
+          <i class="ph ph-speaker-high" id="soundIcon"></i>
+        </button>
+        <button class="icon-btn" id="fullscreenBtn" title="Tela Cheia"><i class="ph ph-arrows-out"></i></button>
       </div>
     </div>
 
-    <div class="card pages" id="pages">
-      <section id="home" class="page active">
-        <div class="welcome">Bem-vindo! Prepare-se para sua aprovação. Escolha uma modalidade abaixo:</div>
+    <div class="pages" id="pages">
+      <section id="home" class="page active card">
+        <div class="welcome"><strong>Bem-vindo(a) recruta!</strong> Prepare-se para sua aprovação. Escolha uma modalidade:</div>
         <div class="home-actions">
-          <button class="btn" onclick="go('study')">📘 Estudar Leis</button>
-          <button class="btn" onclick="go('quiz')">🎯 Fazer Simulado</button>
-          <button class="btn" onclick="go('cards')">🃏 Flashcards</button>
-          <a href="./resumos/" class="btn">📄 Resumos</a>
+          <button class="btn btn-primary" onclick="go('study')">
+            <i class="ph ph-book-open"></i> <span>Estudar Leis</span>
+          </button>
+          <button class="btn btn-primary" onclick="go('quiz')">
+            <i class="ph ph-target"></i> <span>Fazer Simulado</span>
+          </button>
+          <button class="btn btn-secondary" onclick="go('cards')">
+            <i class="ph ph-cards"></i> <span>Flashcards</span>
+          </button>
+          <a href="./resumos/" class="btn btn-secondary">
+            <i class="ph ph-file-text"></i> <span>Resumos</span>
+          </a>
         </div>
-        <div style="margin-top:25px; padding:15px; background:rgba(0,0,0,0.1); border-radius:12px; border: 1px solid rgba(255,255,255,0.05);">
-          <div id="bestRecord" class="record" style="font-weight:700; color:var(--accent); text-align: center;">Carregando recorde...</div>
+        <div class="record-box">
+          <div id="bestRecord" class="record-content">
+            <i class="ph ph-spinner-gap ph-spin"></i> Carregando recorde...
+          </div>
         </div>
       </section>
 
-      <section id="study" class="page">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-          <h3 style="margin:0">📚 Conteúdos</h3>
-          <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
+      <section id="study" class="page card">
+        <div class="page-top-bar">
+          <h3 class="page-title"><i class="ph ph-books"></i> Conteúdos</h3>
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
         </div>
         <div id="studyList" class="study-list">Carregando conteúdos...</div>
       </section>
 
-      <section id="quiz" class="page">
+      <section id="quiz" class="page card">
         <div class="quiz-shell">
-          <div class="page-header-actions" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1;">
-              <span style="font-weight:700; font-size: 14px;">Tópico:</span>
-              <select id="topicSelect" style="flex:1; min-width:140px;"></select>
-              <button class="next-btn" id="loadTopicBtn"
-                style="padding:8px 15px; font-size:13px; border-radius:8px; white-space:nowrap; position:static !important; box-shadow:none !important; border:none !important; width:auto !important; min-width:80px !important; transform:none !important;">
-                Iniciar
-              </button>
+          <div class="page-header-actions">
+            <div class="topic-selector">
+              <label for="topicSelect"><i class="ph ph-funnel"></i> Tópico</label>
+              <select id="topicSelect"></select>
             </div>
-            <div class="small" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px; font-size: 12px;">
-              Questões: <strong id="quizSizeLabel"></strong>
-            </div>
+            <button class="btn btn-primary btn-start" id="loadTopicBtn">
+              <i class="ph-fill ph-play-circle"></i> Iniciar
+            </button>
           </div>
 
-          <div class="progress">
-            <div class="track"><div class="bar" id="bar"></div></div>
-            <div style="font-size:12px; font-weight:800; min-width:40px;" id="progressInfo">0 / 0</div>
+          <div class="progress-container">
+            <div class="progress-info">
+              <span id="progressText" class="score-text">Pontos: 0</span>
+              <span id="progressInfo" class="count-text">0 / 0</span>
+            </div>
+            <div class="progress">
+              <div class="track"><div class="bar" id="bar"></div></div>
+            </div>
           </div>
 
           <div class="quiz-main">
-            <div class="question" id="question">Selecione um tópico para começar.</div>
+            <div class="question-box" id="question">
+              <!-- Content injected via JS -->
+              <div class="empty-state">
+                <i class="ph ph-hand-pointing"></i>
+                <p>Selecione um tópico para começar.</p>
+              </div>
+            </div>
             <div class="opts" id="opts"></div>
             <div class="explain" id="explain" style="display:none"></div>
           </div>
 
-          <div class="quiz-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-            <div id="progressText" style="font-weight:700; color:var(--accent); font-size: 14px;"></div>
-            <div style="display:flex; gap:10px; flex-wrap: wrap;">
-              <button class="btn" id="btnRestart" onclick="restartQuiz()" style="display:none">🔄 Reiniciar</button>
-              <button class="next-btn" id="nextBtn" disabled>Próxima ➜</button>
-            </div>
+          <div class="quiz-footer">
+            <button class="btn btn-secondary" id="btnRestart" onclick="restartQuiz()" style="display:none">
+              <i class="ph ph-arrows-clockwise"></i> Reiniciar
+            </button>
+            <button class="btn btn-next" id="nextBtn" disabled>
+              Próxima <i class="ph ph-arrow-right"></i>
+            </button>
           </div>
         </div>
       </section>
 
-      <section id="cards" class="page">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-          <h3 style="margin:0">🃏 Flashcards</h3>
-          <button class="btn" onclick="go('home')" style="padding:6px 12px; font-size:12px;">🏠 Voltar</button>
+      <section id="cards" class="page card">
+        <div class="page-top-bar">
+          <h3 class="page-title"><i class="ph ph-cards"></i> Flashcards</h3>
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
         </div>
-        <div id="cardsContainer" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:15px; margin-top:15px;"></div>
+        <div id="cardsContainer" class="cards-grid"></div>
       </section>
     </div>
   </div>
 
-  <div class="tabs" role="navigation" id="tabsBar">
-    <button class="tabbtn active" data-target="home" onclick="go('home')"><span>🏠</span>Início</button>
-    <button class="tabbtn" data-target="study" onclick="go('study')"><span>📘</span>Estudo</button>
-    <button class="tabbtn" data-target="quiz" onclick="go('quiz')"><span>🎯</span>Simulado</button>
-    <button class="tabbtn" data-target="cards" onclick="go('cards')"><span>🃏</span>Cartões</button>
+  <div class="tabs-nav" role="navigation" id="tabsBar">
+    <button class="tabbtn active" data-target="home" onclick="go('home')">
+      <i class="ph ph-house"></i>
+      <span>Início</span>
+    </button>
+    <button class="tabbtn" data-target="study" onclick="go('study')">
+      <i class="ph ph-book-open"></i>
+      <span>Estudo</span>
+    </button>
+    <button class="tabbtn" data-target="quiz" onclick="go('quiz')">
+      <i class="ph ph-target"></i>
+      <span>Simulado</span>
+    </button>
+    <button class="tabbtn" data-target="cards" onclick="go('cards')">
+      <i class="ph ph-cards"></i>
+      <span>Cartões</span>
+    </button>
   </div>
 
   <!-- Firebase -->
@@ -119,10 +163,9 @@
       messagingSenderId: "863699339166",
       appId: "1:863699339166:web:8514155da2229b41ae388f"
     };
-
     firebase.initializeApp(firebaseConfig);
   </script>
 
-  <script src="./js/app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
