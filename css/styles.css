@@ -192,7 +192,7 @@ button.opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: 
 .flash-topic { font-size: 13px; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 16px;}
 .flash-back .flash-topic { color: rgba(255,255,255,0.7); }
 .flash-text { font-size: 16px; font-weight: 600; line-height: 1.5; }
-.flash-hint { font-size: 13px; color: var(--text-muted); margin-top: auto; padding-top: 15px; display:flex; align-items:center; gap:6px;}
+.flash-hint { font-size: 13px; color: var(--accent); margin-top: auto; padding-top: 15px; display:flex; align-items:center; gap:6px; font-weight: 700; opacity: 0.9;}
 
 /* Nav Bar (Bottom) */
 .tabs-nav {
