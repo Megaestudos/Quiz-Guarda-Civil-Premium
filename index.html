@@ -64,20 +64,8 @@
           </div>
         </div>
 
-        <!-- INÍCIO: Badges (Conquistas) -->
-        <div class="badges-container card-inner">
-          <div class="section-title"><i class="ph-fill ph-trophy"></i> Conquistas</div>
-          <div class="badges-grid" id="badgesGrid">
-            <!-- Renderizado via JS -->
-          </div>
-        </div>
-        
-        <!-- INÍCIO: Desempenho -->
-        <div class="stats-chart-container card-inner">
-          <div class="section-title"><i class="ph-fill ph-chart-bar"></i> Desempenho por Matéria</div>
-          <div id="statsChartBody">
-            <div style="text-align:center; color: var(--text-muted); font-size: 14px;">Responda questões para gerar estatísticas.</div>
-          </div>
+        <div class="mini-badges" id="miniBadgesList" style="display:flex; gap: 8px; margin-bottom: 24px; justify-content: center;">
+           <!-- Mini badges (icones puros) aparecerão aqui via JS -->
         </div>
 
         <div class="home-actions">
@@ -93,10 +81,34 @@
           <a href="./resumos/" class="btn btn-primary">
             <i class="ph ph-file-text"></i> <span>Resumos</span>
           </a>
+          <button class="btn btn-primary" onclick="go('dashboard')" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
+            <i class="ph ph-chart-line-up"></i> <span>Desempenho</span>
+          </button>
         </div>
         <div class="record-box">
           <div id="bestRecord" class="record-content">
             <i class="ph ph-spinner-gap ph-spin"></i> Carregando recorde...
+          </div>
+        </div>
+      </section>
+
+      <section id="dashboard" class="page card">
+        <div class="page-top-bar">
+          <h3 class="page-title"><i class="ph ph-chart-line-up"></i> Meu Desempenho</h3>
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
+        </div>
+
+        <div class="badges-container card-inner">
+          <div class="section-title"><i class="ph-fill ph-trophy"></i> Conquistas</div>
+          <div class="badges-grid" id="badgesGrid">
+            <!-- Renderizado via JS -->
+          </div>
+        </div>
+        
+        <div class="stats-chart-container card-inner">
+          <div class="section-title"><i class="ph-fill ph-chart-bar"></i> Desempenho por Matéria</div>
+          <div id="statsChartBody">
+            <div style="text-align:center; color: var(--text-muted); font-size: 14px;">Responda questões para gerar estatísticas.</div>
           </div>
         </div>
       </section>
