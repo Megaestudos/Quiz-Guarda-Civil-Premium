@@ -2,6 +2,58 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8os
 const TEMPLATE_QUIZ_SIZE = 20;
 let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
 const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
+const XP_KEY = 'quiz_xp'; const STREAK_KEY = 'quiz_streak'; const LAST_DATE_KEY = 'quiz_last_date';
+
+function checkStreak() {
+  let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0');
+  let lastDate = localStorage.getItem(LAST_DATE_KEY);
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (lastDate) {
+    const diffDays = Math.floor(Math.abs(new Date(todayStr) - new Date(lastDate)) / (1000 * 60 * 60 * 24));
+    if (diffDays > 1) { streak = 0; localStorage.setItem(STREAK_KEY, streak); }
+  }
+  const el = document.getElementById('streakValue');
+  if(el) el.innerText = `${streak} Dia${streak!==1?'s':''}`;
+}
+
+function registerStudyDay() {
+  let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0');
+  let lastDate = localStorage.getItem(LAST_DATE_KEY);
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (lastDate !== todayStr) {
+    const diffDays = lastDate ? Math.floor(Math.abs(new Date(todayStr) - new Date(lastDate)) / (1000 * 60 * 60 * 24)) : 0;
+    streak = (diffDays <= 1 || !lastDate) ? streak + 1 : 1;
+    localStorage.setItem(STREAK_KEY, streak);
+    localStorage.setItem(LAST_DATE_KEY, todayStr);
+  }
+  const el = document.getElementById('streakValue');
+  if(el) el.innerText = `${streak} Dia${streak!==1?'s':''}`;
+}
+
+function getRankName(xp) {
+  if(xp < 100) return 'Recruta';
+  if(xp < 500) return 'Soldado';
+  if(xp < 1500) return 'Cabo';
+  if(xp < 3000) return 'Sargento';
+  if(xp < 6000) return 'Tenente';
+  if(xp < 10000) return 'Capitão';
+  return 'Comandante';
+}
+
+function updateXPUI() {
+  const xp = parseInt(localStorage.getItem(XP_KEY) || '0');
+  const elXP = document.getElementById('xpValue');
+  const elRank = document.getElementById('rankValue');
+  if(elXP) elXP.innerText = xp;
+  if(elRank) elRank.innerText = getRankName(xp);
+}
+
+function addXP(amount) {
+  let xp = parseInt(localStorage.getItem(XP_KEY) || '0');
+  xp += amount;
+  localStorage.setItem(XP_KEY, xp);
+  updateXPUI();
+}
 
 function q_text(q){ return q.pergunta || q.perguntas || q.question || ''; }
 function q_topic(q){ return q.materia || q.topico || q.tópico || q.topic || ''; }
@@ -74,6 +126,8 @@ window.go = function(target){
 
   window.scrollTo({top: 0, behavior: 'smooth'});
   if (target === 'home') showBestRecord();
+checkStreak();
+updateXPUI();
   if (target === 'study') renderStudies();
   if (target === 'cards') renderCards();
   if (target === 'quiz' && !quizStarted) showTopicSelection();
@@ -234,8 +288,17 @@ function finishQuiz(){
 function saveRecord(s, t){
   if(!t) return;
   const pct = Math.round((s/t)*100);
-  const prev = JSON.parse(localStorage.getItem(BEST_KEY) || '{"pct":0}');
-  if (pct > prev.pct) localStorage.setItem(BEST_KEY, JSON.stringify({score:s, total:t, pct:pct}));
+  const prev = JSON.parse(localStorage.getItem(BEST_KEY) || '{"pct":-1}');
+  
+  registerStudyDay();
+  addXP(s * 10); // 10 XP por acerto
+  
+  if (pct > prev.pct) {
+    localStorage.setItem(BEST_KEY, JSON.stringify({score:s, total:t, pct:pct}));
+    if(window.confetti && pct > 0) {
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#10B981', '#3B82F6', '#F59E0B', '#ffffff'] });
+    }
+  }
 }
 
 function showBestRecord(){
@@ -347,3 +410,5 @@ function makeSwipeable(el) {
 }
 
 showBestRecord();
+checkStreak();
+updateXPUI();
