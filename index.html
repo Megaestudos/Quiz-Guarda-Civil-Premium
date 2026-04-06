@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 
@@ -45,6 +46,24 @@
     <div class="pages" id="pages">
       <section id="home" class="page active card">
         <div class="welcome"><strong>Bem-vindo(a) recruta!</strong> Prepare-se para sua aprovação. Escolha uma modalidade:</div>
+        
+        <div class="profile-dashboard">
+          <div class="stat-box">
+             <div class="stat-icon" style="color: #F59E0B;"><i class="ph-fill ph-fire"></i></div>
+             <div class="stat-info">
+               <div class="stat-value" id="streakValue">0 Dias</div>
+               <div class="stat-label">Ofensiva</div>
+             </div>
+          </div>
+          <div class="stat-box">
+             <div class="stat-icon" style="color: #8B5CF6;"><i class="ph-fill ph-medal"></i></div>
+             <div class="stat-info">
+               <div class="stat-value" id="rankValue">Recruta</div>
+               <div class="stat-label"><span id="xpValue">0</span> XP</div>
+             </div>
+          </div>
+        </div>
+
         <div class="home-actions">
           <button class="btn btn-primary" onclick="go('study')">
             <i class="ph ph-book-open"></i> <span>Estudar Leis</span>
@@ -52,10 +71,10 @@
           <button class="btn btn-primary" onclick="go('quiz')">
             <i class="ph ph-target"></i> <span>Fazer Simulado</span>
           </button>
-          <button class="btn btn-secondary" onclick="go('cards')">
+          <button class="btn btn-primary" onclick="go('cards')">
             <i class="ph ph-cards"></i> <span>Flashcards</span>
           </button>
-          <a href="./resumos/" class="btn btn-secondary">
+          <a href="./resumos/" class="btn btn-primary">
             <i class="ph ph-file-text"></i> <span>Resumos</span>
           </a>
         </div>
