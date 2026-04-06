@@ -394,7 +394,6 @@ function makeSwipeable(el) {
     el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease';
     
     if (!isDragging) {
-      el.querySelector('.flash-inner').classList.toggle('flipped');
       el.style.transform = 'scale(1) translateY(0)';
       return;
     }
@@ -410,11 +409,42 @@ function makeSwipeable(el) {
     } else {
       el.style.transform = 'scale(1) translateY(0)';
     }
-    currentX = 0; isDragging = false;
+    isDragging = false;
   };
 
   el.onpointerup = handleEnd;
   el.onpointercancel = handleEnd;
+  
+  el.onclick = () => {
+    if(!isDragging) {
+      const inner = el.querySelector('.flash-inner');
+      if (inner) inner.classList.toggle('flipped');
+    }
+  };
+}
+
+window.swipeFlashcardLeft = function() {
+  const container = document.getElementById('cardsList');
+  const cards = Array.from(container.querySelectorAll('.flashcard'));
+  if (cards.length > 0 && cards[0]) {
+     const elTop = cards[0];
+     elTop.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+     elTop.style.transform = `translate(-${window.innerWidth}px, 0) rotate(-30deg)`;
+     elTop.style.opacity = '0';
+     setTimeout(() => { elTop.remove(); setupTinderSwipe(); }, 400);
+  }
+}
+
+window.swipeFlashcardRight = function() {
+  const container = document.getElementById('cardsList');
+  const cards = Array.from(container.querySelectorAll('.flashcard'));
+  if (cards.length > 0 && cards[0]) {
+     const elTop = cards[0];
+     elTop.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+     elTop.style.transform = `translate(${window.innerWidth}px, 0) rotate(30deg)`;
+     elTop.style.opacity = '0';
+     setTimeout(() => { elTop.remove(); setupTinderSwipe(); }, 400);
+  }
 }
 
 showBestRecord();
