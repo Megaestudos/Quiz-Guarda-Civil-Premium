@@ -153,8 +153,13 @@
         <!-- Area preparada para o visual Tinder-style Swipe -->
         <div class="deck-container">
            <div id="cardsList" class="deck"></div>
-           <div class="deck-controls" style="text-align:center; margin-top:20px; color:var(--text-muted); font-size:14px; font-weight:600;">
-             <i class="ph ph-arrows-left-right"></i> Arraste o cartão para os lados para pular
+           <div class="deck-controls" style="display:flex; justify-content:center; gap: 12px; margin-top:20px; width: 100%; max-width: 320px;">
+             <button class="btn btn-secondary" onclick="swipeFlashcardLeft()" style="flex:1; padding:12px;">
+               <i class="ph ph-arrow-left"></i> Pular
+             </button>
+             <button class="btn btn-primary" onclick="swipeFlashcardRight()" style="flex:1; padding:12px;">
+               Próximo <i class="ph ph-arrow-right"></i>
+             </button>
            </div>
         </div>
       </section>
