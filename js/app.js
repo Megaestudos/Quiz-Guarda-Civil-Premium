@@ -9,78 +9,26 @@ function q_expl(q){ return q.explicacao || q.explicação || q.explanation || ''
 function q_answer_letter(q){ const a = (q.resposta || q.answer || '').toString().trim(); return a.substr(0,1).toUpperCase(); }
 function q_option(q, letter){ return q[letter.toUpperCase()] || q[letter.toLowerCase()] || ''; }
 
-// ====== Firebase / Firestore (somente para o simulado) ======
 function getFirestoreDb(){
-  if (window.firebase && firebase.firestore) {
-    return firebase.firestore();
-  }
+  if (window.firebase && firebase.firestore) return firebase.firestore();
   throw new Error('Firebase Firestore não está disponível no front.');
 }
 
-// ====== Ajuste de altura do QUIZ no mobile (sem rolagem da página) ======
 function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 600px)').matches; }
 
-function updateMobileQuizHeight(){
-  if(!isMobile()) return;
-
-  const header = document.getElementById('cardHeader');
-  const tabs = document.getElementById('tabsBar');
-
-  const headerVisible = header && getComputedStyle(header).display !== 'none';
-  const headerH = headerVisible ? Math.ceil(header.getBoundingClientRect().height) : 0;
-
-  const tabsH = tabs ? Math.ceil(tabs.getBoundingClientRect().height + 20) : 86; // + respiro
-
-  document.documentElement.style.setProperty('--header-h', headerH + 'px');
-  document.documentElement.style.setProperty('--tabs-h', tabsH + 'px');
-
-  const extra = 26;
-  const quizH = Math.max(360, Math.floor(window.innerHeight - headerH - tabsH - extra));
-  document.documentElement.style.setProperty('--quiz-h', quizH + 'px');
-}
-
-function applyQuizViewportMode(on){
-  const quizEl = document.getElementById('quiz');
-  if(!quizEl) return;
-
-  document.body.classList.toggle('quiz-mode', !!on);
-
-  if(isMobile() && on){
-    document.body.classList.add('lock-scroll');
-    quizEl.classList.add('quiz-viewport');
-
-    requestAnimationFrame(() => {
-      updateMobileQuizHeight();
-    });
-  }else{
-    document.body.classList.remove('lock-scroll');
-    quizEl.classList.remove('quiz-viewport');
-    updateMobileQuizHeight();
-  }
-}
-
-window.addEventListener('resize', () => {
-  updateMobileQuizHeight();
-});
-
-// ====== Scale ======
 function setScale(v){
-  if(isMobile()) return; // Ignora escala no mobile para evitar quebras visuais
+  if(isMobile()) return;
   v = Math.max(0.8, Math.min(1.4, Number(v)));
   document.getElementById('appRoot').style.transform = `scale(${v.toFixed(2)})`;
   document.getElementById('appRoot').style.transformOrigin = 'top center';
-  
   const label = document.getElementById('scaleLabel');
   if(label) label.innerText = v.toFixed(2) + 'x';
-  
   localStorage.setItem(SCALE_KEY, v.toFixed(2));
-  updateMobileQuizHeight();
 }
 document.getElementById('scaleUpBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) + 0.05);
 document.getElementById('scaleDownBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) - 0.05);
 if(!isMobile()) setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0));
 
-// ====== Som ======
 let audioCtx = null;
 function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function playTone(freq, dur=120, type='sine', gainVal=0.06){
@@ -89,17 +37,19 @@ function playTone(freq, dur=120, type='sine', gainVal=0.06){
     ensureAudio();
     const o = audioCtx.createOscillator();
     const g = audioCtx.createGain();
-    o.type = type;
-    o.frequency.value = freq;
-    g.gain.value = gainVal;
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    o.start();
-    setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, dur);
+    o.type = type; o.frequency.value = freq; g.gain.value = gainVal;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, dur);
   }catch(e){}
 }
-function playCorrect(){ playTone(880,120,'sine',0.06); }
-function playWrong(){ playTone(220,220,'sawtooth',0.08); }
+function playCorrect(){
+  playTone(880,120,'sine',0.06);
+  if(navigator.vibrate) navigator.vibrate([50]); 
+}
+function playWrong(){
+  playTone(220,220,'sawtooth',0.08);
+  if(navigator.vibrate) navigator.vibrate([100, 50, 100]); // Vibrar quando erra
+}
 
 function updateSoundUI() {
   const isOff = localStorage.getItem(SOUND_KEY) === '0';
@@ -114,13 +64,13 @@ document.getElementById('soundToggle').onclick = function() {
 if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY, '1');
 updateSoundUI();
 
-// ====== Navegação ======
 window.go = function(target){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(target).classList.add('active');
   document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
-
-  applyQuizViewportMode(target === 'quiz');
+  
+  if(target === 'quiz' && quizStarted) document.body.classList.add('quiz-focus');
+  else document.body.classList.remove('quiz-focus');
 
   window.scrollTo({top: 0, behavior: 'smooth'});
   if (target === 'home') showBestRecord();
@@ -140,80 +90,52 @@ async function renderStudies(){
   try {
     const res = await fetch(`${SCRIPT_URL}?action=getStudies`);
     const js = await res.json();
-    if (js.ok && js.studies && js.studies.length > 0){
+    if (js.ok && js.studies && js.studies.length){
       container.innerHTML = '';
       js.studies.forEach(s => {
         const d = document.createElement('details'); d.className = 'summary';
-        const content = linkify(s.conteudo || '');
-        d.innerHTML = `<summary>${s.topico || 'Tópico'}</summary><div class="study-content">${content}</div>`;
+        d.innerHTML = `<summary>${s.topico || 'Tópico'}</summary><div class="study-content">${linkify(s.conteudo || '')}</div>`;
         container.appendChild(d);
       });
     } else {
-      container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)"><i class="ph ph-empty"></i><br>Nenhum conteúdo encontrado.</div>';
+      container.innerHTML = '<div style="text-align:center; padding:20px;"><i class="ph ph-empty"></i><br>Nenhum conteúdo.</div>';
     }
-  } catch (e) { container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger)"><i class="ph ph-warning"></i><br>Erro ao carregar conteúdos.</div>'; }
+  } catch (e) { container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger)">Erro.</div>'; }
 }
 
 async function showTopicSelection(){
   try {
-    const db = getFirestoreDb();
-    const snap = await db.collection('materias')
-      .where('ativo', '==', true)
-      .orderBy('ordem', 'asc')
-      .get();
-
+    const snap = await getFirestoreDb().collection('materias').where('ativo', '==', true).orderBy('ordem', 'asc').get();
     const select = document.getElementById('topicSelect');
     select.innerHTML = '<option value="Todos">Todas as Matérias</option>';
-
     snap.forEach(doc => {
-      const data = doc.data() || {};
-      const nome = (data.nome || '').toString().trim();
-      if (nome) {
-        select.innerHTML += `<option value="${nome}">${nome}</option>`;
-      }
+      const nome = (doc.data().nome || '').toString().trim();
+      if (nome) select.innerHTML += `<option value="${nome}">${nome}</option>`;
     });
-  } catch (e) {
-    console.error('Erro ao carregar matérias:', e);
-  }
+  } catch (e) {}
 }
 
 async function loadTopicQuestions(topic){
-  document.getElementById('question').innerHTML = '<div class="empty-state"><i class="ph ph-spinner-gap ph-spin"></i><p>Carregando simulado...</p></div>';
+  document.getElementById('quizSetup').style.display = 'none';
+  document.getElementById('quizActive').style.display = 'flex';
+  document.body.classList.add('quiz-focus');
+  document.getElementById('question').innerHTML = '<div class="empty-state"><i class="ph ph-spinner-gap ph-spin"></i><p>Preparando...</p></div>';
+  
   try {
-    const db = getFirestoreDb();
-    let ref = db.collection('questoes').where('ativo', '==', true);
-
-    if (topic && topic !== 'Todos') {
-      ref = ref.where('materia', '==', topic);
-    }
-
+    let ref = getFirestoreDb().collection('questoes').where('ativo', '==', true);
+    if (topic && topic !== 'Todos') ref = ref.where('materia', '==', topic);
     const snap = await ref.orderBy('ordem', 'asc').limit(TEMPLATE_QUIZ_SIZE).get();
-
-    POOL = [];
-    snap.forEach(doc => {
-      POOL.push({ id: doc.id, ...doc.data() });
-    });
-
-    currentIndex = 0;
-    score = 0;
-    quizStarted = true;
+    POOL = []; snap.forEach(doc => POOL.push({ id: doc.id, ...doc.data() }));
+    
+    currentIndex = 0; score = 0; quizStarted = true;
     renderQuestion();
   } catch (e) {
-    console.error('Erro ao carregar questões:', e);
-    POOL = [];
-    currentIndex = 0;
-    score = 0;
-    quizStarted = true;
-    renderQuestion();
+    POOL = []; currentIndex = 0; score = 0; quizStarted = true; renderQuestion();
   }
 }
 document.getElementById('loadTopicBtn').onclick = () => loadTopicQuestions(document.getElementById('topicSelect').value);
 
 function renderQuestion(){
-  document.getElementById('explain').style.display = 'none';
-  document.getElementById('explain').className = 'explain';
-  document.getElementById('nextBtn').disabled = true;
-
   if (currentIndex >= POOL.length) { finishQuiz(); return; }
   const q = POOL[currentIndex];
 
@@ -228,15 +150,19 @@ function renderQuestion(){
     const txt = q_option(q, letter);
     if (!txt) return;
     const btn = document.createElement('button');
-    btn.className = 'opt';
-    btn.id = 'opt_' + letter;
-    btn.innerHTML = `<span style="font-weight:700; color:var(--primary); min-width:24px;">${letter})</span> <span>${txt}</span>`;
+    btn.className = 'opt'; btn.id = 'opt_' + letter;
+    btn.innerHTML = `<span style="font-weight:800; color:var(--primary); min-width:24px;">${letter})</span> <span>${txt}</span>`;
     btn.onclick = () => selectOption(letter);
     opts.appendChild(btn);
   });
 
-  updateProgressUI();
-  updateMobileQuizHeight();
+  const pct = POOL.length ? Math.round((currentIndex / POOL.length) * 100) : 0;
+  document.getElementById('bar').style.width = pct + '%';
+  document.getElementById('progressInfo').innerText = POOL.length ? `${currentIndex + 1} / ${POOL.length}` : '0 / 0';
+  document.getElementById('progressText').innerText = `Pontos: ${score}`;
+  
+  document.getElementById('sheetNextBtn').style.display = (currentIndex < POOL.length - 1) ? 'block' : 'none';
+  document.getElementById('sheetFinishBtn').style.display = (currentIndex === POOL.length - 1) ? 'block' : 'none';
 }
 
 function selectOption(letter){
@@ -247,7 +173,8 @@ function selectOption(letter){
   const elCorrect = document.getElementById('opt_' + correct);
   if (elCorrect) elCorrect.classList.add('correct');
   
-  if (letter !== correct) {
+  const isCorrect = (letter === correct);
+  if (!isCorrect) {
     const chosen = document.getElementById('opt_' + letter);
     if (chosen) chosen.classList.add('wrong');
     playWrong();
@@ -256,23 +183,39 @@ function selectOption(letter){
     playCorrect();
   }
   
-  const expl = document.getElementById('explain');
-  expl.style.display = 'block';
-  expl.className = letter === correct ? 'explain c-right' : 'explain c-wrong';
-  const iconHtml = letter === correct ? '<i class="ph-fill ph-check-circle"></i> Correto!' : '<i class="ph-fill ph-x-circle"></i> Errada!';
+  const iconHtml = isCorrect ? '<i class="ph-fill ph-check-circle"></i> Acertou!' : '<i class="ph-fill ph-x-circle"></i> Errou!';
+  const colorClass = isCorrect ? 'var(--success)' : 'var(--danger)';
   
-  expl.innerHTML = `<strong>${iconHtml}</strong><br><div style="margin-top:10px">${q_expl(q)}</div>`;
-  
-  document.getElementById('nextBtn').disabled = false;
-  updateMobileQuizHeight();
+  document.getElementById('explainBody').innerHTML = `
+    <div style="color:${colorClass}; font-size: 24px; font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom: 12px;">${iconHtml}</div>
+    <div style="font-size:15px; color:var(--text-main); line-height:1.6;">${q_expl(q) || 'Nenhuma explicação técnica fornecida para esta questão.'}</div>
+  `;
+  document.getElementById('explainSheet').classList.add('show');
 }
-document.getElementById('nextBtn').onclick = () => { currentIndex++; renderQuestion(); };
 
-function updateProgressUI(){
-  const pct = POOL.length ? Math.round((currentIndex / POOL.length) * 100) : 0;
-  document.getElementById('bar').style.width = pct + '%';
-  document.getElementById('progressInfo').innerText = POOL.length ? `${currentIndex + 1} / ${POOL.length}` : '0 / 0';
-  document.getElementById('progressText').innerText = `Pontos: ${score}`;
+window.closeExplain = function(){
+  document.getElementById('explainSheet').classList.remove('show');
+}
+
+document.getElementById('sheetNextBtn').onclick = () => {
+  closeExplain();
+  currentIndex++;
+  setTimeout(renderQuestion, 300); // aguarda o modal descer
+};
+document.getElementById('sheetFinishBtn').onclick = () => {
+  closeExplain();
+  currentIndex++;
+  setTimeout(renderQuestion, 300);
+};
+
+window.quitQuiz = function(){
+  quizStarted = false;
+  document.body.classList.remove('quiz-focus');
+  document.getElementById('btnRestart').style.display = 'none';
+  document.getElementById('btnQuit').style.display = 'block';
+  document.getElementById('quizSetup').style.display = 'block';
+  document.getElementById('quizActive').style.display = 'none';
+  showTopicSelection();
 }
 
 function finishQuiz(){
@@ -284,26 +227,8 @@ function finishQuiz(){
   `;
   document.getElementById('opts').innerHTML = '';
   document.getElementById('btnRestart').style.display = 'block';
+  document.getElementById('btnQuit').style.display = 'none';
   saveRecord(score, POOL.length);
-  updateMobileQuizHeight();
-}
-
-function restartQuiz(){
-  document.getElementById('btnRestart').style.display = 'none';
-  quizStarted = false;
-  showTopicSelection();
-  document.getElementById('question').innerHTML = `
-    <div class="empty-state">
-      <i class="ph ph-hand-pointing"></i>
-      <p>Selecione um tópico para começar.</p>
-    </div>
-  `;
-  document.getElementById('opts').innerHTML = '';
-  document.getElementById('explain').style.display = 'none';
-  document.getElementById('bar').style.width = '0%';
-  document.getElementById('progressInfo').innerText = '0 / 0';
-  document.getElementById('progressText').innerText = 'Pontos: 0';
-  updateMobileQuizHeight();
 }
 
 function saveRecord(s, t){
@@ -316,61 +241,109 @@ function saveRecord(s, t){
 function showBestRecord(){
   const rec = JSON.parse(localStorage.getItem(BEST_KEY));
   document.getElementById('bestRecord').innerHTML = rec 
-    ? `<i class="ph-fill ph-trophy"></i> Melhor Ranking: ${rec.score}/${rec.total} (${rec.pct}%)` 
-    : '<i class="ph ph-rocket"></i> Faça um simulado para ter um recorde.';
+    ? `<i class="ph-fill ph-trophy"></i> Recorde: ${rec.score}/${rec.total} (${rec.pct}%)` 
+    : '<i class="ph ph-rocket"></i> Faça seu primeiro simulado.';
 }
 
 async function renderCards(){
-  const container = document.getElementById('cardsContainer');
-  container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); width: 100%;"><i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i><br><br>Carregando flashcards...</div>';
-  const sheetName = 'cartões';
+  const container = document.getElementById('cardsList');
+  container.innerHTML = '<div style="color:var(--text-muted); padding:30px;"><i class="ph ph-spinner-gap ph-spin" style="font-size:32px;"></i></div>';
   try {
-    const urlCards = `${SCRIPT_URL}?action=getCards&sheet=${encodeURIComponent(sheetName)}`;
-    let res = await fetch(urlCards, {cache:'no-store'});
+    let res = await fetch(`${SCRIPT_URL}?action=getCards&sheet=${encodeURIComponent('cartões')}`, {cache:'no-store'});
     let js = await res.json();
     let list = (js.ok && js.cards) ? js.cards : (js.ok && js.questions ? js.questions : []);
 
     if (!list.length) {
-      const urlAll = `${SCRIPT_URL}?action=getAllQuestions`;
-      res = await fetch(urlAll, {cache:'no-store'});
+      res = await fetch(`${SCRIPT_URL}?action=getAllQuestions`, {cache:'no-store'});
       js = await res.json();
       list = (js.ok && js.questions) ? js.questions : [];
     }
 
-    if (!list.length) {
-      container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); width: 100%;"><i class="ph ph-empty"></i><br>Nenhum cartão encontrado.</div>';
-      return;
-    }
+    if (!list.length) { container.innerHTML = 'Vazio'; return; }
 
     container.innerHTML = '';
-    for (let i = list.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [list[i], list[j]] = [list[j], list[i]];
+    // Shuffle
+    for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+
+    let count = Math.min(list.length, 15); // max 15 na deck para não pesar
+    for(let i=0; i<count; i++){
+      const q = list[i];
+      const frontText = (q.pergunta || q.perguntas || q.question || '').toString();
+      const topicText = (q.topico || q.tópico || q.materia || '').toString();
+      const backText = (q.resposta || q.respostas || q.explanation || q.answer || '').toString();
+
+      const el = document.createElement('div');
+      el.className = 'flashcard flashcard-swipeable';
+      el.innerHTML = `
+        <div class="flash-inner">
+          <div class="flash-front">
+            <div class="flash-topic">${topicText}</div>
+            <div class="flash-text">${frontText}</div>
+            <div class="flash-hint"><i class="ph-fill ph-hand-tap"></i> TOQUE P/ VIRAR</div>
+          </div>
+          <div class="flash-back">
+            <div class="flash-topic">${topicText}</div>
+            <div class="flash-text">${backText}</div>
+          </div>
+        </div>
+      `;
+      container.appendChild(el);
     }
-
-    list.forEach(q => {
-      const frontText = (q.pergunta || q.perguntas || q.question || q[Object.keys(q).find(k=>/perg/i.test(k))] || '').toString();
-      const topicText = (q.topico || q.tópico || q.materia || q.topic || '').toString();
-      const backText = (q.resposta || q.respostas || q.explanation || q.explicacao || q.answer || q[Object.keys(q).find(k=>/resp/i.test(k))] || '').toString();
-
-      const wrapper = document.createElement('div'); wrapper.className = 'flashcard';
-      const inner = document.createElement('div'); inner.className = 'flash-inner';
-      const front = document.createElement('div'); front.className = 'flash-front';
-      const back = document.createElement('div'); back.className = 'flash-back';
-
-      front.innerHTML = `<div class="flash-topic">${topicText}</div><div class="flash-text">${frontText}</div><div class="flash-hint"><i class="ph-fill ph-hand-tap"></i> TOQUE PARA VER RESPOSTA</div>`;
-      back.innerHTML = `<div class="flash-topic">${topicText}</div><div class="flash-text">${backText}</div>`;
-
-      inner.appendChild(front); inner.appendChild(back);
-      wrapper.appendChild(inner);
-      wrapper.onclick = () => inner.classList.toggle('flipped');
-      container.appendChild(wrapper);
-    });
-  } catch(e) {
-    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger); width:100%;"><i class="ph ph-warning"></i><br>Erro ao carregar flashcards.</div>';
-  }
+    setupTinderSwipe();
+  } catch(e) { container.innerHTML = 'Erro ao carregar.'; }
 }
 
-// Inicial
+function setupTinderSwipe(){
+  const container = document.getElementById('cardsList');
+  const cards = Array.from(container.querySelectorAll('.flashcard'));
+  if(!cards.length) return;
+
+  cards.forEach((card, index) => {
+    card.style.zIndex = cards.length - index;
+    card.style.transform = `scale(${1 - index * 0.04}) translateY(${index * 15}px)`;
+    card.style.pointerEvents = index === 0 ? 'auto' : 'none';
+    if(index === 0) makeSwipeable(card);
+  });
+}
+
+function makeSwipeable(el) {
+  let startX = 0, currentX = 0, isDragging = false;
+  
+  const start = (e) => {
+    isDragging = false;
+    startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+    el.style.transition = 'none';
+  };
+  const move = (e) => {
+    const x = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+    currentX = x - startX;
+    if(Math.abs(currentX) > 10) isDragging = true;
+    if(!isDragging) return;
+    el.style.transform = `translate(${currentX}px, 0) rotate(${currentX * 0.05}deg)`;
+  };
+  const end = (e) => {
+    el.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+    if(!isDragging) {
+      el.querySelector('.flash-inner').classList.toggle('flipped');
+      el.style.transform = 'scale(1) translateY(0)';
+      return;
+    }
+    if(Math.abs(currentX) > window.innerWidth * 0.25 || Math.abs(currentX) > 100) {
+      const dir = currentX > 0 ? 1 : -1;
+      el.style.transform = `translate(${dir * window.innerWidth}px, 0) rotate(${dir * 30}deg)`;
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.remove();
+        setupTinderSwipe();
+      }, 400);
+    } else {
+      el.style.transform = 'scale(1) translateY(0)';
+    }
+    currentX = 0; isDragging = false;
+  };
+
+  el.onmousedown = start; window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+  el.ontouchstart = start; el.ontouchmove = move; el.ontouchend = end;
+}
+
 showBestRecord();
-updateMobileQuizHeight();
