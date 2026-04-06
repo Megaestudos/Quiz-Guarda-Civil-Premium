@@ -331,9 +331,9 @@ async function renderCards(){
     let count = Math.min(list.length, 15); // max 15 na deck para não pesar
     for(let i=0; i<count; i++){
       const q = list[i];
-      const frontText = (q.pergunta || q.perguntas || q.question || '').toString();
-      const topicText = (q.topico || q.tópico || q.materia || '').toString();
-      const backText = (q.resposta || q.respostas || q.explanation || q.answer || '').toString();
+      const frontText = (q.pergunta || q.perguntas || q.question || q[Object.keys(q).find(k=>/perg/i.test(k))] || '').toString();
+      const topicText = (q.topico || q.tópico || q.materia || q.topic || '').toString();
+      const backText = (q.resposta || q.respostas || q.explanation || q.explicacao || q.answer || q[Object.keys(q).find(k=>/resp/i.test(k))] || '').toString();
 
       const el = document.createElement('div');
       el.className = 'flashcard flashcard-swipeable';
