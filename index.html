@@ -10,14 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Phosphor Icons para icones premium -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 
 <body>
-  <!-- Efeitos de luz ao fundo (Glow Premium) -->
   <div class="ambient-glow glow-1"></div>
   <div class="ambient-glow glow-2"></div>
 
@@ -79,45 +76,52 @@
 
       <section id="quiz" class="page card">
         <div class="quiz-shell">
-          <div class="page-header-actions">
-            <div class="topic-selector">
-              <label for="topicSelect"><i class="ph ph-funnel"></i> Tópico</label>
-              <select id="topicSelect"></select>
+          <!-- Setup do Simulado -->
+          <div id="quizSetup" class="quiz-setup">
+            <div class="page-header-actions">
+              <div class="topic-selector">
+                <label for="topicSelect"><i class="ph ph-funnel"></i> Escolha o Tópico</label>
+                <select id="topicSelect"></select>
+              </div>
+              <button class="btn btn-primary btn-start" id="loadTopicBtn">
+                <i class="ph-fill ph-play-circle"></i> Iniciar Simulado
+              </button>
             </div>
-            <button class="btn btn-primary btn-start" id="loadTopicBtn">
-              <i class="ph-fill ph-play-circle"></i> Iniciar
-            </button>
-          </div>
-
-          <div class="progress-container">
-            <div class="progress-info">
-              <span id="progressText" class="score-text">Pontos: 0</span>
-              <span id="progressInfo" class="count-text">0 / 0</span>
-            </div>
-            <div class="progress">
-              <div class="track"><div class="bar" id="bar"></div></div>
+            <div class="empty-state" style="margin-top:30px;">
+              <i class="ph ph-target"></i>
+              <p>O Modo Foco ocultará as barras ativando a tela cheia para evitar distrações.</p>
             </div>
           </div>
 
-          <div class="quiz-main">
-            <div class="question-box" id="question">
-              <!-- Content injected via JS -->
-              <div class="empty-state">
-                <i class="ph ph-hand-pointing"></i>
-                <p>Selecione um tópico para começar.</p>
+          <!-- MODO FOCO ATIVO -->
+          <div id="quizActive" class="quiz-active" style="display:none; flex-direction:column; height: 100%;">
+            <div class="progress-container">
+              <div class="progress-info">
+                <span id="progressText" class="score-text">Pontos: 0</span>
+                <span id="progressInfo" class="count-text">0 / 0</span>
+              </div>
+              <div class="progress">
+                <div class="track"><div class="bar" id="bar"></div></div>
               </div>
             </div>
-            <div class="opts" id="opts"></div>
-            <div class="explain" id="explain" style="display:none"></div>
-          </div>
 
-          <div class="quiz-footer">
-            <button class="btn btn-secondary" id="btnRestart" onclick="restartQuiz()" style="display:none">
-              <i class="ph ph-arrows-clockwise"></i> Reiniciar
-            </button>
-            <button class="btn btn-next" id="nextBtn" disabled>
-              Próxima <i class="ph ph-arrow-right"></i>
-            </button>
+            <div class="quiz-main">
+              <div class="question-box" id="question">
+                <div class="empty-state">
+                  <i class="ph ph-spinner-gap ph-spin"></i>
+                </div>
+              </div>
+              <div class="opts" id="opts"></div>
+            </div>
+
+            <div class="quiz-footer">
+              <button class="btn-sm" id="btnQuit" onclick="quitQuiz()">
+                <i class="ph ph-x"></i> Abandonar
+              </button>
+              <button class="btn btn-secondary" id="btnRestart" onclick="quitQuiz()" style="display:none; flex:1;">
+                <i class="ph ph-arrows-clockwise"></i> Menu Inicial
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -127,7 +131,13 @@
           <h3 class="page-title"><i class="ph ph-cards"></i> Flashcards</h3>
           <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
         </div>
-        <div id="cardsContainer" class="cards-grid"></div>
+        <!-- Area preparada para o visual Tinder-style Swipe -->
+        <div class="deck-container">
+           <div id="cardsList" class="deck"></div>
+           <div class="deck-controls" style="text-align:center; margin-top:20px; color:var(--text-muted); font-size:14px; font-weight:600;">
+             <i class="ph ph-arrows-left-right"></i> Arraste o cartão para os lados para pular
+           </div>
+        </div>
       </section>
     </div>
   </div>
@@ -149,6 +159,21 @@
       <i class="ph ph-cards"></i>
       <span>Cartões</span>
     </button>
+  </div>
+
+  <!-- Bottom Sheet (Painel Deslizante para Explicação) -->
+  <div id="explainSheet" class="bottom-sheet">
+    <div class="sheet-overlay" onclick="closeExplain()"></div>
+    <div class="sheet-content">
+      <div class="sheet-drag-handle"></div>
+      <div id="explainBody"></div>
+      <button class="btn btn-primary" id="sheetNextBtn" style="width: 100%; margin-top:24px; padding:18px;">
+        Continuar <i class="ph ph-arrow-right"></i>
+      </button>
+      <button class="btn btn-secondary" id="sheetFinishBtn" style="width: 100%; margin-top:24px; padding:18px; display:none;">
+        Ver Resultados <i class="ph ph-flag-checkered"></i>
+      </button>
+    </div>
   </div>
 
   <!-- Firebase -->
