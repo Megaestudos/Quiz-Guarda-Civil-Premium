@@ -168,6 +168,7 @@ button.opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: 
   cursor: grab;
   will-change: transform;
   transform-origin: 50% 100%;
+  touch-action: none;
 }
 .flashcard:active { cursor: grabbing; }
 
