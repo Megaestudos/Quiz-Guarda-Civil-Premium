@@ -128,8 +128,11 @@ window.go = function(target){
   window.scrollTo({top: 0, behavior: 'smooth'});
   if (target === 'home') {
     showBestRecord();
-    renderBadges();
-    renderStatsChart();
+    if(typeof renderMiniBadges === 'function') renderMiniBadges();
+  }
+  if (target === 'dashboard') {
+    if(typeof renderBadges === 'function') renderBadges();
+    if(typeof renderStatsChart === 'function') renderStatsChart();
   }
   checkStreak();
   updateXPUI();
@@ -582,7 +585,25 @@ function checkBadges(scoreVal, totalVal) {
   if (newlyUnlocked) {
     localStorage.setItem('quiz_unlocked_badges', JSON.stringify(unlocked));
     if (typeof renderBadges === 'function') renderBadges();
+    if (typeof renderMiniBadges === 'function') renderMiniBadges();
   }
+}
+
+window.renderMiniBadges = function() {
+  const container = document.getElementById('miniBadgesList');
+  if(!container) return;
+  const unlocked = JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]');
+  
+  container.innerHTML = '';
+  BADGES_LIST.forEach(b => {
+    const isUnlocked = unlocked.includes(b.id);
+    // Renderiza também os bloqueados mas com visual fosco
+    container.innerHTML += `
+      <div class="mini-badge ${isUnlocked ? 'unlocked' : ''}" title="${b.name}">
+        <i class="ph-fill ${b.icon}"></i>
+      </div>
+    `;
+  });
 }
 
 window.renderBadges = function() {
@@ -637,4 +658,5 @@ showBestRecord();
 checkStreak();
 updateXPUI();
 if (typeof renderBadges === 'function') renderBadges();
+if (typeof renderMiniBadges === 'function') renderMiniBadges();
 if (typeof renderStatsChart === 'function') renderStatsChart();
