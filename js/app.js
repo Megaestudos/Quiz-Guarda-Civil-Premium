@@ -372,26 +372,34 @@ function setupTinderSwipe(){
 function makeSwipeable(el) {
   let startX = 0, currentX = 0, isDragging = false;
   
-  const start = (e) => {
+  el.onpointerdown = (e) => {
     isDragging = false;
-    startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+    startX = e.clientX;
     el.style.transition = 'none';
+    el.setPointerCapture(e.pointerId);
   };
-  const move = (e) => {
-    const x = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
-    currentX = x - startX;
-    if(Math.abs(currentX) > 10) isDragging = true;
-    if(!isDragging) return;
+  
+  el.onpointermove = (e) => {
+    if (!el.hasPointerCapture(e.pointerId)) return;
+    currentX = e.clientX - startX;
+    if (Math.abs(currentX) > 10) isDragging = true;
+    if (!isDragging) return;
     el.style.transform = `translate(${currentX}px, 0) rotate(${currentX * 0.05}deg)`;
   };
-  const end = (e) => {
-    el.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
-    if(!isDragging) {
+  
+  const handleEnd = (e) => {
+    if (!el.hasPointerCapture(e.pointerId)) return;
+    el.releasePointerCapture(e.pointerId);
+    
+    el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease';
+    
+    if (!isDragging) {
       el.querySelector('.flash-inner').classList.toggle('flipped');
       el.style.transform = 'scale(1) translateY(0)';
       return;
     }
-    if(Math.abs(currentX) > window.innerWidth * 0.25 || Math.abs(currentX) > 100) {
+    
+    if (Math.abs(currentX) > window.innerWidth * 0.25 || Math.abs(currentX) > 80) {
       const dir = currentX > 0 ? 1 : -1;
       el.style.transform = `translate(${dir * window.innerWidth}px, 0) rotate(${dir * 30}deg)`;
       el.style.opacity = '0';
@@ -405,8 +413,8 @@ function makeSwipeable(el) {
     currentX = 0; isDragging = false;
   };
 
-  el.onmousedown = start; window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
-  el.ontouchstart = start; el.ontouchmove = move; el.ontouchend = end;
+  el.onpointerup = handleEnd;
+  el.onpointercancel = handleEnd;
 }
 
 showBestRecord();
