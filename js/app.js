@@ -178,8 +178,21 @@ async function loadTopicQuestions(topic){
   try {
     let ref = getFirestoreDb().collection('questoes').where('ativo', '==', true);
     if (topic && topic !== 'Todos') ref = ref.where('materia', '==', topic);
-    const snap = await ref.orderBy('ordem', 'asc').limit(TEMPLATE_QUIZ_SIZE).get();
-    POOL = []; snap.forEach(doc => POOL.push({ id: doc.id, ...doc.data() }));
+    
+    // Busca as questões sem limitar inicialmente para permitir sorteio
+    const snap = await ref.get();
+    
+    let allQuestions = [];
+    snap.forEach(doc => allQuestions.push({ id: doc.id, ...doc.data() }));
+    
+    // Embaralha as questões (sorteio aleatório)
+    for (let i = allQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+    }
+    
+    // Seleciona a quantidade definida para o simulado
+    POOL = allQuestions.slice(0, TEMPLATE_QUIZ_SIZE);
     
     currentIndex = 0; score = 0; quizStarted = true;
     renderQuestion();
