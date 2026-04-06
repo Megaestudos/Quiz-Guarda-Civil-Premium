@@ -26,7 +26,6 @@ function updateMobileQuizHeight(){
   const header = document.getElementById('cardHeader');
   const tabs = document.getElementById('tabsBar');
 
-  // Se estiver no modo quiz (header escondido), headerH vira 0
   const headerVisible = header && getComputedStyle(header).display !== 'none';
   const headerH = headerVisible ? Math.ceil(header.getBoundingClientRect().height) : 0;
 
@@ -35,7 +34,6 @@ function updateMobileQuizHeight(){
   document.documentElement.style.setProperty('--header-h', headerH + 'px');
   document.documentElement.style.setProperty('--tabs-h', tabsH + 'px');
 
-  // margem extra (cards/paddings)
   const extra = 26;
   const quizH = Math.max(360, Math.floor(window.innerHeight - headerH - tabsH - extra));
   document.documentElement.style.setProperty('--quiz-h', quizH + 'px');
@@ -45,14 +43,12 @@ function applyQuizViewportMode(on){
   const quizEl = document.getElementById('quiz');
   if(!quizEl) return;
 
-  // (NOVO) classe que esconde o topo só no mobile e só no simulado
   document.body.classList.toggle('quiz-mode', !!on);
 
   if(isMobile() && on){
     document.body.classList.add('lock-scroll');
     quizEl.classList.add('quiz-viewport');
 
-    // espera o CSS aplicar (header sumir) e recalcula altura certinho
     requestAnimationFrame(() => {
       updateMobileQuizHeight();
     });
@@ -67,20 +63,22 @@ window.addEventListener('resize', () => {
   updateMobileQuizHeight();
 });
 
-// ====== Scale (mantém) ======
+// ====== Scale ======
 function setScale(v){
+  if(isMobile()) return; // Ignora escala no mobile para evitar quebras visuais
   v = Math.max(0.8, Math.min(1.4, Number(v)));
   document.getElementById('appRoot').style.transform = `scale(${v.toFixed(2)})`;
   document.getElementById('appRoot').style.transformOrigin = 'top center';
-  document.getElementById('scaleLabel').innerText = 'x' + v.toFixed(2);
+  
+  const label = document.getElementById('scaleLabel');
+  if(label) label.innerText = v.toFixed(2) + 'x';
+  
   localStorage.setItem(SCALE_KEY, v.toFixed(2));
-
-  // recalcula alturas no mobile (porque header muda com scale)
   updateMobileQuizHeight();
 }
 document.getElementById('scaleUpBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) + 0.05);
 document.getElementById('scaleDownBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) - 0.05);
-setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0));
+if(!isMobile()) setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0));
 
 // ====== Som ======
 let audioCtx = null;
@@ -103,13 +101,18 @@ function playTone(freq, dur=120, type='sine', gainVal=0.06){
 function playCorrect(){ playTone(880,120,'sine',0.06); }
 function playWrong(){ playTone(220,220,'sawtooth',0.08); }
 
+function updateSoundUI() {
+  const isOff = localStorage.getItem(SOUND_KEY) === '0';
+  const ic = document.getElementById('soundIcon');
+  if(ic) ic.className = isOff ? 'ph ph-speaker-slash' : 'ph ph-speaker-high';
+}
 document.getElementById('soundToggle').onclick = function() {
-  const current = localStorage.getItem(SOUND_KEY) !== '0';
-  localStorage.setItem(SOUND_KEY, current ? '0' : '1');
-  this.innerText = current ? '🔇' : '🔊';
+  const currentOff = localStorage.getItem(SOUND_KEY) === '0';
+  localStorage.setItem(SOUND_KEY, currentOff ? '1' : '0');
+  updateSoundUI();
 };
 if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY, '1');
-document.getElementById('soundToggle').innerText = localStorage.getItem(SOUND_KEY) === '0' ? '🔇' : '🔊';
+updateSoundUI();
 
 // ====== Navegação ======
 window.go = function(target){
@@ -117,7 +120,6 @@ window.go = function(target){
   document.getElementById(target).classList.add('active');
   document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
 
-  // modo “sem rolagem” + esconder topo só no quiz (mobile)
   applyQuizViewportMode(target === 'quiz');
 
   window.scrollTo({top: 0, behavior: 'smooth'});
@@ -134,20 +136,22 @@ function linkify(text) {
 
 async function renderStudies(){
   const container = document.getElementById('studyList');
-  container.innerHTML = '<div style="text-align:center; padding:20px;">Carregando...</div>';
+  container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)"><i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i><br><br>Carregando conteúdos...</div>';
   try {
     const res = await fetch(`${SCRIPT_URL}?action=getStudies`);
     const js = await res.json();
-    if (js.ok && js.studies){
+    if (js.ok && js.studies && js.studies.length > 0){
       container.innerHTML = '';
       js.studies.forEach(s => {
         const d = document.createElement('details'); d.className = 'summary';
         const content = linkify(s.conteudo || '');
-        d.innerHTML = `<summary>${s.topico || 'Tópico'}</summary><div class="study-content" style="padding:15px">${content}</div>`;
+        d.innerHTML = `<summary>${s.topico || 'Tópico'}</summary><div class="study-content">${content}</div>`;
         container.appendChild(d);
       });
+    } else {
+      container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)"><i class="ph ph-empty"></i><br>Nenhum conteúdo encontrado.</div>';
     }
-  } catch (e) { container.innerHTML = 'Erro ao carregar.'; }
+  } catch (e) { container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger)"><i class="ph ph-warning"></i><br>Erro ao carregar conteúdos.</div>'; }
 }
 
 async function showTopicSelection(){
@@ -159,7 +163,7 @@ async function showTopicSelection(){
       .get();
 
     const select = document.getElementById('topicSelect');
-    select.innerHTML = '<option value="Todos">Todos</option>';
+    select.innerHTML = '<option value="Todos">Todas as Matérias</option>';
 
     snap.forEach(doc => {
       const data = doc.data() || {};
@@ -169,12 +173,12 @@ async function showTopicSelection(){
       }
     });
   } catch (e) {
-    console.error('Erro ao carregar matérias do Firestore:', e);
+    console.error('Erro ao carregar matérias:', e);
   }
 }
 
 async function loadTopicQuestions(topic){
-  document.getElementById('question').innerText = 'Carregando...';
+  document.getElementById('question').innerHTML = '<div class="empty-state"><i class="ph ph-spinner-gap ph-spin"></i><p>Carregando simulado...</p></div>';
   try {
     const db = getFirestoreDb();
     let ref = db.collection('questoes').where('ativo', '==', true);
@@ -195,7 +199,7 @@ async function loadTopicQuestions(topic){
     quizStarted = true;
     renderQuestion();
   } catch (e) {
-    console.error('Erro ao carregar questões do Firestore:', e);
+    console.error('Erro ao carregar questões:', e);
     POOL = [];
     currentIndex = 0;
     score = 0;
@@ -207,12 +211,16 @@ document.getElementById('loadTopicBtn').onclick = () => loadTopicQuestions(docum
 
 function renderQuestion(){
   document.getElementById('explain').style.display = 'none';
+  document.getElementById('explain').className = 'explain';
   document.getElementById('nextBtn').disabled = true;
 
   if (currentIndex >= POOL.length) { finishQuiz(); return; }
   const q = POOL[currentIndex];
 
-  document.getElementById('question').innerText = `📘 ${q_topic(q)}\n${q_text(q)}`;
+  document.getElementById('question').innerHTML = `
+    <div class="topic-tag"><i class="ph ph-bookmark-simple"></i> ${q_topic(q)}</div>
+    <div class="q-text">${q_text(q)}</div>
+  `;
 
   const opts = document.getElementById('opts');
   opts.innerHTML = '';
@@ -222,7 +230,7 @@ function renderQuestion(){
     const btn = document.createElement('button');
     btn.className = 'opt';
     btn.id = 'opt_' + letter;
-    btn.innerText = `${letter}) ${txt}`;
+    btn.innerHTML = `<span style="font-weight:700; color:var(--primary); min-width:24px;">${letter})</span> <span>${txt}</span>`;
     btn.onclick = () => selectOption(letter);
     opts.appendChild(btn);
   });
@@ -235,8 +243,10 @@ function selectOption(letter){
   const q = POOL[currentIndex];
   const correct = q_answer_letter(q);
   document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  
   const elCorrect = document.getElementById('opt_' + correct);
   if (elCorrect) elCorrect.classList.add('correct');
+  
   if (letter !== correct) {
     const chosen = document.getElementById('opt_' + letter);
     if (chosen) chosen.classList.add('wrong');
@@ -245,11 +255,15 @@ function selectOption(letter){
     score++;
     playCorrect();
   }
+  
   const expl = document.getElementById('explain');
   expl.style.display = 'block';
-  expl.innerHTML = `<strong>${letter === correct ? '✅ Correto!' : '❌ Errado!'}</strong><br>${q_expl(q)}`;
+  expl.className = letter === correct ? 'explain c-right' : 'explain c-wrong';
+  const iconHtml = letter === correct ? '<i class="ph-fill ph-check-circle"></i> Correto!' : '<i class="ph-fill ph-x-circle"></i> Errada!';
+  
+  expl.innerHTML = `<strong>${iconHtml}</strong><br><div style="margin-top:10px">${q_expl(q)}</div>`;
+  
   document.getElementById('nextBtn').disabled = false;
-
   updateMobileQuizHeight();
 }
 document.getElementById('nextBtn').onclick = () => { currentIndex++; renderQuestion(); };
@@ -263,7 +277,11 @@ function updateProgressUI(){
 
 function finishQuiz(){
   quizStarted = false;
-  document.getElementById('question').innerText = `Fim! Você acertou ${score} de ${POOL.length}`;
+  document.getElementById('question').innerHTML = `
+    <div class="finish-title">
+      <i class="ph-fill ph-check-circle"></i> Fim! Você acertou ${score} de ${POOL.length}
+    </div>
+  `;
   document.getElementById('opts').innerHTML = '';
   document.getElementById('btnRestart').style.display = 'block';
   saveRecord(score, POOL.length);
@@ -274,12 +292,17 @@ function restartQuiz(){
   document.getElementById('btnRestart').style.display = 'none';
   quizStarted = false;
   showTopicSelection();
-  document.getElementById('question').innerText = 'Selecione um tópico para começar.';
+  document.getElementById('question').innerHTML = `
+    <div class="empty-state">
+      <i class="ph ph-hand-pointing"></i>
+      <p>Selecione um tópico para começar.</p>
+    </div>
+  `;
   document.getElementById('opts').innerHTML = '';
   document.getElementById('explain').style.display = 'none';
   document.getElementById('bar').style.width = '0%';
   document.getElementById('progressInfo').innerText = '0 / 0';
-  document.getElementById('progressText').innerText = '';
+  document.getElementById('progressText').innerText = 'Pontos: 0';
   updateMobileQuizHeight();
 }
 
@@ -292,12 +315,14 @@ function saveRecord(s, t){
 
 function showBestRecord(){
   const rec = JSON.parse(localStorage.getItem(BEST_KEY));
-  document.getElementById('bestRecord').innerText = rec ? `🏆 Melhor: ${rec.score}/${rec.total} (${rec.pct}%)` : '🚀 Sem recorde.';
+  document.getElementById('bestRecord').innerHTML = rec 
+    ? `<i class="ph-fill ph-trophy"></i> Melhor Ranking: ${rec.score}/${rec.total} (${rec.pct}%)` 
+    : '<i class="ph ph-rocket"></i> Faça um simulado para ter um recorde.';
 }
 
 async function renderCards(){
   const container = document.getElementById('cardsContainer');
-  container.innerHTML = '<div style="text-align:center; padding:20px;">Carregando...</div>';
+  container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); width: 100%;"><i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i><br><br>Carregando flashcards...</div>';
   const sheetName = 'cartões';
   try {
     const urlCards = `${SCRIPT_URL}?action=getCards&sheet=${encodeURIComponent(sheetName)}`;
@@ -313,7 +338,7 @@ async function renderCards(){
     }
 
     if (!list.length) {
-      container.innerHTML = '<div style="text-align:center; padding:20px;">Nenhum cartão encontrado.</div>';
+      container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); width: 100%;"><i class="ph ph-empty"></i><br>Nenhum cartão encontrado.</div>';
       return;
     }
 
@@ -333,8 +358,8 @@ async function renderCards(){
       const front = document.createElement('div'); front.className = 'flash-front';
       const back = document.createElement('div'); back.className = 'flash-back';
 
-      front.innerHTML = `<div style="font-size:11px;opacity:0.7">${topicText}</div><div style="font-weight:800;margin-top:8px;font-size:14px;">${frontText}</div><div style="margin-top:12px;font-size:11px;color:var(--accent)">Clique para ver resposta</div>`;
-      back.innerHTML = `<div style="font-size:11px;opacity:0.7">${topicText}</div><div style="font-weight:600;margin-top:8px;font-size:13px;">${backText}</div>`;
+      front.innerHTML = `<div class="flash-topic">${topicText}</div><div class="flash-text">${frontText}</div><div class="flash-hint"><i class="ph-fill ph-hand-tap"></i> TOQUE PARA VER RESPOSTA</div>`;
+      back.innerHTML = `<div class="flash-topic">${topicText}</div><div class="flash-text">${backText}</div>`;
 
       inner.appendChild(front); inner.appendChild(back);
       wrapper.appendChild(inner);
@@ -342,7 +367,7 @@ async function renderCards(){
       container.appendChild(wrapper);
     });
   } catch(e) {
-    container.innerHTML = '<div style="text-align:center; padding:20px;">Erro ao carregar cartões.</div>';
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger); width:100%;"><i class="ph ph-warning"></i><br>Erro ao carregar flashcards.</div>';
   }
 }
 
