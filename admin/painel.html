@@ -115,7 +115,7 @@
 
     .dashboard{
       display:grid;
-      grid-template-columns:repeat(4, minmax(180px, 1fr));
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
       gap:16px;
       margin-bottom:18px;
     }
@@ -299,7 +299,10 @@
 
     @media (max-width: 980px){
       .dashboard{
-        grid-template-columns:repeat(2, minmax(180px, 1fr));
+        grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+      }
+      .charts-grid {
+        grid-template-columns: 1fr !important;
       }
     }
 
@@ -343,6 +346,7 @@
       </div>
 
       <div class="header-actions">
+        <button class="button" id="btnExportCSV" style="background:linear-gradient(135deg, #4f46e5, #4338ca);">Exportar CSV</button>
         <button class="button button-refresh" id="btnRefresh">Atualizar</button>
         <button class="button button-logout" id="btnLogout">Sair</button>
       </div>
@@ -367,15 +371,33 @@
       </div>
 
       <div class="stat-card">
+        <div class="stat-label">Logaram na semana</div>
+        <div class="stat-value" id="statSemana">0</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Inativos (+30 dias)</div>
+        <div class="stat-value" id="statInativos">0</div>
+      </div>
+
+      <div class="stat-card">
         <div class="stat-label">Criados hoje</div>
         <div class="stat-value" id="statNovosHoje">0</div>
       </div>
     </div>
 
-    <div class="chart-card">
-      <h2 class="chart-title">Crescimento de usuários por dia</h2>
-      <div class="chart-wrap">
-        <canvas id="usersChart"></canvas>
+    <div class="charts-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px;">
+      <div class="chart-card" style="margin-bottom:0;">
+        <h2 class="chart-title">Crescimento de usuários (Diário)</h2>
+        <div class="chart-wrap">
+          <canvas id="usersChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card" style="margin-bottom:0;">
+        <h2 class="chart-title">Cadastros por Mês</h2>
+        <div class="chart-wrap">
+          <canvas id="monthlyChart"></canvas>
+        </div>
       </div>
     </div>
 
