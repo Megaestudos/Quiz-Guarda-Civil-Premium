@@ -18,6 +18,7 @@ const $ = (id) => document.getElementById(id);
 
 let allUsers = [];
 let usersChart = null;
+let monthlyChart = null;
 
 function setStatus(msg) {
   const el = $("statusMsg");
@@ -43,6 +44,26 @@ function isToday(value) {
     date.getMonth() === now.getMonth() &&
     date.getFullYear() === now.getFullYear()
   );
+}
+
+function isThisWeek(value) {
+  if (!value) return false;
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return false;
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+  return diffDays <= 7;
+}
+
+function isInactive(value) {
+  if (!value) return true;
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return true;
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+  return diffDays > 30;
 }
 
 function escapeHtml(text = "") {
@@ -81,11 +102,15 @@ function updateDashboard(users) {
   const comEmail = users.filter((u) => u.email).length;
   const hoje = users.filter((u) => isToday(u.lastLogin)).length;
   const novosHoje = users.filter((u) => isToday(u.createdAt)).length;
+  const semana = users.filter((u) => isThisWeek(u.lastLogin)).length;
+  const inativos = users.filter((u) => isInactive(u.lastLogin)).length;
 
   $("statTotal").textContent = total;
   $("statComEmail").textContent = comEmail;
   $("statHoje").textContent = hoje;
   $("statNovosHoje").textContent = novosHoje;
+  if ($("statSemana")) $("statSemana").textContent = semana;
+  if ($("statInativos")) $("statInativos").textContent = inativos;
 }
 
 function updateResultInfo(total, filtered) {
@@ -124,63 +149,91 @@ function groupUsersByDay(users) {
   };
 }
 
+function groupUsersByMonth(users) {
+  const map = new Map();
+
+  users.forEach((u) => {
+    if (!u.createdAt) return;
+    const date = new Date(u.createdAt);
+    if (isNaN(date.getTime())) return;
+
+    const key = date.toISOString().slice(0, 7);
+    map.set(key, (map.get(key) || 0) + 1);
+  });
+
+  const sortedEntries = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+  return {
+    labels: sortedEntries.map(([dateKey]) => {
+      const [year, month] = dateKey.split("-");
+      return `${monthNames[parseInt(month, 10) - 1]}/${year}`;
+    }),
+    values: sortedEntries.map(([, count]) => count)
+  };
+}
+
 function renderChart(users) {
   const canvas = $("usersChart");
-  if (!canvas || typeof Chart === "undefined") return;
+  if (canvas && typeof Chart !== "undefined") {
+    const { labels, values } = groupUsersByDay(users);
 
-  const { labels, values } = groupUsersByDay(users);
+    if (usersChart) usersChart.destroy();
 
-  if (usersChart) {
-    usersChart.destroy();
-  }
-
-  usersChart = new Chart(canvas, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Novos usuários",
+    usersChart = new Chart(canvas, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Novos usuários (Diário)",
           data: values,
           tension: 0.35,
           fill: false,
           borderWidth: 3,
-          pointRadius: 4
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          labels: {
-            color: "#e5e7eb"
-          }
-        }
+          pointRadius: 4,
+          borderColor: "#2563eb"
+        }]
       },
-      scales: {
-        x: {
-          ticks: {
-            color: "#94a3b8"
-          },
-          grid: {
-            color: "rgba(148,163,184,.12)"
-          }
-        },
-        y: {
-          beginAtZero: true,
-          ticks: {
-            color: "#94a3b8",
-            precision: 0
-          },
-          grid: {
-            color: "rgba(148,163,184,.12)"
-          }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: "#e5e7eb" } } },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148,163,184,.12)" } },
+          y: { beginAtZero: true, ticks: { color: "#94a3b8", precision: 0 }, grid: { color: "rgba(148,163,184,.12)" } }
         }
       }
-    }
-  });
+    });
+  }
+
+  const canvasMonth = $("monthlyChart");
+  if (canvasMonth && typeof Chart !== "undefined") {
+    const { labels, values } = groupUsersByMonth(users);
+    
+    if (monthlyChart) monthlyChart.destroy();
+
+    monthlyChart = new Chart(canvasMonth, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "Novos usuários (Mensal)",
+          data: values,
+          backgroundColor: "#10b981",
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: "#e5e7eb" } } },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: "#94a3b8", precision: 0 }, grid: { color: "rgba(148,163,184,.12)" } }
+        }
+      }
+    });
+  }
 }
 
 function renderActionButton(user) {
@@ -313,6 +366,10 @@ async function carregarUsuarios() {
       usersChart.destroy();
       usersChart = null;
     }
+    if (monthlyChart) {
+      monthlyChart.destroy();
+      monthlyChart = null;
+    }
 
     setStatus("Erro ao carregar usuários.");
     alert(
@@ -437,6 +494,36 @@ if (btnRefresh) {
   btnRefresh.onclick = async () => {
     await carregarUsuarios();
     applyFilter();
+  };
+}
+
+const btnExportCSV = $("btnExportCSV");
+if (btnExportCSV) {
+  btnExportCSV.onclick = () => {
+    if (!allUsers.length) return alert("Nenhum usuário para exportar.");
+    
+    const headers = ["Email", "UID", "Provedores", "Status", "Data_Criacao", "Ultimo_Login"];
+    let csvContent = headers.join(";") + "\n";
+    
+    allUsers.forEach(u => {
+      const email = u.email || "";
+      const uid = u.uid || "";
+      const providers = u.providers || "";
+      const status = u.disabled ? "Bloqueado" : "Ativo";
+      const createdAt = formatDate(u.createdAt) || "";
+      const lastLogin = formatDate(u.lastLogin) || "";
+      
+      const row = [email, uid, providers, status, createdAt, lastLogin].map(v => `"${v}"`);
+      csvContent += row.join(";") + "\n";
+    });
+    
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `usuarios_plenaula_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 }
 
