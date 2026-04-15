@@ -367,14 +367,17 @@ async function renderCards(){
   const container = document.getElementById('cardsList');
   container.innerHTML = '<div style="color:var(--text-muted); padding:30px;"><i class="ph ph-spinner-gap ph-spin" style="font-size:32px;"></i></div>';
   try {
-    let res = await fetch(`${SCRIPT_URL}?action=getCards&sheet=${encodeURIComponent('cartões')}`, {cache:'no-store'});
-    let js = await res.json();
-    let list = (js.ok && js.cards) ? js.cards : (js.ok && js.questions ? js.questions : []);
+    const db = getFirestoreDb();
+    let list = [];
+    
+    // Tenta buscar da coleção "flashcards"
+    let snap = await db.collection('flashcards').get();
+    snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
 
+    // Se estiver vazio, cai para o fallback usando "questoes"
     if (!list.length) {
-      res = await fetch(`${SCRIPT_URL}?action=getAllQuestions`, {cache:'no-store'});
-      js = await res.json();
-      list = (js.ok && js.questions) ? js.questions : [];
+      snap = await db.collection('questoes').where('ativo', '==', true).get();
+      snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
     }
 
     if (!list.length) { container.innerHTML = 'Vazio'; return; }
