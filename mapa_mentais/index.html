@@ -2,42 +2,82 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Mapa Mental Interativo</title>
+<title>Mapa Mental Profissional</title>
 
 <style>
 body {
-  background: #0f172a;
-  color: white;
-  font-family: Arial;
-  padding: 20px;
+  background: #0b0f19;
+  color: #e2e8f0;
+  font-family: "Segoe UI", sans-serif;
+  padding: 30px;
 }
 
-.tree {
-  list-style: none;
+/* ÁRVORE */
+.tree ul {
+  padding-left: 20px;
+  position: relative;
 }
 
 .tree li {
-  margin: 8px 0;
-  cursor: pointer;
+  list-style: none;
+  margin: 10px 0;
+  position: relative;
 }
 
+/* LINHAS */
+.tree li::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -15px;
+  border-left: 1px solid #334155;
+  height: 100%;
+}
+
+.tree li::after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: -15px;
+  border-top: 1px solid #334155;
+  width: 15px;
+}
+
+/* CAIXA */
 .node {
+  display: inline-flex;
+  align-items: center;
   background: #1e293b;
-  padding: 8px 12px;
-  border-radius: 8px;
-  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: 0.3s;
 }
 
-.children {
-  margin-left: 25px;
-  display: none;
-  border-left: 1px dashed #555;
-  padding-left: 15px;
+.node:hover {
+  background: #334155;
 }
 
+/* SETA */
 .arrow {
   margin-right: 8px;
-  font-weight: bold;
+  font-size: 12px;
+  transition: transform 0.3s;
+}
+
+/* FILHOS */
+.children {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+/* ABERTO */
+.open > .children {
+  max-height: 500px;
+}
+
+.open > .node .arrow {
+  transform: rotate(90deg);
 }
 </style>
 </head>
@@ -46,69 +86,73 @@ body {
 
 <h2>📚 Lei de Abuso de Autoridade</h2>
 
-<ul class="tree">
+<div class="tree">
+<ul>
 
-  <li onclick="toggle(this)">
+<li>
+  <div class="node">
     <span class="arrow">▶</span>
-    <span class="node">Lei 13.869/2019</span>
+    Lei 13.869/2019
+  </div>
 
-    <ul class="children">
-      <li onclick="toggle(event, this)">
+  <ul class="children">
+
+    <li>
+      <div class="node">
         <span class="arrow">▶</span>
-        <span class="node">Sujeitos do Crime</span>
+        Sujeitos
+      </div>
 
-        <ul class="children">
-          <li><span class="node">Agente público</span></li>
-          <li><span class="node">Funcionário público</span></li>
-        </ul>
-      </li>
+      <ul class="children">
+        <li><div class="node">Agente público</div></li>
+        <li><div class="node">Servidor público</div></li>
+      </ul>
+    </li>
 
-      <li onclick="toggle(event, this)">
+    <li>
+      <div class="node">
         <span class="arrow">▶</span>
-        <span class="node">Condutas Típicas</span>
+        Condutas
+      </div>
 
-        <ul class="children">
-          <li><span class="node">Prisão ilegal</span></li>
-          <li><span class="node">Constrangimento ilegal</span></li>
-          <li><span class="node">Violação de domicílio</span></li>
-        </ul>
-      </li>
+      <ul class="children">
+        <li><div class="node">Prisão ilegal</div></li>
+        <li><div class="node">Violação de domicílio</div></li>
+        <li><div class="node">Constrangimento ilegal</div></li>
+      </ul>
+    </li>
 
-      <li onclick="toggle(event, this)">
+    <li>
+      <div class="node">
         <span class="arrow">▶</span>
-        <span class="node">Penas</span>
+        Penas
+      </div>
 
-        <ul class="children">
-          <li><span class="node">Detenção</span></li>
-          <li><span class="node">Multa</span></li>
-          <li><span class="node">Perda do cargo</span></li>
-        </ul>
-      </li>
+      <ul class="children">
+        <li><div class="node">Detenção</div></li>
+        <li><div class="node">Multa</div></li>
+        <li><div class="node">Perda do cargo</div></li>
+      </ul>
+    </li>
 
-    </ul>
-  </li>
+  </ul>
+</li>
 
 </ul>
+</div>
 
 <script>
-function toggle(event, el) {
-  if (!el) el = event;
+document.querySelectorAll(".node").forEach(node => {
+  node.addEventListener("click", function(e) {
+    const parentLi = this.parentElement;
 
-  event.stopPropagation();
+    if (parentLi.querySelector(".children")) {
+      parentLi.classList.toggle("open");
+    }
 
-  let children = el.querySelector(".children");
-  let arrow = el.querySelector(".arrow");
-
-  if (!children) return;
-
-  if (children.style.display === "block") {
-    children.style.display = "none";
-    arrow.textContent = "▶";
-  } else {
-    children.style.display = "block";
-    arrow.textContent = "▼";
-  }
-}
+    e.stopPropagation();
+  });
+});
 </script>
 
 </body>
