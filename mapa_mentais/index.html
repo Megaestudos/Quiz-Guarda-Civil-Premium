@@ -2,175 +2,236 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Mapa Mental - Lei de Abuso de Autoridade</title>
+<title>Mapa Mental Interativo</title>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
 
 <style>
 body {
+  margin: 0;
   background: #0b0f19;
-  color: #e2e8f0;
   font-family: "Segoe UI", sans-serif;
-  padding: 30px;
 }
 
-/* Estrutura */
-.tree ul {
-  padding-left: 20px;
-  position: relative;
-}
-
-.tree li {
-  list-style: none;
-  margin: 10px 0;
-  position: relative;
-}
-
-/* Linhas */
-.tree li::before {
-  content: "";
-  position: absolute;
-  top: -10px;
-  left: -15px;
-  border-left: 1px solid #334155;
-  height: 100%;
-}
-
-.tree li::after {
-  content: "";
-  position: absolute;
-  top: 14px;
-  left: -15px;
-  border-top: 1px solid #334155;
-  width: 15px;
-}
-
-/* Nó */
-.node {
-  display: inline-flex;
-  align-items: center;
-  background: #1e293b;
-  padding: 6px 12px;
-  border-radius: 20px;
+.node rect {
+  fill: #1e293b;
+  rx: 10;
+  ry: 10;
   transition: 0.3s;
 }
 
-.node:hover {
-  background: #334155;
+.node:hover rect {
+  fill: #334155;
 }
 
-/* Seta */
-.arrow {
-  margin-right: 8px;
-  font-size: 12px;
-  transition: transform 0.3s;
+.node text {
+  fill: #e2e8f0;
+  font-size: 13px;
+  pointer-events: none;
 }
 
-/* Filhos */
-.children {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
+.link {
+  fill: none;
+  stroke: #64748b;
+  stroke-width: 2px;
 }
 
-.open > .children {
-  max-height: 600px;
-}
-
-.open > .node .arrow {
-  transform: rotate(90deg);
-}
 </style>
 </head>
 
 <body>
 
-<h2>📚 Lei de Abuso de Autoridade</h2>
-
-<div class="tree">
-<ul>
-
-<li>
-  <div class="node"><span class="arrow">▶</span>Lei 13.869/2019</div>
-
-  <ul class="children">
-
-    <!-- SUJEITOS -->
-    <li>
-      <div class="node"><span class="arrow">▶</span>Sujeitos do Crime</div>
-      <ul class="children">
-        <li><div class="node">Agente público</div></li>
-        <li><div class="node">Servidor público</div></li>
-        <li><div class="node">Quem exerce função pública</div></li>
-      </ul>
-    </li>
-
-    <!-- ELEMENTO SUBJETIVO -->
-    <li>
-      <div class="node"><span class="arrow">▶</span>Elemento Subjetivo</div>
-      <ul class="children">
-        <li><div class="node">Dolo específico</div></li>
-        <li><div class="node">Finalidade de prejudicar</div></li>
-        <li><div class="node">Benefício próprio ou de terceiros</div></li>
-      </ul>
-    </li>
-
-    <!-- CONDUTAS -->
-    <li>
-      <div class="node"><span class="arrow">▶</span>Condutas Criminosas</div>
-      <ul class="children">
-        <li><div class="node">Prisão ilegal</div></li>
-        <li><div class="node">Violação de domicílio</div></li>
-        <li><div class="node">Constrangimento ilegal</div></li>
-        <li><div class="node">Divulgação indevida</div></li>
-      </ul>
-    </li>
-
-    <!-- PENAS -->
-    <li>
-      <div class="node"><span class="arrow">▶</span>Penas</div>
-      <ul class="children">
-        <li><div class="node">Detenção</div></li>
-        <li><div class="node">Multa</div></li>
-        <li><div class="node">Perda do cargo</div></li>
-        <li><div class="node">Inabilitação</div></li>
-      </ul>
-    </li>
-
-    <!-- AÇÃO PENAL -->
-    <li>
-      <div class="node"><span class="arrow">▶</span>Ação Penal</div>
-      <ul class="children">
-        <li><div class="node">Pública incondicionada</div></li>
-      </ul>
-    </li>
-
-    <!-- SANÇÕES -->
-    <li>
-      <div class="node"><span class="arrow">▶</span>Sanções Administrativas</div>
-      <ul class="children">
-        <li><div class="node">Advertência</div></li>
-        <li><div class="node">Suspensão</div></li>
-        <li><div class="node">Demissão</div></li>
-      </ul>
-    </li>
-
-  </ul>
-</li>
-
-</ul>
-</div>
+<svg width="100%" height="700"></svg>
 
 <script>
-document.querySelectorAll(".node").forEach(node => {
-  node.addEventListener("click", function(e) {
-    const parentLi = this.parentElement;
 
-    if (parentLi.querySelector(".children")) {
-      parentLi.classList.toggle("open");
+// 🔥 DADOS (baseado nas suas imagens)
+const data = {
+  name: "Lei 13.869/2019",
+  children: [
+    {
+      name: "Sujeitos do Crime",
+      children: [
+        { name: "Poder Legislativo" },
+        { name: "Poder Executivo" },
+        { name: "Poder Judiciário" },
+        { name: "Ministério Público" },
+        { name: "Tribunais de Contas" },
+        { name: "Servidores e Militares" }
+      ]
+    },
+    {
+      name: "Efeitos da Condenação",
+      children: [
+        { name: "Indenização do dano" },
+        { name: "Inabilitação (1 a 5 anos)" },
+        { name: "Perda do cargo ou função" },
+        { name: "Depende de reincidência" },
+        { name: "Não são automáticos" }
+      ]
+    },
+    {
+      name: "Penas Restritivas de Direitos",
+      children: [
+        { name: "Prestação de serviços" },
+        { name: "Suspensão (1 a 6 meses)" },
+        { name: "Perda de vencimentos" }
+      ]
+    },
+    {
+      name: "Crimes em Espécie",
+      children: [
+        {
+          name: "Privação de Liberdade",
+          children: [
+            { name: "Decretar ilegalmente" },
+            { name: "Não relaxar prisão" }
+          ]
+        },
+        {
+          name: "Condução Coercitiva",
+          children: [
+            { name: "Sem intimação" },
+            { name: "Manifestamente ilegal" }
+          ]
+        },
+        {
+          name: "Deveres de Comunicação",
+          children: [
+            { name: "Não comunicar prisão" },
+            { name: "Não entregar nota de culpa" }
+          ]
+        },
+        {
+          name: "Constrangimento de Preso",
+          children: [
+            { name: "Exposição pública" },
+            { name: "Situação vexatória" },
+            { name: "Produzir prova contra si" }
+          ]
+        },
+        {
+          name: "Invasão de Imóvel",
+          children: [
+            { name: "Sem ordem judicial" },
+            { name: "Fora do horário legal" }
+          ]
+        }
+      ]
     }
+  ]
+};
 
-    e.stopPropagation();
+// 🔥 CONFIG
+const svg = d3.select("svg"),
+      width = window.innerWidth,
+      height = 700;
+
+const g = svg.append("g").attr("transform", "translate(80,50)");
+
+const tree = d3.tree().size([height - 100, width - 300]);
+
+let root = d3.hierarchy(data);
+root.x0 = height / 2;
+root.y0 = 0;
+
+// começa fechado
+root.children.forEach(collapse);
+
+function collapse(d) {
+  if (d.children) {
+    d._children = d.children;
+    d._children.forEach(collapse);
+    d.children = null;
+  }
+}
+
+update(root);
+
+function update(source) {
+
+  tree(root);
+
+  const nodes = root.descendants();
+  const links = root.links();
+
+  nodes.forEach(d => d.y = d.depth * 180);
+
+  // LINKS
+  const link = g.selectAll(".link")
+    .data(links, d => d.target.id || (d.target.id = Math.random()));
+
+  link.enter()
+    .append("path")
+    .attr("class", "link")
+    .attr("d", d3.linkHorizontal()
+      .x(d => source.y0)
+      .y(d => source.x0)
+    )
+    .transition()
+    .duration(400)
+    .attr("d", d3.linkHorizontal()
+      .x(d => d.y)
+      .y(d => d.x)
+    );
+
+  link.transition().duration(400)
+    .attr("d", d3.linkHorizontal()
+      .x(d => d.y)
+      .y(d => d.x)
+    );
+
+  link.exit().remove();
+
+  // NODES
+  const node = g.selectAll(".node")
+    .data(nodes, d => d.id || (d.id = Math.random()));
+
+  const nodeEnter = node.enter()
+    .append("g")
+    .attr("class", "node")
+    .attr("transform", d => `translate(${source.y0},${source.x0})`)
+    .on("click", click);
+
+  nodeEnter.append("rect")
+    .attr("width", 180)
+    .attr("height", 30)
+    .attr("x", -10)
+    .attr("y", -15);
+
+  nodeEnter.append("text")
+    .attr("dy", "0.35em")
+    .attr("x", 10)
+    .text(d => d.data.name);
+
+  nodeEnter.transition()
+    .duration(400)
+    .attr("transform", d => `translate(${d.y},${d.x})`);
+
+  node.transition()
+    .duration(400)
+    .attr("transform", d => `translate(${d.y},${d.x})`);
+
+  node.exit().remove();
+
+  nodes.forEach(d => {
+    d.x0 = d.x;
+    d.y0 = d.y;
   });
-});
+}
+
+// 🔥 CLIQUE (EXPANDE/FECHA)
+function click(event, d) {
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else {
+    d.children = d._children;
+    d._children = null;
+  }
+  update(d);
+}
+
 </script>
 
 </body>
