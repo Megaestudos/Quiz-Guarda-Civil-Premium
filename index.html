@@ -19,6 +19,24 @@
   <div class="ambient-glow glow-1"></div>
   <div class="ambient-glow glow-2"></div>
 
+  <!-- AUTH SCREEN OVERLAY -->
+  <div id="authScreen" class="auth-overlay active">
+    <div class="auth-card">
+      <div class="header-icon-wrapper" style="margin: 0 auto 20px auto;">
+        <i class="ph-fill ph-shield-star"></i>
+      </div>
+      <h2 style="text-align: center; margin-bottom: 5px;">Guarda Civil</h2>
+      <p style="text-align: center; color: var(--text-muted); margin-bottom: 25px;">Plataforma de Estudos Avançada</p>
+      
+      <div class="auth-form" id="loginForm">
+        <input type="email" id="authEmail" class="auth-input" placeholder="Seu E-mail" />
+        <input type="password" id="authPassword" class="auth-input" placeholder="Sua Senha" />
+        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="btnEnterApp">Entrar ou Cadastrar-se</button>
+        <p id="authErrorMsg" style="color: var(--danger); font-size: 13px; text-align: center; margin-top: 10px; display: none;"></p>
+      </div>
+    </div>
+  </div>
+
   <div class="app" id="appRoot">
     <div class="card header" id="cardHeader">
       <div class="header-titles">
@@ -114,6 +132,18 @@
           <h3 class="page-title"><i class="ph ph-books"></i> Conteúdos</h3>
           <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
         </div>
+        
+        <!-- Chat IA -->
+        <div class="ai-chat-container card-inner">
+          <div class="section-title" style="color: var(--accent);"><i class="ph-fill ph-robot"></i> Tutor IA (PlenAula)</div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Posso criar planos de estudo ou tirar dúvidas. Minha base consulta o portal Planalto de Legislações.</p>
+          <div id="aiChatHistory" class="ai-history"></div>
+          <div class="ai-input-group">
+            <textarea id="aiInput" placeholder="Ex: Qual o plano de estudo ideal para Direitos Humanos?"></textarea>
+            <button class="btn btn-primary" onclick="askAITutor()" id="aiSendBtn"><i class="ph-fill ph-paper-plane-right"></i></button>
+          </div>
+        </div>
+
         <div id="studyList" class="study-list">Carregando conteúdos...</div>
       </section>
 
@@ -228,6 +258,7 @@
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
