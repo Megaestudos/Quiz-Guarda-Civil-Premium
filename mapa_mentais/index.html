@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Mapa Mental Interativo</title>
+
+<style>
+body {
+  background: #0f172a;
+  color: white;
+  font-family: Arial;
+  padding: 20px;
+}
+
+.tree {
+  list-style: none;
+}
+
+.tree li {
+  margin: 8px 0;
+  cursor: pointer;
+}
+
+.node {
+  background: #1e293b;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.children {
+  margin-left: 25px;
+  display: none;
+  border-left: 1px dashed #555;
+  padding-left: 15px;
+}
+
+.arrow {
+  margin-right: 8px;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📚 Lei de Abuso de Autoridade</h2>
+
+<ul class="tree">
+
+  <li onclick="toggle(this)">
+    <span class="arrow">▶</span>
+    <span class="node">Lei 13.869/2019</span>
+
+    <ul class="children">
+      <li onclick="toggle(event, this)">
+        <span class="arrow">▶</span>
+        <span class="node">Sujeitos do Crime</span>
+
+        <ul class="children">
+          <li><span class="node">Agente público</span></li>
+          <li><span class="node">Funcionário público</span></li>
+        </ul>
+      </li>
+
+      <li onclick="toggle(event, this)">
+        <span class="arrow">▶</span>
+        <span class="node">Condutas Típicas</span>
+
+        <ul class="children">
+          <li><span class="node">Prisão ilegal</span></li>
+          <li><span class="node">Constrangimento ilegal</span></li>
+          <li><span class="node">Violação de domicílio</span></li>
+        </ul>
+      </li>
+
+      <li onclick="toggle(event, this)">
+        <span class="arrow">▶</span>
+        <span class="node">Penas</span>
+
+        <ul class="children">
+          <li><span class="node">Detenção</span></li>
+          <li><span class="node">Multa</span></li>
+          <li><span class="node">Perda do cargo</span></li>
+        </ul>
+      </li>
+
+    </ul>
+  </li>
+
+</ul>
+
+<script>
+function toggle(event, el) {
+  if (!el) el = event;
+
+  event.stopPropagation();
+
+  let children = el.querySelector(".children");
+  let arrow = el.querySelector(".arrow");
+
+  if (!children) return;
+
+  if (children.style.display === "block") {
+    children.style.display = "none";
+    arrow.textContent = "▶";
+  } else {
+    children.style.display = "block";
+    arrow.textContent = "▼";
+  }
+}
+</script>
+
+</body>
+</html>
