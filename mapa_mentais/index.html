@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Mapa Mental Profissional</title>
+<title>Mapa Mental - Lei de Abuso de Autoridade</title>
 
 <style>
 body {
@@ -12,7 +12,7 @@ body {
   padding: 30px;
 }
 
-/* ÁRVORE */
+/* Estrutura */
 .tree ul {
   padding-left: 20px;
   position: relative;
@@ -24,7 +24,7 @@ body {
   position: relative;
 }
 
-/* LINHAS */
+/* Linhas */
 .tree li::before {
   content: "";
   position: absolute;
@@ -43,7 +43,7 @@ body {
   width: 15px;
 }
 
-/* CAIXA */
+/* Nó */
 .node {
   display: inline-flex;
   align-items: center;
@@ -57,23 +57,22 @@ body {
   background: #334155;
 }
 
-/* SETA */
+/* Seta */
 .arrow {
   margin-right: 8px;
   font-size: 12px;
   transition: transform 0.3s;
 }
 
-/* FILHOS */
+/* Filhos */
 .children {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.4s ease;
 }
 
-/* ABERTO */
 .open > .children {
-  max-height: 500px;
+  max-height: 600px;
 }
 
 .open > .node .arrow {
@@ -90,48 +89,67 @@ body {
 <ul>
 
 <li>
-  <div class="node">
-    <span class="arrow">▶</span>
-    Lei 13.869/2019
-  </div>
+  <div class="node"><span class="arrow">▶</span>Lei 13.869/2019</div>
 
   <ul class="children">
 
+    <!-- SUJEITOS -->
     <li>
-      <div class="node">
-        <span class="arrow">▶</span>
-        Sujeitos
-      </div>
-
+      <div class="node"><span class="arrow">▶</span>Sujeitos do Crime</div>
       <ul class="children">
         <li><div class="node">Agente público</div></li>
         <li><div class="node">Servidor público</div></li>
+        <li><div class="node">Quem exerce função pública</div></li>
       </ul>
     </li>
 
+    <!-- ELEMENTO SUBJETIVO -->
     <li>
-      <div class="node">
-        <span class="arrow">▶</span>
-        Condutas
-      </div>
+      <div class="node"><span class="arrow">▶</span>Elemento Subjetivo</div>
+      <ul class="children">
+        <li><div class="node">Dolo específico</div></li>
+        <li><div class="node">Finalidade de prejudicar</div></li>
+        <li><div class="node">Benefício próprio ou de terceiros</div></li>
+      </ul>
+    </li>
 
+    <!-- CONDUTAS -->
+    <li>
+      <div class="node"><span class="arrow">▶</span>Condutas Criminosas</div>
       <ul class="children">
         <li><div class="node">Prisão ilegal</div></li>
         <li><div class="node">Violação de domicílio</div></li>
         <li><div class="node">Constrangimento ilegal</div></li>
+        <li><div class="node">Divulgação indevida</div></li>
       </ul>
     </li>
 
+    <!-- PENAS -->
     <li>
-      <div class="node">
-        <span class="arrow">▶</span>
-        Penas
-      </div>
-
+      <div class="node"><span class="arrow">▶</span>Penas</div>
       <ul class="children">
         <li><div class="node">Detenção</div></li>
         <li><div class="node">Multa</div></li>
         <li><div class="node">Perda do cargo</div></li>
+        <li><div class="node">Inabilitação</div></li>
+      </ul>
+    </li>
+
+    <!-- AÇÃO PENAL -->
+    <li>
+      <div class="node"><span class="arrow">▶</span>Ação Penal</div>
+      <ul class="children">
+        <li><div class="node">Pública incondicionada</div></li>
+      </ul>
+    </li>
+
+    <!-- SANÇÕES -->
+    <li>
+      <div class="node"><span class="arrow">▶</span>Sanções Administrativas</div>
+      <ul class="children">
+        <li><div class="node">Advertência</div></li>
+        <li><div class="node">Suspensão</div></li>
+        <li><div class="node">Demissão</div></li>
       </ul>
     </li>
 
