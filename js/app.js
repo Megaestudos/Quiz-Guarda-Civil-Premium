@@ -54,6 +54,9 @@ function addXP(amount) {
   xp += amount;
   localStorage.setItem(XP_KEY, xp);
   updateXPUI();
+  if (window.currentUser && window.firebase) {
+    getFirestoreDb().collection('usuarios').doc(window.currentUser.uid).update({ xp: xp }).catch(()=>{});
+  }
 }
 
 function q_text(q){ return q.pergunta || q.perguntas || q.question || ''; }
@@ -348,6 +351,20 @@ function saveRecord(s, t){
   registerStudyDay();
   addXP(s * 10); // 10 XP por acerto
   
+  if (window.currentUser && window.firebase) {
+    getFirestoreDb().collection('resultados').add({
+      userId: window.currentUser.uid,
+      score: s,
+      total: t,
+      pct: pct,
+      data: new Date()
+    }).catch(()=>{});
+
+    if (t >= 10 && window.gerarPlanoEstudoIA) {
+      window.gerarPlanoEstudoIA(s, t);
+    }
+  }
+
   if (pct > prev.pct) {
     localStorage.setItem(BEST_KEY, JSON.stringify({score:s, total:t, pct:pct}));
     if(window.confetti && pct > 0) {
@@ -640,3 +657,119 @@ checkStreak();
 updateXPUI();
 if (typeof renderBadges === 'function') renderBadges();
 if (typeof renderStatsChart === 'function') renderStatsChart();
+
+// --- FIREBASE AUTH & USER SYSTEM ---
+window.currentUser = null;
+
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    window.currentUser = user;
+    document.getElementById('authScreen').classList.remove('active');
+    loadUserStats();
+  } else {
+    window.currentUser = null;
+    document.getElementById('authScreen').classList.add('active');
+  }
+});
+
+document.getElementById('btnEnterApp').onclick = async () => {
+  const email = document.getElementById('authEmail').value;
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authErrorMsg');
+  const btn = document.getElementById('btnEnterApp');
+  errEl.style.display = 'none';
+  
+  if(!email || !password) {
+    errEl.innerText = "Preencha todos os campos.";
+    errEl.style.display = 'block';
+    return;
+  }
+  
+  btn.disable = true;
+  btn.innerText = "Aguarde...";
+  
+  try {
+    const auth = firebase.auth();
+    const methods = await auth.fetchSignInMethodsForEmail(email);
+    if(methods.length > 0) {
+      await auth.signInWithEmailAndPassword(email, password);
+    } else {
+      await auth.createUserWithEmailAndPassword(email, password);
+      await getFirestoreDb().collection('usuarios').doc(auth.currentUser.uid).set({
+        email: email,
+        xp: parseInt(localStorage.getItem(XP_KEY) || '0'),
+        streak: parseInt(localStorage.getItem(STREAK_KEY) || '0'),
+        badges: JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]'),
+        createdAt: new Date()
+      });
+    }
+  } catch(e) {
+    errEl.innerText = "Erro: " + e.message;
+    errEl.style.display = 'block';
+  }
+  btn.disable = false;
+  btn.innerText = "Entrar ou Cadastrar-se";
+};
+
+async function loadUserStats() {
+  if(!window.currentUser) return;
+  try {
+    const doc = await getFirestoreDb().collection('usuarios').doc(window.currentUser.uid).get();
+    if(doc.exists) {
+      const data = doc.data();
+      localStorage.setItem(XP_KEY, data.xp || 0);
+      localStorage.setItem(STREAK_KEY, data.streak || 0);
+      localStorage.setItem('quiz_unlocked_badges', JSON.stringify(data.badges || []));
+      updateXPUI();
+      checkStreak();
+      if(typeof renderBadges === 'function') renderBadges();
+    }
+  } catch (e) {
+    console.error("Erro ao carregar dados", e);
+  }
+}
+
+// --- AI TUTOR (FRONTEND) ---
+window.askAITutor = async function() {
+  const inputEl = document.getElementById('aiInput');
+  const msg = inputEl.value;
+  if(!msg.trim() || !window.currentUser) return;
+  
+  inputEl.value = '';
+  addAIMsg(msg, 'user');
+  
+  // Show Loading
+  const loadingId = addAIMsg('Consultando base do Planalto...', 'bot', true);
+  
+  try {
+    // Chamada para Firebase Functions
+    const callAI = firebase.functions().httpsCallable('perguntarIA');
+    const res = await callAI({ pergunta: msg, userId: window.currentUser.uid });
+    
+    document.getElementById(loadingId).innerText = res.data.resposta;
+  } catch(e) {
+     document.getElementById(loadingId).innerText = "Erro ao contatar o Tutor IA. A API pode estar indisponível.";
+  }
+}
+
+window.gerarPlanoEstudoIA = async function(score, total) {
+  addAIMsg('Analisando seu desempenho e criando um plano de estudo...', 'bot', true);
+  try {
+    const callAI = firebase.functions().httpsCallable('gerarPlanoEstudoIA');
+    const res = await callAI({ score: score, total: total, userId: window.currentUser.uid });
+    addAIMsg("PLANO GERADO: " + res.data.resposta, 'bot');
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function addAIMsg(text, type, isLoading=false) {
+  const c = document.getElementById('aiChatHistory');
+  const d = document.createElement('div');
+  d.className = 'ai-msg ' + type;
+  d.innerText = text;
+  if(isLoading) d.id = 'ai_loading_' + Date.now();
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+  return d.id;
+}
