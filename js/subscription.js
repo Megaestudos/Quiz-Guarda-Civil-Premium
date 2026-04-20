@@ -1,7 +1,7 @@
 let currentUserDoc = null;
 let countdownInterval = null;
 
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos
+const SESSION_TIMEOUT_MS = 15 * 60 * 1000; // 30 minutos
 
 function updateLastActivity() {
   if (auth.currentUser) {
