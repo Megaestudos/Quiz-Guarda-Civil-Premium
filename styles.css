@@ -93,7 +93,7 @@ body { display: flex; flex-direction: column; align-items: center; padding: env(
 .stat-icon { font-size: 32px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); flex-shrink: 0; }
 .stat-info { display: flex; flex-direction: column; min-width: 0; }
 .stat-value { font-size: 16px; font-weight: 800; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.stat-label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.stat-label { font-size: 13px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
 
 .btn { border: none; padding: 16px 20px; border-radius: var(--radius-md); font-weight: 600; font-size: 15px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; transition: all 0.2s; }
 .btn i { font-size: 20px; }
@@ -110,7 +110,9 @@ body { display: flex; flex-direction: column; align-items: center; padding: env(
 .record-content { text-align: center; font-size: 15px; font-weight: 600; color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 8px; }
 
 .page-top-bar { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 24px; gap: 12px; }
+.page-top-bar.right-aligned { flex-direction: row-reverse; }
 .page-title { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.page-top-bar.right-aligned .page-title { text-align: left; }
 .page-title i { color: var(--primary); font-size: 26px; flex-shrink: 0; }
 
 .study-list { display: flex; flex-direction: column; gap: 12px; }
@@ -274,6 +276,9 @@ button.opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: 
     z-index: 10;
     margin-top: 4px;
   }
+  
+  .btn-sm span, .btn-sm::after { display: none; }
+  .btn-sm { padding: 10px; width: 40px; height: 40px; justify-content: center; border-radius: 10px; }
 }
 
 /* --- Gamificação & Novas Funcionalidades --- */
