@@ -1,4 +1,4 @@
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec';
+
 const TEMPLATE_QUIZ_SIZE = 20;
 let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
 let isGrandeDia = false; let grandeDiaInterval = null;
@@ -48,7 +48,7 @@ function checkStreak() {
     if (diffDays > 1) { streak = 0; localStorage.setItem(STREAK_KEY, streak); }
   }
   const el = document.getElementById('streakValue');
-  if(el) el.innerText = `${streak} Dia${streak!==1?'s':''}`;
+  if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
 }
 
 function registerStudyDay() {
@@ -62,7 +62,7 @@ function registerStudyDay() {
     localStorage.setItem(LAST_DATE_KEY, todayStr);
   }
   const el = document.getElementById('streakValue');
-  if(el) el.innerText = `${streak} Dia${streak!==1?'s':''}`;
+  if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
 }
 
 function getRankName(xp) {
@@ -79,8 +79,8 @@ function updateXPUI() {
   const xp = parseInt(localStorage.getItem(XP_KEY) || '0');
   const elXP = document.getElementById('xpValue');
   const elRank = document.getElementById('rankValue');
-  if(elXP) elXP.innerText = xp;
-  if(elRank) elRank.innerText = getRankName(xp);
+  if(elXP) elXP.textContent = xp;
+  if(elRank) elRank.textContent = getRankName(xp);
 }
 
 function addXP(amount) {
@@ -109,7 +109,7 @@ function setScale(v){
   document.getElementById('appRoot').style.transform = `scale(${v.toFixed(2)})`;
   document.getElementById('appRoot').style.transformOrigin = 'top center';
   const label = document.getElementById('scaleLabel');
-  if(label) label.innerText = v.toFixed(2) + 'x';
+  if(label) label.textContent = v.toFixed(2) + 'x';
   localStorage.setItem(SCALE_KEY, v.toFixed(2));
 }
 document.addEventListener('DOMContentLoaded', () => {
@@ -362,8 +362,9 @@ function openSubject(subjectId) {
   if (!subject) return;
 
   // Atualiza título
-  document.getElementById('mediaPickerTitle').innerHTML =
-    `<i class="ph-fill ${subject.icon}"></i> ${subject.name}`;
+  const titleEl = document.getElementById('mediaPickerTitle');
+  titleEl.innerHTML = `<i class="ph-fill ${subject.icon}"></i> <span id="mPickerName"></span>`;
+  document.getElementById('mPickerName').textContent = subject.name;
 
   // Atualiza contadores
   const vCount = subject.videos.length;
@@ -396,8 +397,10 @@ window.showMediaList = function(type) {
   // Atualiza título
   const icon = type === 'video' ? 'ph-video' : 'ph-headphones';
   const label = type === 'video' ? 'Aulas em Vídeo' : 'Aulas em Áudio';
-  document.getElementById('mediaListTitle').innerHTML =
-    `<i class="ph-fill ${icon}"></i> ${label} — ${subject.name}`;
+  const listTitleEl = document.getElementById('mediaListTitle');
+  listTitleEl.innerHTML = `<i class="ph-fill ${icon}"></i> <span id="mListLabelText"></span> — <span id="mListSubjName"></span>`;
+  document.getElementById('mListLabelText').textContent = label;
+  document.getElementById('mListSubjName').textContent = subject.name;
 
   // Renderiza lista
   const listEl = document.getElementById('mediaItemsList');
@@ -420,18 +423,20 @@ window.showMediaList = function(type) {
     card.innerHTML = `
       <div class="media-item-thumb ${type === 'audio' ? 'audio-thumb' : ''}">
         ${item.youtubeId
-          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="${item.title}" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ph-${type === 'video' ? 'video' : 'headphones'}\\'></i>'">`
+          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ph-${type === 'video' ? 'video' : 'headphones'}\\'></i>'">`
           : `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i>`
         }
         <div class="media-play-overlay"><i class="ph-fill ph-play-circle"></i></div>
       </div>
       <div class="media-item-info">
         <div class="media-item-num">Aula ${index + 1}</div>
-        <div class="media-item-title">${item.title}</div>
-        ${item.duration ? `<div class="media-item-dur"><i class="ph ph-clock"></i> ${item.duration}</div>` : ''}
+        <div class="media-item-title" id="mItemTitle_${index}"></div>
+        ${item.duration ? `<div class="media-item-dur"><i class="ph ph-clock"></i> <span id="mItemDur_${index}"></span></div>` : ''}
       </div>
       <i class="ph ph-caret-right media-item-arrow"></i>
     `;
+    card.querySelector(`#mItemTitle_${index}`).textContent = item.title;
+    if(item.duration) card.querySelector(`#mItemDur_${index}`).textContent = item.duration;
     card.onclick = () => openMediaPlayer(item, type);
     listEl.appendChild(card);
   });
@@ -441,8 +446,9 @@ window.showMediaList = function(type) {
 
 function openMediaPlayer(item, type) {
   const subject = MEDIA_CATALOG.find(s => s.id === currentSubjectId);
-  const titleEl = document.getElementById('playerTitle');
-  titleEl.innerHTML = `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i> ${item.title}`;
+  const playerTitle = document.getElementById('playerTitle');
+  playerTitle.innerHTML = `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i> <span id="pTitleText"></span>`;
+  document.getElementById('pTitleText').textContent = item.title;
 
   const pc = document.getElementById('playerContainer');
   pc.innerHTML = '';
@@ -544,7 +550,7 @@ async function showTopicSelection(){
     ];
     const motivacionalEl = document.getElementById('motivationalText');
     if (motivacionalEl) {
-      motivacionalEl.innerText = motivacionais[Math.floor(Math.random() * motivacionais.length)];
+      motivacionalEl.textContent = motivacionais[Math.floor(Math.random() * motivacionais.length)];
     }
 
     const select = document.getElementById('topicSelect');
@@ -623,10 +629,10 @@ function renderQuestion(){
   if (currentIndex >= POOL.length) { finishQuiz(); return; }
   const q = POOL[currentIndex];
 
-  document.getElementById('question').innerHTML = `
-    <div class="topic-tag"><i class="ph ph-bookmark-simple"></i> ${q_topic(q)}</div>
-    <div class="q-text">${q_text(q)}</div>
-  `;
+  const qBox = document.getElementById('question');
+  qBox.innerHTML = '<div class="topic-tag"><i class="ph ph-bookmark-simple"></i> <span id="qTopicText"></span></div><div class="q-text" id="qMainText"></div>';
+  document.getElementById('qTopicText').textContent = q_topic(q);
+  document.getElementById('qMainText').textContent = q_text(q);
 
   const opts = document.getElementById('opts');
   opts.innerHTML = '';
@@ -635,7 +641,15 @@ function renderQuestion(){
     if (!txt) return;
     const btn = document.createElement('button');
     btn.className = 'opt'; btn.id = 'opt_' + letter;
-    btn.innerHTML = `<span style="font-weight:800; color:var(--primary); min-width:24px;">${letter})</span> <span>${txt}</span>`;
+    const spanLetter = document.createElement('span');
+    spanLetter.style.cssText = "font-weight:800; color:var(--primary); min-width:24px;";
+    spanLetter.textContent = `${letter})`;
+    
+    const spanText = document.createElement('span');
+    spanText.textContent = txt;
+    
+    btn.appendChild(spanLetter);
+    btn.appendChild(spanText);
     btn.onclick = () => selectOption(letter);
     opts.appendChild(btn);
   });
@@ -643,7 +657,7 @@ function renderQuestion(){
   const pct = POOL.length ? Math.round((currentIndex / POOL.length) * 100) : 0;
   document.getElementById('bar').style.width = pct + '%';
   document.getElementById('progressInfo').innerText = POOL.length ? `${currentIndex + 1} / ${POOL.length}` : '0 / 0';
-  document.getElementById('progressText').innerText = `Pontos: ${score}`;
+  document.getElementById('progressText').textContent = `Pontos: ${score}`;
   
   document.getElementById('sheetNextBtn').style.display = (currentIndex < POOL.length - 1) ? 'block' : 'none';
   document.getElementById('sheetFinishBtn').style.display = (currentIndex === POOL.length - 1) ? 'block' : 'none';
@@ -681,10 +695,16 @@ function selectOption(letter){
   const iconHtml = isCorrect ? '<i class="ph-fill ph-check-circle"></i> Acertou!' : '<i class="ph-fill ph-x-circle"></i> Errou!';
   const colorClass = isCorrect ? 'var(--success)' : 'var(--danger)';
   
-  document.getElementById('explainBody').innerHTML = `
-    <div style="color:${colorClass}; font-size: 24px; font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom: 12px;">${iconHtml}</div>
-    <div style="font-size:15px; color:var(--text-main); line-height:1.6;">${q_expl(q) || 'Nenhuma explicação técnica fornecida para esta questão.'}</div>
+  const explBody = document.getElementById('explainBody');
+  explBody.innerHTML = `
+    <div id="explTitle" style="font-size: 24px; font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom: 12px;"></div>
+    <div id="explText" style="font-size:15px; color:var(--text-main); line-height:1.6;"></div>
   `;
+  const explTitle = document.getElementById('explTitle');
+  explTitle.style.color = colorClass;
+  explTitle.innerHTML = iconHtml;
+  
+  document.getElementById('explText').textContent = q_expl(q) || 'Nenhuma explicação técnica fornecida para esta questão.';
   document.getElementById('explainSheet').classList.add('show');
 }
 
@@ -720,11 +740,13 @@ function finishQuiz(){
   if(grandeDiaInterval) { clearInterval(grandeDiaInterval); grandeDiaInterval = null; }
   document.getElementById('quizTimerContainer').style.display = 'none';
 
-  document.getElementById('question').innerHTML = `
-    <div class="finish-title">
-      <i class="ph-fill ph-check-circle"></i> Fim! Você acertou ${score} de ${POOL.length}
-    </div>
-  `;
+    const qBox = document.getElementById('question');
+    qBox.innerHTML = `
+      <div class="finish-title">
+        <i class="ph-fill ph-check-circle"></i> <span id="finishScoreText"></span>
+      </div>
+    `;
+    document.getElementById('finishScoreText').textContent = `Fim! Você acertou ${score} de ${POOL.length}`;
   document.getElementById('opts').innerHTML = '';
   document.getElementById('btnRestart').style.display = 'block';
   document.getElementById('btnQuit').style.display = 'none';
