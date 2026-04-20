@@ -67,7 +67,7 @@ async function checkSubscription(user) {
       const userNameEl = document.getElementById('profileUserName');
       if(userNameEl) {
          let rawName = data.displayName || 'Recruta';
-         userNameEl.innerText = rawName.toLowerCase().replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+         userNameEl.textContent = rawName.toLowerCase().replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
       }
       
     } else {
