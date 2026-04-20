@@ -102,16 +102,16 @@ body { display: flex; flex-direction: column; align-items: center; padding: env(
 .btn-primary:hover { box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
 .btn-secondary { background: var(--secondary-bg); border: 1px solid var(--card-border); }
 .btn-secondary:hover { background: var(--secondary-hover); transform: translateY(-2px); }
-.btn-sm { background: var(--secondary-bg); border: 1px solid var(--card-border); color: var(--text-main); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; display: inline-flex; gap: 6px; align-items: center; cursor: pointer; transition: all 0.2s; }
+.btn-sm { background: var(--secondary-bg); border: 1px solid var(--card-border); color: var(--text-main); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; display: inline-flex; gap: 6px; align-items: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
 .btn-sm:active { transform: scale(0.95); }
 
 .home-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
 .record-box { margin-top: 30px; padding: 16px; background: rgba(0,0,0,0.25); border-radius: 16px; border: 1px solid var(--card-border); }
 .record-content { text-align: center; font-size: 15px; font-weight: 600; color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-.page-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.page-title { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-.page-title i { color: var(--primary); font-size: 26px; }
+.page-top-bar { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 24px; gap: 12px; }
+.page-title { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.page-title i { color: var(--primary); font-size: 26px; flex-shrink: 0; }
 
 .study-list { display: flex; flex-direction: column; gap: 12px; }
 details.summary { background: var(--secondary-bg); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; transition: all 0.3s; }
@@ -267,6 +267,13 @@ button.opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: 
   button.opt { padding: 14px 16px; border-radius: 13px; }
   .quiz-footer { padding-top: 10px; }
   .timer-display { padding: 8px; margin-bottom: 8px; }
+
+  /* Ajuste para evitar que a top-bar fique sob o cabeçalho sticky */
+  .page-top-bar { 
+    position: relative; 
+    z-index: 10;
+    margin-top: 4px;
+  }
 }
 
 /* --- Gamificação & Novas Funcionalidades --- */
