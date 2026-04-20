@@ -322,7 +322,7 @@ const MEDIA_CATALOG = [
   }
 ];
 
-const GITHUB_RESUMOS_BASE = 'https://megaestudos.github.io/PlenAula/Resumos/';
+const GITHUB_RESUMOS_BASE = 'https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/';
 
 // Estado de navegação de mídia
 let currentSubjectId = null;
