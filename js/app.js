@@ -5,40 +5,6 @@ let isGrandeDia = false; let grandeDiaInterval = null;
 const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
 const XP_KEY = 'quiz_xp'; const STREAK_KEY = 'quiz_streak'; const LAST_DATE_KEY = 'quiz_last_date';
 
-// Navegação entre telas do App
-window.showPage = window.go = function(id) {
-  // Esconde todas as sections com classe 'page'
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  
-  // Mostra a alvo
-  const target = document.getElementById(id);
-  if (target) target.classList.add('active');
-  
-  // Atualiza as tabs (se existirem)
-  document.querySelectorAll('.tabbtn').forEach(btn => {
-     btn.classList.toggle('active', btn.getAttribute('data-target') === id);
-  });
-
-  // Foco no simulado
-  if(id === 'quiz' && quizStarted) document.body.classList.add('quiz-focus');
-  else document.body.classList.remove('quiz-focus');
-
-  // Gatilhos extras de carregamento
-  if (id === 'home' || id === 'dashboard') {
-     showBestRecord();
-     updateXPUI();
-     checkStreak();
-     if(typeof renderBadges === 'function') renderBadges();
-     if(typeof renderStatsChart === 'function') renderStatsChart();
-  }
-  if(id === 'resumos' || id === 'study') renderStudies();
-  if(id === 'cards') renderCards();
-  if(id === 'quiz' && !quizStarted) showTopicSelection();
-  
-  // Scroll para o topo
-  window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
 function checkStreak() {
   let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0');
   let lastDate = localStorage.getItem(LAST_DATE_KEY);
@@ -112,22 +78,9 @@ function setScale(v){
   if(label) label.innerText = v.toFixed(2) + 'x';
   localStorage.setItem(SCALE_KEY, v.toFixed(2));
 }
-document.addEventListener('DOMContentLoaded', () => {
-    const scaleUpBtn = document.getElementById('scaleUpBtn');
-    const scaleDownBtn = document.getElementById('scaleDownBtn');
-    
-    if (scaleUpBtn) {
-        scaleUpBtn.onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) + 0.05);
-    }
-    if (scaleDownBtn) {
-        scaleDownBtn.onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) - 0.05);
-    }
-    
-    if(!isMobile()) setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0));
-    
-    // Inicialização da Home
-    showPage('home');
-});
+document.getElementById('scaleUpBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) + 0.05);
+document.getElementById('scaleDownBtn').onclick = () => setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0) - 0.05);
+if(!isMobile()) setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0));
 
 let audioCtx = null;
 function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -164,370 +117,51 @@ document.getElementById('soundToggle').onclick = function() {
 if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY, '1');
 updateSoundUI();
 
-// Função removida por ser duplicata (agora unificada no topo)
+window.go = function(target){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(target).classList.add('active');
+  document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
+  
+  if(target === 'quiz' && quizStarted) document.body.classList.add('quiz-focus');
+  else document.body.classList.remove('quiz-focus');
+
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (target === 'home') {
+    showBestRecord();
+  }
+  if (target === 'dashboard') {
+    if(typeof renderBadges === 'function') renderBadges();
+    if(typeof renderStatsChart === 'function') renderStatsChart();
+  }
+  checkStreak();
+  updateXPUI();
+  if (target === 'study') renderStudies();
+  if (target === 'cards') renderCards();
+  if (target === 'quiz' && !quizStarted) showTopicSelection();
+};
 
 function linkify(text) {
   const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
   return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-// =====================================================================
-// CATÁLOGO DE VÍDEOS E ÁUDIOS POR MATÉRIA
-// Para adicionar conteúdo: inclua items no array 'videos' ou 'audios'
-// de cada matéria. Para vídeos do YouTube, use apenas o ID do vídeo.
-// Para áudios, use a URL direta do arquivo .mp3 / .ogg / ou YouTube.
-// =====================================================================
-const MEDIA_CATALOG = [
-  {
-    id: 'crimes-hediondos',
-    name: 'Crimes Hediondos',
-    icon: 'ph-warning-diamond',
-    resumoFile: 'crimes-hediondos.html',
-    videos: [
-      { title: 'Crimes Hediondos - Aula Completa', youtubeId: 'vi9bOFRQSVc', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Jurisprudência dos crimes hediondos', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/07%20Jurisprud%C3%AAncia%20dos%20crimes%20hediondos.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'direito-constitucional',
-    name: 'Direito Constitucional',
-    icon: 'ph-book-open',
-    resumoFile: 'direito-constitucional.html',
-    videos: [],
-    audios: []
-  },
-  {
-    id: 'direito-administrativo',
-    name: 'Direito Administrativo',
-    icon: 'ph-scales',
-    resumoFile: 'direito-administrativo.html',
-    videos: [],
-    audios: []
-  },
-  {
-    id: 'codigo-penal',
-    name: 'Código Penal / Direito Penal',
-    icon: 'ph-gavel',
-    resumoFile: 'codigo-penal.html',
-    videos: [
-      { title: 'Direito Penal - Aula Completa', youtubeId: 'vXuZA836FDY', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Direito penal e jurisprudência para concursos', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/09%20Direito%20penal%20e%20jurisprud%C3%AAncia%20para%20concursos.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'maria-da-penha',
-    name: 'Lei Maria da Penha',
-    icon: 'ph-gender-female',
-    resumoFile: 'maria-da-penha.html',
-    videos: [
-      { title: 'Lei Maria da Penha - Aula Completa', youtubeId: 'MJg4lnlTEI4', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Maria da Penha', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/04%20Maria%20da%20Penha.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'eca',
-    name: 'Estatuto da Criança (ECA)',
-    icon: 'ph-baby',
-    resumoFile: 'estatuto-da-criança-e-do-adolescente.html',
-    videos: [
-      { title: 'ECA - Aula Completa', youtubeId: 'B-1iTZLf-bM', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'ECA - Estatuto da Criança e do Adolescente', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/01%20ECA%20-%20Estatuto%20da%20Crian%C3%A7a%20e%20do%20Adolecente.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'lei-de-drogas',
-    name: 'Lei de Drogas',
-    icon: 'ph-pills',
-    resumoFile: 'lei-de-drogas.html',
-    videos: [
-      { title: 'Lei de Drogas - Aula Completa', youtubeId: 'z7CEDMpeTPI', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Jurisprudência da Lei de Drogas', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/08%20Jurisprud%C3%AAncia%20da%20Lei%20de%20Drogas.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'abuso-de-autoridade',
-    name: 'Abuso de Autoridade',
-    icon: 'ph-shield-warning',
-    resumoFile: 'abuso-de-autoridade.html',
-    videos: [
-      { title: 'Abuso de Autoridade - Aula Completa', youtubeId: 'E5VDO_sv-mI', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Abuso de Autoridade', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/02%20Abuso%20de%20Autoridade.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'crimes-ambientais',
-    name: 'Crimes Ambientais',
-    icon: 'ph-tree',
-    resumoFile: 'crimes-ambientais.html',
-    videos: [
-      { title: 'Crimes Ambientais - Aula Completa', youtubeId: 'EQF4Ig5Ojco', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Crimes Ambientais', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/06%20Crimes%20Ambientais.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'crimes-de-tortura',
-    name: 'Crimes de Tortura (Lei Anti-tortura)',
-    icon: 'ph-hand-palm',
-    resumoFile: 'crimes-de-tortura.html',
-    videos: [
-      { title: 'Lei Anti-tortura - Aula Completa', youtubeId: 'qGliuzL-7pA', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Lei da Tortura', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/03%20Lei%20da%20Tortura.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'crimes-preconceito',
-    name: 'Crimes de Preconceito (Injúria Racial)',
-    icon: 'ph-users-three',
-    resumoFile: 'crimes-preconceito-raça-cor.html',
-    videos: [
-      { title: 'Injúria Racial - Aula Completa', youtubeId: 'l9GkQYqpvl8', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Injúria Racial', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/05%20Inj%C3%BAria%20Racial.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'procedimentos-penais',
-    name: 'Procedimentos Penais',
-    icon: 'ph-files',
-    resumoFile: 'procedimentos-penais.html',
-    videos: [],
-    audios: []
-  },
-  {
-    id: 'mbft',
-    name: 'Manual Brasileiro de Fiscalização de Trânsito',
-    icon: 'ph-car',
-    resumoFile: '#', // Adicionei um placeholder, caso tenha um arquivo correspondente, atualize aqui.
-    videos: [],
-    audios: [
-      { title: 'Manual Brasileiro de Fiscalização de Trânsito (MBFT)', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/Manual%20Brasileiro%20de%20Fiscaliza%C3%A7%C3%A3o%20de%20Tr%C3%A2nsito%20%28MBFT.m4a', duration: 'Áudio' }
-    ]
-  }
-];
-
-const GITHUB_RESUMOS_BASE = 'https://megaestudos.github.io/PlenAula/Resumos/';
-
-// Estado de navegação de mídia
-let currentSubjectId = null;
-let currentMediaType = null; // 'video' | 'audio'
-
-// Funções de navegação entre as views da seção Estudar Leis
-function showStudyViews(viewId) {
-  ['studyView', 'mediaPicker', 'mediaListView', 'mediaPlayerView'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = (id === viewId) ? 'block' : 'none';
-  });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-window.backToSubjects = function() {
-  stopCurrentMedia();
-  showStudyViews('studyView');
-};
-window.backToPicker = function() {
-  stopCurrentMedia();
-  showStudyViews('mediaPicker');
-};
-window.backToMediaList = function() {
-  stopCurrentMedia();
-  showStudyViews('mediaListView');
-};
-
-function stopCurrentMedia() {
-  // Para qualquer iframe ou áudio em reprodução
-  const pc = document.getElementById('playerContainer');
-  if (pc) pc.innerHTML = '';
-}
-
-function openSubject(subjectId) {
-  currentSubjectId = subjectId;
-  const subject = MEDIA_CATALOG.find(s => s.id === subjectId);
-  if (!subject) return;
-
-  // Atualiza título
-  document.getElementById('mediaPickerTitle').innerHTML =
-    `<i class="ph-fill ${subject.icon}"></i> ${subject.name}`;
-
-  // Atualiza contadores
-  const vCount = subject.videos.length;
-  const aCount = subject.audios.length;
-  document.getElementById('videoCount').textContent =
-    vCount > 0 ? `${vCount} aula${vCount !== 1 ? 's' : ''} disponível${vCount !== 1 ? 'is' : ''}` : 'Em breve';
-  document.getElementById('audioCount').textContent =
-    aCount > 0 ? `${aCount} aula${aCount !== 1 ? 's' : ''} disponível${aCount !== 1 ? 'is' : ''}` : 'Em breve';
-
-  // Link do resumo em texto
-  const resumoLink = document.getElementById('resumoTextLink');
-  if (resumoLink) resumoLink.href = GITHUB_RESUMOS_BASE + subject.resumoFile;
-
-  // Desabilita botões sem conteúdo
-  const videoBtn = document.querySelector('.video-btn');
-  const audioBtn = document.querySelector('.audio-btn');
-  if (videoBtn) videoBtn.style.opacity = vCount > 0 ? '1' : '0.5';
-  if (audioBtn) audioBtn.style.opacity = aCount > 0 ? '1' : '0.5';
-
-  showStudyViews('mediaPicker');
-}
-
-window.showMediaList = function(type) {
-  const subject = MEDIA_CATALOG.find(s => s.id === currentSubjectId);
-  if (!subject) return;
-
-  currentMediaType = type;
-  const items = type === 'video' ? subject.videos : subject.audios;
-
-  // Atualiza título
-  const icon = type === 'video' ? 'ph-video' : 'ph-headphones';
-  const label = type === 'video' ? 'Aulas em Vídeo' : 'Aulas em Áudio';
-  document.getElementById('mediaListTitle').innerHTML =
-    `<i class="ph-fill ${icon}"></i> ${label} — ${subject.name}`;
-
-  // Renderiza lista
-  const listEl = document.getElementById('mediaItemsList');
-  listEl.innerHTML = '';
-
-  if (items.length === 0) {
-    listEl.innerHTML = `
-      <div class="media-empty-state">
-        <i class="ph ph-${type === 'video' ? 'video-camera-slash' : 'speaker-slash'}"></i>
-        <h4>Conteúdo em breve</h4>
-        <p>As ${label.toLowerCase()} de <strong>${subject.name}</strong> estão sendo preparadas e serão disponibilizadas em breve.</p>
-      </div>`;
-    showStudyViews('mediaListView');
-    return;
-  }
-
-  items.forEach((item, index) => {
-    const card = document.createElement('div');
-    card.className = 'media-item-card';
-    card.innerHTML = `
-      <div class="media-item-thumb ${type === 'audio' ? 'audio-thumb' : ''}">
-        ${item.youtubeId
-          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="${item.title}" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ph-${type === 'video' ? 'video' : 'headphones'}\\'></i>'">`
-          : `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i>`
-        }
-        <div class="media-play-overlay"><i class="ph-fill ph-play-circle"></i></div>
-      </div>
-      <div class="media-item-info">
-        <div class="media-item-num">Aula ${index + 1}</div>
-        <div class="media-item-title">${item.title}</div>
-        ${item.duration ? `<div class="media-item-dur"><i class="ph ph-clock"></i> ${item.duration}</div>` : ''}
-      </div>
-      <i class="ph ph-caret-right media-item-arrow"></i>
-    `;
-    card.onclick = () => openMediaPlayer(item, type);
-    listEl.appendChild(card);
-  });
-
-  showStudyViews('mediaListView');
-};
-
-function openMediaPlayer(item, type) {
-  const subject = MEDIA_CATALOG.find(s => s.id === currentSubjectId);
-  const titleEl = document.getElementById('playerTitle');
-  titleEl.innerHTML = `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i> ${item.title}`;
-
-  const pc = document.getElementById('playerContainer');
-  pc.innerHTML = '';
-
-  if (item.youtubeId) {
-    // Player YouTube embutido
-    pc.innerHTML = `
-      <div class="yt-player-wrapper">
-        <iframe
-          src="https://www.youtube.com/embed/${item.youtubeId}?rel=0&autoplay=1&playsinline=1"
-          title="${item.title}"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen>
-        </iframe>
-      </div>
-      <div class="player-info-box">
-        <div class="player-subject-tag"><i class="ph-fill ${subject.icon}"></i> ${subject.name}</div>
-        <h4 class="player-item-title">${item.title}</h4>
-        ${item.duration ? `<div class="player-duration"><i class="ph ph-clock"></i> Duração: ${item.duration}</div>` : ''}
-      </div>`;
-  } else if (item.url) {
-    if (type === 'audio') {
-      // Player de áudio nativo
-      pc.innerHTML = `
-        <div class="audio-player-wrapper">
-          <div class="audio-player-art">
-            <i class="ph-fill ph-waveform"></i>
-          </div>
-          <div class="audio-player-info">
-            <div class="player-subject-tag"><i class="ph-fill ${subject.icon}"></i> ${subject.name}</div>
-            <h4 class="player-item-title">${item.title}</h4>
-            ${item.duration ? `<div class="player-duration"><i class="ph ph-clock"></i> Duração: ${item.duration}</div>` : ''}
-          </div>
-          <audio id="audioPlayer" controls autoplay style="width:100%; margin-top:20px; border-radius:12px;">
-            <source src="${item.url}" type="audio/mpeg">
-            <source src="${item.url}" type="audio/ogg">
-            Seu navegador não suporta áudio HTML5.
-          </audio>
-        </div>`;
-    } else {
-      // Vídeo direto (não YouTube)
-      pc.innerHTML = `
-        <div class="yt-player-wrapper">
-          <video controls autoplay playsinline style="width:100%; border-radius:16px; background:#000;">
-            <source src="${item.url}" type="video/mp4">
-          </video>
-        </div>
-        <div class="player-info-box">
-          <div class="player-subject-tag"><i class="ph-fill ${subject.icon}"></i> ${subject.name}</div>
-          <h4 class="player-item-title">${item.title}</h4>
-        </div>`;
-    }
-  }
-
-  showStudyViews('mediaPlayerView');
-}
-
-async function renderStudies() {
+async function renderStudies(){
   const container = document.getElementById('studyList');
-  if (!container) return;
-
-  container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)"><i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i><br><br>Carregando matérias...</div>';
-
+  container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)"><i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i><br><br>Carregando conteúdos...</div>';
   try {
-    container.innerHTML = '';
-    MEDIA_CATALOG.forEach(subject => {
-      const totalMedia = subject.videos.length + subject.audios.length;
-      const card = document.createElement('div');
-      card.className = 'resumo-card';
-      card.innerHTML = `
-        <div class="resumo-icon"><i class="ph-fill ${subject.icon}"></i></div>
-        <div class="resumo-info">
-          <h4>${subject.name}</h4>
-          <p>${totalMedia > 0 ? `${subject.videos.length} vídeo${subject.videos.length !== 1 ? 's' : ''} · ${subject.audios.length} áudio${subject.audios.length !== 1 ? 's' : ''}` : 'Resumo + Mídia'}</p>
-        </div>
-        <div class="resumo-action"><i class="ph ph-arrow-right"></i></div>
-      `;
-      card.onclick = () => openSubject(subject.id);
-      container.appendChild(card);
-    });
-  } catch (e) {
-    console.error(e);
-    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger)">Erro ao carregar matérias.</div>';
-  }
+    const res = await fetch(`${SCRIPT_URL}?action=getStudies`);
+    const js = await res.json();
+    if (js.ok && js.studies && js.studies.length){
+      container.innerHTML = '';
+      js.studies.forEach(s => {
+        const d = document.createElement('details'); d.className = 'summary';
+        d.innerHTML = `<summary>${s.topico || 'Tópico'}</summary><div class="study-content">${linkify(s.conteudo || '')}</div>`;
+        container.appendChild(d);
+      });
+    } else {
+      container.innerHTML = '<div style="text-align:center; padding:20px;"><i class="ph ph-empty"></i><br>Nenhum conteúdo.</div>';
+    }
+  } catch (e) { container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger)">Erro.</div>'; }
 }
 
 async function showTopicSelection(){
@@ -547,39 +181,13 @@ async function showTopicSelection(){
       motivacionalEl.innerText = motivacionais[Math.floor(Math.random() * motivacionais.length)];
     }
 
+    const snap = await getFirestoreDb().collection('materias').where('ativo', '==', true).orderBy('ordem', 'asc').get();
     const select = document.getElementById('topicSelect');
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">Carregando tópicos...</option>';
-
-    try {
-      const db = getFirestoreDb();
-      const snap = await db.collection('materias').get();
-      
-      select.innerHTML = '<option value="Todos">Todas as Matérias</option>';
-      
-      let materias = [];
-      snap.forEach(doc => {
-        const d = doc.data();
-        if (d.ativo !== false) {
-          materias.push({ nome: d.nome, ordem: d.ordem || 99 });
-        }
-      });
-
-      materias.sort((a, b) => a.ordem - b.ordem);
-
-      materias.forEach(m => {
-        const nome = (m.nome || '').toString().trim();
-        if (nome) select.innerHTML += `<option value="${nome}">${nome}</option>`;
-      });
-
-      if (materias.length === 0) {
-          log("Aviso: Nenhuma matéria encontrada no banco.", "warning");
-      }
-    } catch (err) {
-      console.error("Erro ao carregar tópicos:", err);
-      select.innerHTML = '<option value="Todos">Todas as Matérias (Erro ao Carregar)</option>';
-    }
+    select.innerHTML = '<option value="Todos">Todas as Matérias</option>';
+    snap.forEach(doc => {
+      const nome = (doc.data().nome || '').toString().trim();
+      if (nome) select.innerHTML += `<option value="${nome}">${nome}</option>`;
+    });
   } catch (e) {}
 }
 
