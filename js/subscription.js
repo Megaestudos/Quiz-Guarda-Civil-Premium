@@ -1,11 +1,43 @@
 let currentUserDoc = null;
 let countdownInterval = null;
 
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos
+
+function updateLastActivity() {
+  if (auth.currentUser) {
+    localStorage.setItem('plenaula_last_activity', Date.now());
+  }
+}
+
+// Atualiza a atividade sempre que o aluno interagir com o app
+window.addEventListener('click', updateLastActivity, { passive: true });
+window.addEventListener('keypress', updateLastActivity, { passive: true });
+window.addEventListener('scroll', updateLastActivity, { passive: true });
+
 auth.onAuthStateChanged(async (user) => {
   const path = window.location.pathname.toLowerCase();
   const isResumos = path.includes('/resumos/');
   const isApp = path.includes('app.html');
   const isLanding = (path.endsWith('index.html') && !isResumos) || (path.endsWith('/') && !isResumos) || path.includes('/sass');
+
+  if (user) {
+    const lastActivity = localStorage.getItem('plenaula_last_activity');
+    if (lastActivity) {
+       const timeDiff = Date.now() - parseInt(lastActivity);
+       if (timeDiff > SESSION_TIMEOUT_MS) {
+          // Sessão expirada - limpa e desloga
+          localStorage.removeItem('plenaula_last_activity');
+          await auth.signOut();
+          
+          if (isApp || isResumos) {
+              window.location.href = isResumos ? '../index.html' : 'index.html';
+          }
+          return;
+       }
+    }
+    // Update activity instantly on valid auth
+    updateLastActivity();
+  }
 
   if (!user) {
     if (isApp || isResumos) {
