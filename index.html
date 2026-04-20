@@ -2,244 +2,140 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0"/>
-  <title>Guarda Civil — App Profissional</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>PlenAula SaaS — O Melhor App para Guarda Civil</title>
   <meta name="theme-color" content="#0B0F19"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./styles.css?v=2.7">
 </head>
 
-<body>
-  <div class="ambient-glow glow-1"></div>
-  <div class="ambient-glow glow-2"></div>
-
-  <div class="app" id="appRoot">
-    <div class="card header" id="cardHeader">
-      <div class="header-titles">
-        <div class="header-icon-wrapper">
-          <i class="ph-fill ph-shield-star"></i>
-        </div>
-        <div>
-          <h1 class="title">Guarda Civil</h1>
-          <div class="subtitle">Plataforma de Estudos</div>
-        </div>
+<body class="landing-body">
+  <div class="ambient-glow glow-1" style="width: 80vw; height: 80vw;"></div>
+  <div class="ambient-glow glow-2" style="width: 60vw; height: 60vw;"></div>
+  
+  <nav class="landing-nav">
+    <div class="nav-content">
+      <div class="logo">
+         <img src="./assets/logo.png" style="height: 48px; object-fit: contain;" alt="Logo" />
+         <span class="logo-text">PlenAula</span>
       </div>
-      <div class="controls">
-        <div class="scale-controls">
-          <button class="icon-btn" id="scaleDownBtn" title="Diminuir"><i class="ph ph-minus"></i></button>
-          <div class="scale-label" id="scaleLabel">1.00x</div>
-          <button class="icon-btn" id="scaleUpBtn" title="Aumentar"><i class="ph ph-plus"></i></button>
+      <div>
+         <button class="btn btn-secondary btn-open-login" onclick="openLoginModal()" style="padding: 10px 16px;">Entrar</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">Plataforma Completa GCM <i class="ph ph-sparkle"></i></div>
+      <h1 class="hero-title">Acelere sua aprovação para a <span>Guarda Civil</span></h1>
+      <p class="hero-subtitle">Estude as Leis, decore com Flashcards Inteligentes, realize Simulados e acompanhe seu rendimento.</p>
+      
+      <div class="hero-cta-group">
+         <button class="btn btn-primary btn-lg btn-open-login" onclick="openLoginModal()">
+            <i class="ph-bold ph-rocket-launch"></i> Testar grátis por 4 dias
+         </button>
+         <p class="cta-hint">Acesso instantâneo. Sem cartão de crédito inicial.</p>
+      </div>
+    </div>
+    
+    <div class="hero-mockup">
+       <img src="./assets/mockup.png" alt="Prévia do App PlenAula" style="width: 100%; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05);" />
+    </div>
+  </header>
+
+  <section class="features-section">
+    <div class="section-title-wrap">
+      <h2>Sua farda mais perto do que nunca</h2>
+      <p>Desenvolvido com foco exclusivo na sua performance até o dia da prova.</p>
+    </div>
+    <div class="features-grid">
+       <div class="feature-card">
+         <div class="f-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;"><i class="ph-fill ph-target"></i></div>
+         <h3>Simulados Premium</h3>
+         <p>Treine com questões baseadas nos maiores editais da GCM.</p>
+       </div>
+       <div class="feature-card">
+         <div class="f-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;"><i class="ph-fill ph-cards"></i></div>
+         <h3>Flashcards Tinder-Style</h3>
+         <p>Memorização espaçada deslizando os cards virtuais para direita ou esquerda.</p>
+       </div>
+       <div class="feature-card">
+         <div class="f-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;"><i class="ph-fill ph-chart-line-up"></i></div>
+         <h3>Painel de Desempenho</h3>
+         <p>Acompanhe de perto as matérias mais cobradas e controle seu histórico de acertos.</p>
+       </div>
+    </div>
+  </section>
+
+  <section class="testimonial-section">
+     <div class="testimonial-card">
+        <div class="stars"><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i></div>
+        <q>"O aplicativo mudou minha forma de estudar. Os flashcards são muito dinâmicos e o painel focado em estatísticas mudou o jogo pra mim antes da prova!"</q>
+        <div class="author">
+           <div class="avatar"><i class="ph-fill ph-user"></i></div>
+           <div><strong>Marcos Oliveira</strong><br><span>Aprovado GCM-SP</span></div>
         </div>
-        <button class="icon-btn" id="soundToggle" title="Alternar Som">
-          <i class="ph ph-speaker-high" id="soundIcon"></i>
+     </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="footer-cta">
+        <h2>Pronto para assumir seu cargo?</h2>
+        <p>Comece agora mesmo a focar nos detalhes que farão a diferença.</p>
+        <button class="btn btn-primary btn-lg btn-open-login" onclick="openLoginModal()" style="margin-top: 20px;">
+           Entrar e Testar Grátis
         </button>
-        <button class="icon-btn" id="fullscreenBtn" title="Tela Cheia"><i class="ph ph-arrows-out"></i></button>
-      </div>
     </div>
-
-    <div class="pages" id="pages">
-      <section id="home" class="page active card">
-        <div class="welcome"><strong>Bem-vindo(a) recruta!</strong> Prepare-se para sua aprovação. Escolha uma modalidade:</div>
-        
-        <div class="profile-dashboard">
-          <div class="stat-box">
-             <div class="stat-icon" style="color: #F59E0B;"><i class="ph-fill ph-fire"></i></div>
-             <div class="stat-info">
-               <div class="stat-value" id="streakValue">0 Dias</div>
-               <div class="stat-label">Ofensiva</div>
-             </div>
-          </div>
-          <div class="stat-box">
-             <div class="stat-icon" style="color: #8B5CF6;"><i class="ph-fill ph-medal"></i></div>
-             <div class="stat-info">
-               <div class="stat-value" id="rankValue">Recruta</div>
-               <div class="stat-label"><span id="xpValue">0</span> XP</div>
-             </div>
-          </div>
-        </div>
-
-        <div class="home-actions">
-          <button class="btn btn-primary" onclick="go('study')">
-            <i class="ph ph-book-open"></i> <span>Estudar Leis</span>
-          </button>
-          <button class="btn btn-primary" onclick="go('quiz')">
-            <i class="ph ph-target"></i> <span>Fazer Simulado</span>
-          </button>
-          <button class="btn btn-primary" onclick="go('cards')">
-            <i class="ph ph-cards"></i> <span>Flashcards</span>
-          </button>
-          <a href="./resumos/" class="btn btn-primary">
-            <i class="ph ph-file-text"></i> <span>Resumos</span>
-          </a>
-          <button class="btn btn-primary" onclick="go('dashboard')" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
-            <i class="ph ph-chart-line-up"></i> <span>Desempenho</span>
-          </button>
-        </div>
-        <div class="record-box">
-          <div id="bestRecord" class="record-content">
-            <i class="ph ph-spinner-gap ph-spin"></i> Carregando recorde...
-          </div>
-        </div>
-      </section>
-
-      <section id="dashboard" class="page card">
-        <div class="page-top-bar">
-          <h3 class="page-title"><i class="ph ph-chart-line-up"></i> Meu Desempenho</h3>
-          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
-        </div>
-
-        <div class="badges-container card-inner">
-          <div class="section-title"><i class="ph-fill ph-trophy"></i> Conquistas</div>
-          <div class="badges-grid" id="badgesGrid">
-            <!-- Renderizado via JS -->
-          </div>
-        </div>
-        
-        <div class="stats-chart-container card-inner">
-          <div class="section-title"><i class="ph-fill ph-chart-bar"></i> Desempenho por Matéria</div>
-          <div id="statsChartBody">
-            <div style="text-align:center; color: var(--text-muted); font-size: 14px;">Responda questões para gerar estatísticas.</div>
-          </div>
-        </div>
-      </section>
-
-      <section id="study" class="page card">
-        <div class="page-top-bar">
-          <h3 class="page-title"><i class="ph ph-books"></i> Conteúdos</h3>
-          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
-        </div>
-        <div id="studyList" class="study-list">Carregando conteúdos...</div>
-      </section>
-
-      <section id="quiz" class="page card">
-        <div class="quiz-shell">
-          <!-- Setup do Simulado -->
-          <div id="quizSetup" class="quiz-setup">
-            <div class="page-header-actions">
-              <div class="topic-selector">
-                <label for="topicSelect" style="font-size: 1.1rem; font-weight: 700; color: #fff; display: block; margin-bottom: 8px;"><i class="ph ph-funnel" style="color: var(--primary);"></i> Escolha o Tópico</label>
-                <select id="topicSelect"></select>
-              </div>
-              <button class="btn btn-primary btn-start" id="loadTopicBtn">
-                <i class="ph-fill ph-play-circle"></i> Iniciar Padrão
-              </button>
-              <button class="btn btn-secondary btn-start btn-grande-dia" id="btnGrandeDia" onclick="startGrandeDia()">
-                <i class="ph-fill ph-siren"></i> Simuladão "O Grande Dia" (60Q)
-              </button>
-            </div>
-            <div class="empty-state" style="margin-top:30px;">
-              <i class="ph ph-target"></i>
-              <p id="motivationalText">O Modo Foco ocultará as barras ativando a tela cheia para evitar distrações.</p>
-            </div>
-          </div>
-
-          <!-- MODO FOCO ATIVO -->
-          <div id="quizActive" class="quiz-active" style="display:none; flex-direction:column; height: 100%;">
-            <div id="quizTimerContainer" class="timer-display">
-               <i class="ph-fill ph-clock"></i> <span id="quizTimerDisplay">03:00:00</span>
-            </div>
-            <div class="progress-container">
-              <div class="progress-info">
-                <span id="progressText" class="score-text">Pontos: 0</span>
-                <span id="progressInfo" class="count-text">0 / 0</span>
-              </div>
-              <div class="progress">
-                <div class="track"><div class="bar" id="bar"></div></div>
-              </div>
-            </div>
-
-            <div class="quiz-main">
-              <div class="question-box" id="question">
-                <div class="empty-state">
-                  <i class="ph ph-spinner-gap ph-spin"></i>
-                </div>
-              </div>
-              <div class="opts" id="opts"></div>
-            </div>
-
-            <div class="quiz-footer">
-              <button class="btn-sm" id="btnQuit" onclick="quitQuiz()">
-                <i class="ph ph-x"></i> Abandonar
-              </button>
-              <button class="btn btn-secondary" id="btnRestart" onclick="quitQuiz()" style="display:none; flex:1;">
-                <i class="ph ph-arrows-clockwise"></i> Menu Inicial
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="cards" class="page card">
-        <div class="page-top-bar">
-          <h3 class="page-title"><i class="ph ph-cards"></i> Flashcards</h3>
-          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
-        </div>
-        <!-- Area preparada para o visual Tinder-style Swipe -->
-        <div class="deck-container">
-           <div id="cardsList" class="deck"></div>
-           <div class="deck-controls" style="text-align:center; margin-top:20px; color:var(--text-muted); font-size:14px; font-weight:600;">
-             <i class="ph ph-arrows-left-right"></i> Arraste o cartão para os lados para pular
-           </div>
-        </div>
-      </section>
+    <div class="footer-bot">
+       <div class="logo-text" style="font-size: 18px; color: var(--text-muted);"><i class="ph-fill ph-shield-star"></i> PlenAula SaaS</div>
+       <p style="margin-top: 10px; color: var(--text-muted); font-size: 13px;">&copy; 2026 Reservados.</p>
     </div>
-  </div>
+  </footer>
 
-  <div class="tabs-nav" role="navigation" id="tabsBar">
-    <button class="tabbtn active" data-target="home" onclick="go('home')">
-      <i class="ph ph-house"></i>
-      <span>Início</span>
-    </button>
-    <button class="tabbtn" data-target="study" onclick="go('study')">
-      <i class="ph ph-book-open"></i>
-      <span>Estudo</span>
-    </button>
-    <button class="tabbtn" data-target="quiz" onclick="go('quiz')">
-      <i class="ph ph-target"></i>
-      <span>Simulado</span>
-    </button>
-    <button class="tabbtn" data-target="cards" onclick="go('cards')">
-      <i class="ph ph-cards"></i>
-      <span>Cartões</span>
-    </button>
-  </div>
-
-  <!-- Bottom Sheet (Painel Deslizante para Explicação) -->
-  <div id="explainSheet" class="bottom-sheet">
-    <div class="sheet-overlay" onclick="closeExplain()"></div>
-    <div class="sheet-content">
-      <div class="sheet-drag-handle"></div>
-      <div id="explainBody"></div>
-      <button class="btn btn-primary" id="sheetNextBtn" style="width: 100%; margin-top:24px; padding:18px;">
-        Continuar <i class="ph ph-arrow-right"></i>
-      </button>
-      <button class="btn btn-secondary" id="sheetFinishBtn" style="width: 100%; margin-top:24px; padding:18px; display:none;">
-        Ver Resultados <i class="ph ph-flag-checkered"></i>
-      </button>
+  <!-- MODAL DE LOGIN -->
+  <div class="login-modal-overlay" id="loginModalOverlay">
+    <div class="login-modal-card">
+       <button class="login-close-btn" onclick="closeLoginModal()"><i class="ph ph-x"></i></button>
+       <div class="login-badge-icon"><i class="ph-fill ph-shield-check"></i></div>
+       <h2>Entre na sua conta para<br>continuar seus estudos!</h2>
+       
+       <button class="btn btn-facebook">
+           <i class="ph-fill ph-facebook-logo" style="font-size:20px;"></i> Entrar com Facebook
+       </button>
+       <button class="btn btn-google btn-google-login">
+           <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" style="width: 18px;" /> Entrar com Google
+       </button>
+       
+       <div class="login-form">
+          <label>E-mail</label>
+          <input type="email" placeholder="Seu email" />
+          
+          <label>Senha</label>
+          <div class="input-pass">
+              <input type="password" placeholder="Sua senha" />
+              <button class="btn-show-pass"><i class="ph ph-eye"></i> Mostrar</button>
+          </div>
+          
+          <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">Entrar</button>
+       </div>
+       
+       <a href="#" class="forgot-link">Esqueceu a senha?</a>
     </div>
   </div>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
-      authDomain: "simulados-concursos-22c91.firebaseapp.com",
-      projectId: "simulados-concursos-22c91",
-      storageBucket: "simulados-concursos-22c91.firebasestorage.app",
-      messagingSenderId: "863699339166",
-      appId: "1:863699339166:web:8514155da2229b41ae388f"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-
-  <script src="./js/app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  
+  <script src="./js/auth.js"></script>
+  <script src="./js/subscription.js"></script>
+  <script src="./js/login.js"></script>
 </body>
 </html>
