@@ -51,13 +51,13 @@ async function registerWithEmail(name, email, password) {
     window.location.href = "app.html";
      
   } catch (error) {
-    console.error("Erro no registro: ", error);
+    console.error("Erro no registro/login: ", error);
     if (error.code === 'auth/email-already-in-use') {
        throw new Error("Este e-mail já está cadastrado.");
     } else if (error.code === 'auth/weak-password') {
        throw new Error("A senha deve ter pelo menos 6 caracteres.");
     } else {
-       throw new Error("Erro ao criar conta. Tente novamente.");
+       throw new Error(error.message || "Erro desconhecido ao tentar acessar o servidor.");
     }
   }
 }
