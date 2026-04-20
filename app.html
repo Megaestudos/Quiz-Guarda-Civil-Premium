@@ -23,7 +23,7 @@
       <div class="header-titles">
         <img src="./assets/logo.png" style="height: 48px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); margin-right: 4px;" alt="Logo PlenAula" />
         <div>
-          <h1 class="title">PlenAula</h1>
+          <h1 class="title">Guarda Civil</h1>
           <div class="subtitle">Plataforma de Estudos</div>
         </div>
       </div>
@@ -88,8 +88,8 @@
 
       <section id="dashboard" class="page card">
         <div class="page-top-bar">
-          <h3 class="page-title"><i class="ph ph-chart-line-up"></i> Meu Desempenho</h3>
           <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
+          <h3 class="page-title"><i class="ph ph-chart-line-up"></i> Meu Desempenho</h3>
         </div>
 
         <div class="badges-container card-inner">
@@ -112,8 +112,8 @@
         <!-- VIEW 1: Lista de Matérias -->
         <div id="studyView" class="study-view">
           <div class="page-top-bar">
-            <h3 class="page-title"><i class="ph ph-book-open"></i> Estudar Leis</h3>
             <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
+            <h3 class="page-title"><i class="ph ph-book-open"></i> Estudar Leis</h3>
           </div>
           <div id="studyList" class="study-grid">Carregando conteúdos...</div>
         </div>
@@ -121,8 +121,8 @@
         <!-- VIEW 2: Escolha de tipo (Vídeo ou Áudio) -->
         <div id="mediaPicker" class="study-view" style="display:none;">
           <div class="page-top-bar">
-            <h3 class="page-title" id="mediaPickerTitle"><i class="ph ph-play-circle"></i> Matéria</h3>
             <button class="btn-sm" onclick="backToSubjects()"><i class="ph ph-arrow-left"></i> Voltar</button>
+            <h3 class="page-title" id="mediaPickerTitle"><i class="ph ph-play-circle"></i> Matéria</h3>
           </div>
           <div class="media-type-grid">
             <button class="media-type-btn video-btn" onclick="showMediaList('video')">
@@ -161,8 +161,8 @@
         <!-- VIEW 3: Lista de mídias (Vídeos ou Áudios) -->
         <div id="mediaListView" class="study-view" style="display:none;">
           <div class="page-top-bar">
-            <h3 class="page-title" id="mediaListTitle"><i class="ph ph-video"></i> Vídeos</h3>
             <button class="btn-sm" onclick="backToPicker()"><i class="ph ph-arrow-left"></i> Voltar</button>
+            <h3 class="page-title" id="mediaListTitle"><i class="ph ph-video"></i> Vídeos</h3>
           </div>
           <div id="mediaItemsList" class="media-items-list"></div>
         </div>
@@ -170,8 +170,8 @@
         <!-- VIEW 4: Player (Vídeo embutido ou Áudio) -->
         <div id="mediaPlayerView" class="study-view" style="display:none;">
           <div class="page-top-bar">
-            <h3 class="page-title" id="playerTitle" style="font-size:16px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><i class="ph ph-play-circle"></i> Aula</h3>
             <button class="btn-sm" onclick="backToMediaList()"><i class="ph ph-arrow-left"></i> Voltar</button>
+            <h3 class="page-title" id="playerTitle" style="font-size:16px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><i class="ph ph-play-circle"></i> Aula</h3>
           </div>
           <div id="playerContainer"></div>
         </div>
@@ -238,8 +238,8 @@
 
       <section id="cards" class="page card">
         <div class="page-top-bar">
-          <h3 class="page-title"><i class="ph ph-cards"></i> Flashcards</h3>
           <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
+          <h3 class="page-title"><i class="ph ph-cards"></i> Flashcards</h3>
         </div>
         <!-- Area preparada para o visual Tinder-style Swipe -->
         <div class="deck-container">
