@@ -16,16 +16,20 @@ window.addEventListener('scroll', updateLastActivity, { passive: true });
 
 auth.onAuthStateChanged(async (user) => {
   const path = window.location.pathname.toLowerCase();
-  const isResumos = path.includes('/resumos/');
-  const isApp = path.includes('app.html');
-  const isLanding = (path.endsWith('index.html') && !isResumos) || (path.endsWith('/') && !isResumos) || path.includes('/sass');
+  // Normaliza o caminho para lidar com barras invertidas no Windows e maiúsculas
+  const normalizedPath = path.replace(/\\/g, '/');
+  
+  const isResumos = normalizedPath.includes('/resumos/');
+  const isApp = normalizedPath.endsWith('/app.html') || normalizedPath.endsWith('app.html');
+  const isLanding = (normalizedPath.endsWith('index.html') && !isResumos) || 
+                    (normalizedPath.endsWith('/') && !isResumos) || 
+                    normalizedPath.includes('/sass');
 
   if (user) {
     const lastActivity = localStorage.getItem('plenaula_last_activity');
     if (lastActivity) {
        const timeDiff = Date.now() - parseInt(lastActivity);
        if (timeDiff > SESSION_TIMEOUT_MS) {
-          // Sessão expirada - limpa e desloga
           localStorage.removeItem('plenaula_last_activity');
           await auth.signOut();
           
@@ -35,15 +39,21 @@ auth.onAuthStateChanged(async (user) => {
           return;
        }
     }
-    // Update activity instantly on valid auth
     updateLastActivity();
   }
 
+  // Se não há usuário, redireciona para o login APENAS se estiver em uma página restrita
   if (!user) {
     if (isApp || isResumos) {
-        window.location.href = isResumos ? '../index.html' : 'index.html';
+        // Pequeno atraso para evitar falsos negativos durante a transição de estado do Firebase
+        setTimeout(() => {
+          if (!auth.currentUser) {
+            window.location.href = isResumos ? '../index.html' : 'index.html';
+          }
+        }, 1000);
     }
   } else {
+    // Se há usuário, verifica subscrição ou redireciona da landing para o app
     if (isApp || isResumos) {
        await checkSubscription(user);
     } else if (isLanding) {
