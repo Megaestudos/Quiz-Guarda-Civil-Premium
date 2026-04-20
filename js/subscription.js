@@ -39,8 +39,18 @@ async function checkSubscription(user) {
       }
       
     } else {
-      // Falha de sincronia - não existe no firestore, refaz setup ou deloga
-      logoutUser();
+      // Falha de sincronia (o redirecionamento interrompeu o registro original)
+      // A plataforma agora é 100% gratuita, então o App auto-repara o banco instantaneamente
+      await docRef.set({
+        email: user.email || "Sem email",
+        displayName: user.displayName || "Aluno Cursista",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        plan: "premium",
+        status: "active"
+      });
+      console.log("Perfil auto-reparado com acesso livre.");
+      // Recarrega a própria função na sequência para o fluxo normal de boas vindas
+      await checkSubscription(user);
     }
   } catch(e) {
     console.error("Erro ao checar subscrição:", e);
