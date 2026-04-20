@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0"/>
+  <title>Guarda Civil — App Profissional</title>
+  <meta name="theme-color" content="#0B0F19"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="./styles.css?v=2.7">
+</head>
+
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <div class="app" id="appRoot">
+    <div class="card header" id="cardHeader">
+      <div class="header-titles">
+        <img src="./assets/logo.png" style="height: 48px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); margin-right: 4px;" alt="Logo PlenAula" />
+        <div>
+          <h1 class="title">Guarda Civil</h1>
+          <div class="subtitle">Plataforma de Estudos</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="icon-btn" id="logoutBtn" title="Sair" onclick="logoutUser()"><i class="ph ph-sign-out"></i></button>
+        <div class="scale-controls">
+          <button class="icon-btn" id="scaleDownBtn" title="Diminuir"><i class="ph ph-minus"></i></button>
+          <div class="scale-label" id="scaleLabel">1.00x</div>
+          <button class="icon-btn" id="scaleUpBtn" title="Aumentar"><i class="ph ph-plus"></i></button>
+        </div>
+        <button class="icon-btn" id="soundToggle" title="Alternar Som">
+          <i class="ph ph-speaker-high" id="soundIcon"></i>
+        </button>
+        <button class="icon-btn" id="fullscreenBtn" title="Tela Cheia"><i class="ph ph-arrows-out"></i></button>
+      </div>
+    </div>
+
+    <div class="pages" id="pages">
+      <section id="home" class="page active card">
+        <div class="welcome"><strong>Bem-vindo(a), <span id="profileUserName" class="elegant-name">Recruta</span>!</strong> <span id="welcomeSubtitle">Prepare-se para sua aprovação. Escolha uma modalidade:</span></div>
+        
+        <div class="profile-dashboard">
+          <div class="stat-box">
+             <div class="stat-icon" style="color: #F59E0B;"><i class="ph-fill ph-fire"></i></div>
+             <div class="stat-info">
+               <div class="stat-value" id="streakValue">0 Dias</div>
+               <div class="stat-label">Ofensiva</div>
+             </div>
+          </div>
+          <div class="stat-box">
+             <div class="stat-icon" style="color: #8B5CF6;"><i class="ph-fill ph-medal"></i></div>
+             <div class="stat-info">
+               <div class="stat-value" id="rankValue">Recruta</div>
+               <div class="stat-label"><span id="xpValue">0</span> XP</div>
+             </div>
+          </div>
+        </div>
+
+        <div class="home-actions">
+          <button class="btn btn-primary" onclick="go('resumos')">
+            <i class="ph ph-book-open"></i> <span>Estudar Leis</span>
+          </button>
+          <button class="btn btn-primary" onclick="go('quiz')">
+            <i class="ph ph-target"></i> <span>Fazer Simulado</span>
+          </button>
+          <button class="btn btn-primary" onclick="go('cards')">
+            <i class="ph ph-cards"></i> <span>Flashcards</span>
+          </button>
+          <a href="./Resumos/index.html" class="btn btn-primary">
+            <i class="ph ph-file-text"></i> <span>Resumos</span>
+          </a>
+          <button class="btn btn-primary" onclick="go('dashboard')" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
+            <i class="ph ph-chart-line-up"></i> <span>Desempenho</span>
+          </button>
+        </div>
+        <div class="record-box">
+          <div id="bestRecord" class="record-content">
+            <i class="ph ph-spinner-gap ph-spin"></i> Carregando recorde...
+          </div>
+        </div>
+      </section>
+
+      <section id="dashboard" class="page card">
+        <div class="page-top-bar">
+          <h3 class="page-title"><i class="ph ph-chart-line-up"></i> Meu Desempenho</h3>
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
+        </div>
+
+        <div class="badges-container card-inner">
+          <div class="section-title"><i class="ph-fill ph-trophy"></i> Conquistas</div>
+          <div class="badges-grid" id="badgesGrid">
+            <!-- Renderizado via JS -->
+          </div>
+        </div>
+        
+        <div class="stats-chart-container card-inner">
+          <div class="section-title"><i class="ph-fill ph-chart-bar"></i> Desempenho por Matéria</div>
+          <div id="statsChartBody">
+            <div style="text-align:center; color: var(--text-muted); font-size: 14px;">Responda questões para gerar estatísticas.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="resumos" class="page card">
+
+        <!-- VIEW 1: Lista de Matérias -->
+        <div id="studyView" class="study-view">
+          <div class="page-top-bar">
+            <h3 class="page-title"><i class="ph ph-book-open"></i> Estudar Leis</h3>
+            <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
+          </div>
+          <div id="studyList" class="study-grid">Carregando conteúdos...</div>
+        </div>
+
+        <!-- VIEW 2: Escolha de tipo (Vídeo ou Áudio) -->
+        <div id="mediaPicker" class="study-view" style="display:none;">
+          <div class="page-top-bar">
+            <h3 class="page-title" id="mediaPickerTitle"><i class="ph ph-play-circle"></i> Matéria</h3>
+            <button class="btn-sm" onclick="backToSubjects()"><i class="ph ph-arrow-left"></i> Voltar</button>
+          </div>
+          <div class="media-type-grid">
+            <button class="media-type-btn video-btn" onclick="showMediaList('video')">
+              <div class="media-type-icon">
+                <i class="ph-fill ph-video"></i>
+              </div>
+              <div class="media-type-info">
+                <span class="media-type-label">Aulas em Vídeo</span>
+                <span class="media-type-count" id="videoCount">0 aulas disponíveis</span>
+              </div>
+              <i class="ph ph-arrow-right media-type-arrow"></i>
+            </button>
+            <button class="media-type-btn audio-btn" onclick="showMediaList('audio')">
+              <div class="media-type-icon audio-icon">
+                <i class="ph-fill ph-headphones"></i>
+              </div>
+              <div class="media-type-info">
+                <span class="media-type-label">Aulas em Áudio</span>
+                <span class="media-type-count" id="audioCount">0 aulas disponíveis</span>
+              </div>
+              <i class="ph ph-arrow-right media-type-arrow"></i>
+            </button>
+            <a id="resumoTextLink" href="#" target="_blank" class="media-type-btn resumo-btn">
+              <div class="media-type-icon resumo-icon-btn">
+                <i class="ph-fill ph-file-text"></i>
+              </div>
+              <div class="media-type-info">
+                <span class="media-type-label">Resumo em Texto</span>
+                <span class="media-type-count">Abrir material de apoio</span>
+              </div>
+              <i class="ph ph-arrow-up-right media-type-arrow"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- VIEW 3: Lista de mídias (Vídeos ou Áudios) -->
+        <div id="mediaListView" class="study-view" style="display:none;">
+          <div class="page-top-bar">
+            <h3 class="page-title" id="mediaListTitle"><i class="ph ph-video"></i> Vídeos</h3>
+            <button class="btn-sm" onclick="backToPicker()"><i class="ph ph-arrow-left"></i> Voltar</button>
+          </div>
+          <div id="mediaItemsList" class="media-items-list"></div>
+        </div>
+
+        <!-- VIEW 4: Player (Vídeo embutido ou Áudio) -->
+        <div id="mediaPlayerView" class="study-view" style="display:none;">
+          <div class="page-top-bar">
+            <h3 class="page-title" id="playerTitle" style="font-size:16px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><i class="ph ph-play-circle"></i> Aula</h3>
+            <button class="btn-sm" onclick="backToMediaList()"><i class="ph ph-arrow-left"></i> Voltar</button>
+          </div>
+          <div id="playerContainer"></div>
+        </div>
+
+      </section>
+
+      <section id="quiz" class="page card">
+        <div class="quiz-shell">
+          <!-- Setup do Simulado -->
+          <div id="quizSetup" class="quiz-setup">
+            <div class="page-header-actions">
+              <div class="topic-selector">
+                <label for="topicSelect" style="font-size: 1.1rem; font-weight: 700; color: #fff; display: block; margin-bottom: 8px;"><i class="ph ph-funnel" style="color: var(--primary);"></i> Escolha o Tópico</label>
+                <select id="topicSelect"></select>
+              </div>
+              <button class="btn btn-primary btn-start" id="loadTopicBtn">
+                <i class="ph-fill ph-play-circle"></i> Iniciar Padrão
+              </button>
+              <button class="btn btn-secondary btn-start btn-grande-dia" id="btnGrandeDia" onclick="startGrandeDia()">
+                <i class="ph-fill ph-siren"></i> Simuladão "O Grande Dia" (60Q)
+              </button>
+            </div>
+            <div class="empty-state" style="margin-top:30px;">
+              <i class="ph ph-target"></i>
+              <p id="motivationalText">O Modo Foco ocultará as barras ativando a tela cheia para evitar distrações.</p>
+            </div>
+          </div>
+
+          <!-- MODO FOCO ATIVO -->
+          <div id="quizActive" class="quiz-active" style="display:none; flex-direction:column; height: 100%;">
+            <div id="quizTimerContainer" class="timer-display">
+               <i class="ph-fill ph-clock"></i> <span id="quizTimerDisplay">03:00:00</span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-info">
+                <span id="progressText" class="score-text">Pontos: 0</span>
+                <span id="progressInfo" class="count-text">0 / 0</span>
+              </div>
+              <div class="progress">
+                <div class="track"><div class="bar" id="bar"></div></div>
+              </div>
+            </div>
+
+            <div class="quiz-main">
+              <div class="question-box" id="question">
+                <div class="empty-state">
+                  <i class="ph ph-spinner-gap ph-spin"></i>
+                </div>
+              </div>
+              <div class="opts" id="opts"></div>
+            </div>
+
+            <div class="quiz-footer">
+              <button class="btn-sm" id="btnQuit" onclick="quitQuiz()">
+                <i class="ph ph-x"></i> Abandonar
+              </button>
+              <button class="btn btn-secondary" id="btnRestart" onclick="quitQuiz()" style="display:none; flex:1;">
+                <i class="ph ph-arrows-clockwise"></i> Menu Inicial
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="cards" class="page card">
+        <div class="page-top-bar">
+          <h3 class="page-title"><i class="ph ph-cards"></i> Flashcards</h3>
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
+        </div>
+        <!-- Area preparada para o visual Tinder-style Swipe -->
+        <div class="deck-container">
+           <div id="cardsList" class="deck"></div>
+           <div class="deck-controls" style="text-align:center; margin-top:20px; color:var(--text-muted); font-size:14px; font-weight:600;">
+             <i class="ph ph-arrows-left-right"></i> Arraste o cartão para os lados para pular
+           </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="tabs-nav" role="navigation" id="tabsBar">
+    <button class="tabbtn active" data-target="home" onclick="go('home')">
+      <i class="ph ph-house"></i>
+      <span>Início</span>
+    </button>
+    <button class="tabbtn" data-target="resumos" onclick="go('resumos')">
+      <i class="ph ph-book-open"></i>
+      <span>Estudo</span>
+    </button>
+    <button class="tabbtn" data-target="quiz" onclick="go('quiz')">
+      <i class="ph ph-target"></i>
+      <span>Simulado</span>
+    </button>
+    <button class="tabbtn" data-target="cards" onclick="go('cards')">
+      <i class="ph ph-cards"></i>
+      <span>Cartões</span>
+    </button>
+  </div>
+
+  <!-- Bottom Sheet (Painel Deslizante para Explicação) -->
+  <div id="explainSheet" class="bottom-sheet">
+    <div class="sheet-overlay" onclick="closeExplain()"></div>
+    <div class="sheet-content">
+      <div class="sheet-drag-handle"></div>
+      <div id="explainBody"></div>
+      <button class="btn btn-primary" id="sheetNextBtn" style="width: 100%; margin-top:24px; padding:18px;">
+        Continuar <i class="ph ph-arrow-right"></i>
+      </button>
+      <button class="btn btn-secondary" id="sheetFinishBtn" style="width: 100%; margin-top:24px; padding:18px; display:none;">
+        Ver Resultados <i class="ph ph-flag-checkered"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  
+  <script src="./js/auth.js"></script>
+  <script src="./js/subscription.js"></script>
+  <script src="./js/app.js?v=2.7"></script>
+
+</body>
+</html>
