@@ -45,14 +45,19 @@ auth.onAuthStateChanged(async (user) => {
   // Se não há usuário, redireciona para o login APENAS se estiver em uma página restrita
   if (!user) {
     if (isApp || isResumos) {
-        // Pequeno atraso para evitar falsos negativos durante a transição de estado do Firebase
+        console.log("Aguardando verificação de autenticação para:", normalizedPath);
+        // Atraso de 2 segundos para garantir que o Firebase Auth tenha tempo de inicializar em conexões lentas
         setTimeout(() => {
           if (!auth.currentUser) {
+            console.warn("Redirecionando para login: Usuário não autenticado em página restrita.");
             window.location.href = isResumos ? '../index.html' : 'index.html';
+          } else {
+            console.log("Autenticação confirmada após atraso.");
           }
-        }, 1000);
+        }, 2000);
     }
   } else {
+    console.log("Usuário autenticado:", user.email);
     // Se há usuário, verifica subscrição ou redireciona da landing para o app
     if (isApp || isResumos) {
        await checkSubscription(user);
