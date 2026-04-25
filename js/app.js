@@ -323,7 +323,7 @@ const MEDIA_CATALOG = [
   }
 ];
 
-const GITHUB_RESUMOS_BASE = './Resumos/';
+const GITHUB_RESUMOS_BASE = './resumos/';
 
 // Estado de navegação de mídia
 let currentSubjectId = null;
@@ -376,7 +376,11 @@ function openSubject(subjectId) {
 
   // Link do resumo em texto
   const resumoLink = document.getElementById('resumoTextLink');
-  if (resumoLink) resumoLink.href = GITHUB_RESUMOS_BASE + subject.resumoFile;
+  if (resumoLink) {
+    resumoLink.onclick = () => {
+      openIframe(GITHUB_RESUMOS_BASE + subject.resumoFile, subject.name);
+    };
+  }
 
   // Desabilita botões sem conteúdo
   const videoBtn = document.querySelector('.video-btn');
@@ -1273,6 +1277,60 @@ window.renderStatsChart = function() {
 
 showBestRecord();
 checkStreak();
+
+// ==========================================
+// SPA IFRAME VIEWER (Leitor de Resumos Interno)
+// ==========================================
+let pageBeforeIframe = 'home';
+window.openIframe = function(url, title) {
+    const activePage = document.querySelector('.page.active');
+    if (activePage && activePage.id !== 'iframeViewer') {
+        pageBeforeIframe = activePage.id;
+    }
+    
+    document.getElementById('iframeTitle').innerHTML = `<i class="ph-fill ph-file-text"></i> ${title}`;
+    const iframe = document.getElementById('mainIframe');
+    const loading = document.getElementById('iframeLoading');
+    
+    loading.style.display = 'block';
+    iframe.style.opacity = '0';
+    
+    iframe.onload = function() {
+        loading.style.display = 'none';
+        iframe.style.opacity = '1';
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const backBtn = iframeDoc.querySelector('.back-btn');
+            if (backBtn) {
+                // Intercepta o botão voltar interno do HTML para manter o estado SPA
+                backBtn.onclick = function(e) {
+                    e.preventDefault();
+                    if (iframe.src.includes('index.html')) {
+                        closeIframeViewer();
+                    } else {
+                        // Se o iframe não estiver na página inicial de resumos, 
+                        // tenta voltar no histórico para index, ou fecha se não puder
+                        if(iframe.contentWindow.history.length > 1) {
+                            iframe.contentWindow.history.back();
+                        } else {
+                            closeIframeViewer();
+                        }
+                    }
+                }
+            }
+        } catch(e) {
+            // Pode falhar localmente por restrições de Cross-Origin de arquivos: file://
+        }
+    };
+    
+    iframe.src = url;
+    go('iframeViewer');
+};
+
+window.closeIframeViewer = function() {
+    document.getElementById('mainIframe').src = '';
+    go(pageBeforeIframe);
+};
 updateXPUI();
 if (typeof renderBadges === 'function') renderBadges();
 if (typeof renderStatsChart === 'function') renderStatsChart();
