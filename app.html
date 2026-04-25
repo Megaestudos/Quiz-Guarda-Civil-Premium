@@ -75,9 +75,9 @@
           <button class="btn btn-primary" onclick="go('cards')">
             <i class="ph ph-cards"></i> <span>Flashcards</span>
           </button>
-          <a href="./Resumos/index.html" class="btn btn-primary">
+          <button class="btn btn-primary" onclick="openIframe('./resumos/index.html', 'Resumos')">
             <i class="ph ph-file-text"></i> <span>Resumos</span>
-          </a>
+          </button>
           <button class="btn btn-primary" onclick="go('dashboard')" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
             <i class="ph ph-chart-line-up"></i> <span>Desempenho</span>
           </button>
@@ -170,7 +170,7 @@
               </div>
               <i class="ph ph-arrow-right media-type-arrow"></i>
             </button>
-            <a id="resumoTextLink" href="#" target="_blank" class="media-type-btn resumo-btn">
+            <button id="resumoTextLink" class="media-type-btn resumo-btn" style="text-align: left;">
               <div class="media-type-icon resumo-icon-btn">
                 <i class="ph-fill ph-file-text"></i>
               </div>
@@ -179,7 +179,7 @@
                 <span class="media-type-count">Abrir material de apoio</span>
               </div>
               <i class="ph ph-arrow-up-right media-type-arrow"></i>
-            </a>
+            </button>
           </div>
         </div>
 
@@ -273,6 +273,16 @@
              <i class="ph ph-arrows-left-right"></i> Arraste o cartão para os lados para pular
            </div>
         </div>
+      </section>
+      <section id="iframeViewer" class="page card" style="display:flex; flex-direction:column; height:100%; padding:0; background:var(--bg-dark);">
+        <div class="page-top-bar" style="padding: 20px; border-bottom: 1px solid var(--card-border);">
+          <h3 class="page-title" id="iframeTitle"><i class="ph ph-file-text"></i> Leitor</h3>
+          <button class="btn-sm" onclick="closeIframeViewer()"><i class="ph ph-arrow-left"></i> Voltar</button>
+        </div>
+        <div id="iframeLoading" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:none;">
+          <i class="ph ph-spinner-gap ph-spin" style="font-size:40px; color:var(--primary);"></i>
+        </div>
+        <iframe id="mainIframe" src="" style="width:100%; flex:1; border:none; border-radius:0 0 24px 24px; background:white; position:relative; z-index:2; transition: opacity 0.3s; opacity:0;"></iframe>
       </section>
     </div>
   </div>
