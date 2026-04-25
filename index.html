@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>PlenAula SaaS — O Melhor App para Guarda Civil</title>
+  <title>PlenAula — Entre na sua Conta</title>
   <meta name="theme-color" content="#0B0F19"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,137 +12,89 @@
   
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <link rel="stylesheet" href="./styles.css?v=2.7">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #070A0F;
+      overflow: hidden;
+    }
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+      animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .login-modal-card {
+      background: white;
+      color: #333;
+      padding: 40px;
+      border-radius: 24px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+    .login-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .logo-text {
+      font-size: 32px;
+      font-weight: 900;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .login-badge-icon {
+      margin: 0 auto 10px;
+      width: 60px;
+      height: 60px;
+      background: #fef2f2;
+      color: #ef4444;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    h2 {
+       font-size: 20px;
+       font-weight: 700;
+       color: #111;
+       margin-bottom: 20px;
+    }
+  </style>
 </head>
-
 <body class="landing-body">
   <div class="ambient-glow glow-1" style="width: 80vw; height: 80vw;"></div>
   <div class="ambient-glow glow-2" style="width: 60vw; height: 60vw;"></div>
   
-  <nav class="landing-nav">
-    <div class="nav-content">
-      <div class="logo">
-         <img src="./assets/logo.png" style="height: 48px; object-fit: contain;" alt="Logo" />
-         <span class="logo-text">PlenAula</span>
-      </div>
-      <div>
-         <button class="btn btn-secondary btn-open-login" onclick="openLoginModal()" style="padding: 10px 16px;">Entrar</button>
-      </div>
+  <div class="login-container">
+    <div class="login-logo">
+       <img src="./assets/logo.png" style="height: 64px; object-fit: contain;" alt="Logo" />
+       <span class="logo-text">PlenAula</span>
     </div>
-  </nav>
 
-  <header class="hero-section">
-    <div class="hero-content">
-      <div class="hero-badge">Plataforma Completa GCM <i class="ph ph-sparkle"></i></div>
-      <h1 class="hero-title">Acelere sua aprovação para a <span>Guarda Civil</span></h1>
-      <p class="hero-subtitle">Estude as Leis, decore com Flashcards Inteligentes, realize Simulados e acompanhe seu rendimento.</p>
-      
-      <div class="hero-cta-group">
-         <button class="btn btn-primary btn-lg btn-open-login" onclick="openLoginModal()">
-            <i class="ph-bold ph-rocket-launch"></i> Testar grátis por 4 dias
-         </button>
-         <p class="cta-hint">Acesso instantâneo. Sem cartão de crédito inicial.</p>
-      </div>
-    </div>
-    
-    <div class="hero-mockup">
-       <div class="mockup-window">
-          <div class="mock-header">
-             <div class="mock-dots"><span></span><span></span><span></span></div>
-             <div class="mock-user"><i class="ph-fill ph-user-circle"></i> Recruta #2491</div>
-          </div>
-          <div class="mock-body">
-             <div class="mock-card">
-                <div class="mock-stats">
-                   <div class="mock-icon"><i class="ph-fill ph-book-open"></i></div>
-                   <div class="mock-stat-val">85%</div>
-                </div>
-                <div class="mock-card-title">Direito Penal</div>
-                <div class="mock-progress-container"><div class="mock-progress-fill" style="width: 85%;"></div></div>
-                <div class="mock-stat-label">12/15 Aulas concluídas</div>
-             </div>
-             <div class="mock-card">
-                <div class="mock-stats">
-                   <div class="mock-icon" style="color: #10B981;"><i class="ph-fill ph-scroll"></i></div>
-                   <div class="mock-stat-val">72%</div>
-                </div>
-                <div class="mock-card-title">Português GCM</div>
-                <div class="mock-progress-container"><div class="mock-progress-fill" style="width: 72%; background: linear-gradient(90deg, #10B981, #059669);"></div></div>
-                <div class="mock-stat-label">Próximo Simulado: Amanhã</div>
-             </div>
-             <div class="mock-card">
-                <div class="mock-stats">
-                   <div class="mock-icon" style="color: #F59E0B;"><i class="ph-fill ph-fire"></i></div>
-                   <div class="mock-stat-val">15 Dias</div>
-                </div>
-                <div class="mock-card-title">Ofensiva</div>
-                <div class="mock-progress-container"><div class="mock-progress-fill" style="width: 100%; background: linear-gradient(90deg, #F59E0B, #D97706);"></div></div>
-                <div class="mock-stat-label">Você está voando! 🚀</div>
-             </div>
-          </div>
-       </div>
-    </div>
-  </header>
-
-  <section class="features-section">
-    <div class="section-title-wrap">
-      <h2>Sua farda mais perto do que nunca</h2>
-      <p>Desenvolvido com foco exclusivo na sua performance até o dia da prova.</p>
-    </div>
-    <div class="features-grid">
-       <div class="feature-card">
-         <div class="f-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;"><i class="ph-fill ph-target"></i></div>
-         <h3>Simulados Premium</h3>
-         <p>Treine com questões baseadas nos maiores editais da GCM.</p>
-       </div>
-       <div class="feature-card">
-         <div class="f-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;"><i class="ph-fill ph-cards"></i></div>
-         <h3>Flashcards Tinder-Style</h3>
-         <p>Memorização espaçada deslizando os cards virtuais para direita ou esquerda.</p>
-       </div>
-       <div class="feature-card">
-         <div class="f-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;"><i class="ph-fill ph-chart-line-up"></i></div>
-         <h3>Painel de Desempenho</h3>
-         <p>Acompanhe de perto as matérias mais cobradas e controle seu histórico de acertos.</p>
-       </div>
-    </div>
-  </section>
-
-  <section class="testimonial-section">
-     <div class="testimonial-card">
-        <div class="stars"><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i></div>
-        <q>"O aplicativo mudou minha forma de estudar. Os flashcards são muito dinâmicos e o painel focado em estatísticas mudou o jogo pra mim antes da prova!"</q>
-        <div class="author">
-           <div class="avatar"><i class="ph-fill ph-user"></i></div>
-           <div><strong>Marcos Oliveira</strong><br><span>Aprovado GCM-SP</span></div>
-        </div>
-     </div>
-  </section>
-
-  <footer class="landing-footer">
-    <div class="footer-cta">
-        <h2>Pronto para assumir seu cargo?</h2>
-        <p>Comece agora mesmo a focar nos detalhes que farão a diferença.</p>
-        <button class="btn btn-primary btn-lg btn-open-login" onclick="openLoginModal()" style="margin-top: 20px;">
-           Entrar e Testar Grátis
-        </button>
-    </div>
-    <div class="footer-bot">
-       <div class="logo-text" style="font-size: 18px; color: var(--text-muted);"><i class="ph-fill ph-shield-star"></i> PlenAula SaaS</div>
-       <p style="margin-top: 10px; color: var(--text-muted); font-size: 13px;">&copy; 2026 Reservados.</p>
-    </div>
-  </footer>
-
-  <!-- MODAL DE LOGIN -->
-  <div class="login-modal-overlay" id="loginModalOverlay">
     <div class="login-modal-card">
-       <button class="login-close-btn" onclick="closeLoginModal()"><i class="ph ph-x"></i></button>
        <div class="login-badge-icon"><i class="ph-fill ph-shield-check"></i></div>
-       <h2>Entre na sua conta para<br>continuar seus estudos!</h2>
+       <h2>Sua Aprovação Começa Aqui!<br>Entre para estudar:</h2>
        
-       <button class="btn btn-facebook">
+       <button class="btn btn-facebook" style="width: 100%;">
            <i class="ph-fill ph-facebook-logo" style="font-size:20px;"></i> Entrar com Facebook
        </button>
-       <button class="btn btn-google btn-google-login">
+       <button class="btn btn-google btn-google-login" style="width: 100%;">
            <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" style="width: 18px;" /> Entrar com Google
        </button>
        
@@ -153,7 +105,6 @@
           <label>Senha</label>
           <div class="input-pass">
               <input type="password" placeholder="Sua senha" />
-              <button class="btn-show-pass"><i class="ph ph-eye"></i> Mostrar</button>
           </div>
           
           <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">Entrar</button>
