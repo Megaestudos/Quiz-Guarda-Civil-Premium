@@ -56,3 +56,10 @@ async function logoutUser() {
   await auth.signOut();
   window.location.href = "index.html";
 }
+
+// Redirecionamento automático se já estiver logado (e estiver na landing page)
+auth.onAuthStateChanged(user => {
+  if (user && window.location.pathname.includes('index.html')) {
+    window.location.href = "app.html";
+  }
+});
