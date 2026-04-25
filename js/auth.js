@@ -54,12 +54,28 @@ async function loginWithGoogle() {
 
 async function logoutUser() {
   await auth.signOut();
-  window.location.href = "index.html";
+  window.location.href = "login.html";
 }
 
-// Redirecionamento automático se já estiver logado (e estiver na landing page)
+// Login com E-mail e Senha
+async function loginWithEmailPassword(email, password) {
+  try {
+    const result = await auth.signInWithEmailAndPassword(email, password);
+    window.location.href = "app.html";
+  } catch (error) {
+    console.error("Erro no login: ", error);
+    let msg = "Erro ao entrar. Verifique seu e-mail e senha.";
+    if (error.code === 'auth/user-not-found') msg = "Usuário não encontrado.";
+    if (error.code === 'auth/wrong-password') msg = "Senha incorreta.";
+    alert(msg);
+    throw error;
+  }
+}
+
+// Redirecionamento automático se já estiver logado
 auth.onAuthStateChanged(user => {
-  if (user && window.location.pathname.includes('index.html')) {
+  const isLoginPage = window.location.pathname.includes('index.html') || window.location.pathname.includes('login.html');
+  if (user && isLoginPage) {
     window.location.href = "app.html";
   }
 });
