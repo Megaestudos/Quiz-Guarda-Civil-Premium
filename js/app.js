@@ -827,36 +827,42 @@ async function renderEditais() {
   container.innerHTML = `
     <div class="loading-state">
       <i class="ph ph-spinner-gap ph-spin"></i>
-      <p>Consultando banco de dados...</p>
+      <p>Tentando ler o Firebase...</p>
     </div>
   `;
 
   try {
     const db = getFirestoreDb();
-    // Buscamos todos para evitar problemas de filtro maiúsculo/minúsculo no servidor
+    // BUSCA TOTAL - SEM FILTROS
     const snap = await db.collection('editais').get();
     
     let dbEditais = [];
     snap.forEach(doc => {
       const data = doc.data();
-      // Normaliza o status para comparar
       const statusDb = (data.status || '').toLowerCase().trim();
       if (statusDb === currentEditalTab) {
-        dbEditais.push({ id: doc.id, ...data });
+        dbEditais.push({ id: doc.id, ...data, origin: '🔥 Firebase' });
       }
     });
 
-    // Se o Firebase retornou algo, usamos. Se não, usamos a lista reserva.
-    let editaisParaExibir = dbEditais.length > 0 ? dbEditais : getSeedEditais(currentEditalTab);
+    let editaisParaExibir = [];
+    let isLegacy = false;
 
-    // Se ainda assim estiver vazio (raro)
-    if (editaisParaExibir.length === 0) {
-      container.innerHTML = '<div class="loading-state"><p>Nenhum edital encontrado.</p></div>';
-      return;
+    if (dbEditais.length > 0) {
+      editaisParaExibir = dbEditais;
+    } else {
+      editaisParaExibir = getSeedEditais(currentEditalTab).map(x => ({ ...x, origin: '📦 Local (Offline)' }));
+      isLegacy = true;
     }
 
     container.innerHTML = '';
     
+    // Pequeno aviso de status para o administrador (você) saber de onde vem o dado
+    const statusMsg = document.createElement('div');
+    statusMsg.style = "font-size: 10px; color: var(--text-muted); text-align: center; margin-bottom: 10px;";
+    statusMsg.innerText = isLegacy ? "Aviso: Mostrando dados locais (Firebase vazio ou inacessível)" : `Sucesso: ${dbEditais.length} itens carregados do Firebase`;
+    container.appendChild(statusMsg);
+
     editaisParaExibir.forEach(ed => {
       const card = document.createElement('div');
       card.className = 'edital-card';
@@ -877,18 +883,18 @@ async function renderEditais() {
             <span class="edital-info-val">${ed.vagas || '—'}</span>
           </div>
           <div class="edital-info-item">
-            <span class="edital-info-label">Inscrições</span>
+            <span class="edital-info-label">Inscrição</span>
             <span class="edital-info-val">${ed.inscricao || '—'}</span>
           </div>
           <div class="edital-info-item">
-            <span class="edital-info-label">Prova</span>
-            <span class="edital-info-val">${ed.prova || 'A definir'}</span>
+            <span class="edital-info-label">Info</span>
+            <span class="edital-info-val" style="font-size: 9px; color: var(--primary);">${ed.origin}</span>
           </div>
         </div>
 
         <div class="edital-action">
           <a href="${ed.link || '#'}" target="_blank" class="btn-edital">
-            Ver Edital Oficial <i class="ph ph-arrow-square-out"></i>
+            Ver Detalhes <i class="ph ph-arrow-square-out"></i>
           </a>
         </div>
       `;
@@ -896,28 +902,8 @@ async function renderEditais() {
     });
 
   } catch (e) {
-    console.warn("Firestore inacessível, usando dados locais:", e);
-    const editais = getSeedEditais(currentEditalTab);
-    container.innerHTML = '';
-    editais.forEach(ed => {
-      const card = document.createElement('div');
-      card.className = 'edital-card';
-      card.innerHTML = `
-        <div class="edital-header">
-          <h4 class="edital-title">${ed.titulo}</h4>
-          <span class="edital-badge badge-${ed.status}">${ed.status === 'aberto' ? 'Aberto' : 'Previsto'}</span>
-        </div>
-        <div class="edital-org"><i class="ph-fill ph-buildings"></i> ${ed.orgao}</div>
-        <div class="edital-info-row">
-            <div class="edital-info-item"><span class="edital-info-label">Cargo</span><span class="edital-info-val">${ed.cargo}</span></div>
-            <div class="edital-info-item"><span class="edital-info-label">Vagas</span><span class="edital-info-val">${ed.vagas}</span></div>
-        </div>
-        <div class="edital-action">
-          <a href="${ed.link || '#'}" target="_blank" class="btn-edital">Ver Detalhes</a>
-        </div>
-      `;
-      container.appendChild(card);
-    });
+    console.error("DEBUG FIREBASE:", e);
+    container.innerHTML = `<div class="loading-state"><p>Erro crítico de conexão. Verifique o console (F12).</p></div>`;
   }
 }
 
