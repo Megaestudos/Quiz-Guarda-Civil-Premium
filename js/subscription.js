@@ -1,15 +1,68 @@
 let currentUserDoc = null;
 let countdownInterval = null;
 
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos
+const AUTH_CHECK_DELAY_MS = 2000; // Tempo de espera para o Firebase validar o login (ms)
+
+function updateLastActivity() {
+  if (auth.currentUser) {
+    localStorage.setItem('plenaula_last_activity', Date.now());
+  }
+}
+
+// Atualiza a atividade sempre que o aluno interagir com o app
+window.addEventListener('click', updateLastActivity, { passive: true });
+window.addEventListener('keypress', updateLastActivity, { passive: true });
+window.addEventListener('scroll', updateLastActivity, { passive: true });
+
 auth.onAuthStateChanged(async (user) => {
+  const path = window.location.pathname.toLowerCase();
+  // Normaliza o caminho para lidar com barras invertidas no Windows e maiúsculas
+  const normalizedPath = path.replace(/\\/g, '/');
+  
+  const isResumos = normalizedPath.includes('/resumos/');
+  const isApp = normalizedPath.endsWith('/app.html') || normalizedPath.endsWith('app.html');
+  const isLanding = (normalizedPath.endsWith('index.html') && !isResumos) || 
+                    (normalizedPath.endsWith('/') && !isResumos) || 
+                    normalizedPath.includes('/sass');
+
+  if (user) {
+    const lastActivity = localStorage.getItem('plenaula_last_activity');
+    if (lastActivity) {
+       const timeDiff = Date.now() - parseInt(lastActivity);
+       if (timeDiff > SESSION_TIMEOUT_MS) {
+          localStorage.removeItem('plenaula_last_activity');
+          await auth.signOut();
+          
+          if (isApp || isResumos) {
+              window.location.href = isResumos ? '../index.html' : 'index.html';
+          }
+          return;
+       }
+    }
+    updateLastActivity();
+  }
+
+  // Se não há usuário, redireciona para o login APENAS se estiver em uma página restrita
   if (!user) {
-    if (window.location.pathname.includes('app.html')) {
-        window.location.href = 'index.html';
+    if (isApp || isResumos) {
+        console.log("Aguardando verificação de autenticação para:", normalizedPath);
+        // Tempo de espera configurável para evitar falsos negativos em conexões lentas
+        setTimeout(() => {
+          if (!auth.currentUser) {
+            console.warn("Redirecionando para login: Usuário não autenticado em página restrita.");
+            window.location.href = isResumos ? '../index.html' : 'index.html';
+          } else {
+            console.log("Autenticação confirmada após atraso.");
+          }
+        }, AUTH_CHECK_DELAY_MS);
     }
   } else {
-    if (window.location.pathname.includes('app.html')) {
+    console.log("Usuário autenticado:", user.email);
+    // Se há usuário, verifica subscrição ou redireciona da landing para o app
+    if (isApp || isResumos) {
        await checkSubscription(user);
-    } else if (window.location.pathname.includes('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/APP%20PlenAula%20-%20SASS/')) {
+    } else if (isLanding) {
        window.location.href = 'app.html';
     }
   }
@@ -30,108 +83,24 @@ async function checkSubscription(user) {
       const userNameEl = document.getElementById('profileUserName');
       if(userNameEl) {
          let rawName = data.displayName || 'Recruta';
-         userNameEl.innerText = rawName.toLowerCase().replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+         userNameEl.textContent = rawName.toLowerCase().replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
       }
       
-      if (data.plan === 'free') {
-        const endDate = new Date(data.trialEnd);
-        if (now > endDate || data.status === 'expired') {
-          if(data.status !== 'expired') await docRef.update({status: 'expired'});
-          showPaywall();
-        } else {
-          startCountdown(endDate);
-        }
-      } else if (data.plan === 'premium') {
-        const premiumEnd = new Date(data.premiumEnd);
-        if (now > premiumEnd || data.status === 'expired') {
-          if(data.status !== 'expired') await docRef.update({status: 'expired'});
-          showPaywall(true); 
-        } else {
-           const container = document.getElementById('timerContainer');
-           if(container) container.style.display = 'none';
-        }
-      }
     } else {
-      // Falha de sincronia - não existe no firestore, refaz setup ou deloga
-      logoutUser();
+      // Falha de sincronia (o redirecionamento interrompeu o registro original)
+      // A plataforma agora é 100% gratuita, então o App auto-repara o banco instantaneamente
+      await docRef.set({
+        email: user.email || "Sem email",
+        displayName: user.displayName || "Aluno Cursista",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        plan: "premium",
+        status: "active"
+      });
+      console.log("Perfil auto-reparado com acesso livre.");
+      // Recarrega a própria função na sequência para o fluxo normal de boas vindas
+      await checkSubscription(user);
     }
   } catch(e) {
     console.error("Erro ao checar subscrição:", e);
   }
-}
-
-function startCountdown(endDate) {
-  const container = document.getElementById('timerContainer');
-  const timerText = document.getElementById('timerText');
-  if(!container || !timerText) return;
-  
-  container.style.display = 'flex';
-  
-  countdownInterval = setInterval(() => {
-    const now = new Date().getTime();
-    const distance = endDate.getTime() - now;
-    
-    if (distance < 0) {
-      clearInterval(countdownInterval);
-      showPaywall();
-      return;
-    }
-    
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-    timerText.innerText = `${days}d ${hours}h ${minutes}m`;
-    
-    // Smooth insertion on mobile into existing text instead of giant badge
-    const welcomeSubtitle = document.getElementById('welcomeSubtitle');
-    if (welcomeSubtitle && window.innerWidth <= 600) {
-        welcomeSubtitle.innerHTML = `O teste Vip expira em <strong style="color:var(--danger)">${days}d e ${hours}h</strong>. Bons estudos:`;
-    }
-  }, 1000);
-}
-
-function showPaywall(isRenewal = false) {
-  const paywallEl = document.getElementById('paywallOverlay');
-  if(paywallEl) paywallEl.classList.add('show');
-  
-  if (isRenewal) {
-    const msg = document.getElementById('paywallMessage');
-    if(msg) msg.innerHTML = "<strong>Sua assinatura anual expirou.</strong><br> Renove agora para continuar sua preparação e acessar todo conteúdo!";
-  }
-}
-
-window.handlePaymentSimulation = async function() {
-   if (!auth.currentUser) return;
-   const btn = document.getElementById('payBtn');
-   const originalText = btn.innerHTML;
-   btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Processando Pagamento...';
-   btn.disabled = true;
-   
-   setTimeout(async () => {
-      try {
-        const now = new Date();
-        const premiumEnd = new Date(now.getTime() + (PREMIUM_DAYS * 24 * 60 * 60 * 1000));
-        
-        await db.collection('users').doc(auth.currentUser.uid).update({
-            plan: 'premium',
-            status: 'active',
-            premiumStart: now.toISOString(),
-            premiumEnd: premiumEnd.toISOString()
-        });
-        
-        btn.innerHTML = '<i class="ph-fill ph-check-circle"></i> Sucesso!';
-        btn.className = "btn-pay btn-success";
-        
-        setTimeout(() => {
-             window.location.reload();
-        }, 1500);
-      } catch(e) {
-         console.error(e);
-         alert("Erro no pagamento simulado. Tente novamente.");
-         btn.innerHTML = originalText;
-         btn.disabled = false;
-      }
-   }, 2000); 
 }
