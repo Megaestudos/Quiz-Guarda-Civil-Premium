@@ -1,6 +1,5 @@
 const firebaseConfig = {
-  // ATENÇÃO: Substitua os valores abaixo com os do seu novo projeto no Console do Firebase
-  apiKey: "AIzaSyD2c_pcK6L9PFrYxBVRWWuZVVh3XKEfr-o", 
+  apiKey: "AIzaSyD2c_pcK6L9PFrYxBVRWWuZVVh3XKEfr-o",
   authDomain: "simulados-concursos-22c91.firebaseapp.com",
   projectId: "simulados-concursos-22c91",
   storageBucket: "simulados-concursos-22c91.firebasestorage.app",
@@ -14,68 +13,56 @@ if (!firebase.apps.length) {
 
 const auth = firebase.auth();
 const db = firebase.firestore();
-const provider = new firebase.auth.GoogleAuthProvider();
 
-const TRIAL_DAYS = 4;
-const PREMIUM_DAYS = 365;
+// Acesso 100% gratuito e vitalício
 
-async function loginWithGoogle() {
+async function loginWithEmail(email, password) {
   try {
-    const result = await auth.signInWithPopup(provider);
+    await auth.signInWithEmailAndPassword(email, password);
+    window.location.href = "app.html";
+  } catch (error) {
+    console.error("Erro no login: ", error);
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      throw new Error("E-mail ou senha incorretos.");
+    } else {
+      throw new Error("Ocorreu um erro. Tente novamente.");
+    }
+  }
+}
+
+async function registerWithEmail(name, email, password) {
+  try {
+    const result = await auth.createUserWithEmailAndPassword(email, password);
     const user = result.user;
     
-    const userRef = db.collection('users').doc(user.uid);
-    const doc = await userRef.get();
+    await user.updateProfile({
+      displayName: name
+    });
 
-    if (!doc.exists) {
-      const now = new Date();
-      const trialEnd = new Date(now.getTime() + (TRIAL_DAYS * 24 * 60 * 60 * 1000));
-      
-      await userRef.set({
-        email: user.email,
-        displayName: user.displayName,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        plan: "free",
-        trialStart: now.toISOString(),
-        trialEnd: trialEnd.toISOString(),
-        status: "active"
-      });
-    }
+    const userRef = db.collection('users').doc(user.uid);
+    await userRef.set({
+      email: user.email,
+      displayName: name,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      plan: "premium",
+      status: "active"
+    });
 
     window.location.href = "app.html";
      
   } catch (error) {
-    console.error("Erro no login: ", error);
-    if(error.code !== 'auth/popup-closed-by-user') {
-      alert("Falha ao entrar com Google. Tente novamente.");
+    console.error("Erro no registro/login: ", error);
+    if (error.code === 'auth/email-already-in-use') {
+       throw new Error("Este e-mail já está cadastrado.");
+    } else if (error.code === 'auth/weak-password') {
+       throw new Error("A senha deve ter pelo menos 6 caracteres.");
+    } else {
+       throw new Error(error.message || "Erro desconhecido ao tentar acessar o servidor.");
     }
   }
 }
 
 async function logoutUser() {
   await auth.signOut();
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }
-
-// Login com E-mail e Senha
-async function loginWithEmailPassword(email, password) {
-  try {
-    const result = await auth.signInWithEmailAndPassword(email, password);
-    window.location.href = "app.html";
-  } catch (error) {
-    console.error("Erro no login: ", error);
-    let msg = "Erro ao entrar. Verifique seu e-mail e senha.";
-    if (error.code === 'auth/user-not-found') msg = "Usuário não encontrado.";
-    if (error.code === 'auth/wrong-password') msg = "Senha incorreta.";
-    alert(msg);
-    throw error;
-  }
-}
-
-// Redirecionamento automático se já estiver logado
-auth.onAuthStateChanged(user => {
-  const isLoginPage = window.location.pathname.includes('index.html') || window.location.pathname.includes('login.html');
-  if (user && isLoginPage) {
-    window.location.href = "app.html";
-  }
-});
