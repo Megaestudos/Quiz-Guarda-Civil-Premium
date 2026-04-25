@@ -4,8 +4,8 @@ const firebaseConfig = {
   authDomain: "simulados-concursos-22c91.firebaseapp.com",
   projectId: "simulados-concursos-22c91",
   storageBucket: "simulados-concursos-22c91.firebasestorage.app",
-  messagingSenderId: "COLE_SEU_MESSAGING_SENDER_ID_AQUI",
-  appId: "COLE_SEU_APP_ID_AQUI",
+  messagingSenderId: "863699339166",
+  appId: "1:863699339166:web:2fd125a35c090ca1ae388f",
   measurementId: "COLE_SEU_MEASUREMENT_ID_AQUI"
 };
 
