@@ -1,11 +1,12 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyDXBrNIPfIBAkom9fafCorwhUw1FQ9nSCg",
-  authDomain: "plenaula-concursos.firebaseapp.com",
-  projectId: "plenaula-concursos",
-  storageBucket: "plenaula-concursos.firebasestorage.app",
-  messagingSenderId: "433280443325",
-  appId: "1:433280443325:web:8ed2a8bea4b3e4d6d9a8d4",
-  measurementId: "G-908KRQCKS8"
+  // ATENÇÃO: Substitua a apiKey e o appId com os valores do seu novo projeto no Console do Firebase
+  apiKey: "COLE_SUA_API_KEY_AQUI", 
+  authDomain: "simulados-concursos-22c91.firebaseapp.com",
+  projectId: "simulados-concursos-22c91",
+  storageBucket: "simulados-concursos-22c91.firebasestorage.app",
+  messagingSenderId: "COLE_SEU_MESSAGING_SENDER_ID_AQUI",
+  appId: "COLE_SEU_APP_ID_AQUI",
+  measurementId: "COLE_SEU_MEASUREMENT_ID_AQUI"
 };
 
 if (!firebase.apps.length) {
