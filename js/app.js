@@ -1,4 +1,4 @@
-
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec';
 const TEMPLATE_QUIZ_SIZE = 20;
 let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
 let isGrandeDia = false; let grandeDiaInterval = null;
@@ -34,6 +34,7 @@ window.showPage = window.go = function(id) {
   if(id === 'resumos' || id === 'study') renderStudies();
   if(id === 'cards') renderCards();
   if(id === 'quiz' && !quizStarted) showTopicSelection();
+  if(id === 'editais') renderEditais();
   
   // Scroll para o topo
   window.scrollTo({top: 0, behavior: 'smooth'});
@@ -48,7 +49,7 @@ function checkStreak() {
     if (diffDays > 1) { streak = 0; localStorage.setItem(STREAK_KEY, streak); }
   }
   const el = document.getElementById('streakValue');
-  if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
+  if(el) el.innerText = `${streak} Dia${streak!==1?'s':''}`;
 }
 
 function registerStudyDay() {
@@ -62,7 +63,7 @@ function registerStudyDay() {
     localStorage.setItem(LAST_DATE_KEY, todayStr);
   }
   const el = document.getElementById('streakValue');
-  if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
+  if(el) el.innerText = `${streak} Dia${streak!==1?'s':''}`;
 }
 
 function getRankName(xp) {
@@ -79,8 +80,8 @@ function updateXPUI() {
   const xp = parseInt(localStorage.getItem(XP_KEY) || '0');
   const elXP = document.getElementById('xpValue');
   const elRank = document.getElementById('rankValue');
-  if(elXP) elXP.textContent = xp;
-  if(elRank) elRank.textContent = getRankName(xp);
+  if(elXP) elXP.innerText = xp;
+  if(elRank) elRank.innerText = getRankName(xp);
 }
 
 function addXP(amount) {
@@ -109,7 +110,7 @@ function setScale(v){
   document.getElementById('appRoot').style.transform = `scale(${v.toFixed(2)})`;
   document.getElementById('appRoot').style.transformOrigin = 'top center';
   const label = document.getElementById('scaleLabel');
-  if(label) label.textContent = v.toFixed(2) + 'x';
+  if(label) label.innerText = v.toFixed(2) + 'x';
   localStorage.setItem(SCALE_KEY, v.toFixed(2));
 }
 document.addEventListener('DOMContentLoaded', () => {
@@ -322,7 +323,7 @@ const MEDIA_CATALOG = [
   }
 ];
 
-const GITHUB_RESUMOS_BASE = 'https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/';
+const GITHUB_RESUMOS_BASE = 'https://megaestudos.github.io/PlenAula/Resumos/';
 
 // Estado de navegação de mídia
 let currentSubjectId = null;
@@ -362,9 +363,8 @@ function openSubject(subjectId) {
   if (!subject) return;
 
   // Atualiza título
-  const titleEl = document.getElementById('mediaPickerTitle');
-  titleEl.innerHTML = `<i class="ph-fill ${subject.icon}"></i> <span id="mPickerName"></span>`;
-  document.getElementById('mPickerName').textContent = subject.name;
+  document.getElementById('mediaPickerTitle').innerHTML =
+    `<i class="ph-fill ${subject.icon}"></i> ${subject.name}`;
 
   // Atualiza contadores
   const vCount = subject.videos.length;
@@ -397,10 +397,8 @@ window.showMediaList = function(type) {
   // Atualiza título
   const icon = type === 'video' ? 'ph-video' : 'ph-headphones';
   const label = type === 'video' ? 'Aulas em Vídeo' : 'Aulas em Áudio';
-  const listTitleEl = document.getElementById('mediaListTitle');
-  listTitleEl.innerHTML = `<i class="ph-fill ${icon}"></i> <span id="mListLabelText"></span> — <span id="mListSubjName"></span>`;
-  document.getElementById('mListLabelText').textContent = label;
-  document.getElementById('mListSubjName').textContent = subject.name;
+  document.getElementById('mediaListTitle').innerHTML =
+    `<i class="ph-fill ${icon}"></i> ${label} — ${subject.name}`;
 
   // Renderiza lista
   const listEl = document.getElementById('mediaItemsList');
@@ -423,20 +421,18 @@ window.showMediaList = function(type) {
     card.innerHTML = `
       <div class="media-item-thumb ${type === 'audio' ? 'audio-thumb' : ''}">
         ${item.youtubeId
-          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ph-${type === 'video' ? 'video' : 'headphones'}\\'></i>'">`
+          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="${item.title}" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ph-${type === 'video' ? 'video' : 'headphones'}\\'></i>'">`
           : `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i>`
         }
         <div class="media-play-overlay"><i class="ph-fill ph-play-circle"></i></div>
       </div>
       <div class="media-item-info">
         <div class="media-item-num">Aula ${index + 1}</div>
-        <div class="media-item-title" id="mItemTitle_${index}"></div>
-        ${item.duration ? `<div class="media-item-dur"><i class="ph ph-clock"></i> <span id="mItemDur_${index}"></span></div>` : ''}
+        <div class="media-item-title">${item.title}</div>
+        ${item.duration ? `<div class="media-item-dur"><i class="ph ph-clock"></i> ${item.duration}</div>` : ''}
       </div>
       <i class="ph ph-caret-right media-item-arrow"></i>
     `;
-    card.querySelector(`#mItemTitle_${index}`).textContent = item.title;
-    if(item.duration) card.querySelector(`#mItemDur_${index}`).textContent = item.duration;
     card.onclick = () => openMediaPlayer(item, type);
     listEl.appendChild(card);
   });
@@ -446,9 +442,8 @@ window.showMediaList = function(type) {
 
 function openMediaPlayer(item, type) {
   const subject = MEDIA_CATALOG.find(s => s.id === currentSubjectId);
-  const playerTitle = document.getElementById('playerTitle');
-  playerTitle.innerHTML = `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i> <span id="pTitleText"></span>`;
-  document.getElementById('pTitleText').textContent = item.title;
+  const titleEl = document.getElementById('playerTitle');
+  titleEl.innerHTML = `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i> ${item.title}`;
 
   const pc = document.getElementById('playerContainer');
   pc.innerHTML = '';
@@ -550,7 +545,7 @@ async function showTopicSelection(){
     ];
     const motivacionalEl = document.getElementById('motivationalText');
     if (motivacionalEl) {
-      motivacionalEl.textContent = motivacionais[Math.floor(Math.random() * motivacionais.length)];
+      motivacionalEl.innerText = motivacionais[Math.floor(Math.random() * motivacionais.length)];
     }
 
     const select = document.getElementById('topicSelect');
@@ -629,10 +624,10 @@ function renderQuestion(){
   if (currentIndex >= POOL.length) { finishQuiz(); return; }
   const q = POOL[currentIndex];
 
-  const qBox = document.getElementById('question');
-  qBox.innerHTML = '<div class="topic-tag"><i class="ph ph-bookmark-simple"></i> <span id="qTopicText"></span></div><div class="q-text" id="qMainText"></div>';
-  document.getElementById('qTopicText').textContent = q_topic(q);
-  document.getElementById('qMainText').textContent = q_text(q);
+  document.getElementById('question').innerHTML = `
+    <div class="topic-tag"><i class="ph ph-bookmark-simple"></i> ${q_topic(q)}</div>
+    <div class="q-text">${q_text(q)}</div>
+  `;
 
   const opts = document.getElementById('opts');
   opts.innerHTML = '';
@@ -641,15 +636,7 @@ function renderQuestion(){
     if (!txt) return;
     const btn = document.createElement('button');
     btn.className = 'opt'; btn.id = 'opt_' + letter;
-    const spanLetter = document.createElement('span');
-    spanLetter.style.cssText = "font-weight:800; color:var(--primary); min-width:24px;";
-    spanLetter.textContent = `${letter})`;
-    
-    const spanText = document.createElement('span');
-    spanText.textContent = txt;
-    
-    btn.appendChild(spanLetter);
-    btn.appendChild(spanText);
+    btn.innerHTML = `<span style="font-weight:800; color:var(--primary); min-width:24px;">${letter})</span> <span>${txt}</span>`;
     btn.onclick = () => selectOption(letter);
     opts.appendChild(btn);
   });
@@ -657,7 +644,7 @@ function renderQuestion(){
   const pct = POOL.length ? Math.round((currentIndex / POOL.length) * 100) : 0;
   document.getElementById('bar').style.width = pct + '%';
   document.getElementById('progressInfo').innerText = POOL.length ? `${currentIndex + 1} / ${POOL.length}` : '0 / 0';
-  document.getElementById('progressText').textContent = `Pontos: ${score}`;
+  document.getElementById('progressText').innerText = `Pontos: ${score}`;
   
   document.getElementById('sheetNextBtn').style.display = (currentIndex < POOL.length - 1) ? 'block' : 'none';
   document.getElementById('sheetFinishBtn').style.display = (currentIndex === POOL.length - 1) ? 'block' : 'none';
@@ -695,16 +682,10 @@ function selectOption(letter){
   const iconHtml = isCorrect ? '<i class="ph-fill ph-check-circle"></i> Acertou!' : '<i class="ph-fill ph-x-circle"></i> Errou!';
   const colorClass = isCorrect ? 'var(--success)' : 'var(--danger)';
   
-  const explBody = document.getElementById('explainBody');
-  explBody.innerHTML = `
-    <div id="explTitle" style="font-size: 24px; font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom: 12px;"></div>
-    <div id="explText" style="font-size:15px; color:var(--text-main); line-height:1.6;"></div>
+  document.getElementById('explainBody').innerHTML = `
+    <div style="color:${colorClass}; font-size: 24px; font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom: 12px;">${iconHtml}</div>
+    <div style="font-size:15px; color:var(--text-main); line-height:1.6;">${q_expl(q) || 'Nenhuma explicação técnica fornecida para esta questão.'}</div>
   `;
-  const explTitle = document.getElementById('explTitle');
-  explTitle.style.color = colorClass;
-  explTitle.innerHTML = iconHtml;
-  
-  document.getElementById('explText').textContent = q_expl(q) || 'Nenhuma explicação técnica fornecida para esta questão.';
   document.getElementById('explainSheet').classList.add('show');
 }
 
@@ -740,13 +721,11 @@ function finishQuiz(){
   if(grandeDiaInterval) { clearInterval(grandeDiaInterval); grandeDiaInterval = null; }
   document.getElementById('quizTimerContainer').style.display = 'none';
 
-    const qBox = document.getElementById('question');
-    qBox.innerHTML = `
-      <div class="finish-title">
-        <i class="ph-fill ph-check-circle"></i> <span id="finishScoreText"></span>
-      </div>
-    `;
-    document.getElementById('finishScoreText').textContent = `Fim! Você acertou ${score} de ${POOL.length}`;
+  document.getElementById('question').innerHTML = `
+    <div class="finish-title">
+      <i class="ph-fill ph-check-circle"></i> Fim! Você acertou ${score} de ${POOL.length}
+    </div>
+  `;
   document.getElementById('opts').innerHTML = '';
   document.getElementById('btnRestart').style.display = 'block';
   document.getElementById('btnQuit').style.display = 'none';
@@ -824,8 +803,158 @@ async function renderCards(){
       `;
       container.appendChild(el);
     }
-    setupTinderSwipe();
-  } catch(e) { container.innerHTML = 'Erro ao carregar.'; }
+  } catch (e) {
+    console.error("Erro no swipe:", e);
+  }
+}
+
+// =====================================================================
+// LÓGICA DE EDITAIS E CONCURSOS
+// =====================================================================
+let currentEditalTab = 'aberto';
+
+window.switchEditalTab = function(status) {
+  currentEditalTab = status;
+  document.getElementById('tabAbertos').classList.toggle('active', status === 'aberto');
+  document.getElementById('tabPrevistos').classList.toggle('active', status === 'previsto');
+  renderEditais();
+};
+
+async function renderEditais() {
+  const container = document.getElementById('editaisList');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="loading-state">
+      <i class="ph ph-spinner-gap ph-spin"></i>
+      <p>Buscando concursos de ${currentEditalTab === 'aberto' ? 'Editais Abertos' : 'Editais Previstos'}...</p>
+    </div>
+  `;
+
+  try {
+    const db = getFirestoreDb();
+    const snap = await db.collection('editais')
+                         .where('status', '==', currentEditalTab)
+                         .get();
+    
+    let editais = [];
+    snap.forEach(doc => editais.push({ id: doc.id, ...doc.data() }));
+
+    // Fallback: Se não houver nada no Firebase, mostra dados reais recentes (SEED)
+    if (editais.length === 0) {
+      editais = getSeedEditais(currentEditalTab);
+    }
+
+    container.innerHTML = '';
+    
+    if (editais.length === 0) {
+      container.innerHTML = `
+        <div class="loading-state">
+          <i class="ph ph-info"></i>
+          <p>Nenhum concurso encontrado para esta categoria no momento.</p>
+        </div>
+      `;
+      return;
+    }
+
+    editais.forEach(ed => {
+      const card = document.createElement('div');
+      card.className = 'edital-card';
+      card.innerHTML = `
+        <div class="edital-header">
+          <h4 class="edital-title">${ed.titulo}</h4>
+          <span class="edital-badge badge-${ed.status}">${ed.status === 'aberto' ? 'Aberto' : 'Previsto'}</span>
+        </div>
+        <div class="edital-org"><i class="ph-fill ph-buildings"></i> ${ed.orgao}</div>
+        
+        <div class="edital-info-row">
+          <div class="edital-info-item">
+            <span class="edital-info-label">Cargo</span>
+            <span class="edital-info-val">${ed.cargo || 'GCM'}</span>
+          </div>
+          <div class="edital-info-item">
+            <span class="edital-info-label">Vagas</span>
+            <span class="edital-info-val">${ed.vagas || 'Consultar'}</span>
+          </div>
+          <div class="edital-info-item">
+            <span class="edital-info-label">Inscrições</span>
+            <span class="edital-info-val">${ed.inscricao || '—'}</span>
+          </div>
+          <div class="edital-info-item">
+            <span class="edital-info-label">Prova</span>
+            <span class="edital-info-val">${ed.prova || 'A definir'}</span>
+          </div>
+        </div>
+
+        <div class="edital-action">
+          <a href="${ed.link || '#'}" target="_blank" class="btn-edital">
+            <i class="ph ph-external-link"></i> Ver Edital Oficial
+          </a>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+  } catch (e) {
+    console.error("Erro ao carregar editais:", e);
+    container.innerHTML = '<div class="loading-state"><p>Erro ao conectar com o banco de dados.</p></div>';
+  }
+}
+
+function getSeedEditais(status) {
+  const todos = [
+    {
+      titulo: 'GCM Manaus - AM',
+      orgao: 'Prefeitura de Manaus',
+      cargo: 'Guarda Municipal',
+      vagas: '200 + CR',
+      inscricao: 'Encerradas',
+      prova: 'Realizada',
+      link: 'https://concursos.fgv.br/concursos/gcmmanaus24',
+      status: 'aberto'
+    },
+    {
+      titulo: 'GCM São Paulo - SP',
+      orgao: 'Prefeitura de São Paulo',
+      cargo: 'GCM 3ª Classe',
+      vagas: '1.000',
+      inscricao: 'Em breve',
+      prova: 'A definir',
+      link: 'https://www.vunesp.com.br/',
+      status: 'previsto'
+    },
+    {
+      titulo: 'Polícia Federal (PF)',
+      orgao: 'Governo Federal',
+      cargo: 'Agente / Escrivão',
+      vagas: '2.000 (Solicitadas)',
+      inscricao: 'Aguardando Edital',
+      prova: '2026',
+      link: 'https://www.gov.br/pf/pt-br/canais_atendimento/concursos',
+      status: 'previsto'
+    },
+    {
+      titulo: 'Polícia Rodoviária (PRF)',
+      orgao: 'Governo Federal',
+      cargo: 'Policial Rodoviário',
+      vagas: '4.902 (Solicitadas)',
+      inscricao: 'Em análise',
+      prova: '2026',
+      link: 'https://www.gov.br/prf/pt-br/servicos/concursos',
+      status: 'previsto'
+    },
+    {
+      titulo: 'GCM Rio de Janeiro',
+      orgao: 'Prefeitura do Rio',
+      cargo: 'Guarda Municipal',
+      vagas: 'A definir',
+      inscricao: 'Previsto para 2026',
+      prova: '2026',
+      link: 'https://www.rio.rj.gov.br/web/guarda-municipal',
+      status: 'previsto'
+    }
+  ];
+  return todos.filter(x => x.status === status);
 }
 
 function setupTinderSwipe(){
