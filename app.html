@@ -28,9 +28,6 @@
         </div>
       </div>
       <div class="controls">
-        <div class="app-timer-bar" id="timerContainer">
-          <i class="ph-fill ph-clock"></i> <span id="timerText">Calculando...</span>
-        </div>
         <button class="icon-btn" id="logoutBtn" title="Sair" onclick="logoutUser()"><i class="ph ph-sign-out"></i></button>
         <div class="scale-controls">
           <button class="icon-btn" id="scaleDownBtn" title="Diminuir"><i class="ph ph-minus"></i></button>
@@ -75,14 +72,11 @@
           <button class="btn btn-primary" onclick="go('cards')">
             <i class="ph ph-cards"></i> <span>Flashcards</span>
           </button>
-          <a href="./Resumos/index.html" class="btn btn-primary">
+          <button class="btn btn-primary" onclick="window.location.href='resumos/index.html'">
             <i class="ph ph-file-text"></i> <span>Resumos</span>
-          </a>
+          </button>
           <button class="btn btn-primary" onclick="go('dashboard')" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
             <i class="ph ph-chart-line-up"></i> <span>Desempenho</span>
-          </button>
-          <button class="btn btn-primary" onclick="go('editais')" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
-            <i class="ph ph-scroll"></i> <span>Editais</span>
           </button>
         </div>
         <div class="record-box">
@@ -92,29 +86,10 @@
         </div>
       </section>
 
-      <section id="editais" class="page card">
-        <div class="page-top-bar">
-          <h3 class="page-title"><i class="ph ph-scroll"></i> Concursos e Editais</h3>
-          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
-        </div>
-        
-        <div class="editais-tabs">
-          <button class="edital-tab active" id="tabAbertos" onclick="switchEditalTab('aberto')">Editais Abertos</button>
-          <button class="edital-tab" id="tabPrevistos" onclick="switchEditalTab('previsto')">Editais Previstos</button>
-        </div>
-
-        <div id="editaisList" class="editais-grid">
-          <div class="loading-state">
-            <i class="ph ph-spinner-gap ph-spin"></i>
-            <p>Buscando concursos atualizados...</p>
-          </div>
-        </div>
-      </section>
-
       <section id="dashboard" class="page card">
         <div class="page-top-bar">
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
           <h3 class="page-title"><i class="ph ph-chart-line-up"></i> Meu Desempenho</h3>
-          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
         </div>
 
         <div class="badges-container card-inner">
@@ -137,8 +112,8 @@
         <!-- VIEW 1: Lista de Matérias -->
         <div id="studyView" class="study-view">
           <div class="page-top-bar">
+            <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
             <h3 class="page-title"><i class="ph ph-book-open"></i> Estudar Leis</h3>
-            <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
           </div>
           <div id="studyList" class="study-grid">Carregando conteúdos...</div>
         </div>
@@ -146,8 +121,8 @@
         <!-- VIEW 2: Escolha de tipo (Vídeo ou Áudio) -->
         <div id="mediaPicker" class="study-view" style="display:none;">
           <div class="page-top-bar">
+            <button class="btn-sm" onclick="backToSubjects()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
             <h3 class="page-title" id="mediaPickerTitle"><i class="ph ph-play-circle"></i> Matéria</h3>
-            <button class="btn-sm" onclick="backToSubjects()"><i class="ph ph-arrow-left"></i> Voltar</button>
           </div>
           <div class="media-type-grid">
             <button class="media-type-btn video-btn" onclick="showMediaList('video')">
@@ -185,18 +160,18 @@
 
         <!-- VIEW 3: Lista de mídias (Vídeos ou Áudios) -->
         <div id="mediaListView" class="study-view" style="display:none;">
-          <div class="page-top-bar">
+          <div class="page-top-bar right-aligned">
+            <button class="btn-sm" onclick="backToPicker()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
             <h3 class="page-title" id="mediaListTitle"><i class="ph ph-video"></i> Vídeos</h3>
-            <button class="btn-sm" onclick="backToPicker()"><i class="ph ph-arrow-left"></i> Voltar</button>
           </div>
           <div id="mediaItemsList" class="media-items-list"></div>
         </div>
 
         <!-- VIEW 4: Player (Vídeo embutido ou Áudio) -->
         <div id="mediaPlayerView" class="study-view" style="display:none;">
-          <div class="page-top-bar">
+          <div class="page-top-bar right-aligned">
+            <button class="btn-sm" onclick="backToMediaList()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
             <h3 class="page-title" id="playerTitle" style="font-size:16px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><i class="ph ph-play-circle"></i> Aula</h3>
-            <button class="btn-sm" onclick="backToMediaList()"><i class="ph ph-arrow-left"></i> Voltar</button>
           </div>
           <div id="playerContainer"></div>
         </div>
@@ -263,8 +238,8 @@
 
       <section id="cards" class="page card">
         <div class="page-top-bar">
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
           <h3 class="page-title"><i class="ph ph-cards"></i> Flashcards</h3>
-          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> Voltar</button>
         </div>
         <!-- Area preparada para o visual Tinder-style Swipe -->
         <div class="deck-container">
@@ -320,17 +295,5 @@
   <script src="./js/subscription.js"></script>
   <script src="./js/app.js?v=2.7"></script>
 
-  <!-- PAYWALL -->
-  <div class="paywall-overlay" id="paywallOverlay">
-    <div class="paywall-card">
-      <div class="paywall-icon"><i class="ph-fill ph-lock-key"></i></div>
-      <h2>Acesso Bloqueado</h2>
-      <p id="paywallMessage">Seu período de teste gratuito acabou. Para continuar usufruindo da melhor plataforma e garantir sua aprovação, assine a versão Completa.</p>
-      <div class="paywall-price">
-         <span>R$ 57,90</span> R$ 29,90<span class="paywall-period">/ano</span>
-      </div>
-      <button class="btn btn-pay" id="payBtn" onclick="handlePaymentSimulation()">Desbloquear agora - R$ 29,90</button>
-    </div>
-  </div>
 </body>
 </html>
