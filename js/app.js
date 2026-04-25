@@ -827,7 +827,7 @@ async function renderEditais() {
   container.innerHTML = `
     <div class="loading-state">
       <i class="ph ph-spinner-gap ph-spin"></i>
-      <p>Buscando atualizações...</p>
+      <p>Sincronizando editais...</p>
     </div>
   `;
 
@@ -844,7 +844,8 @@ async function renderEditais() {
       }
     });
 
-    let editaisParaExibir = dbEditais.length > 0 ? dbEditais : getSeedEditais(currentEditalTab);
+    // Se tiver no Firebase usa, se não usa a lista local (Seeds)
+    const editaisParaExibir = dbEditais.length > 0 ? dbEditais : getSeedEditais(currentEditalTab);
 
     container.innerHTML = '';
     
@@ -866,7 +867,7 @@ async function renderEditais() {
         <div class="edital-info-row">
           <div class="edital-info-item">
             <span class="edital-info-label"><i class="ph ph-identification-card"></i> Cargo</span>
-            <span class="edital-info-val">${ed.cargo || 'GCM'}</span>
+            <span class="edital-info-val">${ed.cargo || 'GCM/Polícia'}</span>
           </div>
           <div class="edital-info-item">
             <span class="edital-info-label"><i class="ph ph-users"></i> Vagas</span>
@@ -877,7 +878,7 @@ async function renderEditais() {
             <span class="edital-info-val">${ed.inscricao || '—'}</span>
           </div>
           <div class="edital-info-item">
-            <span class="edital-info-label"><i class="ph ph-calendar-blank"></i> Prova</span>
+            <span class="edital-info-label"><i class="ph ph-calendar-blank"></i> Prova/Info</span>
             <span class="edital-info-val">${ed.prova || 'A definir'}</span>
           </div>
         </div>
@@ -892,11 +893,10 @@ async function renderEditais() {
     });
 
   } catch (e) {
-    console.error("Erro ao carregar editais:", e);
-    // Fallback silencioso para o usuário (mostra seeds sem avisos feios)
-    const editais = getSeedEditais(currentEditalTab);
+    console.error("Erro ao sincronizar editais:", e);
+    const fallback = getSeedEditais(currentEditalTab);
     container.innerHTML = '';
-    editais.forEach(ed => {
+    fallback.forEach(ed => {
       const card = document.createElement('div');
       card.className = 'edital-card';
       card.innerHTML = `
@@ -906,12 +906,12 @@ async function renderEditais() {
         </div>
         <div class="edital-org"><i class="ph-fill ph-buildings"></i> ${ed.orgao}</div>
         <div class="edital-info-row">
-            <div class="edital-info-item"><span class="edital-info-label">Cargo</span><span class="edital-info-val">${ed.cargo}</span></div>
-            <div class="edital-info-item"><span class="edital-info-label">Vagas</span><span class="edital-info-val">${ed.vagas}</span></div>
+          <div class="edital-info-item"><span class="edital-info-label"><i class="ph ph-identification-card"></i> Cargo</span><span class="edital-info-val">${ed.cargo}</span></div>
+          <div class="edital-info-item"><span class="edital-info-label"><i class="ph ph-users"></i> Vagas</span><span class="edital-info-val">${ed.vagas}</span></div>
+          <div class="edital-info-item"><span class="edital-info-label"><i class="ph ph-calendar-check"></i> Inscrição</span><span class="edital-info-val">${ed.inscricao}</span></div>
+          <div class="edital-info-item"><span class="edital-info-label"><i class="ph ph-calendar-blank"></i> Prova</span><span class="edital-info-val">${ed.prova}</span></div>
         </div>
-        <div class="edital-action">
-          <a href="${ed.link || '#'}" target="_blank" class="btn-edital">Ver Detalhes</a>
-        </div>
+        <div class="edital-action"><a href="${ed.link || '#'}" target="_blank" class="btn-edital">Ver Detalhes</a></div>
       `;
       container.appendChild(card);
     });
