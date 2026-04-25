@@ -827,12 +827,13 @@ async function renderEditais() {
   container.innerHTML = `
     <div class="loading-state">
       <i class="ph ph-spinner-gap ph-spin"></i>
-      <p>Buscando concursos de ${currentEditalTab === 'aberto' ? 'Editais Abertos' : 'Editais Previstos'}...</p>
+      <p>Consultando banco de dados...</p>
     </div>
   `;
 
   try {
     const db = getFirestoreDb();
+    // Tenta buscar do Firestore
     const snap = await db.collection('editais')
                          .where('status', '==', currentEditalTab)
                          .get();
@@ -840,23 +841,13 @@ async function renderEditais() {
     let editais = [];
     snap.forEach(doc => editais.push({ id: doc.id, ...doc.data() }));
 
-    // Fallback: Se não houver nada no Firebase, mostra dados reais recentes (SEED)
+    // Fallback: Se não houver nada no Firebase OU houver erro, usa o SEED
     if (editais.length === 0) {
       editais = getSeedEditais(currentEditalTab);
     }
 
     container.innerHTML = '';
     
-    if (editais.length === 0) {
-      container.innerHTML = `
-        <div class="loading-state">
-          <i class="ph ph-info"></i>
-          <p>Nenhum concurso encontrado para esta categoria no momento.</p>
-        </div>
-      `;
-      return;
-    }
-
     editais.forEach(ed => {
       const card = document.createElement('div');
       card.className = 'edital-card';
@@ -874,7 +865,7 @@ async function renderEditais() {
           </div>
           <div class="edital-info-item">
             <span class="edital-info-label">Vagas</span>
-            <span class="edital-info-val">${ed.vagas || 'Consultar'}</span>
+            <span class="edital-info-val">${ed.vagas || '—'}</span>
           </div>
           <div class="edital-info-item">
             <span class="edital-info-label">Inscrições</span>
@@ -888,7 +879,7 @@ async function renderEditais() {
 
         <div class="edital-action">
           <a href="${ed.link || '#'}" target="_blank" class="btn-edital">
-            <i class="ph ph-external-link"></i> Ver Edital Oficial
+            Ver Edital Oficial <i class="ph ph-arrow-square-out"></i>
           </a>
         </div>
       `;
@@ -896,8 +887,30 @@ async function renderEditais() {
     });
 
   } catch (e) {
-    console.error("Erro ao carregar editais:", e);
-    container.innerHTML = '<div class="loading-state"><p>Erro ao conectar com o banco de dados.</p></div>';
+    console.warn("Firestore inacessível, usando dados locais:", e);
+    // Em caso de erro de conexão, usamos o SEED para não deixar a tela vazia
+    const editais = getSeedEditais(currentEditalTab);
+    container.innerHTML = '';
+    
+    editais.forEach(ed => {
+      const card = document.createElement('div');
+      card.className = 'edital-card';
+      card.innerHTML = `
+        <div class="edital-header">
+          <h4 class="edital-title">${ed.titulo}</h4>
+          <span class="edital-badge badge-${ed.status}">${ed.status === 'aberto' ? 'Aberto' : 'Previsto'}</span>
+        </div>
+        <div class="edital-org"><i class="ph-fill ph-buildings"></i> ${ed.orgao}</div>
+        <div class="edital-info-row">
+            <div class="edital-info-item"><span class="edital-info-label">Cargo</span><span class="edital-info-val">${ed.cargo}</span></div>
+            <div class="edital-info-item"><span class="edital-info-label">Vagas</span><span class="edital-info-val">${ed.vagas}</span></div>
+        </div>
+        <div class="edital-action">
+          <a href="${ed.link || '#'}" target="_blank" class="btn-edital">Ver Detalhes</a>
+        </div>
+      `;
+      container.appendChild(card);
+    });
   }
 }
 
