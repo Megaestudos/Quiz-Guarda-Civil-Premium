@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0"/>
-  <title>Acesso — PlenAula</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>PlenAula SaaS — O Melhor App para Guarda Civil</title>
   <meta name="theme-color" content="#0B0F19"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,116 +11,122 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <link rel="stylesheet" href="./styles.css?v=2.8">
-
-  <style>
-    body {
-        margin: 0;
-        background-color: #0B0F19; /* compatível com styles.css */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        font-family: 'Inter', sans-serif;
-        color: white;
-        overflow-x: hidden;
-    }
-    .auth-container {
-        width: 100%;
-        max-width: 400px;
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 28px;
-        padding: 40px 30px;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-        position: relative;
-        z-index: 10;
-        box-sizing: border-box;
-        margin: 20px;
-    }
-    .auth-logo {
-        display: block;
-        margin: 0 auto 30px;
-        height: 65px;
-        object-fit: contain;
-        filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
-    }
-    .auth-title {
-        text-align: center;
-        font-size: 22px;
-        font-weight: 700;
-        margin-bottom: 25px;
-        line-height: 1.3;
-    }
-    .auth-title span {
-        color: #3B82F6; /* var(--primary) backup */
-        background: linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-  </style>
+  <link rel="stylesheet" href="./styles.css?v=2.7">
 </head>
 
-<body>
-  <!-- Efeitos de luz no fundo reaproveitados do CSS principal -->
-  <div class="ambient-glow glow-1" style="width: 80vw; height: 80vw; top: -10vw; left: -10vw;"></div>
-  <div class="ambient-glow glow-2" style="width: 60vw; height: 60vw; bottom: -10vw; right: -10vw;"></div>
+<body class="landing-body">
+  <div class="ambient-glow glow-1" style="width: 80vw; height: 80vw;"></div>
+  <div class="ambient-glow glow-2" style="width: 60vw; height: 60vw;"></div>
+  
+  <nav class="landing-nav">
+    <div class="nav-content">
+      <div class="logo">
+         <img src="./assets/logo.png" style="height: 48px; object-fit: contain;" alt="Logo" />
+         <span class="logo-text">PlenAula</span>
+      </div>
+      <div>
+         <button class="btn btn-secondary btn-open-login" onclick="openLoginModal()" style="padding: 10px 16px;">Entrar</button>
+      </div>
+    </div>
+  </nav>
 
-  <div class="auth-container">
-       <img src="./assets/logo.png" alt="Logo PlenAula" class="auth-logo" />
+  <header class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">Plataforma Completa GCM <i class="ph ph-sparkle"></i></div>
+      <h1 class="hero-title">Acelere sua aprovação para a <span>Guarda Civil</span></h1>
+      <p class="hero-subtitle">Estude as Leis, decore com Flashcards Inteligentes, realize Simulados e acompanhe seu rendimento.</p>
+      
+      <div class="hero-cta-group">
+         <button class="btn btn-primary btn-lg btn-open-login" onclick="openLoginModal()">
+            <i class="ph-bold ph-rocket-launch"></i> Testar grátis por 4 dias
+         </button>
+         <p class="cta-hint">Acesso instantâneo. Sem cartão de crédito inicial.</p>
+      </div>
+    </div>
+    
+    <div class="hero-mockup">
+       <img src="./assets/mockup.png" alt="Prévia do App PlenAula" style="width: 100%; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05);" />
+    </div>
+  </header>
 
-       <!-- LOGIN VIEW -->
-       <div id="loginView">
-           <h2 class="auth-title">Acesse o seu <span>Aplicativo</span></h2>
-           
-           <div class="login-form">
-              <label>E-mail</label>
-              <input type="email" id="loginEmail" placeholder="Digite seu email" />
-              
-              <label>Senha</label>
-              <div class="input-pass">
-                  <input type="password" id="loginPassword" placeholder="Sua senha" />
-                  <button class="btn-show-pass" type="button" onclick="togglePassword('loginPassword')"><i class="ph ph-eye"></i></button>
-              </div>
-              
-              <div id="loginError" style="color:#ef4444; font-size:14px; display:none; margin-top:10px;text-align:center;"></div>
-
-              <button class="btn btn-primary" id="loginBtn" onclick="handleLoginSubmit()" style="width: 100%; margin-top: 15px; padding: 14px; font-size: 16px;">Entrar no Painel</button>
-           </div>
-           
-           <div style="text-align:center; margin-top:24px; font-size:14px; color:rgba(255,255,255,0.6)">
-              Ainda não tem conta? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#3B82F6; font-weight:600; text-decoration:none;">Criar agora!</a>
-           </div>
+  <section class="features-section">
+    <div class="section-title-wrap">
+      <h2>Sua farda mais perto do que nunca</h2>
+      <p>Desenvolvido com foco exclusivo na sua performance até o dia da prova.</p>
+    </div>
+    <div class="features-grid">
+       <div class="feature-card">
+         <div class="f-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;"><i class="ph-fill ph-target"></i></div>
+         <h3>Simulados Premium</h3>
+         <p>Treine com questões baseadas nos maiores editais da GCM.</p>
        </div>
-
-       <!-- REGISTER VIEW -->
-       <div id="registerView" style="display:none;">
-           <h2 class="auth-title">Crie sua conta para <span>Começar</span></h2>
-           
-           <div class="login-form">
-              <label>Nome</label>
-              <input type="text" id="regName" placeholder="Como quer ser chamado?" />
-
-              <label>E-mail</label>
-              <input type="email" id="regEmail" placeholder="Seu melhor email" />
-              
-              <label>Senha</label>
-              <div class="input-pass">
-                  <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" />
-                  <button class="btn-show-pass" type="button" onclick="togglePassword('regPassword')"><i class="ph ph-eye"></i></button>
-              </div>
-
-              <div id="regError" style="color:#ef4444; font-size:14px; display:none; margin-top:10px;text-align:center;"></div>
-              
-              <button class="btn btn-primary" id="regBtn" onclick="handleRegisterSubmit()" style="width: 100%; margin-top: 15px; padding: 14px; font-size: 16px;">Criar Conta e Acessar</button>
-           </div>
-           
-           <div style="text-align:center; margin-top:24px; font-size:14px; color:rgba(255,255,255,0.6)">
-              Já possui conta? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#3B82F6; font-weight:600; text-decoration:none;">Fazer login.</a>
-           </div>
+       <div class="feature-card">
+         <div class="f-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;"><i class="ph-fill ph-cards"></i></div>
+         <h3>Flashcards Tinder-Style</h3>
+         <p>Memorização espaçada deslizando os cards virtuais para direita ou esquerda.</p>
        </div>
+       <div class="feature-card">
+         <div class="f-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;"><i class="ph-fill ph-chart-line-up"></i></div>
+         <h3>Painel de Desempenho</h3>
+         <p>Acompanhe de perto as matérias mais cobradas e controle seu histórico de acertos.</p>
+       </div>
+    </div>
+  </section>
+
+  <section class="testimonial-section">
+     <div class="testimonial-card">
+        <div class="stars"><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i></div>
+        <q>"O aplicativo mudou minha forma de estudar. Os flashcards são muito dinâmicos e o painel focado em estatísticas mudou o jogo pra mim antes da prova!"</q>
+        <div class="author">
+           <div class="avatar"><i class="ph-fill ph-user"></i></div>
+           <div><strong>Marcos Oliveira</strong><br><span>Aprovado GCM-SP</span></div>
+        </div>
+     </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="footer-cta">
+        <h2>Pronto para assumir seu cargo?</h2>
+        <p>Comece agora mesmo a focar nos detalhes que farão a diferença.</p>
+        <button class="btn btn-primary btn-lg btn-open-login" onclick="openLoginModal()" style="margin-top: 20px;">
+           Entrar e Testar Grátis
+        </button>
+    </div>
+    <div class="footer-bot">
+       <div class="logo-text" style="font-size: 18px; color: var(--text-muted);"><i class="ph-fill ph-shield-star"></i> PlenAula SaaS</div>
+       <p style="margin-top: 10px; color: var(--text-muted); font-size: 13px;">&copy; 2026 Reservados.</p>
+    </div>
+  </footer>
+
+  <!-- MODAL DE LOGIN -->
+  <div class="login-modal-overlay" id="loginModalOverlay">
+    <div class="login-modal-card">
+       <button class="login-close-btn" onclick="closeLoginModal()"><i class="ph ph-x"></i></button>
+       <div class="login-badge-icon"><i class="ph-fill ph-shield-check"></i></div>
+       <h2>Entre na sua conta para<br>continuar seus estudos!</h2>
+       
+       <button class="btn btn-facebook">
+           <i class="ph-fill ph-facebook-logo" style="font-size:20px;"></i> Entrar com Facebook
+       </button>
+       <button class="btn btn-google btn-google-login">
+           <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" style="width: 18px;" /> Entrar com Google
+       </button>
+       
+       <div class="login-form">
+          <label>E-mail</label>
+          <input type="email" placeholder="Seu email" />
+          
+          <label>Senha</label>
+          <div class="input-pass">
+              <input type="password" placeholder="Sua senha" />
+              <button class="btn-show-pass"><i class="ph ph-eye"></i> Mostrar</button>
+          </div>
+          
+          <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">Entrar</button>
+       </div>
+       
+       <a href="#" class="forgot-link">Esqueceu a senha?</a>
+    </div>
   </div>
 
   <!-- Firebase -->
@@ -130,92 +136,6 @@
   
   <script src="./js/auth.js"></script>
   <script src="./js/subscription.js"></script>
-  <script>
-    let isLoginMode = true;
-
-    window.toggleAuthMode = function() {
-        isLoginMode = !isLoginMode;
-        const loginView = document.getElementById('loginView');
-        const registerView = document.getElementById('registerView');
-        
-        if (isLoginMode) {
-            loginView.style.display = 'block';
-            registerView.style.display = 'none';
-            document.getElementById('loginError').style.display = 'none';
-            document.getElementById('loginPassword').value = '';
-        } else {
-            loginView.style.display = 'none';
-            registerView.style.display = 'block';
-            document.getElementById('regError').style.display = 'none';
-            document.getElementById('regPassword').value = '';
-        }
-    }
-
-    window.togglePassword = function(inputId) {
-        const input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-        } else {
-            input.type = "password";
-        }
-    }
-
-    window.handleLoginSubmit = async function() {
-        const email = document.getElementById('loginEmail').value.trim();
-        const pass = document.getElementById('loginPassword').value;
-        const errEl = document.getElementById('loginError');
-        const btn = document.getElementById('loginBtn');
-        
-        errEl.style.display = 'none';
-
-        if (!email || !pass) {
-            errEl.innerText = "Preencha todos os campos.";
-            errEl.style.display = 'block';
-            return;
-        }
-
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Entrando...';
-        btn.disabled = true;
-
-        try {
-            await loginWithEmail(email, pass);
-        } catch (error) {
-            errEl.innerText = error.message;
-            errEl.style.display = 'block';
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
-    }
-
-    window.handleRegisterSubmit = async function() {
-        const name = document.getElementById('regName').value.trim();
-        const email = document.getElementById('regEmail').value.trim();
-        const pass = document.getElementById('regPassword').value;
-        const errEl = document.getElementById('regError');
-        const btn = document.getElementById('regBtn');
-        
-        errEl.style.display = 'none';
-
-        if (!name || !email || !pass) {
-            errEl.innerText = "Preencha todos os campos.";
-            errEl.style.display = 'block';
-            return;
-        }
-
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Criando conta...';
-        btn.disabled = true;
-
-        try {
-            await registerWithEmail(name, email, pass);
-        } catch (error) {
-            errEl.innerText = error.message;
-            errEl.style.display = 'block';
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
-    }
-  </script>
+  <script src="./js/login.js"></script>
 </body>
 </html>
