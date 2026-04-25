@@ -1,10 +1,11 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyD2c_pcK6L9PFrYxBVRWWuZVVh3XKEfr-o",
-  authDomain: "simulados-concursos-22c91.firebaseapp.com",
-  projectId: "simulados-concursos-22c91",
-  storageBucket: "simulados-concursos-22c91.firebasestorage.app",
-  messagingSenderId: "863699339166",
-  appId: "1:863699339166:web:2fd125a35c090ca1ae388f"
+  apiKey: "AIzaSyDXBrNIPfIBAkom9fafCorwhUw1FQ9nSCg",
+  authDomain: "plenaula-concursos.firebaseapp.com",
+  projectId: "plenaula-concursos",
+  storageBucket: "plenaula-concursos.firebasestorage.app",
+  messagingSenderId: "433280443325",
+  appId: "1:433280443325:web:8ed2a8bea4b3e4d6d9a8d4",
+  measurementId: "G-908KRQCKS8"
 };
 
 if (!firebase.apps.length) {
@@ -13,51 +14,40 @@ if (!firebase.apps.length) {
 
 const auth = firebase.auth();
 const db = firebase.firestore();
+const provider = new firebase.auth.GoogleAuthProvider();
 
-// Acesso 100% gratuito e vitalício
+const TRIAL_DAYS = 4;
+const PREMIUM_DAYS = 365;
 
-async function loginWithEmail(email, password) {
+async function loginWithGoogle() {
   try {
-    await auth.signInWithEmailAndPassword(email, password);
-    window.location.href = "app.html";
-  } catch (error) {
-    console.error("Erro no login: ", error);
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-      throw new Error("E-mail ou senha incorretos.");
-    } else {
-      throw new Error("Ocorreu um erro. Tente novamente.");
-    }
-  }
-}
-
-async function registerWithEmail(name, email, password) {
-  try {
-    const result = await auth.createUserWithEmailAndPassword(email, password);
+    const result = await auth.signInWithPopup(provider);
     const user = result.user;
     
-    await user.updateProfile({
-      displayName: name
-    });
-
     const userRef = db.collection('users').doc(user.uid);
-    await userRef.set({
-      email: user.email,
-      displayName: name,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      plan: "premium",
-      status: "active"
-    });
+    const doc = await userRef.get();
+
+    if (!doc.exists) {
+      const now = new Date();
+      const trialEnd = new Date(now.getTime() + (TRIAL_DAYS * 24 * 60 * 60 * 1000));
+      
+      await userRef.set({
+        email: user.email,
+        displayName: user.displayName,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        plan: "free",
+        trialStart: now.toISOString(),
+        trialEnd: trialEnd.toISOString(),
+        status: "active"
+      });
+    }
 
     window.location.href = "app.html";
      
   } catch (error) {
-    console.error("Erro no registro/login: ", error);
-    if (error.code === 'auth/email-already-in-use') {
-       throw new Error("Este e-mail já está cadastrado.");
-    } else if (error.code === 'auth/weak-password') {
-       throw new Error("A senha deve ter pelo menos 6 caracteres.");
-    } else {
-       throw new Error(error.message || "Erro desconhecido ao tentar acessar o servidor.");
+    console.error("Erro no login: ", error);
+    if(error.code !== 'auth/popup-closed-by-user') {
+      alert("Falha ao entrar com Google. Tente novamente.");
     }
   }
 }
