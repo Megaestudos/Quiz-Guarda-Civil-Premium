@@ -833,22 +833,31 @@ async function renderEditais() {
 
   try {
     const db = getFirestoreDb();
-    // Tenta buscar do Firestore
-    const snap = await db.collection('editais')
-                         .where('status', '==', currentEditalTab)
-                         .get();
+    // Buscamos todos para evitar problemas de filtro maiúsculo/minúsculo no servidor
+    const snap = await db.collection('editais').get();
     
-    let editais = [];
-    snap.forEach(doc => editais.push({ id: doc.id, ...doc.data() }));
+    let dbEditais = [];
+    snap.forEach(doc => {
+      const data = doc.data();
+      // Normaliza o status para comparar
+      const statusDb = (data.status || '').toLowerCase().trim();
+      if (statusDb === currentEditalTab) {
+        dbEditais.push({ id: doc.id, ...data });
+      }
+    });
 
-    // Fallback: Se não houver nada no Firebase OU houver erro, usa o SEED
-    if (editais.length === 0) {
-      editais = getSeedEditais(currentEditalTab);
+    // Se o Firebase retornou algo, usamos. Se não, usamos a lista reserva.
+    let editaisParaExibir = dbEditais.length > 0 ? dbEditais : getSeedEditais(currentEditalTab);
+
+    // Se ainda assim estiver vazio (raro)
+    if (editaisParaExibir.length === 0) {
+      container.innerHTML = '<div class="loading-state"><p>Nenhum edital encontrado.</p></div>';
+      return;
     }
 
     container.innerHTML = '';
     
-    editais.forEach(ed => {
+    editaisParaExibir.forEach(ed => {
       const card = document.createElement('div');
       card.className = 'edital-card';
       card.innerHTML = `
@@ -888,10 +897,8 @@ async function renderEditais() {
 
   } catch (e) {
     console.warn("Firestore inacessível, usando dados locais:", e);
-    // Em caso de erro de conexão, usamos o SEED para não deixar a tela vazia
     const editais = getSeedEditais(currentEditalTab);
     container.innerHTML = '';
-    
     editais.forEach(ed => {
       const card = document.createElement('div');
       card.className = 'edital-card';
