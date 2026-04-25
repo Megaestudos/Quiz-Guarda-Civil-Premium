@@ -1,126 +1,194 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>PlenAula — Entre na sua Conta</title>
-  <meta name="theme-color" content="#0B0F19"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlenAula - Login de Aluno</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --primary: #3b82f6;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+        }
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <link rel="stylesheet" href="./styles.css?v=2.7">
-  <style>
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      background-color: #070A0F;
-      overflow: hidden;
-    }
-    .login-container {
-      width: 100%;
-      max-width: 420px;
-      padding: 20px;
-      position: relative;
-      z-index: 10;
-      animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .login-modal-card {
-      background: white;
-      color: #333;
-      padding: 40px;
-      border-radius: 24px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
-      text-align: center;
-    }
-    .login-logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-    .logo-text {
-      font-size: 32px;
-      font-weight: 900;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .login-badge-icon {
-      margin: 0 auto 10px;
-      width: 60px;
-      height: 60px;
-      background: #fef2f2;
-      color: #ef4444;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-    }
-    h2 {
-       font-size: 20px;
-       font-weight: 700;
-       color: #111;
-       margin-bottom: 20px;
-    }
-  </style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .logo-area img {
+            height: 48px;
+        }
+
+        .logo-area h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: filter 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            filter: brightness(0.9);
+        }
+
+        .login-btn:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .footer-links {
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
 </head>
-<body class="landing-body">
-  <div class="ambient-glow glow-1" style="width: 80vw; height: 80vw;"></div>
-  <div class="ambient-glow glow-2" style="width: 60vw; height: 60vw;"></div>
-  
-  <div class="login-container">
-    <div class="login-logo">
-       <img src="./assets/logo.png" style="height: 64px; object-fit: contain;" alt="Logo" />
-       <span class="logo-text">PlenAula</span>
+<body>
+
+    <div class="login-card">
+        <div class="logo-area">
+            <img src="./assets/logo.png" alt="Logo">
+            <h1>PlenAula</h1>
+        </div>
+
+        <h2>Acesse sua conta para estudar</h2>
+
+        <form id="legacyLoginForm">
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="seu@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" placeholder="Sua senha" required>
+            </div>
+
+            <button type="submit" class="login-btn" id="submitBtn">
+                Entrar no App <i class="ph-bold ph-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="footer-links">
+            <a href="#">Esqueci minha senha</a>
+        </div>
     </div>
 
-    <div class="login-modal-card">
-       <div class="login-badge-icon"><i class="ph-fill ph-shield-check"></i></div>
-       <h2>Sua Aprovação Começa Aqui!<br>Entre para estudar:</h2>
-       
-       <button class="btn btn-facebook" style="width: 100%;">
-           <i class="ph-fill ph-facebook-logo" style="font-size:20px;"></i> Entrar com Facebook
-       </button>
-       <button class="btn btn-google btn-google-login" style="width: 100%;">
-           <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" style="width: 18px;" /> Entrar com Google
-       </button>
-       
-       <div class="login-form">
-          <label>E-mail</label>
-          <input type="email" placeholder="Seu email" />
-          
-          <label>Senha</label>
-          <div class="input-pass">
-              <input type="password" placeholder="Sua senha" />
-          </div>
-          
-          <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">Entrar</button>
-       </div>
-       
-       <a href="#" class="forgot-link">Esqueceu a senha?</a>
-    </div>
-  </div>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    
+    <script src="./js/auth.js"></script>
+    <script>
+        document.getElementById('legacyLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('submitBtn');
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  
-  <script src="./js/auth.js"></script>
-  <script src="./js/subscription.js"></script>
-  <script src="./js/login.js"></script>
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Entrando...';
+
+            try {
+                await loginWithEmailPassword(email, password);
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = 'Entrar no App <i class="ph-bold ph-arrow-right"></i>';
+            }
+        });
+    </script>
 </body>
 </html>
