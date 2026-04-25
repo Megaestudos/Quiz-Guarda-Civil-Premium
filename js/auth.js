@@ -1,6 +1,6 @@
 const firebaseConfig = {
   // ATENÇÃO: Substitua a apiKey e o appId com os valores do seu novo projeto no Console do Firebase
-  apiKey: "COLE_SUA_API_KEY_AQUI", 
+  apiKey: "AIzaSyD2c_pcK6L9PFrYxBVRWWuZVVh3XKEfr-o", 
   authDomain: "simulados-concursos-22c91.firebaseapp.com",
   projectId: "simulados-concursos-22c91",
   storageBucket: "simulados-concursos-22c91.firebasestorage.app",
