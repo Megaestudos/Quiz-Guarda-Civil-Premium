@@ -1,12 +1,11 @@
 const firebaseConfig = {
-  // ATENÇÃO: Substitua a apiKey e o appId com os valores do seu novo projeto no Console do Firebase
+  // ATENÇÃO: Substitua os valores abaixo com os do seu novo projeto no Console do Firebase
   apiKey: "AIzaSyD2c_pcK6L9PFrYxBVRWWuZVVh3XKEfr-o", 
   authDomain: "simulados-concursos-22c91.firebaseapp.com",
   projectId: "simulados-concursos-22c91",
   storageBucket: "simulados-concursos-22c91.firebasestorage.app",
   messagingSenderId: "863699339166",
-  appId: "1:863699339166:web:2fd125a35c090ca1ae388f",
-  measurementId: "COLE_SEU_MEASUREMENT_ID_AQUI"
+  appId: "1:863699339166:web:2fd125a35c090ca1ae388f"
 };
 
 if (!firebase.apps.length) {
