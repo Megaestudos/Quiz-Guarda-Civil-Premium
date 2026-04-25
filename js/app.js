@@ -833,18 +833,48 @@ async function renderEditais() {
 
   try {
     const db = getFirestoreDb();
+    // Busca TODOS os documentos da coleção para garantir que não perdemos nenhum
     const snap = await db.collection('editais').get();
     
     let dbEditais = [];
     snap.forEach(doc => {
       const data = doc.data();
-      const statusDb = (data.status || '').toLowerCase().trim();
-      if (statusDb === currentEditalTab) {
-        dbEditais.push({ id: doc.id, ...data });
+      // Se os dados estiverem dentro de um campo 'fields' (comum em envios via API REST/GAS)
+      const rawData = data.fields ? data.fields : data;
+      
+      // Captura o status de forma super flexível
+      let statusValue = "";
+      if (typeof rawData.status === 'object' && rawData.status.stringValue) {
+        statusValue = rawData.status.stringValue;
+      } else {
+        statusValue = rawData.status || "";
+      }
+
+      const statusClean = statusValue.toString().toLowerCase().trim();
+      const targetClean = currentEditalTab.toLowerCase().trim();
+
+      // Aceita "previsto" ou "previstos", "aberto" ou "abertos"
+      if (statusClean.includes(targetClean)) {
+        // Extrai os valores tratando se vierem como objetos da API REST (stringValue)
+        const getVal = (val) => {
+          if (typeof val === 'object' && val.stringValue) return val.stringValue;
+          return val || '—';
+        };
+
+        dbEditais.push({
+          id: doc.id,
+          titulo: getVal(rawData.titulo),
+          orgao: getVal(rawData.orgao),
+          cargo: getVal(rawData.cargo),
+          status: statusClean.includes('aberto') ? 'aberto' : 'previsto',
+          vagas: getVal(rawData.vagas),
+          inscricao: getVal(rawData.inscricao),
+          prova: getVal(rawData.prova || rawData.data_prova)
+        });
       }
     });
 
-    // Se tiver no Firebase usa, se não usa a lista local (Seeds)
+    // Se o Firebase retornou algo, usamos. Se não, usamos a lista reserva.
     const editaisParaExibir = dbEditais.length > 0 ? dbEditais : getSeedEditais(currentEditalTab);
 
     container.innerHTML = '';
