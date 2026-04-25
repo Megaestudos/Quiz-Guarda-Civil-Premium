@@ -1,4 +1,4 @@
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx64clSmoa7ymBZls8osmpp6PuwCyqHJ0bcOBz9NI0PqBM_tHr8Px_lGdQEr_9INdMB3g/exec';
+
 const TEMPLATE_QUIZ_SIZE = 20;
 let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
 let isGrandeDia = false; let grandeDiaInterval = null;
@@ -34,7 +34,6 @@ window.showPage = window.go = function(id) {
   if(id === 'resumos' || id === 'study') renderStudies();
   if(id === 'cards') renderCards();
   if(id === 'quiz' && !quizStarted) showTopicSelection();
-  if(id === 'editais') renderEditais();
   
   // Scroll para o topo
   window.scrollTo({top: 0, behavior: 'smooth'});
@@ -49,7 +48,7 @@ function checkStreak() {
     if (diffDays > 1) { streak = 0; localStorage.setItem(STREAK_KEY, streak); }
   }
   const el = document.getElementById('streakValue');
-  if(el) el.innerText = `${streak} Dia${streak!==1?'s':''}`;
+  if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
 }
 
 function registerStudyDay() {
@@ -63,7 +62,7 @@ function registerStudyDay() {
     localStorage.setItem(LAST_DATE_KEY, todayStr);
   }
   const el = document.getElementById('streakValue');
-  if(el) el.innerText = `${streak} Dia${streak!==1?'s':''}`;
+  if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
 }
 
 function getRankName(xp) {
@@ -80,8 +79,8 @@ function updateXPUI() {
   const xp = parseInt(localStorage.getItem(XP_KEY) || '0');
   const elXP = document.getElementById('xpValue');
   const elRank = document.getElementById('rankValue');
-  if(elXP) elXP.innerText = xp;
-  if(elRank) elRank.innerText = getRankName(xp);
+  if(elXP) elXP.textContent = xp;
+  if(elRank) elRank.textContent = getRankName(xp);
 }
 
 function addXP(amount) {
@@ -110,7 +109,7 @@ function setScale(v){
   document.getElementById('appRoot').style.transform = `scale(${v.toFixed(2)})`;
   document.getElementById('appRoot').style.transformOrigin = 'top center';
   const label = document.getElementById('scaleLabel');
-  if(label) label.innerText = v.toFixed(2) + 'x';
+  if(label) label.textContent = v.toFixed(2) + 'x';
   localStorage.setItem(SCALE_KEY, v.toFixed(2));
 }
 document.addEventListener('DOMContentLoaded', () => {
@@ -323,7 +322,7 @@ const MEDIA_CATALOG = [
   }
 ];
 
-const GITHUB_RESUMOS_BASE = './resumos/';
+const GITHUB_RESUMOS_BASE = 'https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/';
 
 // Estado de navegação de mídia
 let currentSubjectId = null;
@@ -363,8 +362,9 @@ function openSubject(subjectId) {
   if (!subject) return;
 
   // Atualiza título
-  document.getElementById('mediaPickerTitle').innerHTML =
-    `<i class="ph-fill ${subject.icon}"></i> ${subject.name}`;
+  const titleEl = document.getElementById('mediaPickerTitle');
+  titleEl.innerHTML = `<i class="ph-fill ${subject.icon}"></i> <span id="mPickerName"></span>`;
+  document.getElementById('mPickerName').textContent = subject.name;
 
   // Atualiza contadores
   const vCount = subject.videos.length;
@@ -376,11 +376,7 @@ function openSubject(subjectId) {
 
   // Link do resumo em texto
   const resumoLink = document.getElementById('resumoTextLink');
-  if (resumoLink) {
-    resumoLink.onclick = () => {
-      openIframe(GITHUB_RESUMOS_BASE + subject.resumoFile, subject.name);
-    };
-  }
+  if (resumoLink) resumoLink.href = GITHUB_RESUMOS_BASE + subject.resumoFile;
 
   // Desabilita botões sem conteúdo
   const videoBtn = document.querySelector('.video-btn');
@@ -401,8 +397,10 @@ window.showMediaList = function(type) {
   // Atualiza título
   const icon = type === 'video' ? 'ph-video' : 'ph-headphones';
   const label = type === 'video' ? 'Aulas em Vídeo' : 'Aulas em Áudio';
-  document.getElementById('mediaListTitle').innerHTML =
-    `<i class="ph-fill ${icon}"></i> ${label} — ${subject.name}`;
+  const listTitleEl = document.getElementById('mediaListTitle');
+  listTitleEl.innerHTML = `<i class="ph-fill ${icon}"></i> <span id="mListLabelText"></span> — <span id="mListSubjName"></span>`;
+  document.getElementById('mListLabelText').textContent = label;
+  document.getElementById('mListSubjName').textContent = subject.name;
 
   // Renderiza lista
   const listEl = document.getElementById('mediaItemsList');
@@ -425,18 +423,20 @@ window.showMediaList = function(type) {
     card.innerHTML = `
       <div class="media-item-thumb ${type === 'audio' ? 'audio-thumb' : ''}">
         ${item.youtubeId
-          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="${item.title}" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ph-${type === 'video' ? 'video' : 'headphones'}\\'></i>'">`
+          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ph-${type === 'video' ? 'video' : 'headphones'}\\'></i>'">`
           : `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i>`
         }
         <div class="media-play-overlay"><i class="ph-fill ph-play-circle"></i></div>
       </div>
       <div class="media-item-info">
         <div class="media-item-num">Aula ${index + 1}</div>
-        <div class="media-item-title">${item.title}</div>
-        ${item.duration ? `<div class="media-item-dur"><i class="ph ph-clock"></i> ${item.duration}</div>` : ''}
+        <div class="media-item-title" id="mItemTitle_${index}"></div>
+        ${item.duration ? `<div class="media-item-dur"><i class="ph ph-clock"></i> <span id="mItemDur_${index}"></span></div>` : ''}
       </div>
       <i class="ph ph-caret-right media-item-arrow"></i>
     `;
+    card.querySelector(`#mItemTitle_${index}`).textContent = item.title;
+    if(item.duration) card.querySelector(`#mItemDur_${index}`).textContent = item.duration;
     card.onclick = () => openMediaPlayer(item, type);
     listEl.appendChild(card);
   });
@@ -446,8 +446,9 @@ window.showMediaList = function(type) {
 
 function openMediaPlayer(item, type) {
   const subject = MEDIA_CATALOG.find(s => s.id === currentSubjectId);
-  const titleEl = document.getElementById('playerTitle');
-  titleEl.innerHTML = `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i> ${item.title}`;
+  const playerTitle = document.getElementById('playerTitle');
+  playerTitle.innerHTML = `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i> <span id="pTitleText"></span>`;
+  document.getElementById('pTitleText').textContent = item.title;
 
   const pc = document.getElementById('playerContainer');
   pc.innerHTML = '';
@@ -549,7 +550,7 @@ async function showTopicSelection(){
     ];
     const motivacionalEl = document.getElementById('motivationalText');
     if (motivacionalEl) {
-      motivacionalEl.innerText = motivacionais[Math.floor(Math.random() * motivacionais.length)];
+      motivacionalEl.textContent = motivacionais[Math.floor(Math.random() * motivacionais.length)];
     }
 
     const select = document.getElementById('topicSelect');
@@ -628,10 +629,10 @@ function renderQuestion(){
   if (currentIndex >= POOL.length) { finishQuiz(); return; }
   const q = POOL[currentIndex];
 
-  document.getElementById('question').innerHTML = `
-    <div class="topic-tag"><i class="ph ph-bookmark-simple"></i> ${q_topic(q)}</div>
-    <div class="q-text">${q_text(q)}</div>
-  `;
+  const qBox = document.getElementById('question');
+  qBox.innerHTML = '<div class="topic-tag"><i class="ph ph-bookmark-simple"></i> <span id="qTopicText"></span></div><div class="q-text" id="qMainText"></div>';
+  document.getElementById('qTopicText').textContent = q_topic(q);
+  document.getElementById('qMainText').textContent = q_text(q);
 
   const opts = document.getElementById('opts');
   opts.innerHTML = '';
@@ -640,7 +641,15 @@ function renderQuestion(){
     if (!txt) return;
     const btn = document.createElement('button');
     btn.className = 'opt'; btn.id = 'opt_' + letter;
-    btn.innerHTML = `<span style="font-weight:800; color:var(--primary); min-width:24px;">${letter})</span> <span>${txt}</span>`;
+    const spanLetter = document.createElement('span');
+    spanLetter.style.cssText = "font-weight:800; color:var(--primary); min-width:24px;";
+    spanLetter.textContent = `${letter})`;
+    
+    const spanText = document.createElement('span');
+    spanText.textContent = txt;
+    
+    btn.appendChild(spanLetter);
+    btn.appendChild(spanText);
     btn.onclick = () => selectOption(letter);
     opts.appendChild(btn);
   });
@@ -648,7 +657,7 @@ function renderQuestion(){
   const pct = POOL.length ? Math.round((currentIndex / POOL.length) * 100) : 0;
   document.getElementById('bar').style.width = pct + '%';
   document.getElementById('progressInfo').innerText = POOL.length ? `${currentIndex + 1} / ${POOL.length}` : '0 / 0';
-  document.getElementById('progressText').innerText = `Pontos: ${score}`;
+  document.getElementById('progressText').textContent = `Pontos: ${score}`;
   
   document.getElementById('sheetNextBtn').style.display = (currentIndex < POOL.length - 1) ? 'block' : 'none';
   document.getElementById('sheetFinishBtn').style.display = (currentIndex === POOL.length - 1) ? 'block' : 'none';
@@ -686,10 +695,16 @@ function selectOption(letter){
   const iconHtml = isCorrect ? '<i class="ph-fill ph-check-circle"></i> Acertou!' : '<i class="ph-fill ph-x-circle"></i> Errou!';
   const colorClass = isCorrect ? 'var(--success)' : 'var(--danger)';
   
-  document.getElementById('explainBody').innerHTML = `
-    <div style="color:${colorClass}; font-size: 24px; font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom: 12px;">${iconHtml}</div>
-    <div style="font-size:15px; color:var(--text-main); line-height:1.6;">${q_expl(q) || 'Nenhuma explicação técnica fornecida para esta questão.'}</div>
+  const explBody = document.getElementById('explainBody');
+  explBody.innerHTML = `
+    <div id="explTitle" style="font-size: 24px; font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom: 12px;"></div>
+    <div id="explText" style="font-size:15px; color:var(--text-main); line-height:1.6;"></div>
   `;
+  const explTitle = document.getElementById('explTitle');
+  explTitle.style.color = colorClass;
+  explTitle.innerHTML = iconHtml;
+  
+  document.getElementById('explText').textContent = q_expl(q) || 'Nenhuma explicação técnica fornecida para esta questão.';
   document.getElementById('explainSheet').classList.add('show');
 }
 
@@ -725,11 +740,13 @@ function finishQuiz(){
   if(grandeDiaInterval) { clearInterval(grandeDiaInterval); grandeDiaInterval = null; }
   document.getElementById('quizTimerContainer').style.display = 'none';
 
-  document.getElementById('question').innerHTML = `
-    <div class="finish-title">
-      <i class="ph-fill ph-check-circle"></i> Fim! Você acertou ${score} de ${POOL.length}
-    </div>
-  `;
+    const qBox = document.getElementById('question');
+    qBox.innerHTML = `
+      <div class="finish-title">
+        <i class="ph-fill ph-check-circle"></i> <span id="finishScoreText"></span>
+      </div>
+    `;
+    document.getElementById('finishScoreText').textContent = `Fim! Você acertou ${score} de ${POOL.length}`;
   document.getElementById('opts').innerHTML = '';
   document.getElementById('btnRestart').style.display = 'block';
   document.getElementById('btnQuit').style.display = 'none';
@@ -807,248 +824,8 @@ async function renderCards(){
       `;
       container.appendChild(el);
     }
-  } catch (e) {
-    console.error("Erro no swipe:", e);
-  }
-}
-
-// =====================================================================
-// LÓGICA DE EDITAIS E CONCURSOS
-// =====================================================================
-let currentEditalTab = 'aberto';
-
-window.switchEditalTab = function(status) {
-  currentEditalTab = status;
-  document.getElementById('tabAbertos').classList.toggle('active', status === 'aberto');
-  document.getElementById('tabPrevistos').classList.toggle('active', status === 'previsto');
-  renderEditais();
-};
-
-async function renderEditais() {
-  const container = document.getElementById('editaisList');
-  if (!container) return;
-
-  container.innerHTML = `
-    <div class="loading-state">
-      <i class="ph ph-spinner-gap ph-spin"></i>
-      <p>Sincronizando editais...</p>
-    </div>
-  `;
-
-  try {
-    const db = getFirestoreDb();
-    const snap = await db.collection('editais').get();
-    
-    let dbEditais = [];
-    snap.forEach(doc => {
-      const data = doc.data();
-      const rawData = data.fields ? data.fields : data;
-      
-      const getVal = (val) => {
-        if (typeof val === 'object' && val.stringValue) return val.stringValue;
-        return val || '';
-      };
-
-      const statusValue = getVal(rawData.status).toLowerCase().trim();
-      const targetClean = currentEditalTab.toLowerCase().trim();
-
-      if (statusValue.includes(targetClean)) {
-        dbEditais.push({
-          id: doc.id,
-          titulo: getVal(rawData.titulo),
-          orgao: getVal(rawData.orgao),
-          cargo: getVal(rawData.cargo),
-          status: statusValue.includes('aberto') ? 'aberto' : 'previsto',
-          vagas: getVal(rawData.vagas),
-          inscricao: getVal(rawData.inscricao),
-          prova: getVal(rawData.prova || rawData.data_prova),
-          link: getVal(rawData.link),
-          imagem: getVal(rawData.imagem || rawData.foto || rawData.icon)
-        });
-      }
-    });
-
-    // Mescla com os "Seeds" para garantir que sempre esteja preenchido
-    const seeds = getSeedEditais(currentEditalTab);
-    
-    // Evita duplicados comparando títulos (normalizados)
-    let finalEditais = [...dbEditais];
-    seeds.forEach(seed => {
-      const isDuplicate = finalEditais.some(db => 
-        db.titulo.toLowerCase().includes(seed.titulo.toLowerCase()) || 
-        seed.titulo.toLowerCase().includes(db.titulo.toLowerCase())
-      );
-      if (!isDuplicate) finalEditais.push(seed);
-    });
-
-    // Ordenar: primeiro os que tem mais info preenchida
-    finalEditais.sort((a, b) => (b.link ? 1 : 0) - (a.link ? 1 : 0));
-
-    container.innerHTML = '';
-    
-    if (finalEditais.length === 0) {
-      container.innerHTML = '<div class="loading-state"><i class="ph ph-info"></i><p>Nenhum edital encontrado no momento.</p></div>';
-      return;
-    }
-
-    finalEditais.forEach(ed => {
-      // Fallback de imagem caso não exista
-      const citySlug = (ed.orgao || ed.titulo).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
-      const imgUrl = ed.imagem || `https://ui-avatars.com/api/?name=${encodeURIComponent(ed.orgao || 'GC')}&background=3B82F6&color=fff&bold=true`;
-      
-      const card = document.createElement('div');
-      card.className = 'edital-card';
-      
-      // Se não tem link, cria um link de busca no Google
-      const finalLink = ed.link || `https://www.google.com/search?q=edital+concurso+${encodeURIComponent(ed.titulo)}+${encodeURIComponent(ed.orgao)}`;
-
-      card.innerHTML = `
-        <div class="edital-header">
-          <div class="edital-header-left">
-            <img src="${imgUrl}" class="edital-icon-img" onerror="this.src='./assets/logo.png'">
-            <h4 class="edital-title">${ed.titulo}</h4>
-          </div>
-          <span class="edital-badge badge-${ed.status}">${ed.status === 'aberto' ? 'Aberto' : 'Previsto'}</span>
-        </div>
-        <div class="edital-org"><i class="ph-fill ph-buildings"></i> ${ed.orgao}</div>
-        
-        <div class="edital-info-row">
-          <div class="edital-info-item">
-            <span class="edital-info-label"><i class="ph ph-identification-card"></i> Cargo</span>
-            <span class="edital-info-val">${ed.cargo || 'Guarda Municipal'}</span>
-          </div>
-          <div class="edital-info-item">
-            <span class="edital-info-label"><i class="ph ph-users"></i> Vagas</span>
-            <span class="edital-info-val">${ed.vagas || 'A definir'}</span>
-          </div>
-          <div class="edital-info-item">
-            <span class="edital-info-label"><i class="ph ph-calendar-check"></i> Inscrição</span>
-            <span class="edital-info-val">${ed.inscricao || 'Em breve'}</span>
-          </div>
-          <div class="edital-info-item">
-            <span class="edital-info-label"><i class="ph ph-calendar-blank"></i> Prova/Info</span>
-            <span class="edital-info-val">${ed.prova || 'A definir'}</span>
-          </div>
-        </div>
-
-        <div class="edital-action">
-          <a href="${finalLink}" target="_blank" class="btn-edital">
-            ${ed.link ? 'Ver Edital Oficial' : 'Pesquisar Edital'} <i class="ph ph-arrow-square-out"></i>
-          </a>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-
-  } catch (e) {
-    console.error("Erro ao sincronizar editais:", e);
-    container.innerHTML = '<div class="loading-state"><i class="ph ph-warning"></i><p>Erro ao carregar editais. Verifique sua conexão.</p></div>';
-  }
-}
-
-function getSeedEditais(status) {
-  const todos = [
-    {
-      titulo: 'GCM Manaus - AM',
-      orgao: 'Prefeitura de Manaus',
-      cargo: 'Guarda Municipal',
-      vagas: '200 + CR',
-      inscricao: 'Encerradas',
-      prova: 'Realizada',
-      link: 'https://concursos.fgv.br/concursos/gcmmanaus24',
-      imagem: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Bandeira_de_Manaus.svg/200px-Bandeira_de_Manaus.svg.png',
-      status: 'aberto'
-    },
-    {
-      titulo: 'GCM São Paulo - SP',
-      orgao: 'Prefeitura de São Paulo',
-      cargo: 'GCM 3ª Classe',
-      vagas: '1.000',
-      inscricao: 'Encerradas (Mar/2026)',
-      prova: 'A definir',
-      link: 'https://www.vunesp.com.br/',
-      imagem: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Bandeira_da_cidade_de_S%C3%A3o_Paulo.svg/200px-Bandeira_da_cidade_de_S%C3%A3o_Paulo.svg.png',
-      status: 'aberto'
-    },
-    {
-      titulo: 'GCM Fortaleza - CE',
-      orgao: 'Prefeitura de Fortaleza',
-      cargo: 'Guarda Municipal',
-      vagas: '1.000',
-      inscricao: 'Previsto 2026',
-      prova: 'A definir',
-      link: 'https://www.fortaleza.ce.gov.br/',
-      imagem: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Bandeira_de_Fortaleza.svg/200px-Bandeira_de_Fortaleza.svg.png',
-      status: 'previsto'
-    },
-    {
-      titulo: 'GCM Belo Horizonte - MG',
-      orgao: 'Prefeitura de BH',
-      cargo: 'Guarda Municipal',
-      vagas: '500 (Solicitadas)',
-      inscricao: 'Aguardando Banca',
-      prova: 'A definir',
-      link: 'https://prefeitura.pbh.gov.br/',
-      imagem: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Bandeira_de_Belo_Horizonte.svg/200px-Bandeira_de_Belo_Horizonte.svg.png',
-      status: 'previsto'
-    },
-    {
-      titulo: 'GCM Rio de Janeiro - RJ',
-      orgao: 'Prefeitura do Rio',
-      cargo: 'GCM',
-      vagas: 'A definir',
-      inscricao: 'Previsto',
-      prova: '2026',
-      link: 'https://www.rio.rj.gov.br/',
-      imagem: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Bandeira_da_cidade_do_Rio_de_Janeiro.svg/200px-Bandeira_da_cidade_do_Rio_de_Janeiro.svg.png',
-      status: 'previsto'
-    },
-    {
-      titulo: 'Polícia Federal (PF)',
-      orgao: 'Governo Federal',
-      cargo: 'Agente / Escrivão',
-      vagas: '2.000 (Solicitadas)',
-      inscricao: 'Aguardando Edital',
-      prova: '2026',
-      link: 'https://www.gov.br/pf/pt-br/canais_atendimento/concursos',
-      imagem: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Flag_of_Brazil.svg/200px-Flag_of_Brazil.svg.png',
-      status: 'previsto'
-    },
-    {
-      titulo: 'Polícia Rodoviária (PRF)',
-      orgao: 'Governo Federal',
-      cargo: 'Policial Rodoviário',
-      vagas: '4.902 (Solicitadas)',
-      inscricao: 'Em análise',
-      prova: '2026',
-      link: 'https://www.gov.br/prf/pt-br/servicos/concursos',
-      imagem: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Flag_of_Brazil.svg/200px-Flag_of_Brazil.svg.png',
-      status: 'previsto'
-    },
-    {
-      titulo: 'GCM Curitiba - PR',
-      orgao: 'Prefeitura de Curitiba',
-      cargo: 'Guarda Municipal',
-      vagas: 'A definir',
-      inscricao: 'Em estudo',
-      prova: 'A definir',
-      link: 'https://www.curitiba.pr.gov.br/',
-      imagem: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Bandeira_de_Curitiba.svg/200px-Bandeira_de_Curitiba.svg.png',
-      status: 'previsto'
-    },
-    {
-      titulo: 'GCM Salvador - BA',
-      orgao: 'Prefeitura de Salvador',
-      cargo: 'Guarda Municipal',
-      vagas: 'A definir',
-      inscricao: 'Anunciado',
-      prova: 'A definir',
-      link: 'https://www.salvador.ba.gov.br/',
-      imagem: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Bandeira_de_Salvador.svg/200px-Bandeira_de_Salvador.svg.png',
-      status: 'previsto'
-    }
-  ];
-  return todos.filter(x => x.status === status);
+    setupTinderSwipe();
+  } catch(e) { container.innerHTML = 'Erro ao carregar.'; }
 }
 
 function setupTinderSwipe(){
@@ -1277,60 +1054,6 @@ window.renderStatsChart = function() {
 
 showBestRecord();
 checkStreak();
-
-// ==========================================
-// SPA IFRAME VIEWER (Leitor de Resumos Interno)
-// ==========================================
-let pageBeforeIframe = 'home';
-window.openIframe = function(url, title) {
-    const activePage = document.querySelector('.page.active');
-    if (activePage && activePage.id !== 'iframeViewer') {
-        pageBeforeIframe = activePage.id;
-    }
-    
-    document.getElementById('iframeTitle').innerHTML = `<i class="ph-fill ph-file-text"></i> ${title}`;
-    const iframe = document.getElementById('mainIframe');
-    const loading = document.getElementById('iframeLoading');
-    
-    loading.style.display = 'block';
-    iframe.style.opacity = '0';
-    
-    iframe.onload = function() {
-        loading.style.display = 'none';
-        iframe.style.opacity = '1';
-        try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            const backBtn = iframeDoc.querySelector('.back-btn');
-            if (backBtn) {
-                // Intercepta o botão voltar interno do HTML para manter o estado SPA
-                backBtn.onclick = function(e) {
-                    e.preventDefault();
-                    if (iframe.src.includes('index.html')) {
-                        closeIframeViewer();
-                    } else {
-                        // Se o iframe não estiver na página inicial de resumos, 
-                        // tenta voltar no histórico para index, ou fecha se não puder
-                        if(iframe.contentWindow.history.length > 1) {
-                            iframe.contentWindow.history.back();
-                        } else {
-                            closeIframeViewer();
-                        }
-                    }
-                }
-            }
-        } catch(e) {
-            // Pode falhar localmente por restrições de Cross-Origin de arquivos: file://
-        }
-    };
-    
-    iframe.src = url;
-    go('iframeViewer');
-};
-
-window.closeIframeViewer = function() {
-    document.getElementById('mainIframe').src = '';
-    go(pageBeforeIframe);
-};
 updateXPUI();
 if (typeof renderBadges === 'function') renderBadges();
 if (typeof renderStatsChart === 'function') renderStatsChart();
