@@ -367,12 +367,19 @@ function openSubject(subjectId) {
   document.getElementById('mPickerName').textContent = subject.name;
 
   // Atualiza contadores
-  const vCount = subject.videos.length;
-  const aCount = subject.audios.length;
+  const vCount = subject.videos ? subject.videos.length : 0;
+  const aCount = subject.audios ? subject.audios.length : 0;
+  const sCount = subject.slides ? subject.slides.length : 0;
+
   document.getElementById('videoCount').textContent =
     vCount > 0 ? `${vCount} aula${vCount !== 1 ? 's' : ''} disponível${vCount !== 1 ? 'is' : ''}` : 'Em breve';
   document.getElementById('audioCount').textContent =
     aCount > 0 ? `${aCount} aula${aCount !== 1 ? 's' : ''} disponível${aCount !== 1 ? 'is' : ''}` : 'Em breve';
+  
+  const slideCountEl = document.getElementById('slideCount');
+  if(slideCountEl) {
+    slideCountEl.textContent = sCount > 0 ? `${sCount} aula${sCount !== 1 ? 's' : ''} disponível${sCount !== 1 ? 'is' : ''}` : 'Em breve';
+  }
 
   // Link do resumo em texto
   const resumoLink = document.getElementById('resumoTextLink');
@@ -381,8 +388,10 @@ function openSubject(subjectId) {
   // Desabilita botões sem conteúdo
   const videoBtn = document.querySelector('.video-btn');
   const audioBtn = document.querySelector('.audio-btn');
+  const slideBtn = document.querySelector('.slide-btn');
   if (videoBtn) videoBtn.style.opacity = vCount > 0 ? '1' : '0.5';
   if (audioBtn) audioBtn.style.opacity = aCount > 0 ? '1' : '0.5';
+  if (slideBtn) slideBtn.style.opacity = sCount > 0 ? '1' : '0.5';
 
   showStudyViews('mediaPicker');
 }
@@ -392,11 +401,14 @@ window.showMediaList = function(type) {
   if (!subject) return;
 
   currentMediaType = type;
-  const items = type === 'video' ? subject.videos : subject.audios;
+  const items = type === 'video' ? (subject.videos || []) : (type === 'audio' ? (subject.audios || []) : (subject.slides || []));
 
   // Atualiza título
-  const icon = type === 'video' ? 'ph-video' : 'ph-headphones';
-  const label = type === 'video' ? 'Aulas em Vídeo' : 'Aulas em Áudio';
+  let icon = 'ph-video';
+  let label = 'Aulas em Vídeo';
+  if (type === 'audio') { icon = 'ph-headphones'; label = 'Aulas em Áudio'; }
+  else if (type === 'slide') { icon = 'ph-presentation-chart'; label = 'Slides em PDF'; }
+  
   const listTitleEl = document.getElementById('mediaListTitle');
   listTitleEl.innerHTML = `<i class="ph-fill ${icon}"></i> <span id="mListLabelText"></span> — <span id="mListSubjName"></span>`;
   document.getElementById('mListLabelText').textContent = label;
@@ -407,9 +419,10 @@ window.showMediaList = function(type) {
   listEl.innerHTML = '';
 
   if (items.length === 0) {
+    let emptyIcon = type === 'video' ? 'video-camera-slash' : (type === 'audio' ? 'speaker-slash' : 'presentation-chart');
     listEl.innerHTML = `
       <div class="media-empty-state">
-        <i class="ph ph-${type === 'video' ? 'video-camera-slash' : 'speaker-slash'}"></i>
+        <i class="ph ph-${emptyIcon}"></i>
         <h4>Conteúdo em breve</h4>
         <p>As ${label.toLowerCase()} de <strong>${subject.name}</strong> estão sendo preparadas e serão disponibilizadas em breve.</p>
       </div>`;
@@ -421,10 +434,10 @@ window.showMediaList = function(type) {
     const card = document.createElement('div');
     card.className = 'media-item-card';
     card.innerHTML = `
-      <div class="media-item-thumb ${type === 'audio' ? 'audio-thumb' : ''}">
+      <div class="media-item-thumb ${type === 'audio' ? 'audio-thumb' : ''} ${type === 'slide' ? 'slide-thumb' : ''}">
         ${item.youtubeId
-          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ph-${type === 'video' ? 'video' : 'headphones'}\\'></i>'">`
-          : `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i>`
+          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ${icon}\\'></i>'">`
+          : `<i class="ph-fill ${icon}"></i>`
         }
         <div class="media-play-overlay"><i class="ph-fill ph-play-circle"></i></div>
       </div>
@@ -447,7 +460,8 @@ window.showMediaList = function(type) {
 function openMediaPlayer(item, type) {
   const subject = MEDIA_CATALOG.find(s => s.id === currentSubjectId);
   const playerTitle = document.getElementById('playerTitle');
-  playerTitle.innerHTML = `<i class="ph-fill ph-${type === 'video' ? 'video' : 'headphones'}"></i> <span id="pTitleText"></span>`;
+  const icon = type === 'video' ? 'video' : (type === 'audio' ? 'headphones' : 'presentation-chart');
+  playerTitle.innerHTML = `<i class="ph-fill ph-${icon}"></i> <span id="pTitleText"></span>`;
   document.getElementById('pTitleText').textContent = item.title;
 
   const pc = document.getElementById('playerContainer');
@@ -489,6 +503,16 @@ function openMediaPlayer(item, type) {
             Seu navegador não suporta áudio HTML5.
           </audio>
         </div>`;
+    } else if (type === 'slide') {
+      // PDF nativo via iframe
+      pc.innerHTML = `
+        <div class="pdf-player-wrapper" style="width:100%; height:70vh; border-radius:12px; overflow:hidden; margin-bottom: 16px;">
+          <iframe src="${item.url}" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
+        </div>
+        <div class="player-info-box">
+          <div class="player-subject-tag"><i class="ph-fill ${subject.icon}"></i> ${subject.name}</div>
+          <h4 class="player-item-title">${item.title}</h4>
+        </div>`;
     } else {
       // Vídeo direto (não YouTube)
       pc.innerHTML = `
@@ -516,14 +540,17 @@ async function renderStudies() {
   try {
     container.innerHTML = '';
     MEDIA_CATALOG.forEach(subject => {
-      const totalMedia = subject.videos.length + subject.audios.length;
+      const vCount = subject.videos ? subject.videos.length : 0;
+      const aCount = subject.audios ? subject.audios.length : 0;
+      const sCount = subject.slides ? subject.slides.length : 0;
+      const totalMedia = vCount + aCount + sCount;
       const card = document.createElement('div');
       card.className = 'resumo-card';
       card.innerHTML = `
         <div class="resumo-icon"><i class="ph-fill ${subject.icon}"></i></div>
         <div class="resumo-info">
           <h4>${subject.name}</h4>
-          <p>${totalMedia > 0 ? `${subject.videos.length} vídeo${subject.videos.length !== 1 ? 's' : ''} · ${subject.audios.length} áudio${subject.audios.length !== 1 ? 's' : ''}` : 'Resumo + Mídia'}</p>
+          <p>${totalMedia > 0 ? `${vCount} vídeo${vCount !== 1 ? 's' : ''} · ${aCount} áudio${aCount !== 1 ? 's' : ''}${sCount > 0 ? ` · ${sCount} slide${sCount !== 1 ? 's' : ''}` : ''}` : 'Resumo + Mídia'}</p>
         </div>
         <div class="resumo-action"><i class="ph ph-arrow-right"></i></div>
       `;
