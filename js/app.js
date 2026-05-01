@@ -249,7 +249,7 @@ const MEDIA_CATALOG = [
   resumoFile: 'estatuto-das-guardas-municipais.html',
   videos: [],
   audios: [
-    { title: 'A revolução das Guardas Municipais no STF', url: 'https://archive.org/details/a-revolucao-das-guardas-municipais-no-stf/A+revolu%C3%A7%C3%A3o+das+Guardas+Municipais+no+STF.m4a', duration: '28m' }
+    { title: 'A revolução das Guardas Municipais no STF', url: 'https://dn711002.ca.archive.org/0/items/a-revolucao-das-guardas-municipais-no-stf/A%20revolu%C3%A7%C3%A3o%20das%20Guardas%20Municipais%20no%20STF.m4a', duration: '28m' }
   ],
   slides: []
 },
