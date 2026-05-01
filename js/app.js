@@ -243,6 +243,17 @@ const MEDIA_CATALOG = [
     ]
   },
   {
+  id: 'estatuto-das-guardas-municipais',
+  name: 'Estatuto das Guardas Municipais',
+  icon: 'ph-book-open',
+  resumoFile: 'estatuto-das-guardas-municipais.html',
+  videos: [],
+  audios: [
+    { title: 'A revolução das Guardas Municipais no STF', url: 'https://archive.org/details/a-revolucao-das-guardas-municipais-no-stf/A+revolu%C3%A7%C3%A3o+das+Guardas+Municipais+no+STF.m4a', duration: '28m' }
+  ],
+  slides: []
+},
+  {
     id: 'lei-de-drogas',
     name: 'Lei de Drogas',
     icon: 'ph-pills',
