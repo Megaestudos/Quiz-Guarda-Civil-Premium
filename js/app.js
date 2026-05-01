@@ -257,7 +257,7 @@ const MEDIA_CATALOG = [
     url: 'https://dn711002.ca.archive.org/0/items/a-revolucao-das-guardas-municipais-no-stf/Guarda%20Municipal%20n%C3%A3o%20%C3%A9%20pol%C3%ADcia%20por%20lei.m4a', 
     duration: '27 min' 
   }
-]
+],
   slides: []
 },
   {
