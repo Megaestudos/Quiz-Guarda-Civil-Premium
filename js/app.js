@@ -252,7 +252,6 @@ const MEDIA_CATALOG = [
     { title: 'A revolução das Guardas Municipais no STF', url: 'https://dn711002.ca.archive.org/0/items/a-revolucao-das-guardas-municipais-no-stf/A%20revolu%C3%A7%C3%A3o%20das%20Guardas%20Municipais%20no%20STF.m4a', duration: '28m' }
   ],
     audios: [
-  // Exemplo de como adicionar um novo áudio
   { 
     title: 'Guarda Municipal não é polícia por lei', 
     url: 'https://dn711002.ca.archive.org/0/items/a-revolucao-das-guardas-municipais-no-stf/Guarda%20Municipal%20n%C3%A3o%20%C3%A9%20pol%C3%ADcia%20por%20lei.m4a', 
