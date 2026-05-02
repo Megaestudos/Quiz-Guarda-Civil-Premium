@@ -1,24 +1,18 @@
 // Lógica dedicada a features apenas da landing page
 document.addEventListener("DOMContentLoaded", () => {
     const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn && !loginBtn._handlerBound) {
+    if (loginBtn) {
        loginBtn.addEventListener('click', handleLogin);
-       loginBtn._handlerBound = true;
     }
 
     const regBtn = document.getElementById('regBtn');
-    if (regBtn && !regBtn._handlerBound) {
+    if (regBtn) {
        regBtn.addEventListener('click', handleRegister);
-       regBtn._handlerBound = true;
     }
 });
 
-// Só define isLoginMode se não existir ainda (evita conflito com index.html inline)
-if (typeof isLoginMode === 'undefined') {
-  var isLoginMode = true;
-}
+let isLoginMode = true;
 
-if (typeof window.toggleAuthMode === 'undefined') {
 window.toggleAuthMode = function() {
     isLoginMode = !isLoginMode;
     const loginView = document.getElementById('loginView');
@@ -36,9 +30,7 @@ window.toggleAuthMode = function() {
         document.getElementById('regPassword').value = '';
     }
 }
-}
 
-if (typeof window.togglePassword === 'undefined') {
 window.togglePassword = function(inputId) {
     const input = document.getElementById(inputId);
     if (input.type === "password") {
@@ -46,7 +38,6 @@ window.togglePassword = function(inputId) {
     } else {
         input.type = "password";
     }
-}
 }
 
 async function handleLogin() {
