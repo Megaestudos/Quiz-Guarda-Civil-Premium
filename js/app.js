@@ -125,17 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if(!isMobile()) setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0));
     
-    // Inicializa o botão de som
-    const soundToggle = document.getElementById('soundToggle');
-    if (soundToggle) {
-      soundToggle.onclick = function() {
-        const currentOff = localStorage.getItem(SOUND_KEY) === '0';
-        localStorage.setItem(SOUND_KEY, currentOff ? '1' : '0');
-        updateSoundUI();
-      };
-    }
-    updateSoundUI();
-    
     // Inicialização da Home
     showPage('home');
 });
@@ -167,7 +156,13 @@ function updateSoundUI() {
   const ic = document.getElementById('soundIcon');
   if(ic) ic.className = isOff ? 'ph ph-speaker-slash' : 'ph ph-speaker-high';
 }
+document.getElementById('soundToggle').onclick = function() {
+  const currentOff = localStorage.getItem(SOUND_KEY) === '0';
+  localStorage.setItem(SOUND_KEY, currentOff ? '1' : '0');
+  updateSoundUI();
+};
 if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY, '1');
+updateSoundUI();
 
 // Função removida por ser duplicata (agora unificada no topo)
 
@@ -612,7 +607,7 @@ async function showTopicSelection(){
       });
 
       if (materias.length === 0) {
-          console.warn("Aviso: Nenhuma matéria encontrada no banco.");
+          log("Aviso: Nenhuma matéria encontrada no banco.", "warning");
       }
     } catch (err) {
       console.error("Erro ao carregar tópicos:", err);
@@ -978,7 +973,7 @@ window.startGrandeDia = async function() {
 function startTimer(duration) {
   let timer = duration;
   const display = document.getElementById('quizTimerDisplay');
-  display.style.color = 'var(--text-main, #ffffff)'; // Reset color
+  display.style.color = 'var(--danger)'; // Reset color
   if(grandeDiaInterval) clearInterval(grandeDiaInterval);
   
   grandeDiaInterval = setInterval(function () {
