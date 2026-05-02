@@ -28,7 +28,7 @@ auth.onAuthStateChanged(async (user) => {
 
   if (user) {
     const lastActivity = localStorage.getItem('plenaula_last_activity');
-    if (lastActivity && lastActivity !== 'null') {
+    if (lastActivity) {
        const timeDiff = Date.now() - parseInt(lastActivity);
        if (timeDiff > SESSION_TIMEOUT_MS) {
           localStorage.removeItem('plenaula_last_activity');
