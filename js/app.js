@@ -125,6 +125,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if(!isMobile()) setScale(parseFloat(localStorage.getItem(SCALE_KEY) || 1.0));
     
+    // Inicializa o botão de som
+    const soundToggle = document.getElementById('soundToggle');
+    if (soundToggle) {
+      soundToggle.onclick = function() {
+        const currentOff = localStorage.getItem(SOUND_KEY) === '0';
+        localStorage.setItem(SOUND_KEY, currentOff ? '1' : '0');
+        updateSoundUI();
+      };
+    }
+    updateSoundUI();
+    
     // Inicialização da Home
     showPage('home');
 });
@@ -156,13 +167,7 @@ function updateSoundUI() {
   const ic = document.getElementById('soundIcon');
   if(ic) ic.className = isOff ? 'ph ph-speaker-slash' : 'ph ph-speaker-high';
 }
-document.getElementById('soundToggle').onclick = function() {
-  const currentOff = localStorage.getItem(SOUND_KEY) === '0';
-  localStorage.setItem(SOUND_KEY, currentOff ? '1' : '0');
-  updateSoundUI();
-};
 if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY, '1');
-updateSoundUI();
 
 // Função removida por ser duplicata (agora unificada no topo)
 
@@ -240,6 +245,9 @@ const MEDIA_CATALOG = [
     ],
     audios: [
       { title: 'ECA - Estatuto da Criança e do Adolescente', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/01%20ECA%20-%20Estatuto%20da%20Crian%C3%A7a%20e%20do%20Adolecente.m4a', duration: 'Áudio' }
+    ],
+    slides: [
+      { title: 'ECA - Estatuto da Criança e Adolescência', url: 'https://drive.google.com/file/d/19O1RntU-PKnycl2xDkeFnZUrzSnUUtLQ/preview', duration: 'PDF' }
     ]
   },
   {
@@ -264,6 +272,9 @@ const MEDIA_CATALOG = [
     ],
     audios: [
       { title: 'Abuso de Autoridade', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/02%20Abuso%20de%20Autoridade.m4a', duration: 'Áudio' }
+    ],
+    slides: [
+      { title: 'Abuso de Autoridade', url: 'https://drive.google.com/file/d/1JDRIvg3mLFUMUQnnXb7Zc2HKjM2diP6L/preview', duration: 'PDF' }
     ]
   },
   {
@@ -318,6 +329,28 @@ const MEDIA_CATALOG = [
     videos: [],
     audios: [
       { title: 'Manual Brasileiro de Fiscalização de Trânsito (MBFT)', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/Manual%20Brasileiro%20de%20Fiscaliza%C3%A7%C3%A3o%20de%20Tr%C3%A2nsito%20%28MBFT.m4a', duration: 'Áudio' }
+    ]
+  },
+  {
+    id: 'direitos-humanos',
+    name: 'Direitos Humanos',
+    icon: 'ph-globe-hemisphere-west',
+    resumoFile: 'direitos-humanos.html',
+    videos: [],
+    audios: [],
+    slides: [
+      { title: 'Direitos Humanos', url: 'https://drive.google.com/file/d/14jEkvsyThDz3-l1CN4lDccerYb9guyFV/preview', duration: 'PDF' }
+    ]
+  },
+  {
+    id: 'estatuto-das-guardas',
+    name: 'Estatuto das Guardas Municipais',
+    icon: 'ph-shield-check',
+    resumoFile: 'estatuto-das-guardas.html',
+    videos: [],
+    audios: [],
+    slides: [
+      { title: 'Estatuto das Guardas Municipais', url: 'https://drive.google.com/file/d/1BX5OwoR5llMthpvV1THgEbty7uxhvVz-/preview', duration: 'PDF' }
     ]
   }
 ];
@@ -607,7 +640,7 @@ async function showTopicSelection(){
       });
 
       if (materias.length === 0) {
-          log("Aviso: Nenhuma matéria encontrada no banco.", "warning");
+          console.warn("Aviso: Nenhuma matéria encontrada no banco.");
       }
     } catch (err) {
       console.error("Erro ao carregar tópicos:", err);
@@ -973,7 +1006,7 @@ window.startGrandeDia = async function() {
 function startTimer(duration) {
   let timer = duration;
   const display = document.getElementById('quizTimerDisplay');
-  display.style.color = 'var(--danger)'; // Reset color
+  display.style.color = 'var(--text-main, #ffffff)'; // Reset color
   if(grandeDiaInterval) clearInterval(grandeDiaInterval);
   
   grandeDiaInterval = setInterval(function () {
