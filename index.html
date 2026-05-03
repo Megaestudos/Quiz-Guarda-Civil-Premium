@@ -84,10 +84,6 @@
                   <input type="password" id="loginPassword" placeholder="Sua senha" />
                   <button class="btn-show-pass" type="button" onclick="togglePassword('loginPassword')"><i class="ph ph-eye"></i></button>
               </div>
-              
-              <div style="text-align: right; margin-top: 8px; font-size: 14px;">
-                 <a href="#" onclick="showForgotView(); return false;" style="color: #3B82F6; text-decoration: none;">Esqueci a senha</a>
-              </div>
 
               <div id="loginError" style="color:#ef4444; font-size:14px; display:none; margin-top:10px;text-align:center;"></div>
               <div id="loginMessage" style="color:#10b981; font-size:14px; display:none; margin-top:10px;text-align:center;"></div>
@@ -97,6 +93,10 @@
            
            <div style="text-align:center; margin-top:24px; font-size:14px; color:rgba(255,255,255,0.6)">
               Ainda não tem conta? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#3B82F6; font-weight:600; text-decoration:none;">Criar agora!</a>
+           </div>
+
+           <div style="text-align:center; margin-top:16px; font-size:14px;">
+              <a href="#" onclick="showForgotView(); return false;" style="color:#3B82F6; font-weight:600; text-decoration:none;">Esqueci minha senha</a>
            </div>
        </div>
 
