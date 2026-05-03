@@ -85,7 +85,12 @@
                   <button class="btn-show-pass" type="button" onclick="togglePassword('loginPassword')"><i class="ph ph-eye"></i></button>
               </div>
               
+              <div style="text-align: right; margin-top: 8px; font-size: 14px;">
+                 <a href="#" onclick="showForgotView(); return false;" style="color: #3B82F6; text-decoration: none;">Esqueci a senha</a>
+              </div>
+
               <div id="loginError" style="color:#ef4444; font-size:14px; display:none; margin-top:10px;text-align:center;"></div>
+              <div id="loginMessage" style="color:#10b981; font-size:14px; display:none; margin-top:10px;text-align:center;"></div>
 
               <button class="btn btn-primary" id="loginBtn" onclick="handleLoginSubmit()" style="width: 100%; margin-top: 15px; padding: 14px; font-size: 16px;">Entrar no Painel</button>
            </div>
@@ -121,6 +126,29 @@
               Já possui conta? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#3B82F6; font-weight:600; text-decoration:none;">Fazer login.</a>
            </div>
        </div>
+
+       <!-- FORGOT PASSWORD VIEW -->
+       <div id="forgotView" style="display:none;">
+           <h2 class="auth-title">Recuperar <span>Senha</span></h2>
+           
+           <div class="login-form">
+              <p style="text-align: center; font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 20px;">
+                  Digite seu e-mail abaixo. Enviaremos um link para você redefinir sua senha.
+              </p>
+              
+              <label>E-mail</label>
+              <input type="email" id="forgotEmail" placeholder="Digite seu email" />
+              
+              <div id="forgotError" style="color:#ef4444; font-size:14px; display:none; margin-top:10px;text-align:center;"></div>
+              <div id="forgotMessage" style="color:#10b981; font-size:14px; display:none; margin-top:10px;text-align:center;"></div>
+              
+              <button class="btn btn-primary" id="forgotBtn" onclick="submitForgotPassword()" style="width: 100%; margin-top: 15px; padding: 14px; font-size: 16px;">Recuperar</button>
+           </div>
+           
+           <div style="text-align:center; margin-top:24px; font-size:14px; color:rgba(255,255,255,0.6)">
+              Lembrou a senha? <a href="#" onclick="showLoginView(); return false;" style="color:#3B82F6; font-weight:600; text-decoration:none;">Voltar para login</a>
+           </div>
+       </div>
   </div>
 
   <!-- Firebase -->
@@ -133,21 +161,68 @@
   <script>
     let isLoginMode = true;
 
+    window.showLoginView = function() {
+        isLoginMode = true;
+        document.getElementById('loginView').style.display = 'block';
+        document.getElementById('registerView').style.display = 'none';
+        document.getElementById('forgotView').style.display = 'none';
+        document.getElementById('loginError').style.display = 'none';
+        const msgEl = document.getElementById('loginMessage');
+        if(msgEl) msgEl.style.display = 'none';
+        document.getElementById('loginPassword').value = '';
+    };
+
+    window.showForgotView = function() {
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('registerView').style.display = 'none';
+        document.getElementById('forgotView').style.display = 'block';
+        document.getElementById('forgotError').style.display = 'none';
+        document.getElementById('forgotMessage').style.display = 'none';
+        document.getElementById('forgotEmail').value = '';
+    };
+
     window.toggleAuthMode = function() {
-        isLoginMode = !isLoginMode;
-        const loginView = document.getElementById('loginView');
-        const registerView = document.getElementById('registerView');
-        
         if (isLoginMode) {
-            loginView.style.display = 'block';
-            registerView.style.display = 'none';
-            document.getElementById('loginError').style.display = 'none';
-            document.getElementById('loginPassword').value = '';
-        } else {
-            loginView.style.display = 'none';
-            registerView.style.display = 'block';
+            isLoginMode = false;
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('forgotView').style.display = 'none';
+            document.getElementById('registerView').style.display = 'block';
             document.getElementById('regError').style.display = 'none';
             document.getElementById('regPassword').value = '';
+        } else {
+            showLoginView();
+        }
+    }
+
+    window.submitForgotPassword = async function() {
+        const email = document.getElementById('forgotEmail').value.trim();
+        const errEl = document.getElementById('forgotError');
+        const msgEl = document.getElementById('forgotMessage');
+        
+        errEl.style.display = 'none';
+        msgEl.style.display = 'none';
+
+        if (!email) {
+            errEl.innerText = "Por favor, digite seu e-mail para recuperar a senha.";
+            errEl.style.display = 'block';
+            return;
+        }
+
+        const btn = document.getElementById('forgotBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Enviando...';
+        btn.disabled = true;
+
+        try {
+            await sendPasswordReset(email);
+            msgEl.innerText = "E-mail de recuperação enviado! Verifique sua caixa de entrada.";
+            msgEl.style.display = 'block';
+        } catch (error) {
+            errEl.innerText = error.message;
+            errEl.style.display = 'block';
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
     }
 
