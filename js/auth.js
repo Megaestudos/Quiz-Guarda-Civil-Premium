@@ -62,6 +62,25 @@ async function registerWithEmail(name, email, password) {
   }
 }
 
+async function sendPasswordReset(email) {
+  try {
+    await auth.sendPasswordResetEmail(email);
+  } catch (error) {
+    console.error("Password reset error:", error);
+    if (error.code === 'auth/user-not-found') {
+        throw new Error("E-mail não encontrado.");
+    } else if (error.code === 'auth/invalid-email') {
+        throw new Error("E-mail inválido.");
+    } else if (error.code === 'auth/too-many-requests') {
+        throw new Error("Muitas tentativas. Tente novamente mais tarde.");
+    } else if (error.code === 'auth/network-request-failed') {
+        throw new Error("Erro de conexão. Verifique sua internet.");
+    } else {
+        throw new Error(error.message || "Erro ao tentar recuperar a senha.");
+    }
+  }
+}
+
 async function logoutUser() {
   await auth.signOut();
   window.location.href = "index.html";
