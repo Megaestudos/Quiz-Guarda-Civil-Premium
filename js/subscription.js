@@ -28,7 +28,7 @@ auth.onAuthStateChanged(async (user) => {
 
   if (user) {
     const lastActivity = localStorage.getItem('plenaula_last_activity');
-    if (lastActivity) {
+    if (lastActivity && lastActivity !== 'null') {
        const timeDiff = Date.now() - parseInt(lastActivity);
        if (timeDiff > SESSION_TIMEOUT_MS) {
           localStorage.removeItem('plenaula_last_activity');
@@ -46,24 +46,21 @@ auth.onAuthStateChanged(async (user) => {
   // Se não há usuário, redireciona para o login APENAS se estiver em uma página restrita
   if (!user) {
     if (isApp || isResumos) {
-        console.log("Aguardando verificação de autenticação para:", normalizedPath);
-        // Tempo de espera configurável para evitar falsos negativos em conexões lentas
-        setTimeout(() => {
-          if (!auth.currentUser) {
-            console.warn("Redirecionando para login: Usuário não autenticado em página restrita.");
-            window.location.href = isResumos ? '../index.html' : 'index.html';
-          } else {
-            console.log("Autenticação confirmada após atraso.");
-          }
-        }, AUTH_CHECK_DELAY_MS);
+        console.warn("Redirecionando para login: Usuário não autenticado em página restrita.");
+        window.location.href = isResumos ? '../index.html' : 'index.html';
+    } else {
+        document.body.style.opacity = '1';
     }
   } else {
     console.log("Usuário autenticado:", user.email);
     // Se há usuário, verifica subscrição ou redireciona da landing para o app
     if (isApp || isResumos) {
+       document.body.style.opacity = '1';
        await checkSubscription(user);
     } else if (isLanding) {
        window.location.href = 'app.html';
+    } else {
+       document.body.style.opacity = '1';
     }
   }
 });
