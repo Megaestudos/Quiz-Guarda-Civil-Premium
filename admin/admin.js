@@ -548,3 +548,184 @@ document.addEventListener("click", async (event) => {
 
   await toggleUserStatus(uid, currentlyDisabled);
 });
+
+// ==========================================
+// MÓDULO DE GESTÃO DE CONTEÚDO (CMS)
+// ==========================================
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+const db = getFirestore(app);
+let subjectsData = [];
+
+window.loadSubjects = async function() {
+  const grid = $("subjectsGrid");
+  if(!grid) return;
+  grid.innerHTML = '<div class="empty-state">Carregando matérias do sistema...</div>';
+  try {
+    const snap = await getDocs(collection(db, "materias_aulas"));
+    subjectsData = [];
+    snap.forEach(doc => { subjectsData.push({ id: doc.id, ...doc.data() }); });
+    renderSubjects();
+  } catch(e) {
+    grid.innerHTML = '<div class="empty-state">Erro ao carregar matérias.</div>';
+    console.error(e);
+  }
+}
+
+function renderSubjects() {
+  const grid = $("subjectsGrid");
+  if(!grid) return;
+  if(subjectsData.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">Nenhuma matéria cadastrada.</div>';
+    return;
+  }
+  let html = '';
+  subjectsData.forEach(sub => {
+    const vCount = sub.videos ? sub.videos.length : 0;
+    const aCount = sub.audios ? sub.audios.length : 0;
+    const sCount = sub.slides ? sub.slides.length : 0;
+    
+    html += `
+      <div class="subject-card">
+        <h3><i class="${escapeHtml(sub.icon)}"></i> ${escapeHtml(sub.name)}</h3>
+        <p>Resumo: <strong>${escapeHtml(sub.resumoFile || 'Nenhum')}</strong></p>
+        <div class="subject-actions">
+          <button class="btn-sm btn-blue" onclick="window.openSubjectModal('${sub.id}')">Editar Matéria</button>
+          <button class="btn-sm btn-red" onclick="window.deleteSubject('${sub.id}')">Excluir</button>
+        </div>
+        
+        <div class="subject-actions" style="margin-bottom:0">
+          <button class="btn-sm btn-gray" onclick="window.openMediaModal('${sub.id}', 'videos')">+ Vídeo</button>
+          <button class="btn-sm btn-gray" onclick="window.openMediaModal('${sub.id}', 'audios')">+ Áudio</button>
+          <button class="btn-sm btn-gray" onclick="window.openMediaModal('${sub.id}', 'slides')">+ Slide</button>
+        </div>
+        
+        <div class="media-list">
+          ${(sub.videos||[]).map((v, i) => `
+            <div class="media-item">
+              <div class="media-item-info">
+                <span class="media-item-type" style="color:#ef4444">VÍDEO</span>
+                <strong>${escapeHtml(v.title)}</strong>
+              </div>
+              <button class="modal-close" style="font-size:16px" onclick="window.deleteMedia('${sub.id}', 'videos', ${i})">×</button>
+            </div>
+          `).join('')}
+          ${(sub.audios||[]).map((a, i) => `
+            <div class="media-item">
+              <div class="media-item-info">
+                <span class="media-item-type" style="color:#10b981">ÁUDIO</span>
+                <strong>${escapeHtml(a.title)}</strong>
+              </div>
+              <button class="modal-close" style="font-size:16px" onclick="window.deleteMedia('${sub.id}', 'audios', ${i})">×</button>
+            </div>
+          `).join('')}
+          ${(sub.slides||[]).map((s, i) => `
+            <div class="media-item">
+              <div class="media-item-info">
+                <span class="media-item-type" style="color:#3b82f6">SLIDE</span>
+                <strong>${escapeHtml(s.title)}</strong>
+              </div>
+              <button class="modal-close" style="font-size:16px" onclick="window.deleteMedia('${sub.id}', 'slides', ${i})">×</button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  });
+  grid.innerHTML = html;
+}
+
+window.openSubjectModal = function(id = null) {
+  const sub = subjectsData.find(s => s.id === id);
+  $('subjectId').value = id || '';
+  $('subjectName').value = sub ? sub.name : '';
+  $('subjectIcon').value = sub ? sub.icon : '';
+  $('subjectResumo').value = sub ? sub.resumoFile : '';
+  $('subjectFriendlyId').value = id || '';
+  $('subjectFriendlyId').disabled = !!id; // Cannot change ID after creation easily
+  $('subjectModalTitle').innerText = id ? 'Editar Matéria' : 'Nova Matéria';
+  window.openModal('subjectModal');
+}
+
+window.saveSubject = async function() {
+  const idToUpdate = $('subjectId').value;
+  let docId = $('subjectFriendlyId').value.trim() || idToUpdate;
+  if(!docId) return alert("Preencha o ID da matéria.");
+  const data = {
+    name: $('subjectName').value,
+    icon: $('subjectIcon').value,
+    resumoFile: $('subjectResumo').value
+  };
+  try {
+    const btn = event.target; btn.textContent = 'Salvando...'; btn.disabled = true;
+    await setDoc(doc(db, "materias_aulas", docId), data, {merge: true});
+    window.closeModal('subjectModal');
+    await window.loadSubjects();
+    btn.textContent = 'Salvar Matéria'; btn.disabled = false;
+  } catch(e) { alert("Erro ao salvar!"); console.error(e); }
+}
+
+window.deleteSubject = async function(id) {
+  if(!confirm(`Tem certeza que deseja excluir a matéria ${id} e todas as suas aulas?`)) return;
+  try {
+    await deleteDoc(doc(db, "materias_aulas", id));
+    await window.loadSubjects();
+  } catch(e) { alert("Erro ao excluir!"); console.error(e); }
+}
+
+window.openMediaModal = function(subjectId, type) {
+  $('mediaSubjectId').value = subjectId;
+  $('mediaType').value = type;
+  $('mediaTitle').value = '';
+  $('mediaUrl').value = '';
+  $('mediaDur').value = '';
+  $('mediaModalTitle').textContent = `Adicionar ${type.toUpperCase()}`;
+  window.openModal('mediaModal');
+}
+
+window.saveMedia = async function() {
+  const sid = $('mediaSubjectId').value;
+  const type = $('mediaType').value;
+  const title = $('mediaTitle').value;
+  const urlOrId = $('mediaUrl').value;
+  const dur = $('mediaDur').value;
+  
+  if(!title || !urlOrId) return alert("Preencha título e URL.");
+  
+  const sub = subjectsData.find(s => s.id === sid);
+  if(!sub) return;
+  
+  const newItem = { title: title, duration: dur };
+  if(type === 'videos') newItem.youtubeId = urlOrId;
+  else newItem.url = urlOrId;
+  
+  const currentArray = sub[type] || [];
+  currentArray.push(newItem);
+  
+  try {
+    const btn = event.target; btn.textContent = 'Salvando...'; btn.disabled = true;
+    await updateDoc(doc(db, "materias_aulas", sid), { [type]: currentArray });
+    window.closeModal('mediaModal');
+    await window.loadSubjects();
+    btn.textContent = 'Salvar Mídia'; btn.disabled = false;
+  } catch(e) { alert("Erro ao adicionar mídia."); console.error(e); }
+}
+
+window.deleteMedia = async function(subjectId, type, index) {
+  if(!confirm("Remover esta mídia?")) return;
+  const sub = subjectsData.find(s => s.id === subjectId);
+  if(!sub) return;
+  const currentArray = sub[type] || [];
+  currentArray.splice(index, 1);
+  try {
+    await updateDoc(doc(db, "materias_aulas", subjectId), { [type]: currentArray });
+    await window.loadSubjects();
+  } catch(e) { alert("Erro ao remover mídia."); }
+}
+
+// Inicializa a aba de conteúdo após o login confirmar adm
+const originalCarregar = carregarUsuarios;
+carregarUsuarios = async function() {
+  await originalCarregar();
+  await window.loadSubjects();
+};
+
