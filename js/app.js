@@ -5,6 +5,22 @@ let isGrandeDia = false; let grandeDiaInterval = null;
 const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
 const XP_KEY = 'quiz_xp'; const STREAK_KEY = 'quiz_streak'; const LAST_DATE_KEY = 'quiz_last_date';
 
+window.syncGamificationToCloud = async function() {
+  if (!window.firebase || !firebase.auth().currentUser) return;
+  try {
+      const db = firebase.firestore();
+      const docRef = db.collection('users').doc(firebase.auth().currentUser.uid);
+      await docRef.update({
+          quiz_xp: parseInt(localStorage.getItem('quiz_xp') || '0'),
+          quiz_streak: parseInt(localStorage.getItem('quiz_streak') || '0'),
+          quiz_last_date: localStorage.getItem('quiz_last_date') || '',
+          quiz_best_record: JSON.parse(localStorage.getItem('quiz_best_record') || '{"pct":-1}'),
+          quiz_unlocked_badges: JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]'),
+          quiz_topic_stats: JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}')
+      });
+  } catch(e) {}
+};
+
 // Navegação entre telas do App
 window.showPage = window.go = function(id) {
   // Esconde todas as sections com classe 'page'
@@ -63,6 +79,7 @@ function registerStudyDay() {
   }
   const el = document.getElementById('streakValue');
   if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
+  if(window.syncGamificationToCloud) window.syncGamificationToCloud();
 }
 
 function getRankName(xp) {
@@ -88,6 +105,7 @@ function addXP(amount) {
   xp += amount;
   localStorage.setItem(XP_KEY, xp);
   updateXPUI();
+  if(window.syncGamificationToCloud) window.syncGamificationToCloud();
 }
 
 function q_text(q){ return q.pergunta || q.perguntas || q.question || ''; }
@@ -355,7 +373,7 @@ const MEDIA_CATALOG = [
   }
 ];
 
-const GITHUB_RESUMOS_BASE = 'https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/';
+const GITHUB_RESUMOS_BASE = './';
 
 // Estado de navegação de mídia
 let currentSubjectId = null;
@@ -416,7 +434,7 @@ function openSubject(subjectId) {
 
   // Link do resumo em texto
   const resumoLink = document.getElementById('resumoTextLink');
-  if (resumoLink) resumoLink.href = GITHUB_RESUMOS_BASE + subject.resumoFile;
+  if (resumoLink) resumoLink.href = './Resumos/' + subject.resumoFile;
 
   // Desabilita botões sem conteúdo
   const videoBtn = document.querySelector('.video-btn');
@@ -741,6 +759,7 @@ function selectOption(letter){
     tStats[topStr].t += 1;
     if(isCorrect) tStats[topStr].c += 1;
     localStorage.setItem('quiz_topic_stats', JSON.stringify(tStats));
+    if(window.syncGamificationToCloud) window.syncGamificationToCloud();
   } catch(e) {}
   
   if (!isCorrect) {
@@ -824,6 +843,7 @@ function saveRecord(s, t){
   
   if (pct > prev.pct) {
     localStorage.setItem(BEST_KEY, JSON.stringify({score:s, total:t, pct:pct}));
+    if(window.syncGamificationToCloud) window.syncGamificationToCloud();
     if(window.confetti && pct > 0) {
       confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#10B981', '#3B82F6', '#F59E0B', '#ffffff'] });
     }
@@ -1061,6 +1081,7 @@ function checkBadges(scoreVal, totalVal) {
   if (newlyUnlocked) {
     localStorage.setItem('quiz_unlocked_badges', JSON.stringify(unlocked));
     if (typeof renderBadges === 'function') renderBadges();
+    if(window.syncGamificationToCloud) window.syncGamificationToCloud();
   }
 }
 
