@@ -76,6 +76,38 @@ async function checkSubscription(user) {
       
       const now = new Date();
       
+      // GAMIFICATION SYNC: Cloud to Local (Merge)
+      try {
+          const cXP = parseInt(data.quiz_xp || '0');
+          const lXP = parseInt(localStorage.getItem('quiz_xp') || '0');
+          if(cXP > lXP) localStorage.setItem('quiz_xp', cXP);
+
+          const cStreak = parseInt(data.quiz_streak || '0');
+          const lStreak = parseInt(localStorage.getItem('quiz_streak') || '0');
+          if(cStreak > lStreak) localStorage.setItem('quiz_streak', cStreak);
+          
+          if(data.quiz_last_date && !localStorage.getItem('quiz_last_date')) localStorage.setItem('quiz_last_date', data.quiz_last_date);
+
+          let lBest = JSON.parse(localStorage.getItem('quiz_best_record') || '{"pct":-1}');
+          let cBest = data.quiz_best_record || {pct:-1};
+          if((cBest.pct || -1) > (lBest.pct || -1)) localStorage.setItem('quiz_best_record', JSON.stringify(cBest));
+
+          let lBadges = JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]');
+          let cBadges = data.quiz_unlocked_badges || [];
+          let mergedB = [...new Set([...lBadges, ...cBadges])];
+          localStorage.setItem('quiz_unlocked_badges', JSON.stringify(mergedB));
+
+          let lStats = JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}');
+          let cStats = data.quiz_topic_stats || {};
+          let mergedStats = {...cStats, ...lStats}; // Local overrides old cloud stats
+          localStorage.setItem('quiz_topic_stats', JSON.stringify(mergedStats));
+          
+          // Force update cloud to the new merged truths if necessary
+          if(window.syncGamificationToCloud) {
+              window.syncGamificationToCloud();
+          }
+      } catch(e) { console.error("Erro no merge da gamificação:", e); }
+
       // Setup User Name globally if in app
       const userNameEl = document.getElementById('profileUserName');
       if(userNameEl) {
