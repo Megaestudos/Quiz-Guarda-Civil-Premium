@@ -526,7 +526,14 @@
         <h2 id="mediaModalTitle">Adicionar Mídia</h2>
         <button class="modal-close" onclick="closeModal('mediaModal')">×</button>
       </div>
-      <input type="hidden" id="mediaType"> <!-- video, audio, slide -->
+      <div class="form-group">
+        <label>Tipo de Mídia</label>
+        <select id="mediaTypeSelect" class="form-select">
+          <option value="videos">Vídeo</option>
+          <option value="audios">Áudio</option>
+          <option value="slides">PDF (Slide)</option>
+        </select>
+      </div>
       <input type="hidden" id="mediaSubjectId">
       <input type="hidden" id="mediaIndex"> <!-- if editing -->
       
