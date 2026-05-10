@@ -297,6 +297,43 @@
       color:var(--muted);
     }
 
+    /* TABS */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .tab-btn { background: transparent; color: var(--muted); border: none; font-size: 16px; font-weight: 700; padding: 10px 20px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+    .tab-btn.active { color: #fff; background: rgba(37,99,235,.2); border: 1px solid var(--primary); }
+    .tab-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,.05); }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+
+    /* CONTENT MANAGEMENT */
+    .content-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .subject-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); position: relative; }
+    .subject-card h3 { margin: 0 0 10px; color: #fff; display: flex; align-items: center; gap: 10px; font-size: 18px;}
+    .subject-card p { margin: 0 0 15px; font-size: 13px; color: var(--muted); }
+    .subject-actions { display: flex; gap: 8px; margin-bottom: 15px; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; color:#fff; }
+    .btn-blue { background: var(--primary); }
+    .btn-red { background: var(--danger); }
+    .btn-gray { background: #334155; }
+    
+    .media-list { border-top: 1px solid var(--border); padding-top: 10px; display:flex; flex-direction:column; gap:6px; max-height: 200px; overflow-y: auto; }
+    .media-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255,255,255,.02); border-radius: 6px; }
+    .media-item-info { display: flex; flex-direction:column; gap: 4px; font-size:13px; }
+    .media-item-type { font-size: 10px; font-weight: 800; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; display:inline-block; width:fit-content; }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 100; display: none; justify-content: center; align-items: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 500px; padding: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { margin: 0; font-size: 20px; }
+    .modal-close { background: transparent; border: none; color: var(--muted); font-size: 24px; cursor: pointer; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text); }
+    .form-input, .form-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #0b1426; color: #fff; font-family: inherit; }
+    
     @media (max-width: 980px){
       .dashboard{
         grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
@@ -352,7 +389,13 @@
       </div>
     </div>
 
-    <div class="status" id="statusMsg">Verificando login...</div>
+    <div class="tabs">
+      <button class="tab-btn active" id="tabBtnUsers" onclick="switchTab('users')">Gestão de Usuários</button>
+      <button class="tab-btn" id="tabBtnContent" onclick="switchTab('content')">Gestão de Cursos & Aulas</button>
+    </div>
+
+    <div id="tab-users" class="tab-pane active">
+      <div class="status" id="statusMsg">Verificando login...</div>
 
     <div class="dashboard">
       <div class="stat-card">
@@ -434,8 +477,91 @@
         </tbody>
       </table>
     </div>
+    </div> <!-- END TAB USERS -->
+
+    <div id="tab-content" class="tab-pane">
+      <div class="header" style="margin-top: 10px;">
+        <h2 style="margin:0; font-size:22px;">Catálogo de Matérias</h2>
+        <button class="button button-refresh" id="btnNewSubject" onclick="openSubjectModal()">+ Nova Matéria</button>
+      </div>
+      <div class="content-grid" id="subjectsGrid">
+        <div class="empty-state">Carregando matérias...</div>
+      </div>
+    </div>
+
+  </div> <!-- END CONTAINER -->
+
+  <!-- Modal Matéria -->
+  <div class="modal-overlay" id="subjectModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="subjectModalTitle">Nova Matéria</h2>
+        <button class="modal-close" onclick="closeModal('subjectModal')">×</button>
+      </div>
+      <input type="hidden" id="subjectId">
+      <div class="form-group">
+        <label>Nome da Matéria</label>
+        <input type="text" id="subjectName" class="form-input" placeholder="Ex: Direito Penal">
+      </div>
+      <div class="form-group">
+        <label>Ícone (Phosphor Icons)</label>
+        <input type="text" id="subjectIcon" class="form-input" placeholder="Ex: ph-gavel">
+      </div>
+      <div class="form-group">
+        <label>Página de Resumo Textual (Nome do arquivo)</label>
+        <input type="text" id="subjectResumo" class="form-input" placeholder="Ex: direito-penal.html">
+      </div>
+      <div class="form-group">
+        <label>ID da Matéria (URL Friendly)</label>
+        <input type="text" id="subjectFriendlyId" class="form-input" placeholder="Ex: direito-penal">
+      </div>
+      <button class="button button-refresh" style="width:100%" onclick="saveSubject()">Salvar Matéria</button>
+    </div>
   </div>
 
+  <!-- Modal Mídia -->
+  <div class="modal-overlay" id="mediaModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="mediaModalTitle">Adicionar Mídia</h2>
+        <button class="modal-close" onclick="closeModal('mediaModal')">×</button>
+      </div>
+      <input type="hidden" id="mediaType"> <!-- video, audio, slide -->
+      <input type="hidden" id="mediaSubjectId">
+      <input type="hidden" id="mediaIndex"> <!-- if editing -->
+      
+      <div class="form-group">
+        <label>Título da Aula</label>
+        <input type="text" id="mediaTitle" class="form-input" placeholder="Ex: Aula 01 - Introdução">
+      </div>
+      <div class="form-group" id="mediaUrlGroup">
+        <label id="mediaUrlLabel">URL / Link</label>
+        <input type="text" id="mediaUrl" class="form-input" placeholder="...">
+      </div>
+      <div class="form-group">
+        <label>Duração (Texto exibido)</label>
+        <input type="text" id="mediaDur" class="form-input" placeholder="Ex: 45 min ou Vídeo">
+      </div>
+      <button class="button button-refresh" style="width:100%" onclick="saveMedia()">Salvar Mídia</button>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      
+      if(tabId === 'users') {
+        document.getElementById('tabBtnUsers').classList.add('active');
+        document.getElementById('tab-users').classList.add('active');
+      } else {
+        document.getElementById('tabBtnContent').classList.add('active');
+        document.getElementById('tab-content').classList.add('active');
+      }
+    }
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+  </script>
   <script type="module" src="./admin.js"></script>
 </body>
 </html>
