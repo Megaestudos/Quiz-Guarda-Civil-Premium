@@ -200,178 +200,23 @@ function linkify(text) {
 // de cada matéria. Para vídeos do YouTube, use apenas o ID do vídeo.
 // Para áudios, use a URL direta do arquivo .mp3 / .ogg / ou YouTube.
 // =====================================================================
-const MEDIA_CATALOG = [
-  {
-    id: 'crimes-hediondos',
-    name: 'Crimes Hediondos',
-    icon: 'ph-warning-diamond',
-    resumoFile: 'crimes-hediondos.html',
-    videos: [
-      { title: 'Crimes Hediondos - Aula Completa', youtubeId: 'vi9bOFRQSVc', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Jurisprudência dos crimes hediondos', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/07%20Jurisprud%C3%AAncia%20dos%20crimes%20hediondos.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'direito-constitucional',
-    name: 'Direito Constitucional',
-    icon: 'ph-book-open',
-    resumoFile: 'direito-constitucional.html',
-    videos: [],
-    audios: []
-  },
-  {
-    id: 'direito-administrativo',
-    name: 'Direito Administrativo',
-    icon: 'ph-scales',
-    resumoFile: 'direito-administrativo.html',
-    videos: [],
-    audios: []
-  },
-  {
-    id: 'codigo-penal',
-    name: 'Código Penal / Direito Penal',
-    icon: 'ph-gavel',
-    resumoFile: 'codigo-penal.html',
-    videos: [
-      { title: 'Direito Penal - Aula Completa', youtubeId: 'vXuZA836FDY', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Direito penal e jurisprudência para concursos', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/09%20Direito%20penal%20e%20jurisprud%C3%AAncia%20para%20concursos.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'maria-da-penha',
-    name: 'Lei Maria da Penha',
-    icon: 'ph-gender-female',
-    resumoFile: 'maria-da-penha.html',
-    videos: [
-      { title: 'Lei Maria da Penha - Aula Completa', youtubeId: 'MJg4lnlTEI4', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Maria da Penha', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/04%20Maria%20da%20Penha.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'eca',
-    name: 'Estatuto da Criança (ECA)',
-    icon: 'ph-baby',
-    resumoFile: 'estatuto-da-criança-e-do-adolescente.html',
-    videos: [
-      { title: 'ECA - Aula Completa', youtubeId: 'B-1iTZLf-bM', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'ECA - Estatuto da Criança e do Adolescente', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/01%20ECA%20-%20Estatuto%20da%20Crian%C3%A7a%20e%20do%20Adolecente.m4a', duration: 'Áudio' }
-    ],
-    slides: [
-      { title: 'ECA - Estatuto da Criança e Adolescência', url: 'https://drive.google.com/file/d/19O1RntU-PKnycl2xDkeFnZUrzSnUUtLQ/preview', duration: 'PDF' }
-    ]
-  },
-  {
-    id: 'lei-de-drogas',
-    name: 'Lei de Drogas',
-    icon: 'ph-pills',
-    resumoFile: 'lei-de-drogas.html',
-    videos: [
-      { title: 'Lei de Drogas - Aula Completa', youtubeId: 'z7CEDMpeTPI', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Jurisprudência da Lei de Drogas', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/08%20Jurisprud%C3%AAncia%20da%20Lei%20de%20Drogas.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'abuso-de-autoridade',
-    name: 'Abuso de Autoridade',
-    icon: 'ph-shield-warning',
-    resumoFile: 'abuso-de-autoridade.html',
-    videos: [
-      { title: 'Abuso de Autoridade - Aula Completa', youtubeId: 'E5VDO_sv-mI', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Abuso de Autoridade', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/02%20Abuso%20de%20Autoridade.m4a', duration: 'Áudio' }
-    ],
-    slides: [
-      { title: 'Abuso de Autoridade', url: 'https://drive.google.com/file/d/1JDRIvg3mLFUMUQnnXb7Zc2HKjM2diP6L/preview', duration: 'PDF' }
-    ]
-  },
-  {
-    id: 'crimes-ambientais',
-    name: 'Crimes Ambientais',
-    icon: 'ph-tree',
-    resumoFile: 'crimes-ambientais.html',
-    videos: [
-      { title: 'Crimes Ambientais - Aula Completa', youtubeId: 'EQF4Ig5Ojco', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Crimes Ambientais', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/06%20Crimes%20Ambientais.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'crimes-de-tortura',
-    name: 'Crimes de Tortura (Lei Anti-tortura)',
-    icon: 'ph-hand-palm',
-    resumoFile: 'crimes-de-tortura.html',
-    videos: [
-      { title: 'Lei Anti-tortura - Aula Completa', youtubeId: 'qGliuzL-7pA', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Lei da Tortura', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/03%20Lei%20da%20Tortura.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'crimes-preconceito',
-    name: 'Crimes de Preconceito (Injúria Racial)',
-    icon: 'ph-users-three',
-    resumoFile: 'crimes-preconceito-raça-cor.html',
-    videos: [
-      { title: 'Injúria Racial - Aula Completa', youtubeId: 'l9GkQYqpvl8', duration: 'Vídeo' }
-    ],
-    audios: [
-      { title: 'Injúria Racial', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/05%20Inj%C3%BAria%20Racial.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'procedimentos-penais',
-    name: 'Procedimentos Penais',
-    icon: 'ph-files',
-    resumoFile: 'procedimentos-penais.html',
-    videos: [],
-    audios: []
-  },
-  {
-    id: 'mbft',
-    name: 'Manual Brasileiro de Fiscalização de Trânsito',
-    icon: 'ph-car',
-    resumoFile: '#', // Adicionei um placeholder, caso tenha um arquivo correspondente, atualize aqui.
-    videos: [],
-    audios: [
-      { title: 'Manual Brasileiro de Fiscalização de Trânsito (MBFT)', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/Manual%20Brasileiro%20de%20Fiscaliza%C3%A7%C3%A3o%20de%20Tr%C3%A2nsito%20%28MBFT.m4a', duration: 'Áudio' }
-    ]
-  },
-  {
-    id: 'direitos-humanos',
-    name: 'Direitos Humanos',
-    icon: 'ph-globe-hemisphere-west',
-    resumoFile: 'direitos-humanos.html',
-    videos: [],
-    audios: [],
-    slides: [
-      { title: 'Direitos Humanos', url: 'https://drive.google.com/file/d/14jEkvsyThDz3-l1CN4lDccerYb9guyFV/preview', duration: 'PDF' }
-    ]
-  },
-  {
-    id: 'estatuto-das-guardas',
-    name: 'Estatuto das Guardas Municipais',
-    icon: 'ph-shield-check',
-    resumoFile: 'estatuto-das-guardas.html',
-    videos: [],
-    audios: [],
-    slides: [
-      { title: 'Estatuto das Guardas Municipais', url: 'https://drive.google.com/file/d/1BX5OwoR5llMthpvV1THgEbty7uxhvVz-/preview', duration: 'PDF' }
-    ]
-  }
-];
+let MEDIA_CATALOG = [];
+
+window.initContentCMS = async function() {
+  try {
+    if(!window.firebase || !firebase.firestore) return setTimeout(window.initContentCMS, 500);
+    const db = firebase.firestore();
+    const snap = await db.collection("materias_aulas").get();
+    MEDIA_CATALOG = [];
+    snap.forEach(doc => {
+       const cd = doc.data();
+       MEDIA_CATALOG.push({ id: doc.id, ...cd });
+    });
+    console.log("CMS Aulas Carregado:", MEDIA_CATALOG.length, "matérias.");
+    if(typeof renderStudies === 'function') renderStudies();
+  } catch(e) { console.error("CMS Load Error:", e); }
+};
+window.initContentCMS();
 
 const GITHUB_RESUMOS_BASE = './';
 
