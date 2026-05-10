@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
-
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 const firebaseConfig = {
   apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
   authDomain: "simulados-concursos-22c91.firebaseapp.com",
@@ -552,7 +552,6 @@ document.addEventListener("click", async (event) => {
 // ==========================================
 // MÓDULO DE GESTÃO DE CONTEÚDO (CMS)
 // ==========================================
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 const db = getFirestore(app);
 let subjectsData = [];
 
@@ -563,11 +562,46 @@ window.loadSubjects = async function() {
   try {
     const snap = await getDocs(collection(db, "materias_aulas"));
     subjectsData = [];
-    snap.forEach(doc => { subjectsData.push({ id: doc.id, ...doc.data() }); });
+    
+    // Auto-Migrate from old array if Empty!
+    if(snap.empty) {
+      grid.innerHTML = '<div class="empty-state">Banco zerado. Migrando catálogo antigo automaticamente, aguarde...</div>';
+      await autoMigrateOldCatalog();
+      const newSnap = await getDocs(collection(db, "materias_aulas"));
+      newSnap.forEach(doc => { subjectsData.push({ id: doc.id, ...doc.data() }); });
+    } else {
+      snap.forEach(doc => { subjectsData.push({ id: doc.id, ...doc.data() }); });
+    }
+    
     renderSubjects();
   } catch(e) {
-    grid.innerHTML = '<div class="empty-state">Erro ao carregar matérias.</div>';
+    grid.innerHTML = '<div class="empty-state">Erro de permissão ou conexão ao carregar matérias. Lembre-se de adicionar a regra no console do Firestore!</div>';
     console.error(e);
+  }
+}
+
+async function autoMigrateOldCatalog() {
+  const OLD_MEDIA_CATALOG = [
+    { id: 'crimes-hediondos', name: 'Crimes Hediondos', icon: 'ph-warning-diamond', resumoFile: 'crimes-hediondos.html', videos: [{ title: 'Crimes Hediondos - Aula Completa', youtubeId: 'vi9bOFRQSVc', duration: 'Vídeo' }], audios: [{ title: 'Jurisprudência dos crimes hediondos', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/07%20Jurisprud%C3%AAncia%20dos%20crimes%20hediondos.m4a', duration: 'Áudio' }] },
+    { id: 'direito-constitucional', name: 'Direito Constitucional', icon: 'ph-book-open', resumoFile: 'direito-constitucional.html', videos: [], audios: [] },
+    { id: 'direito-administrativo', name: 'Direito Administrativo', icon: 'ph-scales', resumoFile: 'direito-administrativo.html', videos: [], audios: [] },
+    { id: 'codigo-penal', name: 'Código Penal / Direito Penal', icon: 'ph-gavel', resumoFile: 'codigo-penal.html', videos: [{ title: 'Direito Penal - Aula Completa', youtubeId: 'vXuZA836FDY', duration: 'Vídeo' }], audios: [{ title: 'Direito penal e jurisprudência para concursos', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/09%20Direito%20penal%20e%20jurisprud%C3%AAncia%20para%20concursos.m4a', duration: 'Áudio' }] },
+    { id: 'maria-da-penha', name: 'Lei Maria da Penha', icon: 'ph-gender-female', resumoFile: 'maria-da-penha.html', videos: [{ title: 'Lei Maria da Penha - Aula Completa', youtubeId: 'MJg4lnlTEI4', duration: 'Vídeo' }], audios: [{ title: 'Maria da Penha', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/04%20Maria%20da%20Penha.m4a', duration: 'Áudio' }] },
+    { id: 'eca', name: 'Estatuto da Criança (ECA)', icon: 'ph-baby', resumoFile: 'estatuto-da-criança-e-do-adolescente.html', videos: [{ title: 'ECA - Aula Completa', youtubeId: 'B-1iTZLf-bM', duration: 'Vídeo' }], audios: [{ title: 'ECA', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/01%20ECA%20-%20Estatuto%20da%20Crian%C3%A7a%20e%20do%20Adolecente.m4a', duration: 'Áudio' }], slides: [{ title: 'ECA - Estatuto da Criança', url: 'https://drive.google.com/file/d/19O1RntU-PKnycl2xDkeFnZUrzSnUUtLQ/preview', duration: 'PDF' }] },
+    { id: 'lei-de-drogas', name: 'Lei de Drogas', icon: 'ph-pills', resumoFile: 'lei-de-drogas.html', videos: [{ title: 'Lei de Drogas - Aula Completa', youtubeId: 'z7CEDMpeTPI', duration: 'Vídeo' }], audios: [{ title: 'Jurisprudência da Lei de Drogas', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/08%20Jurisprud%C3%AAncia%20da%20Lei%20de%20Drogas.m4a', duration: 'Áudio' }] },
+    { id: 'abuso-de-autoridade', name: 'Abuso de Autoridade', icon: 'ph-shield-warning', resumoFile: 'abuso-de-autoridade.html', videos: [{ title: 'Abuso de Autoridade - Aula Completa', youtubeId: 'E5VDO_sv-mI', duration: 'Vídeo' }], audios: [{ title: 'Abuso de Autoridade', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/02%20Abuso%20de%20Autoridade.m4a', duration: 'Áudio' }], slides: [{ title: 'Abuso de Autoridade', url: 'https://drive.google.com/file/d/1JDRIvg3mLFUMUQnnXb7Zc2HKjM2diP6L/preview', duration: 'PDF' }] },
+    { id: 'crimes-ambientais', name: 'Crimes Ambientais', icon: 'ph-tree', resumoFile: 'crimes-ambientais.html', videos: [{ title: 'Crimes Ambientais - Aula Completa', youtubeId: 'EQF4Ig5Ojco', duration: 'Vídeo' }], audios: [{ title: 'Crimes Ambientais', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/06%20Crimes%20Ambientais.m4a', duration: 'Áudio' }] },
+    { id: 'crimes-de-tortura', name: 'Crimes de Tortura', icon: 'ph-hand-palm', resumoFile: 'crimes-de-tortura.html', videos: [{ title: 'Lei Anti-tortura', youtubeId: 'qGliuzL-7pA', duration: 'Vídeo' }], audios: [{ title: 'Lei da Tortura', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/03%20Lei%20da%20Tortura.m4a', duration: 'Áudio' }] },
+    { id: 'crimes-preconceito', name: 'Crimes de Preconceito', icon: 'ph-users-three', resumoFile: 'crimes-preconceito-raça-cor.html', videos: [{ title: 'Injúria Racial', youtubeId: 'l9GkQYqpvl8', duration: 'Vídeo' }], audios: [{ title: 'Injúria Racial', url: 'https://ia600604.us.archive.org/34/items/03-lei-da-tortura/05%20Inj%C3%BAria%20Racial.m4a', duration: 'Áudio' }] },
+    { id: 'procedimentos-penais', name: 'Procedimentos Penais', icon: 'ph-files', resumoFile: 'procedimentos-penais.html', videos: [], audios: [] },
+    { id: 'direitos-humanos', name: 'Direitos Humanos', icon: 'ph-globe-hemisphere-west', resumoFile: 'direitos-humanos.html', videos: [], audios: [], slides: [{ title: 'Direitos Humanos', url: 'https://drive.google.com/file/d/14jEkvsyThDz3-l1CN4lDccerYb9guyFV/preview', duration: 'PDF' }] },
+    { id: 'estatuto-das-guardas', name: 'Estatuto das Guardas Municipais', icon: 'ph-shield-check', resumoFile: 'estatuto-das-guardas.html', videos: [], audios: [], slides: [{ title: 'Estatuto das Guardas Municipais', url: 'https://drive.google.com/file/d/1BX5OwoR5llMthpvV1THgEbty7uxhvVz-/preview', duration: 'PDF' }] }
+  ];
+  for(const sub of OLD_MEDIA_CATALOG) {
+    try {
+      const { id, ...data } = sub;
+      await setDoc(doc(db, "materias_aulas", id), data);
+    } catch(e) {}
   }
 }
 
@@ -594,9 +628,7 @@ function renderSubjects() {
         </div>
         
         <div class="subject-actions" style="margin-bottom:0">
-          <button class="btn-sm btn-gray" onclick="window.openMediaModal('${sub.id}', 'videos')">+ Vídeo</button>
-          <button class="btn-sm btn-gray" onclick="window.openMediaModal('${sub.id}', 'audios')">+ Áudio</button>
-          <button class="btn-sm btn-gray" onclick="window.openMediaModal('${sub.id}', 'slides')">+ Slide</button>
+          <button class="btn-sm btn-gray" onclick="window.openMediaModal('${sub.id}')">+ Adicionar Mídia</button>
         </div>
         
         <div class="media-list">
@@ -672,19 +704,18 @@ window.deleteSubject = async function(id) {
   } catch(e) { alert("Erro ao excluir!"); console.error(e); }
 }
 
-window.openMediaModal = function(subjectId, type) {
+window.openMediaModal = function(subjectId) {
   $('mediaSubjectId').value = subjectId;
-  $('mediaType').value = type;
   $('mediaTitle').value = '';
   $('mediaUrl').value = '';
   $('mediaDur').value = '';
-  $('mediaModalTitle').textContent = `Adicionar ${type.toUpperCase()}`;
+  $('mediaTypeSelect').value = 'videos';
   window.openModal('mediaModal');
 }
 
 window.saveMedia = async function() {
   const sid = $('mediaSubjectId').value;
-  const type = $('mediaType').value;
+  const type = $('mediaTypeSelect').value;
   const title = $('mediaTitle').value;
   const urlOrId = $('mediaUrl').value;
   const dur = $('mediaDur').value;
