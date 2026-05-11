@@ -279,7 +279,7 @@ function openSubject(subjectId) {
 
   // Link do resumo em texto
   const resumoLink = document.getElementById('resumoTextLink');
-  if (resumoLink) resumoLink.href = './Resumos/' + subject.resumoFile;
+  if (resumoLink) resumoLink.href = 'https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/index.html';
 
   // Desabilita botões sem conteúdo
   const videoBtn = document.querySelector('.video-btn');
