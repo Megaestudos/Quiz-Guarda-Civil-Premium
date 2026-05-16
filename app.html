@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0"/>
-  <title>PlenAula — App Profissional</title>
+  <title>Guarda Civil — App Profissional</title>
   <meta name="theme-color" content="#0B0F19"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -259,6 +259,59 @@
            </div>
         </div>
       </section>
+
+      <section id="prof-ai" class="page card">
+        <!-- View 1: Menu Inicial -->
+        <div id="profAiMenu" class="study-view">
+          <div class="page-top-bar">
+            <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
+            <h3 class="page-title"><i class="ph ph-robot"></i> Professor AI</h3>
+          </div>
+          <p class="welcome" style="margin-bottom:20px; text-align:center;">
+            Como posso ajudar nos seus estudos hoje?
+          </p>
+          <div class="media-type-grid">
+            <button class="media-type-btn ai-plan-btn" onclick="startStudyPlanFlow()">
+              <div class="media-type-icon ai-plan-icon">
+                <i class="ph-fill ph-calendar-check"></i>
+              </div>
+              <div class="media-type-info">
+                <span class="media-type-label">Plano de Estudos</span>
+                <span class="media-type-count" style="line-height:1.4;">Monte uma rotina personalizada para seus estudos.</span>
+              </div>
+              <i class="ph ph-arrow-right media-type-arrow"></i>
+            </button>
+            <button class="media-type-btn ai-essay-btn" onclick="startEssayFlow()">
+              <div class="media-type-icon ai-essay-icon">
+                <i class="ph-fill ph-pencil-line"></i>
+              </div>
+              <div class="media-type-info">
+                <span class="media-type-label">Aulas de Redação</span>
+                <span class="media-type-count" style="line-height:1.4;">Aprenda passo a passo como construir uma redação.</span>
+              </div>
+              <i class="ph ph-arrow-right media-type-arrow"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- View 2: Interface de Chat -->
+        <div id="profAiChat" class="study-view ai-chat-view" style="display:none;">
+          <div class="page-top-bar">
+            <button class="btn-sm" onclick="backToProfAiMenu()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
+            <h3 class="page-title" id="profAiChatTitle"><i class="ph ph-robot"></i> Professor AI</h3>
+            <div class="chat-uses-badge" id="aiUsageBadge">4/4 usos</div>
+          </div>
+          <div class="chat-history" id="aiChatHistory">
+            <!-- Mensagens -->
+          </div>
+          <div class="chat-input-area">
+            <textarea id="aiChatInput" placeholder="Digite sua mensagem..." rows="1" maxlength="4000"></textarea>
+            <button id="aiChatSendBtn" class="btn-primary icon-btn-round" onclick="sendAiMessage()">
+              <i class="ph-fill ph-paper-plane-right"></i>
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -278,6 +331,10 @@
     <button class="tabbtn" data-target="cards" onclick="go('cards')">
       <i class="ph ph-cards"></i>
       <span>Cartões</span>
+    </button>
+    <button class="tabbtn" data-target="prof-ai" onclick="go('prof-ai')">
+      <i class="ph ph-magic-wand"></i>
+      <span>Prof AI</span>
     </button>
   </div>
 
@@ -304,6 +361,7 @@
   <script src="./js/auth.js"></script>
   <script src="./js/subscription.js"></script>
   <script src="./js/app.js?v=2.7"></script>
+  <script src="./js/prof-ai.js"></script>
 
 </body>
 </html>
