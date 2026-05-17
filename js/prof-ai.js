@@ -55,16 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 
 function showProfAiViews(viewId) {
-  const menu = document.getElementById('profAiMenu');
-  const chat = document.getElementById('profAiChat');
+  const views = ['profAiMenu', 'profAiChat', 'profAiEssaySetup', 'profAiEssayCourse'];
   
-  if (viewId === 'profAiChat') {
-    menu.style.display = 'none';
-    chat.style.display = 'flex';
-  } else {
-    menu.style.display = 'block';
-    chat.style.display = 'none';
-    aiState.currentRequestId = null; // Cancele/Aborte fluxos pendentes
+  views.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (id === viewId) {
+        el.style.display = (id === 'profAiChat') ? 'flex' : 'block';
+      } else {
+        el.style.display = 'none';
+      }
+    }
+  });
+
+  if (viewId === 'profAiMenu') {
+    aiState.currentRequestId = null;
   }
 }
 
