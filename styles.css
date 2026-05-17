@@ -1211,3 +1211,93 @@ audio {
 }
 .comp-name { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
 .comp-val { font-size: 18px; font-weight: 800; color: var(--text-main); }
+
+/* Animação para o Loading Spinner */
+@keyframes phSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ph-spin {
+  display: inline-block;
+  animation: phSpin 1s linear infinite;
+}
+
+/* Responsividade Mobile para Aulas de Redação */
+@media (max-width: 600px) {
+  .essay-setup-card {
+    padding: 24px 20px;
+    margin: 20px auto;
+    border-radius: 16px;
+  }
+  
+  .essay-setup-icon {
+    font-size: 36px;
+    margin-bottom: 16px;
+  }
+
+  .essay-setup-card h2 {
+    font-size: 22px;
+  }
+
+  .essay-setup-card p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .topic-chip {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .chat-input-area input {
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+
+  .essay-course-container {
+    gap: 16px;
+  }
+
+  .timeline-step {
+    min-width: 100px;
+    padding: 10px;
+  }
+
+  .step-icon {
+    font-size: 20px;
+  }
+
+  .step-title {
+    font-size: 11px;
+  }
+
+  .lesson-module {
+    padding: 16px;
+  }
+
+  .lesson-module h3 {
+    font-size: 18px;
+  }
+
+  .lesson-module p {
+    font-size: 14px;
+  }
+
+  .boletim-card {
+    padding: 20px;
+  }
+
+  .boletim-score {
+    font-size: 48px;
+  }
+
+  .competencias-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .comp-box[style*="grid-column"] {
+    grid-column: span 1 !important;
+  }
+}
