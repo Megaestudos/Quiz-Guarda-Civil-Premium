@@ -18,13 +18,7 @@ window.startEssayFlow = function() {
 };
 
 window.showEssaySetup = function() {
-    document.getElementById('profAiMenu').style.display = 'none';
-    const chatView = document.getElementById('profAiChat');
-    if (chatView) chatView.style.display = 'none';
-    
-    document.getElementById('profAiEssayCourse').style.display = 'none';
-    document.getElementById('profAiEssaySetup').style.display = 'block';
-    
+    showProfAiViews('profAiEssaySetup');
     initThreeJsBg();
 };
 
@@ -106,8 +100,7 @@ window.submitEssayTopic = async function() {
 };
 
 function buildCourse(lesson) {
-    document.getElementById('profAiEssaySetup').style.display = 'none';
-    document.getElementById('profAiEssayCourse').style.display = 'block';
+    showProfAiViews('profAiEssayCourse');
     document.getElementById('essayCourseTitle').innerHTML = `<i class="ph ph-book-open"></i> ${essayLessonState.currentTopic}`;
 
     essayLessonState.steps = [];
