@@ -8,7 +8,7 @@
 let aiState = {
   isLoading: false,
   dailyUses: 0,
-  maxDailyUses: 4,
+  maxDailyUses: 2,
   currentFlow: null, // 'study_plan' | 'essay'
   currentRequestId: null,
   
