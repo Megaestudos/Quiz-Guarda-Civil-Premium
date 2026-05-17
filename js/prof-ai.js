@@ -340,7 +340,8 @@ function rebuildChatUIFromState() {
 async function executeIntelligentFunction(fnName, payload, timeoutMs) {
     if (!window.firebase || !firebase.functions) throw new Error("uninitialized");
     
-    const callPromise = firebase.functions().httpsCallable(fnName)(payload);
+    // Conecta na região correta e força o App
+    const callPromise = firebase.app().functions('southamerica-east1').httpsCallable(fnName)(payload);
     const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('TIMEOUT')), timeoutMs);
     });
