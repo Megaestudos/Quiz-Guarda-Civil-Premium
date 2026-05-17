@@ -93,9 +93,9 @@ window.submitEssayTopic = async function() {
         buildCourse(res.data.lesson);
     } catch (e) {
         if(e.message && e.message.includes('limite_lesson')) {
-            alert("Você já gerou uma nova aula hoje. Foco no estudo! Tente novamente amanhã.");
+            showPremiumAlert("Você já gerou uma nova aula hoje. Foco no estudo! Tente novamente amanhã.", "Limite Atingido");
         } else {
-            alert("Erro: " + (e.message || "Falha ao gerar a aula."));
+            showPremiumAlert("Erro: " + (e.message || "Falha ao gerar a aula."), "Ocorreu um Erro");
         }
     } finally {
         btn.innerHTML = '<i class="ph-fill ph-magic-wand"></i>';
@@ -331,3 +331,55 @@ function renderEvaluationUI(stepId, eval) {
 
     resDiv.innerHTML = html;
 }
+
+window.showPremiumAlert = function(message, title = "Aviso") {
+    let overlay = document.getElementById('premiumAlertOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'premiumAlertOverlay';
+        overlay.className = 'premium-alert-overlay';
+        
+        const box = document.createElement('div');
+        box.className = 'premium-alert-box';
+        
+        const header = document.createElement('div');
+        header.className = 'premium-alert-header';
+        
+        const iconContainer = document.createElement('div');
+        iconContainer.className = 'premium-alert-icon';
+        iconContainer.innerHTML = '<i class="ph-fill ph-warning-circle"></i>';
+        
+        const titleEl = document.createElement('h3');
+        titleEl.id = 'premiumAlertTitle';
+        
+        header.appendChild(iconContainer);
+        header.appendChild(titleEl);
+        
+        const msgEl = document.createElement('p');
+        msgEl.id = 'premiumAlertMessage';
+        
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.innerHTML = 'Entendi';
+        btn.style.width = '100%';
+        btn.style.marginTop = '20px';
+        btn.onclick = () => {
+            overlay.classList.remove('active');
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+        };
+        
+        box.appendChild(header);
+        box.appendChild(msgEl);
+        box.appendChild(btn);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+    }
+    
+    document.getElementById('premiumAlertTitle').innerText = title;
+    document.getElementById('premiumAlertMessage').innerText = message;
+    
+    overlay.style.display = 'flex';
+    // Trigger reflow para a animação
+    void overlay.offsetWidth;
+    overlay.classList.add('active');
+};
