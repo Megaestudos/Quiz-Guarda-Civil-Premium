@@ -49,7 +49,7 @@ exports.askProfessorAI = onCall({
 
   const apiKey = process.env.CHAVE_MESTRE_GEMINI;
   if (!apiKey) {
-    throw new HttpsError('internal', 'CHAVE_MESTRE_GEMINI não configurada.');
+    throw new HttpsError('failed-precondition', 'ALERTA_SEGREDO: CHAVE_MESTRE_GEMINI não foi injetada pelo Servidor.');
   }
 
   const db = admin.firestore();
@@ -89,16 +89,12 @@ exports.askProfessorAI = onCall({
         history.pop();
     }
 
-    // 2. Transforma o histórico para garantir a alternância exata (user -> model -> user -> model)
-    // O Gemini não suporta dois 'user' seguidos, ou começar a conversa com 'model'.
+    // 2. Transforma o histórico para garantir a alternância exata
     let validHistory = [];
-    
-    // Se a primeira mensagem for do model, injetamos um prompt do user invisível no começo
     if (history.length > 0 && history[0].role === 'model') {
         validHistory.push({ role: 'user', parts: [{ text: 'Olá, vamos iniciar.' }] });
     }
 
-    // Constrói iterando, combinando mensagens seguidas do mesmo tipo
     for (let msg of history) {
         if (validHistory.length > 0 && validHistory[validHistory.length - 1].role === msg.role) {
             validHistory[validHistory.length - 1].parts[0].text += '\n\n' + msg.parts[0].text;
@@ -107,14 +103,8 @@ exports.askProfessorAI = onCall({
         }
     }
 
-    // Garante que a última mensagem do validHistory (se existir) é 'model', 
-    // já que a próxima chamada (sendMessage) será 'user'.
     if (validHistory.length > 0 && validHistory[validHistory.length - 1].role === 'user') {
-       // Se o history inteiro terminava com User, o sendMessage vai colidir (user -> user).
-       // Solução simples é dar pop e anexar o texto junto na message atual enviada
        const lastUserMsg = validHistory.pop();
-       // Adiciona o contexto anexado ao texto invisívelmente
-       // Mas no nosso caso, o texto atual já contém tudo, então apenas removemos do histórico de setup.
     }
 
     const chat = model.startChat({ history: validHistory });
@@ -139,6 +129,6 @@ exports.askProfessorAI = onCall({
 
   } catch (error) {
     console.error(error);
-    throw new HttpsError('internal', 'Erro na IA.');
+    throw new HttpsError('failed-precondition', 'ERRO_API_GEMINI: ' + (error.message || 'Desconhecido'));
   }
 });
