@@ -2,17 +2,14 @@ const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { setGlobalOptions } = require('firebase-functions/v2');
 const admin = require('firebase-admin');
 
-// Inicializa Firebase Admin apenas uma vez
+// Inicializa Firebase Admin
 if (admin.apps.length === 0) {
   admin.initializeApp();
 }
 
 // Configurações globais de região
-setGlobalOptions({ 
-  region: 'southamerica-east1'
-});
+setGlobalOptions({ region: 'southamerica-east1' });
 
-// Configurações e constantes
 const MAX_DAILY_USES = 4;
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 const MAX_PAYLOAD_CHARS = 4000;
@@ -33,49 +30,39 @@ Você deve:
 Nunca entregue apenas respostas secas.
 Sempre ensine.`;
 
-// Definimos que esta função precisa do segredo GEMINI_API_KEY
+// Função Principal
 exports.askProfessorAI = onCall({
-  secrets: ["GEMINI_API_KEY"] 
+  secrets: ["GEMINI_API_KEY"],
+  maxInstances: 10
 }, async (request) => {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   const startTimeMs = Date.now();
 
-  // 1. Validação de Autenticação
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'É necessário estar logado.');
   }
 
-  const uid = request.auth.uid;
   const { flow, message, context: arrayParams } = request.data || {};
+  const uid = request.auth.uid;
 
-  // 2. Validação de Input
   if (!message || typeof message !== 'string' || message.trim() === '') {
-    throw new HttpsError('invalid-argument', 'A mensagem está vazia.');
+    throw new HttpsError('invalid-argument', 'Mensagem vazia.');
   }
 
-  if (message.length > MAX_PAYLOAD_CHARS) {
-    throw new HttpsError('out-of-range', 'Texto longo demais.');
-  }
-
-  // 3. Recupera API Key dos Secrets com Segurança
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new HttpsError('internal', 'Chave da IA não configurada no servidor.');
+    throw new HttpsError('internal', 'API Key não configurada.');
   }
 
   const db = admin.firestore();
   const userRef = db.collection('users').doc(uid);
 
-  // 4. Rate Limit (24h)
-  let usageLogs = [];
+  // Rate Limit
   const userDoc = await userRef.get();
-  if (userDoc.exists) {
-    const userData = userDoc.data();
-    if (Array.isArray(userData.aiUsageLogs)) {
-      usageLogs = userData.aiUsageLogs;
-    }
+  let usageLogs = [];
+  if (userDoc.exists && Array.isArray(userDoc.data().aiUsageLogs)) {
+    usageLogs = userDoc.data().aiUsageLogs;
   }
-
   const now = Date.now();
   usageLogs = usageLogs.filter(ts => (now - ts) < TWENTY_FOUR_HOURS_MS);
 
@@ -83,7 +70,7 @@ exports.askProfessorAI = onCall({
     throw new HttpsError('resource-exhausted', 'limite');
   }
 
-  // 5. Chamada para o Gemini
+  // Gemini
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
@@ -91,50 +78,36 @@ exports.askProfessorAI = onCall({
   });
 
   try {
-    let formattedHistory = [];
-    if (arrayParams && Array.isArray(arrayParams)) {
-      formattedHistory = arrayParams.map(c => ({
+    let history = [];
+    if (Array.isArray(arrayParams)) {
+      history = arrayParams.map(c => ({
         role: (c.role === 'ai' || c.role === 'assistant') ? 'model' : 'user',
         parts: [{ text: c.content }]
       }));
     }
 
-    const chat = model.startChat({ history: formattedHistory });
+    const chat = model.startChat({ history });
     const result = await chat.sendMessage(message);
-    const responseText = result.response.text();
+    const text = result.response.text();
 
-    // 6. Persistência de Logs e Sessão
+    // Salvar
     usageLogs.push(now);
     await userRef.set({ aiUsageLogs: usageLogs }, { merge: true });
 
-    const todayStr = new Date().toISOString().split('T')[0];
-    const sessionRef = userRef.collection('ai_sessions').doc(todayStr);
-
-    await sessionRef.set({
-      sessionId: todayStr,
-      flow: flow || 'geral',
+    const today = new Date().toISOString().split('T')[0];
+    await userRef.collection('ai_sessions').doc(today).set({
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       messages: admin.firestore.FieldValue.arrayUnion({
         timestamp: Date.now(),
         userMsg: message,
-        aiMsg: responseText
+        aiMsg: text
       })
     }, { merge: true });
 
-    // Analytics
-    await db.collection('ai_analytics').add({
-      uid: uid,
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      flow: flow || 'geral',
-      msgLength: message.length,
-      responseLength: responseText.length,
-      executionTimeMs: Date.now() - startTimeMs
-    });
-
-    return { reply: responseText, uses: usageLogs.length };
+    return { reply: text, uses: usageLogs.length };
 
   } catch (error) {
-    console.error('Erro na IA:', error);
-    throw new HttpsError('internal', 'Erro ao processar resposta da IA.');
+    console.error(error);
+    throw new HttpsError('internal', 'Erro na IA.');
   }
 });
