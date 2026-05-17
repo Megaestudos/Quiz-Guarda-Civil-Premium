@@ -24,7 +24,8 @@ Nunca entregue apenas respostas secas.
 Sempre ensine.`;
 
 exports.askProfessorAI = onCall({
-  maxInstances: 10
+  maxInstances: 10,
+  secrets: ["CHAVE_MESTRE_GEMINI"]
 }, async (request) => {
   const admin = require('firebase-admin');
 
@@ -46,9 +47,9 @@ exports.askProfessorAI = onCall({
     throw new HttpsError('invalid-argument', 'Mensagem vazia.');
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.CHAVE_MESTRE_GEMINI;
   if (!apiKey) {
-    throw new HttpsError('internal', 'API Key não configurada.');
+    throw new HttpsError('internal', 'CHAVE_MESTRE_GEMINI não configurada.');
   }
 
   const db = admin.firestore();
