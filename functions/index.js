@@ -43,9 +43,9 @@ exports.askProfessorAI = onCall({
     throw new HttpsError('invalid-argument', 'Mensagem vazia.');
   }
 
-  const apiKey = process.env.CHAVE_MESTRE_GEMINI;
+  const apiKey = process.env.GEMINI_KEY;
   if (!apiKey) {
-    throw new HttpsError('failed-precondition', 'ALERTA_SEGREDO: CHAVE_MESTRE_GEMINI não foi injetada pelo Servidor.');
+    throw new HttpsError('failed-precondition', 'ALERTA_SEGREDO: GEMINI_KEY não foi injetada pelo Servidor.');
   }
 
   const db = admin.firestore();
