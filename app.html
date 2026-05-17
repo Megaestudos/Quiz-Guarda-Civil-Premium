@@ -294,12 +294,12 @@
           </div>
         </div>
 
-        <!-- View 2: Interface de Chat -->
+        <!-- View 2: Interface de Chat Clássico (Apenas p/ Plano de Estudo ou Retrocompatibilidade) -->
         <div id="profAiChat" class="study-view ai-chat-view" style="display:none;">
           <div class="page-top-bar">
             <button class="btn-sm" onclick="backToProfAiMenu()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
             <h3 class="page-title" id="profAiChatTitle"><i class="ph ph-robot"></i> Professor AI</h3>
-            <div class="chat-uses-badge" id="aiUsageBadge">4/4 usos</div>
+            <div class="chat-uses-badge" id="aiUsageBadge" style="display:none;"></div>
           </div>
           <div class="chat-history" id="aiChatHistory">
             <!-- Mensagens -->
@@ -309,6 +309,54 @@
             <button id="aiChatSendBtn" class="btn-primary icon-btn-round" onclick="sendAiMessage()">
               <i class="ph-fill ph-paper-plane-right"></i>
             </button>
+          </div>
+        </div>
+
+        <!-- View 3: Setup de Recepção (Redação) -->
+        <div id="profAiEssaySetup" class="study-view ai-chat-view" style="display:none;">
+          <div class="page-top-bar">
+            <button class="btn-sm" onclick="backToProfAiMenu()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
+            <h3 class="page-title"><i class="ph ph-sparkle"></i> Aulas de Redação</h3>
+          </div>
+          
+          <div id="threeJsContainer" class="three-js-bg"></div>
+
+          <div class="essay-setup-card glass-panel">
+             <div class="essay-setup-icon"><i class="ph-fill ph-student"></i></div>
+             <h2>Olá, estudante!</h2>
+             <p>Qual tema de redação você deseja estudar e treinar hoje?</p>
+             
+             <div class="suggested-topics">
+                <span class="topic-chip" onclick="selectEssayTopic('Segurança Pública')">Segurança Pública</span>
+                <span class="topic-chip" onclick="selectEssayTopic('Educação no Brasil')">Educação no Brasil</span>
+                <span class="topic-chip" onclick="selectEssayTopic('Violência Urbana')">Violência Urbana</span>
+                <span class="topic-chip" onclick="selectEssayTopic('Inteligência Artificial')">Inteligência Artificial</span>
+             </div>
+
+             <div class="chat-input-area" style="margin-top:20px; padding:0; background:transparent; border:none;">
+                <input type="text" id="aiEssayTopicInput" placeholder="Ou digite o seu próprio tema..." style="flex:1; border-radius:12px; padding:14px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;" />
+                <button class="btn-primary icon-btn-round" onclick="submitEssayTopic()" style="border-radius:12px;">
+                  <i class="ph-fill ph-magic-wand"></i>
+                </button>
+             </div>
+          </div>
+        </div>
+
+        <!-- View 4: Curso Premium Interativo (Redação) -->
+        <div id="profAiEssayCourse" class="study-view" style="display:none;">
+          <div class="page-top-bar">
+            <button class="btn-sm" onclick="showEssaySetup()"><i class="ph ph-arrow-left"></i> <span>Sair</span></button>
+            <h3 class="page-title" id="essayCourseTitle"><i class="ph ph-pencil-line"></i> Carregando...</h3>
+          </div>
+
+          <div class="essay-course-container">
+            <div class="course-timeline" id="courseTimeline">
+               <!-- Steps Renderizados via JS -->
+            </div>
+            
+            <div class="course-content-area" id="courseContentArea">
+               <!-- Conteúdo e Microtarefas -->
+            </div>
           </div>
         </div>
       </section>
@@ -353,6 +401,9 @@
     </div>
   </div>
 
+  <!-- Three.js (Apenas para Loading/Reception) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -363,6 +414,7 @@
   <script src="./js/subscription.js"></script>
   <script src="./js/app.js?v=2.7"></script>
   <script src="./js/prof-ai.js"></script>
+  <script src="./js/essay-course.js"></script>
 
 </body>
 </html>
