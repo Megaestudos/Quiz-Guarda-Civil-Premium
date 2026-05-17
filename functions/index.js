@@ -44,10 +44,13 @@ exports.askProfessorAI = onCall({ maxInstances: 10 }, async (request) => {
     }
   }
 
-  const SYSTEM_PROMPT = `Você é o Professor AI do PlenAula.
-Seu papel é montar cronogramas de estudos de forma clara e motivadora.
-Você deve: ensinar passo a passo, evitar respostas vagas, montar cronogramas pragmáticos.
-Responda sempre de forma amigável e encorajadora.`;
+  const SYSTEM_PROMPT = `Você é o Professor AI cirúrgico do PlenAula.
+Sua missão é ser extremamente direto, economizando palavras e indo direto ao ponto.
+No fluxo de 'study_plan':
+1. Assim que o usuário informar o concurso, valide imediatamente o status do Edital (informe se está aberto ou use o último como base).
+2. Monte o cronograma de forma pragmática e tabular ou em tópicos curtos.
+3. Não use introduções longas, saudações repetitivas ou despedidas motivacionais extensas. Seja clínico.
+4. Responda apenas o que foi solicitado. Use o mínimo de palavras possível para entregar o máximo de valor estrutural.`;
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest', systemInstruction: SYSTEM_PROMPT });
@@ -114,11 +117,6 @@ exports.generateEssayLesson = onCall({ maxInstances: 10, timeoutSeconds: 60 }, a
   const userData = userDoc.data() || {};
   const todayStr = getTodayBRT();
 
-  // Limite Diário
-  if (userData.lastLessonGenDate === todayStr) {
-     throw new HttpsError('resource-exhausted', 'limite_lesson');
-  }
-
   // Verificar Cache Global
   const topicHash = topic.toLowerCase().replace(/[^a-z0-9]/gi, '_');
   const cacheRef = db.collection('global_essay_lessons').doc(topicHash);
@@ -129,12 +127,17 @@ exports.generateEssayLesson = onCall({ maxInstances: 10, timeoutSeconds: 60 }, a
   if (cacheDoc.exists) {
      lessonData = cacheDoc.data();
   } else {
+     // Limite Diário (Apenas para geração AI que gasta token)
+     if (userData.lastLessonGenDate === todayStr) {
+        throw new HttpsError('resource-exhausted', 'limite_lesson');
+     }
+
      // Gerar nova via IA
      const apiKey = process.env.GEMINI_KEY;
      if (!apiKey) throw new HttpsError('failed-precondition', 'Chave de API ausente.');
      
      const genAI = new GoogleGenerativeAI(apiKey);
-     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro-latest' }); // Modelo melhor para JSON complexo
+     const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' }); // Modelo atualizado e corrigido
 
      const prompt = `Gere uma aula completa e estruturada de redação sobre o tema: "${topic}".
 Siga exatamente a seguinte estrutura JSON OBRIGATÓRIA.
@@ -197,12 +200,12 @@ exports.evaluateEssayPart = onCall({ maxInstances: 10 }, async (request) => {
   if (!apiKey) throw new HttpsError('failed-precondition', 'Chave ausente.');
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const prompt = \`
+  const prompt = `
 Você é uma corretora profissional de redações para ENEM e concursos.
 Sua função NÃO é conversar livremente. Responda em JSON estruturado, de forma objetiva, avaliando APENAS este trecho:
-Tipo de Trecho: \${part} (introducao, desenvolvimento, ou final)
-Tema: \${topic}
-Texto do Aluno:\n\${text}
+Tipo de Trecho: ${part} (introducao, desenvolvimento, ou final)
+Tema: ${topic}
+Texto do Aluno:\n${text}
 
 Retorne APENAS um JSON no formato estrito:
 {
@@ -211,7 +214,7 @@ Retorne APENAS um JSON no formato estrito:
   "pontos_fortes": ["..."],
   "melhorias": ["..."],
   "erros_especificos": ["..."]
-}\`;
+}`;
 
   const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
