@@ -1,12 +1,5 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { setGlobalOptions } = require('firebase-functions/v2');
-const admin = require('firebase-admin');
-
-// Inicializa Firebase Admin
-if (admin.apps.length === 0) {
-  admin.initializeApp();
-}
-
 // Configurações globais de região
 setGlobalOptions({ region: 'southamerica-east1' });
 
@@ -30,11 +23,15 @@ Você deve:
 Nunca entregue apenas respostas secas.
 Sempre ensine.`;
 
-// Função Principal
 exports.askProfessorAI = onCall({
-  secrets: ["GEMINI_API_KEY"],
   maxInstances: 10
 }, async (request) => {
+  const admin = require('firebase-admin');
+
+  // Inicializa Firebase Admin lazy load
+  if (admin.apps.length === 0) {
+    admin.initializeApp();
+  }
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   const startTimeMs = Date.now();
 
