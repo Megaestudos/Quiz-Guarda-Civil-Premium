@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
@@ -45,6 +45,10 @@ async function initDashboard() {
         console.log("Resultado recebido:", result);
         
         const users = Array.isArray(result.data) ? result.data : [];
+        
+        // Sort by creation date descending
+        users.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        
         console.log("Total de usuários processados:", users.length);
 
         if (users.length === 0) {
@@ -230,20 +234,50 @@ function updateRevenueChart(users) {
     // Podemos fazer isso se o Chart.js estiver disponível globalmente
 }
 
+window.subjectsData = [];
+
 async function initContents() {
     const grid = $('contentsGrid');
     if (!grid) return;
-    grid.innerHTML = '';
+    grid.innerHTML = '<div class="col-span-full flex justify-center py-10"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-blue-500"></i></div>';
 
     try {
         const snap = await getDocs(collection(db, "materias_aulas"));
+        window.subjectsData = [];
+        grid.innerHTML = '';
+        
+        if (snap.empty) {
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-500 italic py-10">Nenhuma matéria cadastrada. Clique em + Nova Matéria para começar.</div>';
+            return;
+        }
+
         snap.forEach(doc => {
-            const data = doc.data();
+            const data = { id: doc.id, ...doc.data() };
+            window.subjectsData.push(data);
             const vCount = data.videos ? data.videos.length : 0;
             const aCount = data.audios ? data.audios.length : 0;
+            const sCount = data.slides ? data.slides.length : 0;
             
+            let mediaListHTML = '';
+            const allMedia = [];
+            if(data.videos) data.videos.forEach((v,i)=> allMedia.push({...v, type:'videos', index:i, typeLabel:'Vídeo', color:'text-red-500 bg-red-500/10'}));
+            if(data.audios) data.audios.forEach((a,i)=> allMedia.push({...a, type:'audios', index:i, typeLabel:'Áudio', color:'text-emerald-500 bg-emerald-500/10'}));
+            if(data.slides) data.slides.forEach((s,i)=> allMedia.push({...s, type:'slides', index:i, typeLabel:'Slide', color:'text-blue-500 bg-blue-500/10'}));
+            
+            allMedia.forEach(m => {
+                mediaListHTML += `
+                    <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0 group/media">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[8px] font-bold uppercase px-2 py-0.5 rounded-sm ${m.color}">${m.typeLabel}</span>
+                            <span class="text-xs truncate max-w-[150px] text-gray-300" title="${m.title}">${m.title}</span>
+                        </div>
+                        <button onclick="window.deleteMedia('${data.id}', '${m.type}', ${m.index})" class="text-gray-600 hover:text-red-500 opacity-0 group-hover/media:opacity-100 transition-all"><i data-lucide="x" class="w-3 h-3"></i></button>
+                    </div>
+                `;
+            });
+
             const card = document.createElement('div');
-            card.className = "glass-panel p-6 rounded-3xl flex flex-col gap-4 group hover:border-blue-500/30 transition-all";
+            card.className = "glass-panel p-6 rounded-3xl flex flex-col gap-4 group hover:border-blue-500/30 transition-all relative overflow-hidden";
             card.innerHTML = `
                 <div class="flex justify-between items-start">
                     <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-blue-500">
@@ -253,11 +287,18 @@ async function initContents() {
                 </div>
                 <div>
                     <h3 class="font-bold text-lg mb-1">${data.name}</h3>
-                    <p class="text-xs text-gray-500">${vCount} Vídeos • ${aCount} Áudios</p>
+                    <p class="text-xs text-gray-500">${vCount} Vídeos • ${aCount} Áudios • ${sCount} Slides</p>
                 </div>
+                
+                ${mediaListHTML ? `<div class="bg-black/20 rounded-xl p-3 max-h-32 overflow-y-auto">${mediaListHTML}</div>` : ''}
+                
+                <button onclick="window.openMediaModal('${data.id}')" class="w-full py-2 border border-white/5 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-indigo-400 mt-2">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Adicionar Mídia
+                </button>
+
                 <div class="mt-auto pt-4 border-t border-white/5 flex gap-2">
-                    <button class="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all">Editar</button>
-                    <button class="p-2 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-lg transition-all">
+                    <button onclick="window.openSubjectModal('${data.id}')" class="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all">Editar</button>
+                    <button onclick="window.deleteSubject('${data.id}')" class="p-2 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-lg transition-all">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -266,8 +307,123 @@ async function initContents() {
         });
         if (window.lucide) window.lucide.createIcons();
     } catch (e) {
-        grid.innerHTML = `<p class="text-red-500">Erro ao carregar matérias: ${e.message}</p>`;
+        grid.innerHTML = `<div class="col-span-full p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm">Erro ao carregar matérias: ${e.message}</div>`;
     }
+}
+
+// Global Methods for CMS Modals
+window.openSubjectModal = function(id = null) {
+    const sub = window.subjectsData ? window.subjectsData.find(s => s.id === id) : null;
+    const modal = $('modalSubject');
+    if(!modal) return;
+    
+    $('subjectId').value = id || '';
+    $('subjectFriendlyId').value = id || '';
+    $('subjectFriendlyId').disabled = !!id; 
+    $('subjectName').value = sub ? sub.name : '';
+    $('subjectIcon').value = sub ? sub.icon : 'book';
+    $('subjectResumo').value = sub ? (sub.resumoFile || '') : '';
+    
+    $('subjectModalTitle').innerText = id ? 'Editar Matéria' : 'Nova Matéria';
+    modal.style.display = 'flex';
+}
+
+window.closeSubjectModal = function() {
+    if($('modalSubject')) $('modalSubject').style.display = 'none';
+}
+
+window.saveSubject = async function() {
+    const idToUpdate = $('subjectId').value;
+    let docId = $('subjectFriendlyId').value.trim() || idToUpdate;
+    if(!docId) docId = $('subjectName').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+    if(!docId) return alert("Preencha um nome/ID para a matéria.");
+    
+    const data = {
+        name: $('subjectName').value,
+        icon: $('subjectIcon').value || 'book',
+        resumoFile: $('subjectResumo').value
+    };
+    
+    const btn = $('btnSaveSubject');
+    btn.disabled = true; btn.innerText = "Salvando...";
+    try {
+        await setDoc(doc(db, "materias_aulas", docId), data, {merge: true});
+        window.closeSubjectModal();
+        await initContents();
+    } catch(e) {
+        alert("Erro ao salvar matéria: " + e.message);
+    } finally {
+        btn.disabled = false; btn.innerText = "Salvar Matéria";
+    }
+}
+
+window.deleteSubject = async function(id) {
+    if(!confirm(`Tem certeza que deseja excluir a matéria e todas as suas aulas?`)) return;
+    try {
+        await deleteDoc(doc(db, "materias_aulas", id));
+        await initContents();
+    } catch(e) { alert("Erro ao excluir: " + e.message); }
+}
+
+window.openMediaModal = function(subjectId) {
+    const modal = $('modalMedia');
+    if(!modal) return;
+    $('mediaSubjectId').value = subjectId;
+    $('mediaTitle').value = '';
+    $('mediaUrl').value = '';
+    $('mediaDur').value = '';
+    $('mediaTypeSelect').value = 'videos';
+    modal.style.display = 'flex';
+}
+
+window.closeMediaModal = function() {
+    if($('modalMedia')) $('modalMedia').style.display = 'none';
+}
+
+window.saveMedia = async function() {
+    const sid = $('mediaSubjectId').value;
+    const type = $('mediaTypeSelect').value;
+    const title = $('mediaTitle').value;
+    const urlOrId = $('mediaUrl').value;
+    const dur = $('mediaDur').value;
+    
+    if(!title || !urlOrId) return alert("Preencha título e URL/ID.");
+    
+    const sub = window.subjectsData ? window.subjectsData.find(s => s.id === sid) : null;
+    if(!sub) return;
+    
+    const newItem = { title: title, duration: dur || (type === 'videos' ? 'Vídeo' : 'Mídia') };
+    if(type === 'videos') newItem.youtubeId = urlOrId;
+    else newItem.url = urlOrId;
+    
+    const currentArray = sub[type] || [];
+    currentArray.push(newItem);
+    
+    const btn = $('btnSaveMedia');
+    btn.disabled = true; btn.innerText = "Salvando...";
+    try {
+        await updateDoc(doc(db, "materias_aulas", sid), { [type]: currentArray });
+        window.closeMediaModal();
+        await initContents();
+    } catch(e) {
+        alert("Erro ao adicionar mídia: " + e.message);
+    } finally {
+        btn.disabled = false; btn.innerText = "Salvar Mídia";
+    }
+}
+
+window.deleteMedia = async function(subjectId, type, index) {
+    if(!confirm("Tem certeza que deseja remover esta mídia?")) return;
+    const sub = window.subjectsData ? window.subjectsData.find(s => s.id === subjectId) : null;
+    if(!sub) return;
+    
+    const currentArray = sub[type] || [];
+    currentArray.splice(index, 1);
+    
+    try {
+        await updateDoc(doc(db, "materias_aulas", subjectId), { [type]: currentArray });
+        await initContents();
+    } catch(e) { alert("Erro ao remover mídia: " + e.message); }
 }
 
 async function initSimulados(users) {

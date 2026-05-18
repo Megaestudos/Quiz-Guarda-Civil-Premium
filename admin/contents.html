@@ -58,7 +58,7 @@
     <main class="flex-1 flex flex-col bg-[#020617] relative overflow-y-auto">
         <header class="h-20 border-b border-white/5 flex items-center justify-between px-10">
             <h1 class="text-xl font-bold">Gestão de Conteúdo</h1>
-            <button class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-bold shadow-lg shadow-blue-600/20">+ Nova Matéria</button>
+            <button onclick="window.openSubjectModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 transition-all rounded-lg text-sm font-bold shadow-lg shadow-blue-600/20">+ Nova Matéria</button>
         </header>
 
         <div class="p-10 space-y-8">
@@ -70,6 +70,74 @@
             </div>
         </div>
     </main>
+
+    <!-- Modal Subject -->
+    <div id="modalSubject" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-[32px] p-8 animate-fade-in shadow-2xl border-white/10">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="subjectModalTitle" class="text-xl font-bold">Nova Matéria</h2>
+                <button onclick="window.closeSubjectModal()" class="text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
+            </div>
+            <div class="space-y-4">
+                <input type="hidden" id="subjectId">
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">ID (Padrão: auto)</label>
+                    <input type="text" id="subjectFriendlyId" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-gray-300" placeholder="direito-penal">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Nome da Matéria</label>
+                    <input type="text" id="subjectName" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm" placeholder="Direito Penal">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Ícone (Lucide)</label>
+                    <input type="text" id="subjectIcon" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm" placeholder="book">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Arquivo do Resumo (Opcional)</label>
+                    <input type="text" id="subjectResumo" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm" placeholder="resumo.html">
+                </div>
+                <button onclick="window.saveSubject()" id="btnSaveSubject" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/20 transition-all mt-4">
+                    Salvar Matéria
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Media -->
+    <div id="modalMedia" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-[32px] p-8 animate-fade-in shadow-2xl border-white/10">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">Adicionar Mídia</h2>
+                <button onclick="window.closeMediaModal()" class="text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
+            </div>
+            <div class="space-y-4">
+                <input type="hidden" id="mediaSubjectId">
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Tipo de Mídia</label>
+                    <select id="mediaTypeSelect" class="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white">
+                        <option value="videos">Vídeo (YouTube ID)</option>
+                        <option value="audios">Áudio (URL direta)</option>
+                        <option value="slides">PDF / Slide (URL direta)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Título da Aula/Conteúdo</label>
+                    <input type="text" id="mediaTitle" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm" placeholder="Aula 1: Introdução...">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">URL ou ID do YouTube</label>
+                    <input type="text" id="mediaUrl" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm" placeholder="ex: dQw4w9WgXcQ">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Resumo/Duração (Opcional)</label>
+                    <input type="text" id="mediaDur" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm placeholder:text-gray-600" placeholder="ex: 15 min">
+                </div>
+                <button onclick="window.saveMedia()" id="btnSaveMedia" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-600/20 transition-all mt-4">
+                    Salvar Mídia
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="admin-v2-integration.js"></script>
     <script>
