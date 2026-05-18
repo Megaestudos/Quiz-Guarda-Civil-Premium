@@ -67,22 +67,19 @@ async function initDashboard() {
 }
 
 function updateUIStats(users) {
-    const totalCount = users.length;
-    const activeCount = users.filter(u => !u.disabled).length;
-    
-    // Supondo que cada usuário pague R$ 49,90/mês para o cálculo de MRR
-    const estimatedMRR = activeCount * 49.90;
+    const today = new Date().toISOString().split('T')[0];
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 30);
 
-    if ($('statTotalUsers')) $('statTotalUsers').innerText = totalCount.toLocaleString();
-    if ($('statMRR')) $('statMRR').innerText = `R$ ${estimatedMRR.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-    
-    // Retenção fictícia baseada em quem logou nos últimos 7 dias
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const activeThisWeek = users.filter(u => u.lastLogin && new Date(u.lastLogin) > weekAgo).length;
-    const retention = totalCount > 0 ? (activeThisWeek / totalCount) * 100 : 0;
-    
-    if ($('statRetention')) $('statRetention').innerText = `${retention.toFixed(1)}%`;
+    const createdToday = users.filter(u => u.createdAt && u.createdAt.includes(today)).length;
+    const accessToday = users.filter(u => u.lastLogin && u.lastLogin.includes(today)).length;
+    const accessWeek = users.filter(u => u.lastLogin && new Date(u.lastLogin) > weekAgo).length;
+    const churned = users.filter(u => !u.lastLogin || new Date(u.lastLogin) < monthAgo).length;
+
+    if ($('statCreatedToday')) $('statCreatedToday').innerText = createdToday;
+    if ($('statAccessToday')) $('statAccessToday').innerText = accessToday;
+    if ($('statAccessWeek')) $('statAccessWeek').innerText = accessWeek;
+    if ($('statChurned')) $('statChurned').innerText = churned;
 }
 
 function renderStudentsTable(users) {
@@ -90,14 +87,12 @@ function renderStudentsTable(users) {
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    const sortedUsers = users.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-
-    sortedUsers.forEach(user => {
+    users.forEach(user => {
         const tr = document.createElement('tr');
         tr.className = "table-row group border-b border-white/5 hover:bg-white/[0.02] transition-colors";
         
         const firstAccess = user.createdAt ? new Date(user.createdAt).toLocaleDateString('pt-BR') : 'N/A';
-        const lastAccess = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('pt-BR') : 'Nunca';
+        const lastAccess = user.lastLogin ? new Date(user.lastLogin).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : 'Nunca';
         
         const statusClass = user.disabled ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
         const statusText = user.disabled ? 'Bloqueado' : 'Ativo';
@@ -116,32 +111,49 @@ function renderStudentsTable(users) {
                     </div>
                 </div>
             </td>
+            <td class="px-6 py-5 text-xs text-gray-400">${firstAccess}</td>
+            <td class="px-6 py-5 text-xs text-blue-400 font-bold">${lastAccess}</td>
             <td class="px-6 py-5">
-                <span class="text-xs text-gray-300 font-medium">${firstAccess}</span>
-            </td>
-            <td class="px-6 py-5">
-                <span class="text-xs text-blue-400 font-bold">${lastAccess}</span>
-            </td>
-            <td class="px-6 py-5">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusClass}">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusClass}">
                     ${statusText.toUpperCase()}
                 </span>
             </td>
-            <td class="px-6 py-5 text-right">
-                <div class="flex items-center justify-end gap-2">
-                    <button onclick="toggleUser('${user.uid}', ${!!user.disabled})" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white transition-all ${actionBtnClass}">
-                        ${actionBtnText}
-                    </button>
-                    <button class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 transition-all">
-                        <i data-lucide="eye" class="w-4 h-4"></i>
-                    </button>
-                </div>
+            <td class="px-6 py-5 text-right flex items-center justify-end gap-2">
+                <button onclick="toggleUser('${user.uid}', ${!!user.disabled})" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white transition-all ${actionBtnClass}">
+                    ${actionBtnText}
+                </button>
+                <button class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 transition-all"><i data-lucide="eye" class="w-4 h-4"></i></button>
             </td>
         `;
         tbody.appendChild(tr);
     });
-    
     if (window.lucide) window.lucide.createIcons();
+}
+
+// Modal Handlers
+window.openAddModal = () => $('modalAddStudent').style.display = 'flex';
+window.closeAddModal = () => $('modalAddStudent').style.display = 'none';
+
+window.createStudent = async function() {
+    const email = $('newStudentEmail').value;
+    const pass = $('newStudentPass').value;
+    
+    if(!email || pass.length < 6) return alert("Preencha email e senha (mín 6 chars)");
+    
+    const btn = $('btnCreateConfirm');
+    btn.disabled = true; btn.innerText = "Criando...";
+    
+    try {
+        const createCall = httpsCallable(functions, "createUserV2");
+        await createCall({ email, password: pass });
+        alert("Aluno criado com sucesso!");
+        closeAddModal();
+        initDashboard();
+    } catch (e) {
+        alert("Erro: " + e.message);
+    } finally {
+        btn.disabled = false; btn.innerText = "Criar Assinante";
+    }
 }
 
 // Expõe a função para o HTML
