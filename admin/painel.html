@@ -262,44 +262,12 @@
                 <!-- Recent Activity -->
                 <div class="glass-panel p-8 rounded-[32px] flex flex-col">
                     <h3 class="text-lg font-bold mb-6">Atividade Recente</h3>
-                    <div class="space-y-6 flex-1 overflow-y-auto pr-2">
-                        
-                        <div class="flex gap-4 items-start relative pb-6 border-l border-white/5 ml-3">
-                            <div class="absolute -left-[9px] top-1 w-4 h-4 bg-blue-500/20 border-2 border-blue-500 rounded-full"></div>
-                            <div class="flex flex-col gap-1 ml-4">
-                                <span class="text-sm font-semibold">Novo Assinante Elite</span>
-                                <span class="text-xs text-gray-500">Ismael Silva assinou o plano semestral</span>
-                                <span class="text-[10px] text-blue-500 font-bold uppercase">Há 2 minutos</span>
-                            </div>
+                    <div class="space-y-6 flex-1 overflow-y-auto pr-2" id="recentActivityList">
+                        <!-- Estado inicial: Sincronizando -->
+                        <div class="flex flex-col items-center justify-center h-full text-gray-600 gap-2">
+                            <i data-lucide="refresh-cw" class="w-5 h-5 animate-spin"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Sincronizando Atividade...</span>
                         </div>
-
-                        <div class="flex gap-4 items-start relative pb-6 border-l border-white/5 ml-3">
-                            <div class="absolute -left-[5px] top-1 w-2.5 h-2.5 bg-gray-600 border border-gray-700 rounded-full"></div>
-                            <div class="flex flex-col gap-1 ml-4">
-                                <span class="text-sm font-semibold">Simulado Concluído</span>
-                                <span class="text-xs text-gray-500">Média geral da plataforma subiu 0.4%</span>
-                                <span class="text-[10px] text-gray-500 font-bold uppercase">Há 45 minutos</span>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4 items-start relative pb-6 border-l border-white/5 ml-3">
-                            <div class="absolute -left-[9px] top-1 w-4 h-4 bg-orange-500/20 border-2 border-orange-500 rounded-full"></div>
-                            <div class="flex flex-col gap-1 ml-4">
-                                <span class="text-sm font-semibold">Pico de Uso IA</span>
-                                <span class="text-xs text-gray-500">Módulo "Direito Penal" atingiu 500 req/min</span>
-                                <span class="text-[10px] text-orange-500 font-bold uppercase">Há 1 hora</span>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4 items-start relative ml-3">
-                            <div class="absolute -left-[5px] top-1 w-2.5 h-2.5 bg-gray-600 border border-gray-700 rounded-full"></div>
-                            <div class="flex flex-col gap-1 ml-4">
-                                <span class="text-sm font-semibold">Backup de Sistema</span>
-                                <span class="text-xs text-gray-500">Snapshot diário processado em 14ms</span>
-                                <span class="text-[10px] text-gray-500 font-bold uppercase">Há 3 horas</span>
-                            </div>
-                        </div>
-
                     </div>
                     <button class="mt-6 w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold uppercase tracking-widest transition-all">Ver todos os logs</button>
                 </div>

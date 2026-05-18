@@ -52,7 +52,9 @@ async function initDashboard() {
         }
 
         updateUIStats(users);
+        
         if ($('studentsTableBody')) renderStudentsTable(users);
+        if ($('recentActivityList')) renderActivityLog(users);
         
         // Carrega Conteúdos e Simulados dependendo da página
         if ($('contentsGrid')) initContents();
@@ -86,6 +88,11 @@ function renderStudentsTable(users) {
     const tbody = $('studentsTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
+
+    if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-gray-500 italic">Nenhum aluno encontrado no banco de dados.</td></tr>`;
+        return;
+    }
 
     users.forEach(user => {
         const tr = document.createElement('tr');
@@ -154,6 +161,53 @@ window.createStudent = async function() {
     } finally {
         btn.disabled = false; btn.innerText = "Criar Assinante";
     }
+}
+
+function renderActivityLog(users) {
+    const list = $('recentActivityList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    // Filtrar quem logou recentemente e ordenar
+    const recentOnes = users
+        .filter(u => u.lastLogin)
+        .sort((a, b) => new Date(b.lastLogin) - new Date(a.lastLogin))
+        .slice(0, 5);
+
+    if (recentOnes.length === 0) {
+        list.innerHTML = '<div class="text-center py-10 text-gray-500 text-xs italic">Sem atividade recente.</div>';
+        return;
+    }
+
+    recentOnes.forEach(u => {
+        const timeAgo = getTimeAgo(new Date(u.lastLogin));
+        const div = document.createElement('div');
+        div.className = "flex gap-4 items-start relative pb-6 border-l border-white/5 ml-3";
+        div.innerHTML = `
+            <div class="absolute -left-[5px] top-1 w-2.5 h-2.5 bg-blue-500 border border-blue-600 rounded-full"></div>
+            <div class="flex flex-col gap-1 ml-4">
+                <span class="text-sm font-semibold">${u.email}</span>
+                <span class="text-xs text-gray-500">Acessou a plataforma</span>
+                <span class="text-[10px] text-blue-500 font-bold uppercase">${timeAgo}</span>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " anos atrás";
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " meses atrás";
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " dias atrás";
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " horas atrás";
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " min atrás";
+    return "agora mesmo";
 }
 
 // Expõe a função para o HTML
