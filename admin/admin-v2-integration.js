@@ -86,6 +86,17 @@ function updateUIStats(users) {
     if ($('statAccessToday')) $('statAccessToday').innerText = accessToday;
     if ($('statAccessWeek')) $('statAccessWeek').innerText = accessWeek;
     if ($('statChurned')) $('statChurned').innerText = churned;
+    
+    // Cálculos Financeiros
+    const totalUsers = users.length;
+    const grossRevenue = totalUsers * 29.90;
+    const netRevenue = grossRevenue * 0.85; // Menos 15% da PlayStore
+    
+    const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    
+    if ($('finTotalRevenue')) $('finTotalRevenue').innerText = formatter.format(grossRevenue);
+    if ($('finTotalUsers')) $('finTotalUsers').innerText = totalUsers;
+    if ($('finNetRevenue')) $('finNetRevenue').innerText = formatter.format(netRevenue);
 }
 
 function renderStudentsTable(users) {
