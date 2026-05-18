@@ -38,17 +38,20 @@
 </head>
 <body class="flex h-screen overflow-hidden">
 
-    <!-- Sidebar (Shared) -->
-    <aside class="w-64 border-r border-white/5 bg-[#020617] flex flex-col z-50">
-        <div class="p-8 pb-4">
+    <!-- Sidebar (Responsive) -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 border-r border-white/5 bg-[#020617] flex flex-col z-[100] transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-300 ease-in-out">
+        <div class="p-8 pb-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                     <i data-lucide="graduation-cap" class="text-white w-6 h-6"></i>
                 </div>
                 <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">PlenAula</span>
             </div>
-            <div class="mt-2 ml-1 text-[10px] font-bold text-blue-500 tracking-[0.2em] uppercase opacity-70">Admin Intelligence</div>
+            <button class="lg:hidden text-gray-400" onclick="toggleSidebar()">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
         </div>
+        <div class="ml-1 text-[10px] font-bold text-blue-500 tracking-[0.2em] uppercase opacity-70">Admin Intelligence</div>
 
         <nav class="flex-1 px-4 py-8 space-y-1 overflow-y-auto">
             <a href="painel.html" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
@@ -114,7 +117,7 @@
         </header>
 
         <!-- Content Area -->
-        <div class="flex-1 overflow-y-auto p-10 z-10">
+        <div class="flex-1 overflow-y-auto p-4 sm:p-10 z-10">
             
             <div class="flex justify-between items-center mb-8">
                 <div>
@@ -317,6 +320,10 @@
     <script type="module" src="admin-v2-integration.js"></script>
     <script>
         lucide.createIcons();
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
     </script>
 </body>
 </html>
