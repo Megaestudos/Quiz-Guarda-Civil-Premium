@@ -35,18 +35,30 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 async function initDashboard() {
+    console.log("Iniciando carregamento de dados do Dashboard...");
     try {
         // 1. Carregar Alunos via Cloud Function
         const listUsersCall = httpsCallable(functions, "listUsersV2");
+        console.log("Chamando Cloud Function 'listUsersV2'...");
+        
         const result = await listUsersCall();
+        console.log("Resultado recebido:", result);
+        
         const users = Array.isArray(result.data) ? result.data : [];
+        console.log("Total de usuários processados:", users.length);
+
+        if (users.length === 0) {
+            console.warn("A função retornou zero usuários. Verifique as permissões ou se há usuários no Firebase.");
+        }
 
         updateUIStats(users);
         if ($('studentsTableBody')) renderStudentsTable(users);
-        if (window.revenueChart) updateRevenueChart(users);
+        
+        console.log("UI atualizada com sucesso.");
 
     } catch (e) {
-        console.error("Erro ao carregar dados do Firebase:", e);
+        console.error("Erro crítico ao carregar dados do Firebase:", e);
+        alert("Erro ao conectar com Firebase: " + e.message);
     }
 }
 
