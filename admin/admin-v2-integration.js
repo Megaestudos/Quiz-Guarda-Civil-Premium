@@ -54,6 +54,10 @@ async function initDashboard() {
         updateUIStats(users);
         if ($('studentsTableBody')) renderStudentsTable(users);
         
+        // Carrega Conteúdos e Simulados dependendo da página
+        if ($('contentsGrid')) initContents();
+        if ($('topStudentsList')) initSimulados(users);
+        
         console.log("UI atualizada com sucesso.");
 
     } catch (e) {
@@ -83,18 +87,22 @@ function updateUIStats(users) {
 
 function renderStudentsTable(users) {
     const tbody = $('studentsTableBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
-    // Ordenar por data de criação desc
     const sortedUsers = users.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
-    sortedUsers.slice(0, 50).forEach(user => {
+    sortedUsers.forEach(user => {
         const tr = document.createElement('tr');
-        tr.className = "table-row group";
+        tr.className = "table-row group border-b border-white/5 hover:bg-white/[0.02] transition-colors";
         
-        const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('pt-BR') : 'Nunca';
+        const firstAccess = user.createdAt ? new Date(user.createdAt).toLocaleDateString('pt-BR') : 'N/A';
+        const lastAccess = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('pt-BR') : 'Nunca';
+        
         const statusClass = user.disabled ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
-        const statusText = user.disabled ? 'Inativo' : 'Ativo';
+        const statusText = user.disabled ? 'Bloqueado' : 'Ativo';
+        const actionBtnClass = user.disabled ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-red-600 hover:bg-red-500';
+        const actionBtnText = user.disabled ? 'Desbloquear' : 'Bloquear';
 
         tr.innerHTML = `
             <td class="px-6 py-5">
@@ -103,47 +111,177 @@ function renderStudentsTable(users) {
                         ${user.email ? user.email.substring(0, 2).toUpperCase() : '??'}
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-sm font-semibold truncate max-w-[150px]">${user.email || 'Sem Email'}</span>
-                        <span class="text-[10px] text-gray-500 lowercase">${user.uid.substring(0, 15)}...</span>
+                        <span class="text-sm font-semibold truncate max-w-[200px]">${user.email || 'Sem Email'}</span>
+                        <span class="text-[10px] text-gray-500 font-mono">${user.uid}</span>
                     </div>
                 </div>
             </td>
             <td class="px-6 py-5">
-                <div class="flex flex-col gap-1">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-blue-400">Plano Ativo</span>
-                    <span class="inline-flex items-center gap-1.5 text-[10px] font-bold ${statusClass} px-2 py-0.5 rounded-full border w-fit">
-                        ${statusText}
-                    </span>
-                </div>
+                <span class="text-xs text-gray-300 font-medium">${firstAccess}</span>
             </td>
             <td class="px-6 py-5">
-                <div class="flex items-center gap-4">
-                    <div class="text-sm font-bold">100%</div>
-                    <div class="flex-1 max-w-[80px] h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div class="h-full bg-emerald-500 w-full"></div>
-                    </div>
-                </div>
+                <span class="text-xs text-blue-400 font-bold">${lastAccess}</span>
             </td>
-            <td class="px-6 py-5 text-sm font-medium">N/A</td>
             <td class="px-6 py-5">
-                <span class="text-xs text-gray-300">${lastLogin}</span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusClass}">
+                    ${statusText.toUpperCase()}
+                </span>
             </td>
             <td class="px-6 py-5 text-right">
-                <button class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all">
-                    <i data-lucide="eye" class="w-4 h-4"></i>
-                </button>
+                <div class="flex items-center justify-end gap-2">
+                    <button onclick="toggleUser('${user.uid}', ${!!user.disabled})" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white transition-all ${actionBtnClass}">
+                        ${actionBtnText}
+                    </button>
+                    <button class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 transition-all">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                </div>
             </td>
         `;
         tbody.appendChild(tr);
     });
     
-    // Reinicializa os ícones do Lucide para as novas linhas
     if (window.lucide) window.lucide.createIcons();
+}
+
+// Expõe a função para o HTML
+window.toggleUser = async function(uid, isCurrentlyDisabled) {
+    const action = isCurrentlyDisabled ? "desbloquear" : "bloquear";
+    if (!confirm(`Tem certeza que deseja ${action} este usuário?`)) return;
+
+    try {
+        const toggleCall = httpsCallable(functions, "toggleUserStatus");
+        await toggleCall({ uid, disabled: !isCurrentlyDisabled });
+        alert("Usuário atualizado com sucesso!");
+        initDashboard(); // Recarrega os dados
+    } catch (e) {
+        alert("Erro ao atualizar usuário: " + e.message);
+    }
 }
 
 function updateRevenueChart(users) {
     // Se quiser atualizar o gráfico de receita com dados reais de cadastros por mês
     // Podemos fazer isso se o Chart.js estiver disponível globalmente
+}
+
+async function initContents() {
+    const grid = $('contentsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    try {
+        const snap = await getDocs(collection(db, "materias_aulas"));
+        snap.forEach(doc => {
+            const data = doc.data();
+            const vCount = data.videos ? data.videos.length : 0;
+            const aCount = data.audios ? data.audios.length : 0;
+            
+            const card = document.createElement('div');
+            card.className = "glass-panel p-6 rounded-3xl flex flex-col gap-4 group hover:border-blue-500/30 transition-all";
+            card.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-blue-500">
+                        <i data-lucide="${data.icon || 'book'}" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-[10px] font-bold bg-blue-500/10 text-blue-500 px-2 py-1 rounded-md uppercase">Ativo</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-1">${data.name}</h3>
+                    <p class="text-xs text-gray-500">${vCount} Vídeos • ${aCount} Áudios</p>
+                </div>
+                <div class="mt-auto pt-4 border-t border-white/5 flex gap-2">
+                    <button class="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all">Editar</button>
+                    <button class="p-2 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-lg transition-all">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+        if (window.lucide) window.lucide.createIcons();
+    } catch (e) {
+        grid.innerHTML = `<p class="text-red-500">Erro ao carregar matérias: ${e.message}</p>`;
+    }
+}
+
+async function initSimulados(users) {
+    const topList = $('topStudentsList');
+    if (!topList) return;
+    topList.innerHTML = '';
+
+    // Filtrar usuários que tenham recordes de quiz
+    const studentsWithRecords = users.filter(u => u.quiz_best_record && u.quiz_best_record.score !== undefined);
+    const topStudents = studentsWithRecords.sort((a, b) => b.quiz_best_record.score - a.quiz_best_record.score).slice(0, 10);
+
+    if (topStudents.length === 0) {
+        topList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum recorde registrado ainda.</p>';
+        return;
+    }
+
+    topStudents.forEach((student, index) => {
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5";
+        item.innerHTML = `
+            <div class="flex items-center gap-4">
+                <span class="text-xs font-black text-gray-600 w-4">${index + 1}</span>
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-gray-200">${student.email}</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase">${student.quiz_xp || 0} XP</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs font-black text-emerald-500">${student.quiz_best_record.score}/${student.quiz_best_record.total}</div>
+                <div class="text-[10px] text-gray-500 font-bold uppercase">Acertos</div>
+            </div>
+        `;
+        topList.appendChild(item);
+    });
+
+    // Gráfico de tópicos (Média Global)
+    renderTopicsChart(users);
+}
+
+function renderTopicsChart(users) {
+    const ctx = $('topicsChart');
+    if (!ctx) return;
+
+    // Calcular médias por tópico agregando quiz_topic_stats de todos os users
+    const topicAgg = {};
+    users.forEach(u => {
+        if (u.quiz_topic_stats) {
+            Object.entries(u.quiz_topic_stats).forEach(([topic, stats]) => {
+                if (!topicAgg[topic]) topicAgg[topic] = { total: 0, correct: 0 };
+                topicAgg[topic].total += stats.t || 0;
+                topicAgg[topic].correct += stats.c || 0;
+            });
+        }
+    });
+
+    const labels = Object.keys(topicAgg);
+    const data = labels.map(t => (topicAgg[t].correct / topicAgg[t].total) * 100);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '% de Acerto Médio',
+                data: data,
+                backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                borderColor: '#3b82f6',
+                borderWidth: 1,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
 }
 
 // Botão Logout
