@@ -1,574 +1,399 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root{
-      --bg:#0b1220;
-      --panel:#0f172a;
-      --panel-2:#111c31;
-      --border:#1e293b;
-      --primary:#2563eb;
-      --primary-dark:#1e40af;
-      --text:#e5e7eb;
-      --muted:#94a3b8;
-      --success:#10b981;
-      --warning:#f59e0b;
-      --danger:#ef4444;
-      --danger-dark:#b91c1c;
-      --radius:18px;
-      --shadow:0 10px 30px rgba(0,0,0,.35);
-    }
-
-    *{box-sizing:border-box}
-
-    body{
-      margin:0;
-      font-family:Inter,sans-serif;
-      background:
-        radial-gradient(120% 100% at 20% 20%, rgba(37,99,235,.20), transparent 60%),
-        radial-gradient(120% 100% at 80% 10%, rgba(16,185,129,.12), transparent 60%),
-        var(--bg);
-      color:var(--text);
-    }
-
-    .container{
-      max-width:1320px;
-      margin:0 auto;
-      padding:20px;
-    }
-
-    .header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px;
-      margin-bottom:18px;
-      flex-wrap:wrap;
-    }
-
-    .title-wrap h1{
-      margin:0;
-      font-size:28px;
-      font-weight:800;
-      letter-spacing:-0.5px;
-    }
-
-    .title-wrap p{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:14px;
-    }
-
-    .header-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .button{
-      padding:10px 16px;
-      border:none;
-      border-radius:12px;
-      cursor:pointer;
-      color:#fff;
-      font-weight:700;
-      transition:.2s ease;
-      box-shadow:0 6px 18px rgba(0,0,0,.18);
-    }
-
-    .button:hover{
-      transform:translateY(-1px);
-      opacity:.96;
-    }
-
-    .button-refresh{
-      background:linear-gradient(135deg,var(--success),#059669);
-    }
-
-    .button-logout{
-      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-    }
-
-    .button-danger{
-      background:linear-gradient(135deg,var(--danger),var(--danger-dark));
-    }
-
-    .button-warning{
-      background:linear-gradient(135deg,var(--warning),#d97706);
-      color:#111827;
-    }
-
-    .status{
-      margin-bottom:18px;
-      padding:14px 16px;
-      border-radius:14px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      color:var(--text);
-      box-shadow:var(--shadow);
-    }
-
-    .dashboard{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-      gap:16px;
-      margin-bottom:18px;
-    }
-
-    .stat-card{
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:18px;
-      padding:18px;
-      box-shadow:var(--shadow);
-    }
-
-    .stat-label{
-      color:var(--muted);
-      font-size:13px;
-      margin-bottom:10px;
-      font-weight:600;
-    }
-
-    .stat-value{
-      font-size:30px;
-      font-weight:800;
-      line-height:1;
-    }
-
-    .chart-card{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:18px;
-      margin-bottom:18px;
-      box-shadow:var(--shadow);
-    }
-
-    .chart-title{
-      margin:0 0 14px;
-      font-size:18px;
-      font-weight:800;
-    }
-
-    .chart-wrap{
-      position:relative;
-      width:100%;
-      height:320px;
-    }
-
-    .toolbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px;
-      margin-bottom:16px;
-      flex-wrap:wrap;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:var(--shadow);
-    }
-
-    .search-wrap{
-      flex:1;
-      min-width:260px;
-    }
-
-    .search-input{
-      width:100%;
-      padding:12px 14px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      outline:none;
-      background:#0b1426;
-      color:#fff;
-      font-size:14px;
-    }
-
-    .search-input::placeholder{
-      color:#7c8aa5;
-    }
-
-    .result-info{
-      color:var(--muted);
-      font-size:14px;
-      font-weight:600;
-    }
-
-    .table-wrapper{
-      overflow:auto;
-      background:var(--panel);
-      border-radius:18px;
-      border:1px solid var(--border);
-      box-shadow:var(--shadow);
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:1100px;
-    }
-
-    th, td{
-      padding:14px 12px;
-      text-align:left;
-      border-bottom:1px solid var(--border);
-      vertical-align:middle;
-      font-size:14px;
-    }
-
-    th{
-      position:sticky;
-      top:0;
-      z-index:1;
-      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-      color:#fff;
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:.4px;
-    }
-
-    tbody tr:hover{
-      background:rgba(255,255,255,.04);
-    }
-
-    .email{
-      font-weight:700;
-      color:#fff;
-    }
-
-    .uid{
-      font-family:monospace;
-      font-size:12px;
-      color:#cbd5e1;
-      word-break:break-all;
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:6px 10px;
-      border-radius:999px;
-      background:rgba(37,99,235,.18);
-      border:1px solid rgba(37,99,235,.35);
-      color:#dbeafe;
-      font-size:12px;
-      font-weight:700;
-      margin:2px 6px 2px 0;
-      white-space:nowrap;
-    }
-
-    .badge-disabled{
-      background:rgba(239,68,68,.18);
-      border-color:rgba(239,68,68,.35);
-      color:#fecaca;
-    }
-
-    .action-btn{
-      border:none;
-      border-radius:10px;
-      padding:8px 12px;
-      font-weight:700;
-      cursor:pointer;
-      color:#fff;
-      min-width:110px;
-    }
-
-    .action-block{
-      background:linear-gradient(135deg,var(--danger),var(--danger-dark));
-    }
-
-    .action-unblock{
-      background:linear-gradient(135deg,var(--warning),#d97706);
-      color:#111827;
-    }
-
-    .empty-state{
-      padding:22px;
-      text-align:center;
-      color:var(--muted);
-    }
-
-    /* TABS */
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-    .tab-btn { background: transparent; color: var(--muted); border: none; font-size: 16px; font-weight: 700; padding: 10px 20px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
-    .tab-btn.active { color: #fff; background: rgba(37,99,235,.2); border: 1px solid var(--primary); }
-    .tab-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,.05); }
-
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-
-    /* CONTENT MANAGEMENT */
-    .content-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-    .subject-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); position: relative; }
-    .subject-card h3 { margin: 0 0 10px; color: #fff; display: flex; align-items: center; gap: 10px; font-size: 18px;}
-    .subject-card p { margin: 0 0 15px; font-size: 13px; color: var(--muted); }
-    .subject-actions { display: flex; gap: 8px; margin-bottom: 15px; }
-    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; color:#fff; }
-    .btn-blue { background: var(--primary); }
-    .btn-red { background: var(--danger); }
-    .btn-gray { background: #334155; }
-    
-    .media-list { border-top: 1px solid var(--border); padding-top: 10px; display:flex; flex-direction:column; gap:6px; max-height: 200px; overflow-y: auto; }
-    .media-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255,255,255,.02); border-radius: 6px; }
-    .media-item-info { display: flex; flex-direction:column; gap: 4px; font-size:13px; }
-    .media-item-type { font-size: 10px; font-weight: 800; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; display:inline-block; width:fit-content; }
-
-    /* MODAL */
-    .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 100; display: none; justify-content: center; align-items: center; }
-    .modal-overlay.active { display: flex; }
-    .modal-box { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 500px; padding: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-header h2 { margin: 0; font-size: 20px; }
-    .modal-close { background: transparent; border: none; color: var(--muted); font-size: 24px; cursor: pointer; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text); }
-    .form-input, .form-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #0b1426; color: #fff; font-family: inherit; }
-    
-    @media (max-width: 980px){
-      .dashboard{
-        grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
-      }
-      .charts-grid {
-        grid-template-columns: 1fr !important;
-      }
-    }
-
-    @media (max-width: 640px){
-      .container{
-        padding:14px;
-      }
-
-      .dashboard{
-        grid-template-columns:1fr;
-      }
-
-      .title-wrap h1{
-        font-size:24px;
-      }
-
-      .button{
-        width:100%;
-      }
-
-      .header-actions{
-        width:100%;
-      }
-
-      .header-actions .button{
-        flex:1;
-      }
-
-      .chart-wrap{
-        height:260px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlenAula - Admin Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(217.2 32.6% 17.5%)",
+                        input: "hsl(217.2 32.6% 17.5%)",
+                        ring: "hsl(224.3 76.3% 48%)",
+                        background: "hsl(222.2 84% 4.9%)",
+                        foreground: "hsl(210 40% 98%)",
+                        primary: {
+                            DEFAULT: "#3b82f6",
+                            foreground: "#ffffff",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(217.2 32.6% 17.5%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(217.2 32.6% 17.5%)",
+                            foreground: "hsl(215 20.2% 65.1%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(217.2 32.6% 17.5%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        card: {
+                            DEFAULT: "rgba(15, 23, 42, 0.6)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-item:hover { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .sidebar-item.active { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border-right: 3px solid #3b82f6; }
+        .stat-card { transition: transform 0.3s ease; }
+        .stat-card:hover { transform: translateY(-4px); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease forwards; }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="title-wrap">
-        <h1>Painel Admin</h1>
-        <p>Controle de usuários do app PlenAula</p>
-      </div>
+<body class="flex h-screen overflow-hidden">
 
-      <div class="header-actions">
-        <button class="button" id="btnExportCSV" style="background:linear-gradient(135deg, #4f46e5, #4338ca);">Exportar CSV</button>
-        <button class="button button-refresh" id="btnRefresh">Atualizar</button>
-        <button class="button button-logout" id="btnLogout">Sair</button>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab-btn active" id="tabBtnUsers" onclick="switchTab('users')">Gestão de Usuários</button>
-      <button class="tab-btn" id="tabBtnContent" onclick="switchTab('content')">Gestão de Cursos & Aulas</button>
-    </div>
-
-    <div id="tab-users" class="tab-pane active">
-      <div class="status" id="statusMsg">Verificando login...</div>
-
-    <div class="dashboard">
-      <div class="stat-card">
-        <div class="stat-label">Usuários totais</div>
-        <div class="stat-value" id="statTotal">0</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Usuários com e-mail</div>
-        <div class="stat-value" id="statComEmail">0</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Logaram hoje</div>
-        <div class="stat-value" id="statHoje">0</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Logaram na semana</div>
-        <div class="stat-value" id="statSemana">0</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Inativos (+30 dias)</div>
-        <div class="stat-value" id="statInativos">0</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Criados hoje</div>
-        <div class="stat-value" id="statNovosHoje">0</div>
-      </div>
-    </div>
-
-    <div class="charts-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px;">
-      <div class="chart-card" style="margin-bottom:0;">
-        <h2 class="chart-title">Crescimento de usuários (Diário)</h2>
-        <div class="chart-wrap">
-          <canvas id="usersChart"></canvas>
+    <!-- Sidebar -->
+    <aside class="w-64 border-r border-white/5 bg-[#020617] flex flex-col z-50">
+        <div class="p-8 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i data-lucide="graduation-cap" class="text-white w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">PlenAula</span>
+            </div>
+            <div class="mt-2 ml-1 text-[10px] font-bold text-blue-500 tracking-[0.2em] uppercase opacity-70">Admin Intelligence</div>
         </div>
-      </div>
-      <div class="chart-card" style="margin-bottom:0;">
-        <h2 class="chart-title">Cadastros por Mês</h2>
-        <div class="chart-wrap">
-          <canvas id="monthlyChart"></canvas>
+
+        <nav class="flex-1 px-4 py-8 space-y-1 overflow-y-auto">
+            <a href="painel.html" class="sidebar-item active flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Dashboard
+            </a>
+            <a href="students.html" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                Alunos
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
+                <i data-lucide="book-open" class="w-5 h-5"></i>
+                Conteúdos
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                Simulados
+            </a>
+            <a href="financial.html" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
+                <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
+                Financeiro
+            </a>
+            <a href="ai-control.html" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
+                <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+                Inteligência AI
+            </a>
+            <div class="pt-6 pb-2 px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Suporte</div>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                Configurações
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-white/5 space-y-4">
+            <div class="flex items-center gap-3 px-2 py-2">
+                <div class="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">IB</div>
+                <div class="flex flex-col">
+                    <span class="text-xs font-semibold">Ismael Bagage</span>
+                    <span class="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Diretor Executivo</span>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
+    </aside>
 
-    <div class="toolbar">
-      <div class="search-wrap">
-        <input
-          type="text"
-          id="searchInput"
-          class="search-input"
-          placeholder="Buscar por e-mail, UID ou provedor..."
-        >
-      </div>
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col bg-[#020617] relative">
+        <!-- Abstract Background Effects -->
+        <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-      <div class="result-info" id="resultInfo">0 resultados</div>
-    </div>
+        <!-- Topbar -->
+        <header class="h-20 border-b border-white/5 flex items-center justify-between px-10 z-10 backdrop-blur-sm bg-background/50">
+            <div class="relative w-96">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                <input type="text" placeholder="Buscar alunos, simulados ou métricas... (Alt + K)" 
+                       class="w-full bg-white/5 border border-white/5 rounded-full py-2.5 pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-gray-600">
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <button class="relative text-gray-400 hover:text-white transition-colors">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full border-2 border-[#020617]"></span>
+                </button>
+                <div class="h-8 w-[1px] bg-white/5"></div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-xs font-medium text-blue-400">Plano Corporate</div>
+                        <div class="text-[10px] text-gray-500">Upgrade em 14 dias</div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>E-mail</th>
-            <th>UID</th>
-            <th>Provedores</th>
-            <th>Status</th>
-            <th>Criação</th>
-            <th>Último Login</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaUsuarios">
-          <tr>
-            <td colspan="7" class="empty-state">Carregando usuários...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    </div> <!-- END TAB USERS -->
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-10 space-y-10 z-10">
+            
+            <!-- Dashboard Header -->
+            <div class="flex justify-between items-end animate-fade-in">
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight mb-2">Visão Executiva</h1>
+                    <p class="text-gray-500 text-sm">Monitoramento em tempo real do ecossistema PlenAula.</p>
+                </div>
+                <div class="flex gap-3">
+                    <button class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> Relatório Completo
+                    </button>
+                    <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Novo Assinante
+                    </button>
+                </div>
+            </div>
 
-    <div id="tab-content" class="tab-pane">
-      <div class="header" style="margin-top: 10px;">
-        <h2 style="margin:0; font-size:22px;">Catálogo de Matérias</h2>
-        <button class="button button-refresh" id="btnNewSubject" onclick="openSubjectModal()">+ Nova Matéria</button>
-      </div>
-      <div class="content-grid" id="subjectsGrid">
-        <div class="empty-state">Carregando matérias...</div>
-      </div>
-    </div>
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in" style="animation-delay: 0.1s">
+                <div class="glass-panel p-6 rounded-3xl stat-card relative overflow-hidden group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <div class="text-xs font-bold text-emerald-500 flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i> +12%
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black mb-1">1,284</div>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Assinantes Ativos</div>
+                </div>
 
-  </div> <!-- END CONTAINER -->
+                <div class="glass-panel p-6 rounded-3xl stat-card relative overflow-hidden group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+                            <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+                        </div>
+                        <div class="text-xs font-bold text-emerald-500 flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i> +8.4%
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black mb-1">R$ 142.500</div>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">MRR Estimado</div>
+                </div>
 
-  <!-- Modal Matéria -->
-  <div class="modal-overlay" id="subjectModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h2 id="subjectModalTitle">Nova Matéria</h2>
-        <button class="modal-close" onclick="closeModal('subjectModal')">×</button>
-      </div>
-      <input type="hidden" id="subjectId">
-      <div class="form-group">
-        <label>Nome da Matéria</label>
-        <input type="text" id="subjectName" class="form-input" placeholder="Ex: Direito Penal">
-      </div>
-      <div class="form-group">
-        <label>Ícone (Phosphor Icons)</label>
-        <input type="text" id="subjectIcon" class="form-input" placeholder="Ex: ph-gavel">
-      </div>
-      <div class="form-group">
-        <label>Página de Resumo Textual (Nome do arquivo)</label>
-        <input type="text" id="subjectResumo" class="form-input" placeholder="Ex: direito-penal.html">
-      </div>
-      <div class="form-group">
-        <label>ID da Matéria (URL Friendly)</label>
-        <input type="text" id="subjectFriendlyId" class="form-input" placeholder="Ex: direito-penal">
-      </div>
-      <button class="button button-refresh" style="width:100%" onclick="saveSubject()">Salvar Matéria</button>
-    </div>
-  </div>
+                <div class="glass-panel p-6 rounded-3xl stat-card relative overflow-hidden group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+                            <i data-lucide="brain" class="w-6 h-6"></i>
+                        </div>
+                        <div class="text-xs font-bold text-gray-500 flex items-center gap-1">
+                            Estábil
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black mb-1">94.2%</div>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Retenção (WAU)</div>
+                </div>
 
-  <!-- Modal Mídia -->
-  <div class="modal-overlay" id="mediaModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h2 id="mediaModalTitle">Adicionar Mídia</h2>
-        <button class="modal-close" onclick="closeModal('mediaModal')">×</button>
-      </div>
-      <div class="form-group">
-        <label>Tipo de Mídia</label>
-        <select id="mediaTypeSelect" class="form-select">
-          <option value="videos">Vídeo</option>
-          <option value="audios">Áudio</option>
-          <option value="slides">PDF (Slide)</option>
-        </select>
-      </div>
-      <input type="hidden" id="mediaSubjectId">
-      <input type="hidden" id="mediaIndex"> <!-- if editing -->
-      
-      <div class="form-group">
-        <label>Título da Aula</label>
-        <input type="text" id="mediaTitle" class="form-input" placeholder="Ex: Aula 01 - Introdução">
-      </div>
-      <div class="form-group" id="mediaUrlGroup">
-        <label id="mediaUrlLabel">URL / Link</label>
-        <input type="text" id="mediaUrl" class="form-input" placeholder="...">
-      </div>
-      <div class="form-group">
-        <label>Duração (Texto exibido)</label>
-        <input type="text" id="mediaDur" class="form-input" placeholder="Ex: 45 min ou Vídeo">
-      </div>
-      <button class="button button-refresh" style="width:100%" onclick="saveMedia()">Salvar Mídia</button>
-    </div>
-  </div>
+                <div class="glass-panel p-6 rounded-3xl stat-card relative overflow-hidden group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
+                            <i data-lucide="zap" class="w-6 h-6"></i>
+                        </div>
+                        <div class="text-xs font-bold text-orange-500 flex items-center gap-1">
+                            <i data-lucide="flame" class="w-3 h-3"></i> Alta
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black mb-1">6,420</div>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Tokens IA Mensais</div>
+                </div>
+            </div>
 
-  <script>
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      
-      if(tabId === 'users') {
-        document.getElementById('tabBtnUsers').classList.add('active');
-        document.getElementById('tab-users').classList.add('active');
-      } else {
-        document.getElementById('tabBtnContent').classList.add('active');
-        document.getElementById('tab-content').classList.add('active');
-      }
-    }
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-  </script>
-  <script type="module" src="./admin.js"></script>
+            <!-- Main Analytics Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style="animation-delay: 0.2s">
+                <!-- Revenue Chart -->
+                <div class="lg:col-span-2 glass-panel p-8 rounded-[32px] min-h-[400px] flex flex-col">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h3 class="text-lg font-bold">Crescimento de Receita</h3>
+                            <p class="text-gray-500 text-xs text-muted">Projeção semestral de MRR e LTV.</p>
+                        </div>
+                        <div class="flex bg-white/5 p-1 rounded-lg border border-white/5">
+                            <button class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white bg-blue-600 rounded-md">6 Meses</button>
+                            <button class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">12 Meses</button>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="glass-panel p-8 rounded-[32px] flex flex-col">
+                    <h3 class="text-lg font-bold mb-6">Atividade Recente</h3>
+                    <div class="space-y-6 flex-1 overflow-y-auto pr-2">
+                        
+                        <div class="flex gap-4 items-start relative pb-6 border-l border-white/5 ml-3">
+                            <div class="absolute -left-[9px] top-1 w-4 h-4 bg-blue-500/20 border-2 border-blue-500 rounded-full"></div>
+                            <div class="flex flex-col gap-1 ml-4">
+                                <span class="text-sm font-semibold">Novo Assinante Elite</span>
+                                <span class="text-xs text-gray-500">Ismael Silva assinou o plano semestral</span>
+                                <span class="text-[10px] text-blue-500 font-bold uppercase">Há 2 minutos</span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 items-start relative pb-6 border-l border-white/5 ml-3">
+                            <div class="absolute -left-[5px] top-1 w-2.5 h-2.5 bg-gray-600 border border-gray-700 rounded-full"></div>
+                            <div class="flex flex-col gap-1 ml-4">
+                                <span class="text-sm font-semibold">Simulado Concluído</span>
+                                <span class="text-xs text-gray-500">Média geral da plataforma subiu 0.4%</span>
+                                <span class="text-[10px] text-gray-500 font-bold uppercase">Há 45 minutos</span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 items-start relative pb-6 border-l border-white/5 ml-3">
+                            <div class="absolute -left-[9px] top-1 w-4 h-4 bg-orange-500/20 border-2 border-orange-500 rounded-full"></div>
+                            <div class="flex flex-col gap-1 ml-4">
+                                <span class="text-sm font-semibold">Pico de Uso IA</span>
+                                <span class="text-xs text-gray-500">Módulo "Direito Penal" atingiu 500 req/min</span>
+                                <span class="text-[10px] text-orange-500 font-bold uppercase">Há 1 hora</span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 items-start relative ml-3">
+                            <div class="absolute -left-[5px] top-1 w-2.5 h-2.5 bg-gray-600 border border-gray-700 rounded-full"></div>
+                            <div class="flex flex-col gap-1 ml-4">
+                                <span class="text-sm font-semibold">Backup de Sistema</span>
+                                <span class="text-xs text-gray-500">Snapshot diário processado em 14ms</span>
+                                <span class="text-[10px] text-gray-500 font-bold uppercase">Há 3 horas</span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <button class="mt-6 w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold uppercase tracking-widest transition-all">Ver todos os logs</button>
+                </div>
+            </div>
+
+            <!-- Heatmap / Activity Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in" style="animation-delay: 0.3s">
+                 <div class="glass-panel p-8 rounded-[32px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold">Frequência de Estudos</h3>
+                        <span class="text-xs text-gray-500 italic">Média global dos últimos 30 dias</span>
+                    </div>
+                    <div class="grid grid-cols-7 gap-2">
+                        <!-- Pseudo Heatmap -->
+                        <script>
+                            for(let i=0; i<35; i++){
+                                const level = Math.floor(Math.random()*4);
+                                const opacity = level === 0 ? 'bg-white/5' : level === 1 ? 'bg-blue-900/30' : level === 2 ? 'bg-blue-700/50' : 'bg-blue-500';
+                                document.write(`<div class="${opacity} h-4 rounded-sm transition-all hover:ring-2 hover:ring-white/20"></div>`);
+                            }
+                        </script>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                        <span>Menos Atividade</span>
+                        <div class="flex gap-1">
+                            <div class="w-2.5 h-2.5 rounded-sm bg-white/5"></div>
+                            <div class="w-2.5 h-2.5 rounded-sm bg-blue-900/30"></div>
+                            <div class="w-2.5 h-2.5 rounded-sm bg-blue-700/50"></div>
+                            <div class="w-2.5 h-2.5 rounded-sm bg-blue-500"></div>
+                        </div>
+                        <span>Mais Atividade</span>
+                    </div>
+                 </div>
+
+                 <div class="glass-panel p-8 rounded-[32px] flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold mb-1">Status de Retenção</h3>
+                        <p class="text-gray-500 text-xs mb-4">Probabilidade de Churn nos próximos 30 dias.</p>
+                        <div class="flex items-end gap-3">
+                            <span class="text-4xl font-black text-emerald-500">4.1%</span>
+                            <span class="text-xs text-emerald-600 font-bold mb-1">-1.2% que o mês passado</span>
+                        </div>
+                    </div>
+                    <div class="w-32 h-32 relative">
+                        <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
+                            <path class="text-white/5" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="text-emerald-500" stroke-width="3" stroke-dasharray="90, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center font-black text-lg">90%</div>
+                    </div>
+                 </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Init Lucide
+        lucide.createIcons();
+
+        // Revenue Chart Logic
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Receita Mensal (R$)',
+                    data: [85000, 92000, 105000, 118000, 134000, 142500],
+                    borderColor: '#3b82f6',
+                    borderWidth: 4,
+                    pointBackgroundColor: '#020617',
+                    pointBorderColor: '#3b82f6',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: (context) => {
+                        const chart = context.chart;
+                        const {ctx, chartArea} = chart;
+                        if (!chartArea) return null;
+                        const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+                        gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                        return gradient;
+                    }
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+                        ticks: { color: '#64748b', font: { size: 10, weight: '600' }, callback: (v) => 'R$ ' + v/1000 + 'k' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { size: 10, weight: '600' } }
+                    }
+                },
+                hover: { mode: 'index', intersect: false }
+            }
+        });
+    </script>
 </body>
 </html>
