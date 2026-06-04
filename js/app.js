@@ -1016,9 +1016,11 @@ function saveToSimuladoHistory(score, total) {
     
     let displayTitle = "Simulado Geral";
     if (isGrandeDia) {
-      displayTitle = "Simulado O Grande Dia";
+      displayTitle = "Simulado Completo";
     } else if (selectedTopic !== "Todos" && selectedTopic !== "Geral") {
-      displayTitle = `Simulado: ${selectedTopic}`;
+      displayTitle = selectedTopic;
+    } else {
+      displayTitle = "Simulado Rápido (Geral)";
     }
 
     const newEntry = {
@@ -1067,7 +1069,7 @@ window.renderSimuladoHistory = function() {
       <div class="history-item-card">
         <div class="history-item-top">
           <div class="history-item-title-group">
-            <h3>${item.title}</h3>
+            <h3>${(item.title === 'Simulado Disciplina' || item.title === 'Simulado Geral' || item.title === 'Simulado Diciplina') ? (item.topic === 'Todos' ? 'Simulado Geral' : (item.topic || item.title)) : item.title}</h3>
             <div class="history-item-meta">${questionsText}</div>
           </div>
           <div class="status-badge ${statusClass}">${statusText}</div>
