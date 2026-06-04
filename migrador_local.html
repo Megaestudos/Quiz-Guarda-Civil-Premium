@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migrador Local PlenAula - Upload de CSV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <!-- PapaParse para CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #070A0F; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: #121926; padding: 40px; border-radius: 24px; border: 1px solid #1e293b; max-width: 700px; width: 100%; text-align: center; }
+        h1 { font-size: 28px; font-weight: 900; margin-bottom: 20px; color: #3B82F6; }
+        .drop-zone { border: 2px dashed #3B82F6; padding: 40px; border-radius: 16px; background: rgba(59, 130, 246, 0.05); cursor: pointer; transition: 0.2s; margin-bottom: 20px; }
+        .drop-zone:hover { background: rgba(59, 130, 246, 0.1); border-color: #60A5FA; }
+        .drop-zone p { margin: 0; color: #94A3B8; font-size: 16px; }
+        select { background: #1E293B; color: white; border: 1px solid #334155; padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 20px; font-size: 15px; }
+        .btn { background: #3B82F6; color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; font-size: 16px; transition: 0.2s; }
+        .btn:hover { background: #2563EB; transform: translateY(-2px); }
+        .btn:disabled { background: #334155; cursor: not-allowed; transform: none; }
+        #log { margin-top: 25px; background: #000; padding: 20px; border-radius: 14px; font-family: monospace; font-size: 12px; text-align: left; height: 300px; overflow-y: auto; border: 1px solid #1e293b; color: #10B981; line-height: 1.6; }
+        .success { color: #10B981; font-weight: bold; }
+        .error { color: #EF4444; font-weight: bold; }
+        .info { color: #38BDF8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Migrador Local PlenAula</h1>
+        <p style="color: #94A3B8; margin-bottom: 20px;">Baixe as abas da sua planilha como <b>.CSV</b> e arraste para cá.</p>
+
+        <label style="display:block; text-align:left; font-size:13px; font-weight:bold; margin-bottom:8px; color:#3B82F6;">1. Escolha o tipo de dado:</label>
+        <select id="dataType">
+            <option value="questoes">Aba de Questões (ID, Matéria, Pergunta...)</option>
+            <option value="materias">Aba de Matérias (id, nome, ativo, ordem)</option>
+            <option value="flashcards">Aba de Cartões (ID, MATÉRIA, PERGUNTA...)</option>
+        </select>
+
+        <div class="drop-zone" id="dropZone">
+            <p id="fileName">Arraste o arquivo CSV aqui ou clique para selecionar</p>
+            <input type="file" id="fileInput" accept=".csv" style="display:none">
+        </div>
+
+        <button id="startBtn" class="btn" disabled>IMPORTAR PARA O FIREBASE</button>
+        
+        <div id="log">Aguardando arquivo...</div>
+    </div>
+
+    <script src="./js/auth.js"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const startBtn = document.getElementById('startBtn');
+        const logEl = document.getElementById('log');
+        const dataType = document.getElementById('dataType');
+        let selectedFile = null;
+
+        function log(msg, type = '') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `> ${msg}`;
+            logEl.appendChild(div);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => {
+            selectedFile = e.target.files[0];
+            if (selectedFile) {
+                fileName.innerHTML = `<b>Arquivo selecionado:</b> ${selectedFile.name}`;
+                startBtn.disabled = false;
+                log('Arquivo pronto para importação.', 'info');
+            }
+        };
+
+        startBtn.onclick = () => {
+            if (!selectedFile) return;
+            startBtn.disabled = true;
+            startBtn.innerText = 'IMPORTANDO...';
+            log(`Iniciando leitura do CSV (${dataType.value})...`, 'info');
+
+            Papa.parse(selectedFile, {
+                header: true,
+                skipEmptyLines: true,
+                complete: async (results) => {
+                    const data = results.data;
+                    const db = firebase.firestore();
+                    log(`Detectadas ${data.length} linhas.`);
+
+                    try {
+                        for (let i = 0; i < data.length; i++) {
+                            const row = data[i];
+                            const type = dataType.value;
+
+                            if (type === 'questoes') {
+                                const id = row['ID'] || row['id'] || `CARD_${i}`;
+                                await db.collection('questoes').doc(id.trim().toUpperCase()).set({
+                                    A: row['A'] || '',
+                                    B: row['B'] || '',
+                                    C: row['C'] || '',
+                                    D: row['D'] || '',
+                                    ativo: (row['Ativo'] == 'S' || row['Ativo'] == 'TRUE' || row['Ativo'] == 'true' || row['Ativo'] == '1'),
+                                    explicacao: row['Explicação'] || row['Explicacao'] || '',
+                                    materia: row['Matéria'] || row['Materia'] || 'Gerais',
+                                    ordem: parseInt(row['Ordem']) || 0,
+                                    pergunta: row['Pergunta'] || '',
+                                    resposta: (row['Resposta'] || 'A').toString().trim().toUpperCase().charAt(0)
+                                });
+                            } 
+                            else if (type === 'materias') {
+                                const id = row['id'] || row['ID'] || `MAT_${i}`;
+                                await db.collection('materias').doc(id.trim().toUpperCase()).set({
+                                    nome: row['nome'] || row['Nome'] || 'Sem Nome',
+                                    ativo: (row['ativo'] == 'S' || row['ativo'] == 'TRUE' || row['ativo'] == '1'),
+                                    ordem: parseInt(row['ordem']) || 0
+                                });
+                            }
+                            else if (type === 'flashcards') {
+                                const id = row['ID'] || row['id'] || `FLASH_${i}`;
+                                await db.collection('flashcards').doc(id.trim().toUpperCase()).set({
+                                    materia: row['MATÉRIA'] || row['Matéria'] || row['Materia'] || 'Gerais',
+                                    pergunta: row['PERGUNTA'] || row['Pergunta'] || '',
+                                    resposta: row['RESPOSTA'] || row['Resposta'] || '',
+                                    ativo: true
+                                });
+                            }
+
+                            if (i % 10 === 0) log(`Progresso: ${i}/${data.length}...`);
+                        }
+                        log('IMPORTAÇÃO CONCLUÍDA COM SUCESSO!', 'success');
+                    } catch (err) {
+                        log(`ERRO AO SALVAR: ${err.message}`, 'error');
+                        console.error(err);
+                    } finally {
+                        startBtn.innerText = 'IMPORTAÇÃO FINALIZADA';
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>

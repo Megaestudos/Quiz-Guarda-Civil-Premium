@@ -192,21 +192,79 @@
         <div class="quiz-shell">
           <!-- Setup do Simulado -->
           <div id="quizSetup" class="quiz-setup">
-            <div class="page-header-actions">
-              <div class="topic-selector">
-                <label for="topicSelect"><i class="ph ph-funnel" style="color: var(--primary);"></i> Escolha o Tópico</label>
-                <select id="topicSelect"></select>
+            <!-- VIEW 1: Seleção de Modo (Nova) -->
+            <div id="simuladosDashboard" class="simulados-page-content">
+              <div class="simulados-header-wrap">
+                <h1>Simulados</h1>
+                <p>Pratique e teste seus conhecimentos</p>
               </div>
-              <button class="btn btn-primary btn-start" id="loadTopicBtn">
-                <i class="ph-fill ph-play-circle"></i> Iniciar Padrão
-              </button>
-              <button class="btn btn-secondary btn-start btn-grande-dia" id="btnGrandeDia" onclick="startGrandeDia()">
-                <i class="ph-fill ph-siren"></i> Simuladão "O Grande Dia" (60Q)
-              </button>
+
+              <div class="quick-actions-grid">
+                <div class="action-card rapid" onclick="showClassicTopicSelection()">
+                  <div class="card-top">
+                    <img src="./assets/3d_rocket.png" class="card-icon-3d" alt="Rocket 3D" />
+                    <div class="card-info-wrap">
+                      <span class="card-title-main">Simulado Rápido</span>
+                      <span class="card-subtitle-main">30 questões</span>
+                    </div>
+                  </div>
+                  <div class="card-bottom-icon-wrap">
+                    <i class="ph ph-clock"></i>
+                  </div>
+                </div>
+
+                <div class="action-card complete" onclick="startGrandeDia()">
+                  <div class="card-top">
+                    <div class="card-icon-3d-placeholder trophy-3d">
+                        <i class="ph ph-trophy"></i>
+                    </div>
+                    <div class="card-info-wrap">
+                      <span class="card-title-main">Simulado Completo</span>
+                      <span class="card-subtitle-main">100 questões</span>
+                    </div>
+                  </div>
+                  <div class="card-bottom-icon-wrap">
+                    <i class="ph ph-trophy card-bottom-icon"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div class="history-section">
+                <div class="history-header">
+                  <h2>Meus simulados</h2>
+                  <a href="#" class="view-all-link">Ver todos <i class="ph ph-caret-right"></i></a>
+                </div>
+                <div id="simuladoHistoryList" class="history-list">
+                  <!-- Renderizado via JS -->
+                  <div style="text-align:center; padding:40px; color:var(--text-muted);">
+                    <i class="ph ph-brain" style="font-size:32px; margin-bottom:10px;"></i>
+                    <p>Suas atividades aparecerão aqui.</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="empty-state" style="margin-top:30px;">
-              <i class="ph ph-target"></i>
-              <p id="motivationalText">O Modo Foco ocultará as barras ativando a tela cheia para evitar distrações.</p>
+
+            <!-- VIEW 2: Escolha de Matéria (Clássica) -->
+            <div id="classicTopicSelection" class="simulados-page-content" style="display: none;">
+              <div class="page-top-bar">
+                <button class="btn-sm" onclick="backToSimuladosDashboard()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
+                <h3 class="page-title"><i class="ph ph-rocket-launch"></i> Simulado Rápido</h3>
+              </div>
+              
+              <div class="page-header-actions">
+                <div class="topic-selector">
+                  <label for="topicSelect"><i class="ph ph-funnel" style="color: var(--primary);"></i> Escolha o Tópico</label>
+                  <select id="topicSelect"></select>
+                </div>
+                <button class="btn btn-primary btn-start" style="margin-top:20px; padding:20px; border-radius:16px;" onclick="startRapidClassic()">
+                  <i class="ph-fill ph-play-circle"></i> Iniciar Simulado
+                </button>
+              </div>
+
+              <div class="empty-state" style="margin-top:30px; text-align:center;">
+                <i class="ph ph-target" style="font-size:32px; color:var(--primary);"></i>
+                <p id="motivationalText" style="margin-top:10px; color:var(--text-muted); font-size:14px;"></p>
+              </div>
             </div>
           </div>
 

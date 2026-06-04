@@ -1,5 +1,4 @@
-
-const TEMPLATE_QUIZ_SIZE = 20;
+const TEMPLATE_QUIZ_SIZE = 30;
 let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
 let isGrandeDia = false; let grandeDiaInterval = null;
 const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
@@ -509,6 +508,10 @@ async function showTopicSelection(){
       console.error("Erro ao carregar tópicos:", err);
       select.innerHTML = '<option value="Todos">Todas as Matérias (Erro ao Carregar)</option>';
     }
+
+    // Renderiza o histórico na nova UI
+    renderSimuladoHistory();
+
   } catch (e) {}
 }
 
@@ -546,7 +549,6 @@ async function loadTopicQuestions(topic){
     POOL = []; currentIndex = 0; score = 0; quizStarted = true; renderQuestion();
   }
 }
-document.getElementById('loadTopicBtn').onclick = () => loadTopicQuestions(document.getElementById('topicSelect').value);
 
 function renderQuestion(){
   if (currentIndex >= POOL.length) { finishQuiz(); return; }
@@ -656,6 +658,13 @@ window.quitQuiz = function(){
   document.getElementById('btnQuit').style.display = 'block';
   document.getElementById('quizSetup').style.display = 'block';
   document.getElementById('quizActive').style.display = 'none';
+  
+  // Reseta para o dashboard de simulados
+  if(document.getElementById('simuladosDashboard')) {
+      document.getElementById('simuladosDashboard').style.display = 'flex';
+      document.getElementById('classicTopicSelection').style.display = 'none';
+  }
+  
   showTopicSelection();
 }
 
@@ -674,6 +683,10 @@ function finishQuiz(){
   document.getElementById('opts').innerHTML = '';
   document.getElementById('btnRestart').style.display = 'block';
   document.getElementById('btnQuit').style.display = 'none';
+  
+  // Salva no histórico para a nova UI
+  saveToSimuladoHistory(score, POOL.length);
+
   saveRecord(score, POOL.length);
   checkBadges(score, POOL.length);
 }
@@ -858,7 +871,7 @@ window.startGrandeDia = async function() {
     snap.forEach(doc => allQ.push({ id: doc.id, ...doc.data() }));
     // Sorteio
     for(let i=allQ.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); [allQ[i],allQ[j]]=[allQ[j],allQ[i]]; }
-    POOL = allQ.slice(0, 60); // 60 Questões
+    POOL = allQ.slice(0, 100); // ATUALIZADO: 100 Questões
     
     currentIndex = 0; score = 0; quizStarted = true; isGrandeDia = true;
     startTimer(3 * 60 * 60); // 3 horas em segundos
@@ -919,7 +932,7 @@ function checkBadges(scoreVal, totalVal) {
   if (xp >= 3000) addBadge('mestre');
   
   // Condição para badge O Grande Dia (+80% acertos)
-  if (isGrandeDia && totalVal >= 60 && (scoreVal / totalVal) >= 0.8) {
+  if (isGrandeDia && totalVal >= 100 && (scoreVal / totalVal) >= 0.8) {
     addBadge('grande_dia');
   }
   
@@ -977,6 +990,102 @@ window.renderStatsChart = function() {
     `;
   });
 }
+
+/* --- NOVAS FUNCIONALIDADES: SIMULADOS PREMIUM UI --- */
+
+window.showClassicTopicSelection = function() {
+  document.getElementById('simuladosDashboard').style.display = 'none';
+  document.getElementById('classicTopicSelection').style.display = 'flex';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.backToSimuladosDashboard = function() {
+  document.getElementById('simuladosDashboard').style.display = 'flex';
+  document.getElementById('classicTopicSelection').style.display = 'none';
+};
+
+window.startRapidClassic = function() {
+  const topic = document.getElementById('topicSelect').value;
+  loadTopicQuestions(topic);
+};
+
+function saveToSimuladoHistory(score, total) {
+  try {
+    const history = JSON.parse(localStorage.getItem('quiz_detailed_history') || '[]');
+    const newEntry = {
+      id: Date.now(),
+      title: isGrandeDia ? "Simulado O Grande Dia" : "Simulado Disciplina",
+      topic: document.getElementById('topicSelect').value || "Geral",
+      score: score,
+      total: total,
+      pct: Math.round((score / total) * 100),
+      date: new Date().toLocaleDateString('pt-BR'),
+      timestamp: Date.now(),
+      isGrandeDia: isGrandeDia
+    };
+    
+    // Adiciona ao topo e limita a 10 registros
+    history.unshift(newEntry);
+    localStorage.setItem('quiz_detailed_history', JSON.stringify(history.slice(0, 10)));
+  } catch(e) {}
+}
+
+window.renderSimuladoHistory = function() {
+  const container = document.getElementById('simuladoHistoryList');
+  if (!container) return;
+  
+  const history = JSON.parse(localStorage.getItem('quiz_detailed_history') || '[]');
+  
+  if (history.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:40px; color:var(--text-muted);">
+        <i class="ph ph-brain" style="font-size:32px; margin-bottom:10px;"></i>
+        <p>Suas atividades aparecerão aqui.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = '';
+  // Mostra apenas os 3 últimos no dashboard
+  history.slice(0, 3).forEach(item => {
+    const questionsText = item.isGrandeDia ? "100 questões • 180 min" : `${item.total} questões • ${item.total * 1.5} min`;
+    const colorClass = item.pct >= 70 ? 'blue' : 'orange';
+    const statusText = item.pct >= 70 ? 'Concluído' : 'Em andamento';
+    const statusClass = item.pct >= 70 ? 'concluded' : 'ongoing';
+
+    container.innerHTML += `
+      <div class="history-item-card">
+        <div class="history-item-top">
+          <div class="history-item-title-group">
+            <h3>${item.title}</h3>
+            <div class="history-item-meta">${questionsText}</div>
+          </div>
+          <div class="status-badge ${statusClass}">${statusText}</div>
+        </div>
+        
+        <div class="history-stats-grid">
+          <div class="stat-item-premium">
+            <span class="stat-item-label">Nota</span>
+            <span class="stat-item-value">${item.pct}%</span>
+          </div>
+          <div class="stat-item-premium" style="text-align: right;">
+            <span class="stat-item-label">Acertos</span>
+            <span class="stat-item-value">${item.score}/${item.total}</span>
+          </div>
+        </div>
+        
+        <div class="premium-progress-track">
+          <div class="premium-progress-bar ${colorClass}" style="width: ${item.pct}%"></div>
+        </div>
+        
+        <div class="history-item-footer">
+          <i class="ph ph-calendar"></i> Realizado em ${item.date}
+        </div>
+      </div>
+    `;
+  });
+};
 
 showBestRecord();
 checkStreak();
