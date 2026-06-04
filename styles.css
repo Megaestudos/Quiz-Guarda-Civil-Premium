@@ -1518,6 +1518,7 @@ audio {
     object-fit: contain;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
     animation: float 3s ease-in-out infinite;
+    mix-blend-mode: multiply;
 }
 
 .card-icon-3d-placeholder {

@@ -1012,10 +1012,19 @@ window.startRapidClassic = function() {
 function saveToSimuladoHistory(score, total) {
   try {
     const history = JSON.parse(localStorage.getItem('quiz_detailed_history') || '[]');
+    const selectedTopic = document.getElementById('topicSelect').value || "Geral";
+    
+    let displayTitle = "Simulado Geral";
+    if (isGrandeDia) {
+      displayTitle = "Simulado O Grande Dia";
+    } else if (selectedTopic !== "Todos" && selectedTopic !== "Geral") {
+      displayTitle = `Simulado: ${selectedTopic}`;
+    }
+
     const newEntry = {
       id: Date.now(),
-      title: isGrandeDia ? "Simulado O Grande Dia" : "Simulado Disciplina",
-      topic: document.getElementById('topicSelect').value || "Geral",
+      title: displayTitle,
+      topic: selectedTopic,
       score: score,
       total: total,
       pct: Math.round((score / total) * 100),
