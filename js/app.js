@@ -1,5 +1,6 @@
 const TEMPLATE_QUIZ_SIZE = 30;
 let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
+let simulationStartTime = null;
 let isGrandeDia = false; let grandeDiaInterval = null;
 const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
 const XP_KEY = 'quiz_xp'; const STREAK_KEY = 'quiz_streak'; const LAST_DATE_KEY = 'quiz_last_date';
@@ -524,6 +525,8 @@ async function loadTopicQuestions(topic){
   document.body.classList.add('quiz-focus');
   document.getElementById('question').innerHTML = '<div class="empty-state"><i class="ph ph-spinner-gap ph-spin"></i><p>Preparando...</p></div>';
   
+  simulationStartTime = Date.now();
+
   try {
     let ref = getFirestoreDb().collection('questoes').where('ativo', '==', true);
     if (topic && topic !== 'Todos') ref = ref.where('materia', '==', topic);
@@ -685,7 +688,8 @@ function finishQuiz(){
   document.getElementById('btnQuit').style.display = 'none';
   
   // Salva no histórico para a nova UI
-  saveToSimuladoHistory(score, POOL.length);
+  const timeOnSeconds = simulationStartTime ? Math.floor((Date.now() - simulationStartTime) / 1000) : 0;
+  saveToSimuladoHistory(score, POOL.length, timeOnSeconds);
 
   saveRecord(score, POOL.length);
   checkBadges(score, POOL.length);
@@ -865,6 +869,8 @@ window.startGrandeDia = async function() {
   document.body.classList.add('quiz-focus');
   document.getElementById('question').innerHTML = '<div class="empty-state"><i class="ph ph-spinner-gap ph-spin"></i><p>Preparando O Grande Dia...</p></div>';
   
+  simulationStartTime = Date.now();
+
   try {
     const snap = await getFirestoreDb().collection('questoes').where('ativo', '==', true).get();
     let allQ = [];
@@ -1009,7 +1015,7 @@ window.startRapidClassic = function() {
   loadTopicQuestions(topic);
 };
 
-function saveToSimuladoHistory(score, total) {
+function saveToSimuladoHistory(score, total, timeOnSeconds) {
   try {
     const history = JSON.parse(localStorage.getItem('quiz_detailed_history') || '[]');
     const selectedTopic = document.getElementById('topicSelect').value || "Geral";
@@ -1032,13 +1038,27 @@ function saveToSimuladoHistory(score, total) {
       pct: Math.round((score / total) * 100),
       date: new Date().toLocaleDateString('pt-BR'),
       timestamp: Date.now(),
-      isGrandeDia: isGrandeDia
+      isGrandeDia: isGrandeDia,
+      timeSpent: timeOnSeconds || 0
     };
     
     // Adiciona ao topo e limita a 10 registros
     history.unshift(newEntry);
     localStorage.setItem('quiz_detailed_history', JSON.stringify(history.slice(0, 10)));
   } catch(e) {}
+}
+
+function formatTime(seconds) {
+  if (!seconds) return "";
+  if (seconds < 60) return `${seconds} seg`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) {
+      const secs = seconds % 60;
+      return secs > 0 ? `${minutes}m ${secs}s` : `${minutes} min`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
 }
 
 window.renderSimuladoHistory = function() {
@@ -1060,7 +1080,15 @@ window.renderSimuladoHistory = function() {
   container.innerHTML = '';
   // Mostra apenas os 3 últimos no dashboard
   history.slice(0, 3).forEach(item => {
-    const questionsText = item.isGrandeDia ? "100 questões • 180 min" : `${item.total} questões • ${item.total * 1.5} min`;
+    // Se tiver tempo real, usa ele. Caso contrário usa a estimativa antiga como fallback
+    let timeSpentText = "";
+    if (item.timeSpent) {
+      timeSpentText = formatTime(item.timeSpent);
+    } else {
+      timeSpentText = item.isGrandeDia ? "180 min" : `${item.total * 1.5} min`;
+    }
+
+    const questionsText = `${item.total} questões • ${timeSpentText}`;
     const colorClass = item.pct >= 70 ? 'blue' : 'orange';
     const statusText = item.pct >= 70 ? 'Concluído' : 'Em andamento';
     const statusClass = item.pct >= 70 ? 'concluded' : 'ongoing';
