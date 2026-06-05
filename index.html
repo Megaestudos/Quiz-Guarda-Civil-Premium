@@ -107,10 +107,13 @@
 
     .btn-saas-primary {
       width: 100%; padding: 16px; border-radius: 16px; border: none;
-      background: var(--saas-primary); color: white; font-weight: 700; font-size: 16px;
+      background: #2563EB; /* Fallback */
+      background: var(--saas-primary); color: #FFFFFF !important; font-weight: 700; font-size: 16px;
       cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       position: relative; overflow: hidden; box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+      opacity: 1 !important; visibility: visible !important;
+      display: flex !important;
     }
     .btn-saas-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.5); }
     .btn-saas-primary:active { transform: translateY(0) scale(0.98); }
@@ -194,7 +197,7 @@
         <div id="loginMessage" class="saas-success"></div>
 
         <button class="btn-saas-primary" id="loginBtn" onclick="handleLoginSubmit()">
-          Entrar no Painel <i class="ph ph-arrow-right"></i>
+          Acessar Plataforma <i class="ph ph-arrow-right"></i>
         </button>
 
         <footer class="saas-footer">
@@ -223,6 +226,7 @@
           <div class="input-wrapper">
             <i class="ph ph-lock-simple"></i>
             <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres">
+            <button class="btn-eye" type="button" onclick="togglePassword('regPassword')"><i class="ph ph-eye"></i></button>
           </div>
         </div>
 
@@ -359,7 +363,17 @@
       gsap.from('.view-pane.active', { y: 10, opacity: 0, duration: 0.4 });
     }
     function togglePassword(id) {
-      const el = document.getElementById(id); el.type = el.type === 'password' ? 'text' : 'password';
+      const el = document.getElementById(id);
+      const btn = el.closest('.input-wrapper').querySelector('.btn-eye i');
+      if (el.type === 'password') {
+        el.type = 'text';
+        btn.classList.remove('ph-eye');
+        btn.classList.add('ph-eye-slash');
+      } else {
+        el.type = 'password';
+        btn.classList.remove('ph-eye-slash');
+        btn.classList.add('ph-eye');
+      }
     }
 
     /* AUTH HANDLERS */
@@ -373,7 +387,7 @@
       btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> Entrando...';
       btn.disabled = true;
       try { await loginWithEmail(email, pass); } 
-      catch (e) { err.innerText = e.message; err.style.display='block'; btn.innerHTML = 'Entrar no Painel <i class="ph ph-arrow-right"></i>'; btn.disabled = false; }
+      catch (e) { err.innerText = e.message; err.style.display='block'; btn.innerHTML = 'Acessar Plataforma <i class="ph ph-arrow-right"></i>'; btn.disabled = false; }
     }
 
     async function handleRegisterSubmit() {
@@ -412,7 +426,7 @@
         .from('.saas-logo', { scale: 0.9, opacity: 0, duration: 0.8 }, "-=0.6")
         .from('.saas-subtitle', { opacity: 0, y: 10, duration: 0.5 }, "-=0.4")
         .from('.form-group', { opacity: 0, y: 20, stagger: 0.1, duration: 0.8 }, "-=0.4")
-        .from('.btn-saas-primary', { opacity: 0, y: 20, duration: 0.8 }, "-=0.4");
+        .from('.btn-saas-primary', { y: 20, duration: 0.8 }, "-=0.4");
     };
   </script>
 </body>
