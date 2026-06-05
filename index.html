@@ -136,8 +136,23 @@
     @keyframes dotPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.5); opacity: 0.3; } }
 
     @media (max-width: 480px) {
-      .saas-card { padding: 32px 24px; border-radius: 0; height: 100vh; max-width: none; border: none; }
-      .saas-container { padding: 0; }
+      .saas-card { 
+        padding: 40px 24px; 
+        border-radius: 24px; 
+        width: 92%; 
+        max-width: 360px; 
+        background: rgba(30, 41, 59, 0.4); /* Mais transparente no mobile */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      }
+      .saas-container { 
+        padding: 20px 0; 
+        overflow-y: auto;
+        align-items: flex-start;
+      }
+      .saas-header { margin-bottom: 24px; }
+      .saas-logo { height: 48px; }
+      .saas-subtitle { font-size: 13px; }
     }
   </style>
 </head>
@@ -272,11 +287,11 @@
       reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 1;
-        this.speedX = (Math.random() - 0.5) * 0.4;
-        this.speedY = (Math.random() - 0.5) * 0.4;
+        this.size = Math.random() * (window.innerWidth < 480 ? 3 : 2) + 1; // Maiores no mobile para visibilidade
+        this.speedX = (Math.random() - 0.5) * (window.innerWidth < 480 ? 0.8 : 0.4); // Mais rápidos no mobile
+        this.speedY = (Math.random() - 0.5) * (window.innerWidth < 480 ? 0.8 : 0.4);
         this.color = Math.random() > 0.5 ? '#38BDF8' : '#2563EB';
-        this.opacity = Math.random() * 0.3 + 0.1;
+        this.opacity = Math.random() * 0.4 + 0.2;
       }
       update() {
         this.x += this.speedX;
@@ -312,13 +327,19 @@
       animate();
     }
 
-    window.addEventListener('mousemove', e => {
-      mouse.x = e.x; mouse.y = e.y;
-      const card = document.getElementById('mainCard');
-      const x = (window.innerWidth / 2 - e.pageX) / 50;
-      const y = (window.innerHeight / 2 - e.pageY) / 50;
-      gsap.to(card, { rotationY: x, rotationX: -y, duration: 1, ease: 'power2.out' });
-    });
+    function handleMove(e) {
+        const xPos = e.touches ? e.touches[0].pageX : e.pageX;
+        const yPos = e.touches ? e.touches[0].pageY : e.pageY;
+        mouse.x = xPos; mouse.y = yPos;
+        
+        const card = document.getElementById('mainCard');
+        const xAmt = (window.innerWidth / 2 - xPos) / 40;
+        const yAmt = (window.innerHeight / 2 - yPos) / 40;
+        gsap.to(card, { rotationY: xAmt, rotationX: -yAmt, duration: 1, ease: 'power2.out' });
+    }
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('touchmove', handleMove, { passive: false });
 
     /* WORKFLOWS */
     let isLoginMode = true;
