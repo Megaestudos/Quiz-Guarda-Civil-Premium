@@ -28,10 +28,10 @@
     body, html { 
       margin: 0; padding: 0; 
       background: var(--saas-bg); 
-      overflow: hidden; 
-      height: 100vh; 
+      min-height: 100vh; 
       font-family: 'Inter', sans-serif;
       color: var(--saas-text);
+      overflow-x: hidden;
     }
 
     /* LIVING BACKGROUND */
@@ -55,7 +55,7 @@
     .saas-container {
       position: relative; z-index: 10;
       display: flex; align-items: center; justify-content: center;
-      height: 100vh; padding: 20px; box-sizing: border-box;
+      min-height: 100vh; padding: 40px 20px; box-sizing: border-box;
       perspective: 1200px;
     }
 
@@ -194,7 +194,7 @@
         <div id="loginMessage" class="saas-success"></div>
 
         <button class="btn-saas-primary" id="loginBtn" onclick="handleLoginSubmit()">
-          Entrar no Painel <i class="ph ph-arrow-right"></i>
+          Acessar Painel <i class="ph ph-arrow-right"></i>
         </button>
 
         <footer class="saas-footer">
