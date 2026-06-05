@@ -1,18 +1,18 @@
 :root {
-  --bg-dark: #070A0F;
-  --bg-gradient-1: #0A0F1D;
-  --bg-gradient-2: #141E34;
+  --bg-dark: #0F172A;
+  --bg-gradient-1: #0F172A;
+  --bg-gradient-2: #1E293B;
   
-  --card-bg: rgba(18, 25, 38, 0.65);
-  --card-border: rgba(255, 255, 255, 0.06);
-  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.05);
   
-  --text-main: #F8FAFC;
+  --text-main: #FFFFFF;
   --text-muted: #94A3B8;
   
-  --primary: #3B82F6;
-  --primary-hover: #2563EB;
-  --primary-gradient: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-gradient: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
   
   --secondary-bg: rgba(255, 255, 255, 0.05);
   --secondary-hover: rgba(255, 255, 255, 0.1);
@@ -21,14 +21,14 @@
   --success: #10B981;
   --danger: #EF4444;
   
-  --nav-bg: rgba(10, 15, 29, 0.85);
+  --nav-bg: rgba(15, 23, 42, 0.9);
 
-  --shadow-float: 0 16px 32px -12px rgba(0,0,0,0.6);
-  --shadow-btn: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.2);
   
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 10px;
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
 
   /* Modificadores de estrutura */
   --header-h: 120px;
@@ -49,6 +49,7 @@ html, body {
   color: var(--text-main);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.5s ease;
 }
 
 .ambient-glow { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; }
