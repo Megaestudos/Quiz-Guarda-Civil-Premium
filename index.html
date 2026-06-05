@@ -194,7 +194,7 @@
         <div id="loginMessage" class="saas-success"></div>
 
         <button class="btn-saas-primary" id="loginBtn" onclick="handleLoginSubmit()">
-          Acessar Painel <i class="ph ph-arrow-right"></i>
+          Acessar Conta <i class="ph ph-arrow-right"></i>
         </button>
 
         <footer class="saas-footer">
@@ -373,7 +373,7 @@
       btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> Entrando...';
       btn.disabled = true;
       try { await loginWithEmail(email, pass); } 
-      catch (e) { err.innerText = e.message; err.style.display='block'; btn.innerHTML = 'Entrar no Painel <i class="ph ph-arrow-right"></i>'; btn.disabled = false; }
+      catch (e) { err.innerText = e.message; err.style.display='block'; btn.innerHTML = 'Acessar Conta <i class="ph ph-arrow-right"></i>'; btn.disabled = false; }
     }
 
     async function handleRegisterSubmit() {
