@@ -335,11 +335,6 @@
         const xPos = e.touches ? e.touches[0].pageX : e.pageX;
         const yPos = e.touches ? e.touches[0].pageY : e.pageY;
         mouse.x = xPos; mouse.y = yPos;
-        
-        const card = document.getElementById('mainCard');
-        const xAmt = (window.innerWidth / 2 - xPos) / 40;
-        const yAmt = (window.innerHeight / 2 - yPos) / 40;
-        gsap.to(card, { rotationY: xAmt, rotationX: -yAmt, duration: 1, ease: 'power2.out' });
     }
 
     window.addEventListener('mousemove', handleMove);
