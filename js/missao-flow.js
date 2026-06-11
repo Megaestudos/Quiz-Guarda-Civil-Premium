@@ -184,11 +184,11 @@ async function buscarQuestoesMissao(missao, limite) {
 async function buscarFlashcardsMissao(missao) {
   const materia = missao.materia || '';
   const assunto = missao.assunto || missao.subassunto || '';
+  const db = firebase.firestore();
   
+  let cards = [];
   try {
-    const db = firebase.firestore();
     const snap = await db.collection('flashcards').where('materia', '==', materia).get();
-    let cards = [];
     snap.forEach(doc => cards.push({ id: doc.id, ...doc.data() }));
     
     if (assunto && cards.length > 3) {
@@ -198,34 +198,31 @@ async function buscarFlashcardsMissao(missao) {
       });
       if (filtered.length >= 3) cards = filtered;
     }
-    
-    return shuffleArray(cards).slice(0, 15);
   } catch (e) {
-    // Tenta sem filtro
-    try {
-      const db = firebase.firestore();
-      const snap2 = await db.collection('flashcards').get();
-      let cards2 = [];
-      const chave = (materia || '').toLowerCase();
-      snap2.forEach(doc => {
-        const d = doc.data();
-        const mat = (d.materia || '').toLowerCase();
-        if (mat === chave || mat.includes(chave) || chave.includes(mat)) {
-          cards2.push({ id: doc.id, ...d });
-        }
-      });
-      
-      // SUPER FALLBACK: retorna 15 aleatorios se não achar da materia
-      if (cards2.length === 0 && snap2.size > 0) {
-        let todos = [];
-        snap2.forEach(doc => todos.push({ id: doc.id, ...doc.data() }));
-        return shuffleArray(todos).slice(0, 15);
-      }
-      return shuffleArray(cards2).slice(0, 15);
-    } catch (e2) {
-      return [];
-    }
+    console.error("Erro na busca de flashcards:", e);
   }
+
+  if (cards.length > 0) {
+    return shuffleArray(cards).slice(0, 15);
+  }
+
+  // SUPER FALLBACK: Se não encontrou NADA, tenta buscar os ultimos flashcards da base
+  try {
+    const snap2 = await db.collection('flashcards').limit(50).get();
+    let todos = [];
+    snap2.forEach(doc => todos.push({ id: doc.id, ...doc.data() }));
+    
+    // Tenta achar da materia (case insensitive)
+    const matLower = materia.toLowerCase().trim();
+    let fMat = todos.filter(c => (c.materia || '').toLowerCase().trim() === matLower || (c.materia || '').toLowerCase().includes(matLower));
+    
+    if (fMat.length > 0) return shuffleArray(fMat).slice(0, 15);
+    
+    // Se não achou, retorna aleatorios
+    if (todos.length > 0) return shuffleArray(todos).slice(0, 15);
+  } catch(e) {}
+  
+  return [];
 }
 
 // ─── PONTO DE ENTRADA ─────────────────────────────────────────────────────────
