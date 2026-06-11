@@ -13,6 +13,11 @@
         .sidebar-item { transition: all 0.2s; }
         .sidebar-item:hover { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
         .sidebar-item.active { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border-right: 3px solid #3b82f6; }
+        
+        /* Modal Scroll */
+        .modal-scroll { max-height: 80vh; overflow-y: auto; padding-right: 10px; }
+        .modal-scroll::-webkit-scrollbar { width: 6px; }
+        .modal-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
@@ -58,129 +63,148 @@
     <main class="flex-1 flex flex-col bg-[#020617] relative overflow-y-auto">
         <header class="h-20 border-b border-white/5 flex items-center justify-between px-10">
             <h1 class="text-xl font-bold">Conteúdo da Jornada</h1>
+            <button onclick="window.openMissaoModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 transition-all rounded-lg text-sm font-bold shadow-lg flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i> Nova Missão
+            </button>
         </header>
 
-        <div class="p-10 flex flex-col gap-8 max-w-5xl">
-            <!-- Seletores -->
-            <div class="glass-panel p-6 rounded-3xl grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Carreira</label>
-                    <select id="selCarreira" class="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white">
-                        <option value="">Carregando...</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Módulo</label>
-                    <select id="selModulo" class="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" disabled>
-                        <option value="">Selecione a Carreira</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Missão</label>
-                    <select id="selMissao" class="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" disabled>
-                        <option value="">Selecione o Módulo</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Etapa</label>
-                    <select id="selEtapa" class="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" disabled>
-                        <option value="">Selecione a Missão</option>
-                        <option value="aprender">Aprender (Vídeos/Áudios)</option>
-                        <option value="resumo">Resumo Rápido (Textos)</option>
+        <div class="p-10 flex flex-col gap-6 max-w-6xl mx-auto w-full">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-white">Missões Cadastradas</h2>
+                
+                <div class="flex gap-4">
+                    <select id="filterCarreira" class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500" onchange="window.loadMissoes()">
+                        <option value="">Todas as Carreiras</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Área de CMS -->
-            <div id="cmsArea" class="hidden flex-col gap-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 id="cmsTitle" class="text-2xl font-bold text-white">Missão</h2>
-                        <p id="cmsSubtitle" class="text-sm text-gray-400">Gerencie os blocos de conteúdo desta missão</p>
-                    </div>
-                    <button onclick="window.openCmsModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 transition-all rounded-lg text-sm font-bold shadow-lg shadow-indigo-600/20 flex items-center gap-2">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Bloco
-                    </button>
-                </div>
-                
-                <div id="cmsList" class="space-y-4">
-                    <!-- Cards de conteúdo -->
+            <!-- Tabela de Missões -->
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-400">
+                        <thead class="text-xs uppercase bg-white/5 border-b border-white/10 text-gray-500">
+                            <tr>
+                                <th class="px-6 py-4 font-bold tracking-wider">Ordem</th>
+                                <th class="px-6 py-4 font-bold tracking-wider">Missão / Título</th>
+                                <th class="px-6 py-4 font-bold tracking-wider">Módulo / Matéria</th>
+                                <th class="px-6 py-4 font-bold tracking-wider">Assunto</th>
+                                <th class="px-6 py-4 font-bold tracking-wider">Status</th>
+                                <th class="px-6 py-4 font-bold tracking-wider text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="missoesList" class="divide-y divide-white/5">
+                            <!-- JS popula aqui -->
+                            <tr><td colspan="6" class="text-center py-8"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-blue-500"></i></td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Modal CMS Block -->
-    <div id="modalCms" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-xl rounded-[32px] p-8 animate-fade-in shadow-2xl border-white/10">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold">Adicionar Bloco de Conteúdo</h2>
-                <button onclick="window.closeCmsModal()" class="text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
+    <!-- Modal Nova/Editar Missão -->
+    <div id="modalMissao" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-[32px] p-8 animate-fade-in shadow-2xl border-white/10 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                <h2 id="modalTitle" class="text-xl font-bold">Cadastrar Missão</h2>
+                <button onclick="window.closeMissaoModal()" class="text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
             </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Tipo</label>
-                    <select id="cmsType" class="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" onchange="window.toggleCmsFields()">
-                        <option value="video">Vídeo (YouTube/MP4)</option>
-                        <option value="audio">Áudio (Podcast)</option>
-                        <option value="resumo">Resumo (Texto Longo)</option>
-                    </select>
-                </div>
+            
+            <div class="space-y-5 modal-scroll flex-1">
+                <input type="hidden" id="mId">
                 
-                <!-- Campos de Mídia (Video/Audio) -->
-                <div id="mediaFields" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Título do Bloco</label>
-                        <input type="text" id="cmsTitleInput" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm" placeholder="ex: Aula 01 - Princípios">
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Carreira (ex: GCM)</label>
+                        <input type="text" id="mCarreira" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="ID da carreira">
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">URL ou ID do YouTube</label>
-                        <input type="text" id="cmsUrl" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm" placeholder="URL ou ID">
-                    </div>
-                    <div id="audioDurField" class="hidden">
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Duração (Áudio)</label>
-                        <input type="text" id="cmsDuration" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm" placeholder="ex: 15 min">
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Ordem</label>
+                        <input type="number" id="mOrdem" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" value="1">
                     </div>
                 </div>
 
-                <!-- Campos de Texto (Resumo) -->
-                <div id="textFields" class="hidden space-y-4">
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Módulo (ex: Direitos Humanos)</label>
+                    <input type="text" id="mModulo" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Nome do módulo">
+                </div>
+
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Título da Missão</label>
+                    <input type="text" id="mTitulo" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Ex: Pacto de San José">
+                </div>
+
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Descricao da Missão</label>
+                    <textarea id="mDescricao" rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Resumo do que será aprendido"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Conteúdo (Suporta HTML básico)</label>
-                        <textarea id="cmsContent" rows="6" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm" placeholder="Digite o resumo aqui..."></textarea>
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Matéria</label>
+                        <input type="text" id="mMateria" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Matéria principal">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Assunto</label>
+                        <input type="text" id="mAssunto" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Assunto específico">
                     </div>
                 </div>
 
-                <button onclick="window.saveCmsBlock()" id="btnSaveCms" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-600/20 transition-all mt-4">
-                    Salvar no Firebase
+                <div class="border-t border-white/10 pt-4 mt-4">
+                    <h3 class="text-sm font-bold text-indigo-400 mb-3"><i data-lucide="book-open" class="inline w-4 h-4 mr-1"></i> Conteúdo (Etapa Aprender)</h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="col-span-1">
+                            <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Tipo</label>
+                            <select id="mAprenderTipo" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white">
+                                <option value="video">Vídeo (YouTube)</option>
+                                <option value="audio">Áudio (URL externa)</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">URL do Conteúdo</label>
+                            <input type="text" id="mAprenderUrl" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="https://...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-4 mt-4">
+                    <h3 class="text-sm font-bold text-emerald-400 mb-3"><i data-lucide="file-text" class="inline w-4 h-4 mr-1"></i> Resumo (Etapa Resumo)</h3>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">URL do PDF</label>
+                        <input type="text" id="mPdfUrl" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-4 mt-4 flex items-center justify-between">
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest block">XP de Conclusão Total</label>
+                        <input type="number" id="mXp" class="w-32 bg-white/5 border border-white/10 rounded-xl px-4 py-2 mt-1 focus:border-blue-500 outline-none text-sm text-white" value="100">
+                    </div>
+                    
+                    <label class="flex items-center gap-3 cursor-pointer mt-4">
+                        <span class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Missão Ativa</span>
+                        <div class="relative">
+                            <input type="checkbox" id="mAtivo" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mt-6 flex-shrink-0">
+                <button onclick="window.saveMissao()" id="btnSaveMissao" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-600/20 transition-all">
+                    Salvar Missão no Firebase
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
-    <!-- Carrega a Jornada estática para popular os dropdowns -->
-    <script src="../js/jornada.js"></script>
     <script type="module" src="jornada-integration.js"></script>
     <script>
         lucide.createIcons();
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
-        
-        window.toggleCmsFields = function() {
-            const type = document.getElementById('cmsType').value;
-            if (type === 'resumo') {
-                document.getElementById('mediaFields').classList.add('hidden');
-                document.getElementById('textFields').classList.remove('hidden');
-            } else {
-                document.getElementById('mediaFields').classList.remove('hidden');
-                document.getElementById('textFields').classList.add('hidden');
-                if (type === 'audio') {
-                    document.getElementById('audioDurField').classList.remove('hidden');
-                } else {
-                    document.getElementById('audioDurField').classList.add('hidden');
-                }
-            }
-        }
     </script>
 </body>
 </html>

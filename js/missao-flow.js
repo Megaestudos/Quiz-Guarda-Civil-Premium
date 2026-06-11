@@ -97,82 +97,66 @@ async function buscarCmsMissao(materia) {
 
 /**
  * Busca questões com fallback de filtro.
- * Prioridade: materia + assunto + subassunto > materia + assunto > materia
+ * Etapa 2 (30) e Etapa 5 (50).
+ * Prioridade: assunto > subassunto > matéria. (Completa se faltar)
  */
 async function buscarQuestoesMissao(missao, limite) {
   const db = firebase.firestore();
   const materia = missao.materia || '';
-  const assunto = missao.assunto || missao.subassunto || '';
+  const assunto = missao.assunto || '';
   const subassunto = missao.subassunto || '';
 
-  const tentativas = [];
-
-  // Monta tentativas em ordem de especificidade
-  if (materia && assunto && subassunto && assunto !== subassunto) {
-    tentativas.push({ materia, assunto, subassunto });
-  }
-  if (materia && assunto) {
-    tentativas.push({ materia, assunto, subassunto: null });
-  }
-  tentativas.push({ materia, assunto: null, subassunto: null });
-
-  for (const t of tentativas) {
-    try {
-      let ref = db.collection('questoes').where('ativo', '==', true);
-      if (t.materia) ref = ref.where('materia', '==', t.materia);
-
-      const snap = await ref.get();
-      let questoes = [];
-      snap.forEach(doc => questoes.push({ id: doc.id, ...doc.data() }));
-
-      // Filtra por assunto em memória (evita índice composto obrigatório)
-      if (t.assunto) {
-        questoes = questoes.filter(q => {
-          const qa = (q.assunto || q.topico || '').toLowerCase();
-          return qa === t.assunto.toLowerCase() || qa.includes(t.assunto.toLowerCase());
-        });
-      }
-      if (t.subassunto && t.subassunto !== t.assunto) {
-        const sub = questoes.filter(q => {
-          const qs = (q.subassunto || '').toLowerCase();
-          return qs === t.subassunto.toLowerCase() || qs.includes(t.subassunto.toLowerCase());
-        });
-        if (sub.length >= 3) questoes = sub;
-      }
-
-      if (questoes.length > 0) {
-        return shuffleArray(questoes).slice(0, limite);
-      }
-    } catch (e) {
-      // Tenta sem filtro ativo (compatibilidade de índices)
-      try {
-        let ref2 = db.collection('questoes');
-        if (t.materia) ref2 = ref2.where('materia', '==', t.materia);
-        const snap2 = await ref2.get();
-        let questoes2 = [];
-        snap2.forEach(doc => questoes2.push({ id: doc.id, ...doc.data() }));
-        if (questoes2.length > 0) {
-          return shuffleArray(questoes2).slice(0, limite);
-        }
-      } catch (e2) {}
-    }
-  }
-
-  // SUPER FALLBACK: Se não encontrou NADA usando filtro exato no Firestore, busca as ultimas 50 questoes e tenta filtrar na memoria (ignorando maiusculas/minusculas)
+  let questoes = [];
   try {
-    const snap3 = await db.collection('questoes').limit(50).get();
-    let q3 = [];
-    snap3.forEach(doc => q3.push({ id: doc.id, ...doc.data() }));
+    // Busca TODAS as questões da matéria
+    let ref = db.collection('questoes').where('ativo', '==', true);
+    if (materia) ref = ref.where('materia', '==', materia);
     
-    // Tenta achar da materia (case insensitive)
-    const matLower = materia.toLowerCase().trim();
-    let qMat = q3.filter(q => (q.materia || '').toLowerCase().trim() === matLower || (q.materia || '').toLowerCase().includes(matLower));
-    
-    if (qMat.length > 0) return shuffleArray(qMat).slice(0, limite);
-    
-    // Se ainda assim nao achou, retorna aleatorias para a interface nao ficar vazia (modo demonstração)
-    if (q3.length > 0) return shuffleArray(q3).slice(0, limite);
-  } catch(e3) {}
+    const snap = await ref.get();
+    let qMateria = [];
+    snap.forEach(doc => qMateria.push({ id: doc.id, ...doc.data() }));
+
+    // Separa por prioridade
+    let qAssunto = [];
+    let qSubassunto = [];
+    let qRestoMateria = [];
+
+    const ass = assunto.toLowerCase();
+    const sub = subassunto.toLowerCase();
+
+    qMateria.forEach(q => {
+      const qa = (q.assunto || q.topico || '').toLowerCase();
+      const qs = (q.subassunto || '').toLowerCase();
+
+      if (ass && (qa === ass || qa.includes(ass))) {
+        qAssunto.push(q);
+      } else if (sub && (qs === sub || qs.includes(sub))) {
+        qSubassunto.push(q);
+      } else {
+        qRestoMateria.push(q);
+      }
+    });
+
+    // Mistura cada grupo
+    qAssunto = shuffleArray(qAssunto);
+    qSubassunto = shuffleArray(qSubassunto);
+    qRestoMateria = shuffleArray(qRestoMateria);
+
+    // Preenche respeitando a prioridade
+    questoes = [...qAssunto];
+    if (questoes.length < limite) {
+      const faltam = limite - questoes.length;
+      questoes = [...questoes, ...qSubassunto.slice(0, faltam)];
+    }
+    if (questoes.length < limite) {
+      const faltam = limite - questoes.length;
+      questoes = [...questoes, ...qRestoMateria.slice(0, faltam)];
+    }
+
+    return questoes.slice(0, limite);
+  } catch (e) {
+    console.error("Erro ao buscar questões:", e);
+  }
 
   return [];
 }
@@ -285,39 +269,15 @@ window.iniciarFluxoMissao = async function(modId, missaoId) {
 
   // Carrega dados em paralelo
   try {
-    const [cms, questoesE2, flashcards, questoesE5] = await Promise.all([
-      buscarCmsMissao(missao.materia),
-      buscarQuestoesMissao(missao, 10),
+    const [flashcards, questoesE2, questoesE5] = await Promise.all([
       buscarFlashcardsMissao(missao),
-      buscarQuestoesMissao(missao, _missaoSessao.questoesLimite),
+      buscarQuestoesMissao(missao, 30),
+      buscarQuestoesMissao(missao, 50),
     ]);
 
-    let finalCms = missao.cms || cms;
-    if (finalCms) {
-      let arrayBlocks = [];
-      if (Array.isArray(finalCms)) {
-        arrayBlocks = finalCms;
-      } else if (finalCms.aprender || finalCms.resumo) {
-        arrayBlocks = [...(finalCms.aprender || []), ...(finalCms.resumo || [])];
-      }
-      
-      if (arrayBlocks.length > 0) {
-        const mapped = { videos: [], audios: [], resumo: '' };
-        arrayBlocks.forEach(block => {
-          if (block.type === 'video') mapped.videos.push(block);
-          else if (block.type === 'audio') mapped.audios.push(block);
-          else if (block.type === 'resumo' || block.type === 'texto') {
-             mapped.resumo += block.conteudo + "\\n\\n";
-          }
-        });
-        finalCms = mapped;
-      }
-    }
-    _missaoSessao.cms = finalCms;
     _missaoSessao.questoesEtapa2 = questoesE2;
     _missaoSessao.flashcards = flashcards;
     _missaoSessao.questoesEtapa5 = questoesE5;
-    _missaoSessao.resumoRapido = detectResumoRapido(cms);
   } catch (e) {
     console.warn('[MissaoFlow] Erro ao carregar dados:', e);
   }
@@ -404,93 +364,57 @@ function renderEtapa(num) {
 function renderEtapa1() {
   const el = document.getElementById('mfConteudo');
   if (!el) return;
-  const { cms, missao, mod } = _missaoSessao;
+  const { missao, mod } = _missaoSessao;
 
-  const videos = cms?.videos || [];
-  const audios = cms?.audios || [];
-  const slides = cms?.slides || [];
-  const temConteudo = videos.length > 0 || audios.length > 0 || slides.length > 0;
-
-  // Mapa mental — gerado a partir das missões do módulo (dados estáticos)
+  // Mapa mental
   const mapaMentalHTML = renderMapaMental(mod, missao);
 
-  // Vídeo principal (primeiro disponível)
-  let videoHTML = '';
-  if (videos.length > 0) {
-    const v = videos[0];
-    if (v.youtubeId) {
-      videoHTML = `
+  let mediaHTML = '';
+  const tipo = missao.aprender_tipo || 'video';
+  const url = missao.aprender_url || '';
+
+  if (url) {
+    if (tipo === 'video') {
+      let embedUrl = url;
+      if (url.includes('youtube.com/watch?v=')) {
+        embedUrl = url.replace('watch?v=', 'embed/');
+      } else if (url.includes('youtu.be/')) {
+        embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
+      }
+      mediaHTML = `
         <div class="mf-secao">
           <div class="mf-secao-titulo"><i class="ph-fill ph-video" style="color:#8B5CF6;"></i> Aula em Vídeo</div>
           <div class="mf-yt-wrap">
             <iframe
-              src="https://www.youtube.com/embed/${v.youtubeId}?rel=0&playsinline=1"
-              title="${v.title || 'Aula'}"
+              src="${embedUrl}"
+              title="${missao.nome}"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen>
             </iframe>
           </div>
-          <div class="mf-video-titulo">${v.title || 'Aula'}</div>
-          ${videos.length > 1 ? `<div class="mf-mais-aulas">+${videos.length - 1} vídeo${videos.length > 2 ? 's' : ''} disponível${videos.length > 2 ? 'is' : ''}</div>` : ''}
+          <div class="mf-video-titulo">${missao.nome}</div>
+          <div class="text-sm text-gray-400 mt-2">${missao.descricao || ''}</div>
         </div>`;
-    } else if (v.url) {
-      videoHTML = `
-        <div class="mf-secao">
-          <div class="mf-secao-titulo"><i class="ph-fill ph-video" style="color:#8B5CF6;"></i> Aula em Vídeo</div>
-          <div class="mf-yt-wrap">
-            <video controls playsinline style="width:100%; border-radius:12px; background:#000;">
-              <source src="${v.url}" type="video/mp4">
-            </video>
-          </div>
-          <div class="mf-video-titulo">${v.title || 'Aula'}</div>
-        </div>`;
-    }
-  }
-
-  // Resumo foi movido inteiramente para a Etapa 4
-
-  // Áudio
-  let audioHTML = '';
-  if (audios.length > 0) {
-    const a = audios[0];
-    const audioSrc = a.url || a.youtubeId ? a.url : null;
-    if (audioSrc) {
-      audioHTML = `
+    } else if (tipo === 'audio') {
+      mediaHTML = `
         <div class="mf-secao">
           <div class="mf-secao-titulo"><i class="ph-fill ph-headphones" style="color:#F59E0B;"></i> Áudio</div>
-          <div class="mf-audio-card">
-            <div class="mf-audio-art"><i class="ph-fill ph-waveform"></i></div>
-            <div class="mf-audio-info">
-              <div class="mf-audio-titulo">${a.title || 'Áudio da Aula'}</div>
-              ${a.duration ? `<div class="mf-audio-dur"><i class="ph ph-clock"></i> ${a.duration}</div>` : ''}
+          <div class="mf-audio-card p-4 bg-white/5 rounded-xl border border-white/10">
+            <div class="mf-audio-info mb-4">
+              <div class="mf-audio-titulo font-bold">${missao.nome}</div>
+              <div class="text-sm text-gray-400 mt-1">${missao.descricao || ''}</div>
             </div>
-            <audio controls style="width:100%; margin-top:12px; border-radius:8px;">
-              <source src="${audioSrc}" type="audio/mpeg">
-              <source src="${audioSrc}" type="audio/ogg">
+            <audio controls style="width:100%; border-radius:8px;">
+              <source src="${url}" type="audio/mpeg">
+              <source src="${url}" type="audio/ogg">
             </audio>
           </div>
         </div>`;
-    } else if (a.youtubeId) {
-      // Áudio via YouTube embed
-      audioHTML = `
-        <div class="mf-secao">
-          <div class="mf-secao-titulo"><i class="ph-fill ph-headphones" style="color:#F59E0B;"></i> Áudio</div>
-          <div class="mf-audio-card">
-            <iframe
-              src="https://www.youtube.com/embed/${a.youtubeId}?rel=0"
-              title="${a.title || 'Áudio'}"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media"
-              style="width:100%; height:80px; border-radius:8px;">
-            </iframe>
-          </div>
-        </div>`;
     }
   }
 
-  // Estado vazio se nenhum conteúdo disponível
-  if (!temConteudo) {
+  if (!url) {
     el.innerHTML = `
       <div class="mf-etapa-titulo">
         <i class="ph-fill ph-book-open" style="color:#8B5CF6;"></i>
@@ -502,7 +426,7 @@ function renderEtapa1() {
         <small>O material desta missão será disponibilizado em breve.</small>
       </div>
       ${mapaMentalHTML}
-      <button class="btn btn-primary mf-btn-avancar" onclick="renderEtapa(2)">
+      <button class="btn btn-primary mf-btn-avancar" onclick="concluirEtapa1()">
         <i class="ph-fill ph-arrow-right"></i> Continuar para Exercícios
       </button>
     `;
@@ -514,13 +438,17 @@ function renderEtapa1() {
       <i class="ph-fill ph-book-open" style="color:#8B5CF6;"></i>
       <span>Aprender</span>
     </div>
-    ${videoHTML}
-    ${audioHTML}
+    ${mediaHTML}
     ${mapaMentalHTML}
-    <button class="btn btn-primary mf-btn-avancar" onclick="renderEtapa(2)">
+    <button class="btn btn-primary mf-btn-avancar" onclick="concluirEtapa1()">
       <i class="ph-fill ph-check-circle"></i> Concluir Conteúdo
     </button>
   `;
+}
+
+window.concluirEtapa1 = function() {
+  if (typeof window.addXP === 'function') window.addXP(10);
+  renderEtapa(2);
 }
 
 function renderMapaMental(mod, missao) {
@@ -598,7 +526,7 @@ function renderQuestaoEtapa2() {
         <p>Você respondeu todas as questões de exercício.</p>
         <small>Agora é hora de revisar com os flashcards!</small>
       </div>
-      <button class="btn btn-primary mf-btn-avancar" onclick="renderEtapa(3)">
+      <button class="btn btn-primary mf-btn-avancar" onclick="concluirEtapa2()">
         <i class="ph-fill ph-cards"></i> Ir para Revisão
       </button>
     `;
@@ -647,6 +575,11 @@ function renderQuestaoEtapa2() {
     </button>
   `;
 }
+
+window.concluirEtapa2 = function() {
+  if (typeof window.addXP === 'function') window.addXP(20);
+  renderEtapa(3);
+};
 
 window.responderEtapa2 = function(letra) {
   const { questoesEtapa2, etapa2Idx } = _missaoSessao;
@@ -732,8 +665,8 @@ function renderFlashcard() {
         <i class="ph-fill ph-check-circle" style="color:#10B981; font-size:52px;"></i>
         <p>Você revisou todos os flashcards!</p>
       </div>
-      <button class="btn btn-primary mf-btn-avancar" onclick="renderEtapa(4)">
-        <i class="ph-fill ph-lightning"></i> Ir para Resumo Rápido
+      <button class="btn btn-primary mf-btn-avancar" onclick="concluirEtapa3()">
+        <i class="ph-fill ph-lightning"></i> Ir para Resumo
       </button>
     `;
     return;
@@ -821,55 +754,31 @@ window.classificarFlashcard = function(nivel) {
 function renderEtapa4() {
   const el = document.getElementById('mfConteudo');
   if (!el) return;
-  const { resumoRapido, missao, mod } = _missaoSessao;
+  const { missao, mod } = _missaoSessao;
+  const pdfUrl = missao.pdf_url;
 
-  if (!resumoRapido) {
+  if (!pdfUrl) {
     el.innerHTML = `
       <div class="mf-etapa-titulo">
-        <i class="ph-fill ph-lightning" style="color:#7C3AED;"></i>
-        <span>Resumo Rápido</span>
+        <i class="ph-fill ph-file-pdf" style="color:#EF4444;"></i>
+        <span>Resumo em PDF</span>
       </div>
       <div class="mf-empty-state">
         <i class="ph-fill ph-clock" style="color:#F59E0B; font-size:36px;"></i>
-        <p>Resumo em atualização</p>
-        <small>O material de revisão rápida será disponibilizado em breve.</small>
+        <p>PDF em atualização</p>
+        <small>O material de revisão será disponibilizado em breve.</small>
       </div>
-      <button class="btn btn-primary mf-btn-avancar" onclick="renderEtapa(5)">
+      <button class="btn btn-primary mf-btn-avancar" onclick="concluirEtapa4()">
         <i class="ph-fill ph-trophy"></i> Ir para Missão Final
       </button>
     `;
     return;
   }
 
-  let conteudoHTML = '';
-  if (resumoRapido.tipo === 'lista') {
-    conteudoHTML = `
-      <div class="mf-rr-lista">
-        ${resumoRapido.itens.map((item, i) => `
-          <div class="mf-rr-item" style="animation-delay:${i * 0.08}s">
-            <div class="mf-rr-bullet" style="background:${mod.cor};"></div>
-            <span>${item}</span>
-          </div>
-        `).join('')}
-      </div>`;
-  } else {
-    // Quebra o texto em parágrafos/tópicos para leitura rápida
-    const linhas = resumoRapido.conteudo.split(/\n|\.(?=\s)/).filter(l => l.trim().length > 10);
-    conteudoHTML = `
-      <div class="mf-rr-lista">
-        ${linhas.slice(0, 12).map((linha, i) => `
-          <div class="mf-rr-item" style="animation-delay:${i * 0.08}s">
-            <div class="mf-rr-bullet" style="background:${mod.cor};"></div>
-            <span>${linha.trim()}</span>
-          </div>
-        `).join('')}
-      </div>`;
-  }
-
   el.innerHTML = `
     <div class="mf-etapa-titulo">
-      <i class="ph-fill ph-lightning" style="color:#7C3AED;"></i>
-      <span>Resumo Rápido</span>
+      <i class="ph-fill ph-file-pdf" style="color:#EF4444;"></i>
+      <span>Resumo</span>
     </div>
     <div class="mf-rr-header">
       <div class="mf-rr-icon" style="background:${mod.cor}22; border-color:${mod.cor}44;">
@@ -877,17 +786,38 @@ function renderEtapa4() {
       </div>
       <div>
         <div class="mf-rr-titulo">${missao.nome}</div>
-        <div class="mf-rr-sub">Leitura rápida · menos de 2 min</div>
+        <div class="mf-rr-sub">${missao.descricao || 'Material de leitura complementar'}</div>
       </div>
     </div>
-    <div class="mf-rr-box">
-      ${conteudoHTML}
+    
+    <div class="mf-rr-box p-0 mt-4 overflow-hidden rounded-xl border border-white/10" style="height: 500px;">
+      <iframe src="${pdfUrl}" width="100%" height="100%" frameborder="0" style="background: white;"></iframe>
     </div>
-    <button class="btn btn-primary mf-btn-avancar" onclick="renderEtapa(5)">
-      <i class="ph-fill ph-trophy"></i> Estou Pronto — Missão Final!
+    
+    <div class="flex gap-4 mt-6">
+      <a href="${pdfUrl}" target="_blank" class="btn btn-secondary flex-1 text-center" style="display:flex; justify-content:center;">
+        <i class="ph-fill ph-download-simple"></i> Download
+      </a>
+      <a href="${pdfUrl}" target="_blank" class="btn btn-secondary flex-1 text-center" style="display:flex; justify-content:center;">
+        <i class="ph-fill ph-eye"></i> Visualizar Nova Aba
+      </a>
+    </div>
+
+    <button class="btn btn-primary mf-btn-avancar mt-6" onclick="concluirEtapa4()">
+      <i class="ph-fill ph-check-circle"></i> Marcar como Lido
     </button>
   `;
 }
+
+window.concluirEtapa3 = function() {
+  if (typeof window.addXP === 'function') window.addXP(10);
+  renderEtapa(4);
+};
+
+window.concluirEtapa4 = function() {
+  if (typeof window.addXP === 'function') window.addXP(10);
+  renderEtapa(5);
+};
 
 // ─── ETAPA 5 — MISSÃO FINAL ───────────────────────────────────────────────────
 
@@ -1024,9 +954,7 @@ function mostrarResultadoFinal() {
   const tempoSegundos = Math.round((Date.now() - inicioTotal) / 1000);
   const tempoStr = formatarTempo(tempoSegundos);
 
-  const xpGanho = aprovado
-    ? (isFinal ? Math.round(missao.xp * 1.5) : missao.xp)
-    : Math.round(missao.xp * 0.3);
+  const xpGanho = aprovado ? 50 : 10;
 
   const medalha = isFinal ? '🏆' : pct === 100 ? '⭐' : pct >= 90 ? '🥇' : pct >= 70 ? '🥈' : '🎖️';
 

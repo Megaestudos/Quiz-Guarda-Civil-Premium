@@ -33,69 +33,8 @@ const CARREIRAS = {
     descricao: 'Prepare-se para concursos de Guarda Municipal com trilha completa.',
     cor: '#3B82F6',
     corGradient: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
-    modulos: [
-      {
-        id: 'gm_dh', nome: 'Direitos Humanos', icon: 'ph-handshake', cor: '#8B5CF6',
-        missoes: [
-          { id: 'gm_dh_001', nome: 'Abuso de Autoridade',    materia: 'Abuso de Autoridade', subassunto: '',                                     tempoMin: 20, xp: 60 },
-          { id: 'gm_dh_002', nome: 'Declaração Universal',   materia: 'Direitos Humanos e Legislação Extravagante (HLE)', subassunto: 'Declaração Universal',    tempoMin: 20, xp: 60 },
-          { id: 'gm_dh_003', nome: 'Pacto de San José',      materia: 'Direitos Humanos e Legislação Extravagante (HLE)', subassunto: 'Pacto de San José',       tempoMin: 20, xp: 60 },
-          { id: 'gm_dh_004', nome: 'Sistemas de Proteção',   materia: 'Direitos Humanos e Legislação Extravagante (HLE)', subassunto: 'Sistemas de Proteção',    tempoMin: 25, xp: 70 },
-          { id: 'gm_dh_fin', nome: 'Missão Final',           materia: 'Abuso de Autoridade', subassunto: '',                                     tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'gm_dc', nome: 'Direito Constitucional', icon: 'ph-scales', cor: '#EF4444',
-        missoes: [
-          { id: 'gm_dc_001', nome: 'Princípios Fundamentais', materia: 'Direito Constitucional', subassunto: 'Princípios',        tempoMin: 20, xp: 50 },
-          { id: 'gm_dc_002', nome: 'Direitos e Garantias',    materia: 'Direito Constitucional', subassunto: 'Direitos',          tempoMin: 25, xp: 60 },
-          { id: 'gm_dc_003', nome: 'Artigo 5°',               materia: 'Direito Constitucional', subassunto: 'Artigo 5',          tempoMin: 25, xp: 65 },
-          { id: 'gm_dc_004', nome: 'Segurança Pública',       materia: 'Direito Constitucional', subassunto: 'Segurança Pública', tempoMin: 20, xp: 60 },
-          { id: 'gm_dc_fin', nome: 'Missão Final',            materia: 'Direito Constitucional', subassunto: '',                  tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'gm_da', nome: 'Direito Administrativo', icon: 'ph-building', cor: '#F59E0B',
-        missoes: [
-          { id: 'gm_da_001', nome: 'Atos Administrativos',   materia: 'Direito Administrativo', subassunto: 'Atos',              tempoMin: 20, xp: 55 },
-          { id: 'gm_da_002', nome: 'Poderes Administrativos',materia: 'Direito Administrativo', subassunto: 'Poderes',           tempoMin: 20, xp: 55 },
-          { id: 'gm_da_003', nome: 'Agentes Públicos',       materia: 'Direito Administrativo', subassunto: 'Agentes',           tempoMin: 25, xp: 65 },
-          { id: 'gm_da_fin', nome: 'Missão Final',           materia: 'Direito Administrativo', subassunto: '',                  tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'gm_leg', nome: 'Legislação da GM', icon: 'ph-shield-star', cor: '#10B981',
-        missoes: [
-          { id: 'gm_leg_001', nome: 'Lei 13.022',            materia: 'Legislação da Guarda Municipal', subassunto: 'Lei 13022', tempoMin: 20, xp: 60 },
-          { id: 'gm_leg_002', nome: 'Competências',          materia: 'Legislação da Guarda Municipal', subassunto: 'Competências', tempoMin: 20, xp: 55 },
-          { id: 'gm_leg_003', nome: 'Poder de Polícia',      materia: 'Legislação da Guarda Municipal', subassunto: 'Poder de Polícia', tempoMin: 20, xp: 60 },
-          { id: 'gm_leg_004', nome: 'Patrimônio Público',    materia: 'Legislação da Guarda Municipal', subassunto: 'Patrimônio', tempoMin: 15, xp: 50 },
-          { id: 'gm_leg_fin', nome: 'Missão Final',          materia: 'Legislação da Guarda Municipal', subassunto: '',           tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'gm_pt', nome: 'Português', icon: 'ph-book-open-text', cor: '#06B6D4',
-        missoes: [
-          { id: 'gm_pt_001', nome: 'Interpretação de Texto', materia: 'Língua Portuguesa', subassunto: 'Interpretação',          tempoMin: 20, xp: 55 },
-          { id: 'gm_pt_002', nome: 'Gramática',              materia: 'Língua Portuguesa', subassunto: 'Gramática',              tempoMin: 20, xp: 55 },
-          { id: 'gm_pt_003', nome: 'Ortografia',             materia: 'Língua Portuguesa', subassunto: 'Ortografia',             tempoMin: 15, xp: 50 },
-          { id: 'gm_pt_004', nome: 'Concordância',           materia: 'Língua Portuguesa', subassunto: 'Concordância',           tempoMin: 20, xp: 55 },
-          { id: 'gm_pt_fin', nome: 'Missão Final',           materia: 'Língua Portuguesa', subassunto: '',                       tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'gm_info', nome: 'Informática', icon: 'ph-desktop', cor: '#EC4899',
-        missoes: [
-          { id: 'gm_info_001', nome: 'Windows',              materia: 'Informática', subassunto: 'Windows',                      tempoMin: 15, xp: 50 },
-          { id: 'gm_info_002', nome: 'Internet',             materia: 'Informática', subassunto: 'Internet',                     tempoMin: 15, xp: 50 },
-          { id: 'gm_info_003', nome: 'Pacote Office',        materia: 'Informática', subassunto: 'Pacote Office',                tempoMin: 20, xp: 55 },
-          { id: 'gm_info_004', nome: 'Segurança Digital',    materia: 'Informática', subassunto: 'Segurança',                    tempoMin: 15, xp: 50 },
-          { id: 'gm_info_fin', nome: 'Missão Final',         materia: 'Informática', subassunto: '',                             tempoMin: 25, xp: 150, isFinal: true },
-        ]
-      },
-    ]
+    modulos: []
   },
-
   policia_militar: {
     id: 'policia_militar',
     nome: 'Polícia Militar',
@@ -103,53 +42,8 @@ const CARREIRAS = {
     descricao: 'Trilha completa para concursos da Polícia Militar estadual.',
     cor: '#10B981',
     corGradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-    modulos: [
-      {
-        id: 'pm_dc', nome: 'Direito Constitucional', icon: 'ph-scales', cor: '#EF4444',
-        missoes: [
-          { id: 'pm_dc_001', nome: 'Fundamentos da CF',      materia: 'Direito Constitucional', subassunto: 'Princípios',        tempoMin: 20, xp: 55 },
-          { id: 'pm_dc_002', nome: 'Direitos Fundamentais',  materia: 'Direito Constitucional', subassunto: 'Direitos',          tempoMin: 25, xp: 65 },
-          { id: 'pm_dc_003', nome: 'Segurança Pública',      materia: 'Direito Constitucional', subassunto: 'Segurança Pública', tempoMin: 20, xp: 60 },
-          { id: 'pm_dc_fin', nome: 'Missão Final',           materia: 'Direito Constitucional', subassunto: '',                  tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'pm_dp', nome: 'Direito Penal', icon: 'ph-gavel', cor: '#EF4444',
-        missoes: [
-          { id: 'pm_dp_001', nome: 'Princípios Penais',      materia: 'Direito Penal', subassunto: 'Princípios',                 tempoMin: 20, xp: 55 },
-          { id: 'pm_dp_002', nome: 'Crimes em Espécie',      materia: 'Direito Penal', subassunto: 'Crimes',                    tempoMin: 25, xp: 65 },
-          { id: 'pm_dp_003', nome: 'Penas e Execução',       materia: 'Direito Penal', subassunto: 'Penas',                     tempoMin: 20, xp: 60 },
-          { id: 'pm_dp_fin', nome: 'Missão Final',           materia: 'Direito Penal', subassunto: '',                          tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'pm_pp', nome: 'Processo Penal', icon: 'ph-file-search', cor: '#8B5CF6',
-        missoes: [
-          { id: 'pm_pp_001', nome: 'Inquérito Policial',     materia: 'Processo Penal', subassunto: 'Inquérito',                 tempoMin: 20, xp: 55 },
-          { id: 'pm_pp_002', nome: 'Ação Penal',             materia: 'Processo Penal', subassunto: 'Ação Penal',                tempoMin: 20, xp: 55 },
-          { id: 'pm_pp_003', nome: 'Prisão e Liberdade',     materia: 'Processo Penal', subassunto: 'Prisão',                   tempoMin: 25, xp: 65 },
-          { id: 'pm_pp_fin', nome: 'Missão Final',           materia: 'Processo Penal', subassunto: '',                         tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'pm_dh', nome: 'Direitos Humanos', icon: 'ph-handshake', cor: '#8B5CF6',
-        missoes: [
-          { id: 'pm_dh_001', nome: 'Fundamentos',            materia: 'Direitos Humanos', subassunto: 'Fundamentos',             tempoMin: 15, xp: 50 },
-          { id: 'pm_dh_002', nome: 'Sistemas de Proteção',   materia: 'Direitos Humanos', subassunto: 'Sistemas de Proteção',    tempoMin: 20, xp: 60 },
-          { id: 'pm_dh_fin', nome: 'Missão Final',           materia: 'Direitos Humanos', subassunto: '',                        tempoMin: 25, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'pm_pt', nome: 'Português', icon: 'ph-book-open-text', cor: '#06B6D4',
-        missoes: [
-          { id: 'pm_pt_001', nome: 'Interpretação',          materia: 'Língua Portuguesa', subassunto: 'Interpretação',          tempoMin: 20, xp: 55 },
-          { id: 'pm_pt_002', nome: 'Gramática e Redação',    materia: 'Língua Portuguesa', subassunto: 'Gramática',              tempoMin: 20, xp: 55 },
-          { id: 'pm_pt_fin', nome: 'Missão Final',           materia: 'Língua Portuguesa', subassunto: '',                       tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-    ]
+    modulos: []
   },
-
   policia_penal: {
     id: 'policia_penal',
     nome: 'Polícia Penal',
@@ -157,53 +51,88 @@ const CARREIRAS = {
     descricao: 'Trilha focada no concurso de Agente/Polícia Penal.',
     cor: '#F59E0B',
     corGradient: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-    modulos: [
-      {
-        id: 'pen_dp', nome: 'Direito Penal', icon: 'ph-gavel', cor: '#EF4444',
-        missoes: [
-          { id: 'pen_dp_001', nome: 'Teoria do Crime',       materia: 'Direito Penal', subassunto: 'Teoria do Crime',            tempoMin: 20, xp: 55 },
-          { id: 'pen_dp_002', nome: 'Crimes Contra Pessoa',  materia: 'Direito Penal', subassunto: 'Crimes Contra Pessoa',       tempoMin: 25, xp: 65 },
-          { id: 'pen_dp_003', nome: 'Crimes em Espécie',     materia: 'Direito Penal', subassunto: 'Crimes',                    tempoMin: 25, xp: 65 },
-          { id: 'pen_dp_fin', nome: 'Missão Final',          materia: 'Direito Penal', subassunto: '',                          tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'pen_lep', nome: 'Lei de Execução Penal', icon: 'ph-cell-signal-x', cor: '#F59E0B',
-        missoes: [
-          { id: 'pen_lep_001', nome: 'Princípios da LEP',    materia: 'Legislação Extravagante', subassunto: 'LEP',              tempoMin: 20, xp: 60 },
-          { id: 'pen_lep_002', nome: 'Penas Privativas',     materia: 'Legislação Extravagante', subassunto: 'Penas',            tempoMin: 20, xp: 60 },
-          { id: 'pen_lep_003', nome: 'Regimes Prisionais',   materia: 'Legislação Extravagante', subassunto: 'Regimes',          tempoMin: 20, xp: 60 },
-          { id: 'pen_lep_004', nome: 'Direitos do Preso',    materia: 'Legislação Extravagante', subassunto: 'Direitos',         tempoMin: 15, xp: 50 },
-          { id: 'pen_lep_fin', nome: 'Missão Final',         materia: 'Legislação Extravagante', subassunto: '',                 tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'pen_pp', nome: 'Processo Penal', icon: 'ph-file-search', cor: '#8B5CF6',
-        missoes: [
-          { id: 'pen_pp_001', nome: 'Inquérito Policial',    materia: 'Processo Penal', subassunto: 'Inquérito',                 tempoMin: 20, xp: 55 },
-          { id: 'pen_pp_002', nome: 'Prisão em Flagrante',   materia: 'Processo Penal', subassunto: 'Prisão',                   tempoMin: 20, xp: 60 },
-          { id: 'pen_pp_fin', nome: 'Missão Final',          materia: 'Processo Penal', subassunto: '',                         tempoMin: 25, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'pen_dh', nome: 'Direitos Humanos', icon: 'ph-handshake', cor: '#8B5CF6',
-        missoes: [
-          { id: 'pen_dh_001', nome: 'Regras de Mandela',     materia: 'Direitos Humanos', subassunto: 'Regras de Mandela',       tempoMin: 20, xp: 60 },
-          { id: 'pen_dh_002', nome: 'Sistemas de Proteção',  materia: 'Direitos Humanos', subassunto: 'Sistemas de Proteção',    tempoMin: 20, xp: 60 },
-          { id: 'pen_dh_fin', nome: 'Missão Final',          materia: 'Direitos Humanos', subassunto: '',                        tempoMin: 25, xp: 150, isFinal: true },
-        ]
-      },
-      {
-        id: 'pen_pt', nome: 'Português', icon: 'ph-book-open-text', cor: '#06B6D4',
-        missoes: [
-          { id: 'pen_pt_001', nome: 'Interpretação',         materia: 'Língua Portuguesa', subassunto: 'Interpretação',          tempoMin: 20, xp: 55 },
-          { id: 'pen_pt_002', nome: 'Gramática',             materia: 'Língua Portuguesa', subassunto: 'Gramática',              tempoMin: 20, xp: 55 },
-          { id: 'pen_pt_fin', nome: 'Missão Final',          materia: 'Língua Portuguesa', subassunto: '',                       tempoMin: 30, xp: 150, isFinal: true },
-        ]
-      },
-    ]
+    modulos: []
   }
 };
+
+// ─── CARREGAMENTO DINÂMICO DE MISSÕES (FIREBASE) ─────────────────────────────
+window.carregarMissoesFirebase = async function() {
+  if (!window.firebase || !firebase.firestore) return;
+  try {
+    const snap = await firebase.firestore().collection('missoes')
+      .where('ativo', '==', true)
+      .orderBy('ordem')
+      .get();
+      
+    // Limpa módulos das carreiras existentes
+    Object.values(CARREIRAS).forEach(c => c.modulos = []);
+    
+    // Agrupa missões
+    snap.forEach(doc => {
+      const data = { id: doc.id, ...doc.data() };
+      const { carreira, modulo, materia } = data;
+      
+      // Cria a carreira se não existir no objeto estático
+      if (carreira && !CARREIRAS[carreira]) {
+        CARREIRAS[carreira] = {
+          id: carreira,
+          nome: carreira,
+          emoji: '🎯',
+          descricao: 'Trilha ' + carreira,
+          cor: '#8B5CF6',
+          corGradient: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
+          modulos: []
+        };
+      }
+      
+      if (!carreira) return;
+      
+      const objCarreira = CARREIRAS[carreira];
+      
+      // Busca ou cria o módulo
+      let mod = objCarreira.modulos.find(m => m.nome === modulo);
+      if (!mod) {
+        mod = {
+          id: `${carreira}_${modulo.replace(/\s+/g, '_').toLowerCase()}`,
+          nome: modulo,
+          icon: 'ph-folder',
+          cor: objCarreira.cor,
+          missoes: []
+        };
+        objCarreira.modulos.push(mod);
+      }
+      
+      // Adiciona a missão no módulo
+      mod.missoes.push({
+        id: data.id,
+        nome: data.titulo,
+        materia: data.materia,
+        assunto: data.assunto,
+        subassunto: data.assunto,
+        aprender_tipo: data.aprender_tipo,
+        aprender_url: data.aprender_url,
+        pdf_url: data.pdf_url,
+        xp: data.xp || 50,
+        ordem: data.ordem || 0,
+        isFinal: data.titulo.toLowerCase().includes('final') // mantem isFinal se o admin chamar de final, ou podemos adicionar um toggle no painel
+      });
+    });
+    
+    // Re-render
+    if (typeof renderSelecaoCarreira === 'function' && !CARREIRA_ATIVA) {
+      renderSelecaoCarreira();
+    } else if (CARREIRA_ATIVA) {
+      renderMapaCarreira();
+    }
+  } catch (e) {
+    console.error("Erro ao carregar missoes do Firebase:", e);
+  }
+};
+
+// Chamar ao carregar
+setTimeout(() => {
+  if (window.carregarMissoesFirebase) window.carregarMissoesFirebase();
+}, 1000);
 window.CARREIRAS = CARREIRAS;
 
 // ─── Carreiras futuras (Em Breve) — Escalabilidade ───────────────────────────
@@ -812,6 +741,24 @@ window.concluirMissao = function(modId, missaoId, dados = {}) {
   const xp = missao?.xp || JORNADA_XP_BONUS.missao;
 
   if (typeof window.addXP === 'function') window.addXP(xp);
+
+  // Avisa Admin
+  try {
+    if (window.firebase && firebase.auth().currentUser) {
+      const user = firebase.auth().currentUser;
+      firebase.firestore().collection('notificacoes_admin').add({
+        tipo: 'missao_concluida',
+        uid: user.uid,
+        nome: user.displayName || 'Aluno',
+        email: user.email || '',
+        missaoId: missaoId,
+        missaoNome: missao ? missao.nome : 'Missão Desconhecida',
+        carreira: CARREIRA_ATIVA,
+        acertos: dados.acertos || 0,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+  } catch(e) {}
 
   // Verifica se módulo foi concluído
   if (mod) {
