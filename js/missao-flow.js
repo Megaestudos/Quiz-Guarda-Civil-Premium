@@ -165,19 +165,31 @@ async function buscarQuestoesMissao(missao, limite) {
  * Busca flashcards da matéria.
  * Retorna array (vazio se não encontrar).
  */
-async function buscarFlashcardsMissao(materia) {
+async function buscarFlashcardsMissao(missao) {
+  const materia = missao.materia || '';
+  const assunto = missao.assunto || missao.subassunto || '';
+  
   try {
     const db = firebase.firestore();
     const snap = await db.collection('flashcards').where('materia', '==', materia).get();
-    const cards = [];
+    let cards = [];
     snap.forEach(doc => cards.push({ id: doc.id, ...doc.data() }));
-    return cards;
+    
+    if (assunto && cards.length > 3) {
+      const filtered = cards.filter(c => {
+        const ca = (c.assunto || c.topico || '').toLowerCase();
+        return ca === assunto.toLowerCase() || ca.includes(assunto.toLowerCase());
+      });
+      if (filtered.length >= 3) cards = filtered;
+    }
+    
+    return shuffleArray(cards).slice(0, 15);
   } catch (e) {
     // Tenta sem filtro
     try {
       const db = firebase.firestore();
       const snap2 = await db.collection('flashcards').get();
-      const cards2 = [];
+      let cards2 = [];
       const chave = (materia || '').toLowerCase();
       snap2.forEach(doc => {
         const d = doc.data();
@@ -186,7 +198,7 @@ async function buscarFlashcardsMissao(materia) {
           cards2.push({ id: doc.id, ...d });
         }
       });
-      return cards2;
+      return shuffleArray(cards2).slice(0, 15);
     } catch (e2) {
       return [];
     }
@@ -232,11 +244,11 @@ window.iniciarFluxoMissao = async function(modId, missaoId) {
     missaoId,
     mod,
     missao,
+    isFinal: missao.isFinal || false,
     etapa: 1,
+    questoesLimite: 30,
     inicioTotal: Date.now(),
     xpTotal: missao.xp || 50,
-    isFinal: !!missao.isFinal,
-    questoesLimite: missao.isFinal ? 15 : 10,
     // Dados carregados
     cms: null,
     questoesEtapa2: [],
@@ -256,11 +268,23 @@ window.iniciarFluxoMissao = async function(modId, missaoId) {
     const [cms, questoesE2, flashcards, questoesE5] = await Promise.all([
       buscarCmsMissao(missao.materia),
       buscarQuestoesMissao(missao, 10),
-      buscarFlashcardsMissao(missao.materia),
+      buscarFlashcardsMissao(missao),
       buscarQuestoesMissao(missao, _missaoSessao.questoesLimite),
     ]);
 
-    _missaoSessao.cms = cms;
+    let finalCms = missao.cms || cms;
+    if (Array.isArray(finalCms)) {
+      const mapped = { videos: [], audios: [], resumo: '' };
+      finalCms.forEach(block => {
+        if (block.type === 'video') mapped.videos.push(block);
+        else if (block.type === 'audio') mapped.audios.push(block);
+        else if (block.type === 'resumo' || block.type === 'texto') {
+           mapped.resumo += block.conteudo + "\\n\\n";
+        }
+      });
+      finalCms = mapped;
+    }
+    _missaoSessao.cms = finalCms;
     _missaoSessao.questoesEtapa2 = questoesE2;
     _missaoSessao.flashcards = flashcards;
     _missaoSessao.questoesEtapa5 = questoesE5;
