@@ -3,117 +3,172 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0"/>
-  <title>Guarda Civil — App Profissional</title>
+  <title>PlenAula — Plataforma de Aprovação</title>
+  <meta name="description" content="Jornada de aprovação para concursos policiais e Guardas Municipais. Trilhas, missões, gamificação e conteúdo organizado."/>
   <meta name="theme-color" content="#0B0F19"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=2.7">
+  <link rel="stylesheet" href="./styles.css?v=3.0">
+  <link rel="stylesheet" href="./engajamento.css">
 </head>
 <body style="opacity: 0; transition: opacity 0.3s ease;">
   <div class="ambient-glow glow-1"></div>
   <div class="ambient-glow glow-2"></div>
 
   <div class="app" id="appRoot">
-    <div class="card header" id="cardHeader">
+
+    <!-- ═══ HEADER GLOBAL ═══════════════════════════════════════════════ -->
+    <div class="card header v2-header" id="cardHeader">
       <div class="header-titles">
-        <img src="./assets/logo.png" style="height: 48px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); margin-right: 4px;" alt="Logo PlenAula" />
+        <img src="./assets/logo.png" style="height:44px; object-fit:contain; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.3)); margin-right:4px;" alt="Logo PlenAula"/>
         <div>
           <h1 class="title">PlenAula</h1>
-          <div class="subtitle">Plataforma de Estudos</div>
+          <div class="subtitle">Jornada de Aprovação</div>
         </div>
       </div>
-      <div class="controls">
-        <button class="icon-btn" id="logoutBtn" title="Sair" onclick="logoutUser()"><i class="ph ph-sign-out"></i></button>
-        <div class="scale-controls">
-          <button class="icon-btn" id="scaleDownBtn" title="Diminuir"><i class="ph ph-minus"></i></button>
-          <div class="scale-label" id="scaleLabel">1.00x</div>
-          <button class="icon-btn" id="scaleUpBtn" title="Aumentar"><i class="ph ph-plus"></i></button>
-        </div>
-        <button class="icon-btn" id="soundToggle" title="Alternar Som">
-          <i class="ph ph-speaker-high" id="soundIcon"></i>
+      <div class="header-right">
+        <!-- Avatar → abre Perfil -->
+        <button class="avatar-btn" id="avatarBtn" onclick="go('perfil')" title="Meu Perfil">
+          <div class="avatar-letter-wrap"><span id="avatarLetter">U</span></div>
+          <span class="avatar-text">Perfil</span>
         </button>
-        <button class="icon-btn" id="fullscreenBtn" title="Tela Cheia"><i class="ph ph-arrows-out"></i></button>
       </div>
     </div>
 
+    <!-- ═══ ÁREA DE PÁGINAS ══════════════════════════════════════════════ -->
     <div class="pages" id="pages">
+
+      <!-- ══════════════════════════════════════
+           🏠  INÍCIO
+      ═══════════════════════════════════════ -->
       <section id="home" class="page active card">
-        <div class="welcome"><strong>Bem-vindo(a), <span id="profileUserName" class="elegant-name">Recruta</span>!</strong> <span id="welcomeSubtitle">Prepare-se para sua aprovação. Escolha uma modalidade:</span></div>
-        
-        <div class="profile-dashboard">
-          <div class="stat-box">
-             <div class="stat-icon" style="color: #F59E0B;"><i class="ph-fill ph-fire"></i></div>
-             <div class="stat-info">
-               <div class="stat-value" id="streakValue">0 Dias</div>
-               <div class="stat-label">Ofensiva</div>
-             </div>
+
+        <!-- 1. Saudação -->
+        <div class="home-greeting">
+          <div class="home-greeting-text">
+            <span class="home-greeting-label">Bem-vindo(a),</span>
+            <span class="home-user-name" id="profileUserName">Estudante</span>
           </div>
-          <div class="stat-box">
-             <div class="stat-icon" style="color: #8B5CF6;"><i class="ph-fill ph-medal"></i></div>
-             <div class="stat-info">
-               <div class="stat-value" id="rankValue">Recruta</div>
-               <div class="stat-label"><span id="xpValue">0</span> XP</div>
+          <div class="home-streak-badge" id="homeStreakBadge">
+            <i class="ph-fill ph-fire"></i>
+            <span id="streakValue">0</span>
+          </div>
+        </div>
+
+        <!-- 2. Continuar Jornada -->
+        <div id="continuarJornadaCard" style="display:none; margin-bottom:16px;">
+          <div class="home-section-label"><i class="ph-fill ph-map-trifold"></i> Continuar Jornada</div>
+          <div class="continuar-jornada-card" onclick="continuarJornada()" style="background:linear-gradient(135deg, rgba(19,26,42,1) 0%, rgba(30,41,59,1) 100%); border:1px solid rgba(124,58,237,0.35); border-radius:20px; padding:20px; position:relative; overflow:hidden; cursor:pointer; box-shadow: 0 8px 24px rgba(124,58,237,0.15);">
+             <div style="position:absolute; top:-40px; right:-30px; width:140px; height:140px; background:radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
+             <div style="display:flex; flex-direction:column; gap:3px; width:100%; position:relative; z-index:2;">
+               <div style="font-size:11px; font-weight:800; color:var(--accent); text-transform:uppercase; letter-spacing:1.2px; margin-bottom:1px;" id="cjcCarreiraNome">Carreira</div>
+               <div style="font-size:13px; font-weight:600; color:var(--text-muted);" id="cjcModuloNome">Módulo</div>
+               <div style="font-size:19px; font-weight:900; color:var(--text-main); margin-top:3px; margin-bottom:14px; letter-spacing:-0.3px;" id="cjcMissaoNome">Missão Atual</div>
+               
+               <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:700; margin-bottom:7px;">
+                  <span style="color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Progresso da Trilha</span>
+                  <span style="color:var(--accent); font-weight:800;" id="cjcPorcentagem">0%</span>
+               </div>
+               <div style="height:8px; background:rgba(0,0,0,0.4); border-radius:10px; overflow:hidden; margin-bottom:16px; width:100%; border:1px solid rgba(255,255,255,0.05);">
+                  <div id="cjcProgressoBar" style="height:100%; width:0%; background:linear-gradient(90deg, #7C3AED, #A78BFA); border-radius:10px; transition:width 1.2s ease; box-shadow: 0 0 10px rgba(124,58,237,0.5);"></div>
+               </div>
+               
+               <button class="btn btn-primary" style="width:100%; padding:15px; border-radius:14px; font-size:15px; font-weight:800; display:flex; justify-content:center; align-items:center; gap:8px;"><i class="ph-fill ph-play-circle"></i> Continuar</button>
              </div>
           </div>
         </div>
 
-        <div class="home-actions">
-          <button class="btn btn-primary" onclick="go('resumos')">
-            <i class="ph ph-book-open"></i> <span>Estudar Leis</span>
-          </button>
-          <button class="btn btn-primary" onclick="go('quiz')">
-            <i class="ph ph-target"></i> <span>Fazer Simulado</span>
-          </button>
-          <button class="btn btn-primary" onclick="go('cards')">
-            <i class="ph ph-cards"></i> <span>Flashcards</span>
-          </button>
-          <button class="btn btn-primary" onclick="go('prof-ai')" style="background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);">
-            <i class="ph ph-magic-wand"></i> <span>Professor AI</span>
-          </button>
-          <button class="btn btn-primary" onclick="go('dashboard')" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
-            <i class="ph ph-chart-line-up"></i> <span>Desempenho</span>
-          </button>
-        </div>
-        <div class="record-box">
-          <div id="bestRecord" class="record-content">
-            <i class="ph ph-spinner-gap ph-spin"></i> Carregando recorde...
+        <!-- 3. Missão do Dia -->
+        <div class="home-section-gap" style="margin-bottom:16px;">
+          <div class="home-section-label"><i class="ph-fill ph-target"></i> Missão do Dia</div>
+          <div id="missaoDoDiaCard" style="background:linear-gradient(135deg, rgba(16,185,129,0.07) 0%, rgba(5,150,105,0.04) 100%); border:1px solid rgba(16,185,129,0.2); border-radius:18px; padding:18px; position:relative; overflow:hidden; cursor:pointer; transition:all 0.25s;" onclick="" onmouseover="this.style.borderColor='rgba(16,185,129,0.4)'" onmouseout="this.style.borderColor='rgba(16,185,129,0.2)'">
+            <div style="position:absolute; top:-20px; right:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
+            <div id="mddContentBody" style="position:relative; z-index:2;">
+               <div class="mdd-loading" style="color:var(--text-muted); font-size:14px;"><i class="ph ph-spinner-gap ph-spin"></i> Carregando missão...</div>
+            </div>
           </div>
         </div>
+
+        <!-- 4. Revisões Pendentes -->
+        <div id="revisoesPendentesCard" style="display:none; margin-bottom:16px;"></div>
+
+        <!-- 5. XP / Nível (Card Premium Dedicado) -->
+        <div class="home-section-label" style="margin-top:4px;"><i class="ph-fill ph-star"></i> Seu Progresso</div>
+        <div class="xp-rank-bar">
+          <div class="xp-rank-info">
+            <span class="xp-rank-name" id="rankValue">Nível 1</span>
+            <span class="xp-amount"><i class="ph-fill ph-star"></i> <span id="xpValue">0</span>&thinsp;/&thinsp;<span id="xpNextValue">100</span> XP</span>
+          </div>
+          <div class="xp-bar-track">
+            <div class="xp-bar-fill" id="xpBarFill"></div>
+          </div>
+          <div class="xp-next-rank">
+            <span id="xpNextRank">Próximo: Nível 2</span>
+            <span id="xpRestante"></span>
+          </div>
+        </div>
+
       </section>
 
-      <section id="dashboard" class="page card">
+      <!-- ══════════════════════════════════════
+           🛤  JORNADA DE APROVAÇÃO
+      ═══════════════════════════════════════ -->
+      <section id="jornada" class="page card">
         <div class="page-top-bar">
-          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
-          <h3 class="page-title"><i class="ph ph-chart-line-up"></i> Meu Desempenho</h3>
-        </div>
-
-        <div class="badges-container card-inner">
-          <div class="section-title"><i class="ph-fill ph-trophy"></i> Conquistas</div>
-          <div class="badges-grid" id="badgesGrid">
-            <!-- Renderizado via JS -->
+          <div class="jornada-page-title">
+            <i class="ph-fill ph-map-trifold" style="color:#7C3AED; font-size:26px;"></i>
+            <div>
+              <h3 style="margin:0; font-size:20px; font-weight:800;">Jornada de Aprovação</h3>
+              <small style="color:var(--text-muted); font-size:12px;">Escolha uma trilha e avance</small>
+            </div>
           </div>
         </div>
-        
-        <div class="stats-chart-container card-inner">
-          <div class="section-title"><i class="ph-fill ph-chart-bar"></i> Desempenho por Matéria</div>
-          <div id="statsChartBody">
-            <div style="text-align:center; color: var(--text-muted); font-size: 14px;">Responda questões para gerar estatísticas.</div>
+        <div id="jornadaContainer">
+          <div class="jornada-loading">
+            <i class="ph ph-spinner-gap ph-spin"></i>
+            <p>Carregando trilhas...</p>
           </div>
         </div>
       </section>
 
+      <!-- ══════════════════════════════════════
+           📚  BIBLIOTECA (antigo Resumos/Estudo)
+           ⚠️  Lógica interna INTACTA
+      ═══════════════════════════════════════ -->
       <section id="resumos" class="page card">
 
         <!-- VIEW 1: Lista de Matérias -->
         <div id="studyView" class="study-view">
           <div class="page-top-bar">
-            <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
-            <h3 class="page-title"><i class="ph ph-book-open"></i> Estudar Leis</h3>
+            <div class="biblioteca-header">
+              <div class="biblioteca-title-row">
+                <i class="ph-fill ph-books" style="color:#7C3AED; font-size:26px;"></i>
+                <div>
+                  <h3 style="margin:0; font-size:20px; font-weight:800;">Biblioteca</h3>
+                  <small style="color:var(--text-muted); font-size:12px;">Vídeos, áudios, slides e resumos</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Filtros da Biblioteca -->
+          <div class="biblioteca-filter-bar" id="bibliotecaFilterBar">
+            <button class="bfb-btn bfb-active" id="bfb-todas" onclick="setLibraryFilter('todas')">
+              <i class="ph-fill ph-squares-four"></i> Todas
+            </button>
+            <button class="bfb-btn" id="bfb-favoritos" onclick="setLibraryFilter('favoritos')">
+              <i class="ph-fill ph-star"></i> Favoritos
+            </button>
+            <button class="bfb-btn" id="bfb-estudadas" onclick="setLibraryFilter('estudadas')">
+              <i class="ph-fill ph-chart-bar"></i> Mais Estudadas
+            </button>
+            <button class="bfb-btn" id="bfb-recentes" onclick="setLibraryFilter('recentes')">
+              <i class="ph-fill ph-clock-clockwise"></i> Recentes
+            </button>
           </div>
           <div id="studyList" class="study-grid">Carregando conteúdos...</div>
         </div>
@@ -146,7 +201,7 @@
               <i class="ph ph-arrow-right media-type-arrow"></i>
             </button>
             <button class="media-type-btn slide-btn" onclick="showMediaList('slide')">
-              <div class="media-type-icon slide-icon" style="background-color: #8B5CF6; color: #fff;">
+              <div class="media-type-icon slide-icon" style="background-color: #7C3AED; color: #fff;">
                 <i class="ph-fill ph-presentation-chart"></i>
               </div>
               <div class="media-type-info">
@@ -168,7 +223,7 @@
           </div>
         </div>
 
-        <!-- VIEW 3: Lista de mídias (Vídeos ou Áudios) -->
+        <!-- VIEW 3: Lista de mídias -->
         <div id="mediaListView" class="study-view" style="display:none;">
           <div class="page-top-bar right-aligned">
             <button class="btn-sm" onclick="backToPicker()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
@@ -177,7 +232,7 @@
           <div id="mediaItemsList" class="media-items-list"></div>
         </div>
 
-        <!-- VIEW 4: Player (Vídeo embutido ou Áudio) -->
+        <!-- VIEW 4: Player -->
         <div id="mediaPlayerView" class="study-view" style="display:none;">
           <div class="page-top-bar right-aligned">
             <button class="btn-sm" onclick="backToMediaList()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
@@ -188,11 +243,13 @@
 
       </section>
 
+      <!-- ══════════════════════════════════════
+           🏆  SIMULADOS — INTACTO
+      ═══════════════════════════════════════ -->
       <section id="quiz" class="page card">
         <div class="quiz-shell">
-          <!-- Setup do Simulado -->
           <div id="quizSetup" class="quiz-setup">
-            <!-- VIEW 1: Seleção de Modo (Nova) -->
+            <!-- VIEW 1: Dashboard -->
             <div id="simuladosDashboard" class="simulados-page-content">
               <div class="simulados-header-wrap">
                 <h1>Simulados</h1>
@@ -202,7 +259,7 @@
               <div class="quick-actions-grid">
                 <div class="action-card rapid" onclick="showClassicTopicSelection()">
                   <div class="card-top">
-                    <img src="./assets/3d_rocket.png" class="card-icon-3d" alt="Rocket 3D" />
+                    <img src="./assets/3d_rocket.webp" class="card-icon-3d" alt="Rocket 3D" />
                     <div class="card-info-wrap">
                       <span class="card-title-main">Simulado Rápido</span>
                       <span class="card-subtitle-main">30 questões</span>
@@ -235,7 +292,6 @@
                   <a href="#" class="view-all-link">Ver todos <i class="ph ph-caret-right"></i></a>
                 </div>
                 <div id="simuladoHistoryList" class="history-list">
-                  <!-- Renderizado via JS -->
                   <div style="text-align:center; padding:40px; color:var(--text-muted);">
                     <i class="ph ph-brain" style="font-size:32px; margin-bottom:10px;"></i>
                     <p>Suas atividades aparecerão aqui.</p>
@@ -244,7 +300,7 @@
               </div>
             </div>
 
-            <!-- VIEW 2: Escolha de Matéria (Clássica) -->
+            <!-- VIEW 2: Escolha de Matéria -->
             <div id="classicTopicSelection" class="simulados-page-content" style="display: none;">
               <div class="page-top-bar">
                 <button class="btn-sm" onclick="backToSimuladosDashboard()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
@@ -304,26 +360,15 @@
         </div>
       </section>
 
-      <section id="cards" class="page card">
-        <div class="page-top-bar">
-          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
-          <h3 class="page-title"><i class="ph ph-cards"></i> Flashcards</h3>
-        </div>
-        <!-- Area preparada para o visual Tinder-style Swipe -->
-        <div class="deck-container">
-           <div id="cardsList" class="deck"></div>
-           <div class="deck-controls" style="text-align:center; margin-top:20px; color:var(--text-muted); font-size:14px; font-weight:600;">
-             <i class="ph ph-arrows-left-right"></i> Arraste o cartão para os lados para pular
-           </div>
-        </div>
-      </section>
-
+      <!-- ══════════════════════════════════════
+           🤖  PROFESSOR IA — INTACTO
+      ═══════════════════════════════════════ -->
       <section id="prof-ai" class="page card">
         <!-- View 1: Menu Inicial -->
         <div id="profAiMenu" class="study-view">
           <div class="page-top-bar">
             <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
-            <h3 class="page-title"><i class="ph ph-robot"></i> Professor AI</h3>
+            <h3 class="page-title"><i class="ph ph-robot"></i> Professor IA</h3>
           </div>
           <p class="welcome" style="margin-bottom:20px; text-align:center;">
             Como posso ajudar nos seus estudos hoje?
@@ -352,16 +397,14 @@
           </div>
         </div>
 
-        <!-- View 2: Interface de Chat Clássico (Apenas p/ Plano de Estudo ou Retrocompatibilidade) -->
+        <!-- View 2: Chat -->
         <div id="profAiChat" class="study-view ai-chat-view" style="display:none;">
           <div class="page-top-bar">
             <button class="btn-sm" onclick="backToProfAiMenu()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
-            <h3 class="page-title" id="profAiChatTitle"><i class="ph ph-robot"></i> Professor AI</h3>
+            <h3 class="page-title" id="profAiChatTitle"><i class="ph ph-robot"></i> Professor IA</h3>
             <div class="chat-uses-badge" id="aiUsageBadge" style="display:none;"></div>
           </div>
-          <div class="chat-history" id="aiChatHistory">
-            <!-- Mensagens -->
-          </div>
+          <div class="chat-history" id="aiChatHistory"></div>
           <div class="chat-input-area">
             <textarea id="aiChatInput" placeholder="Digite sua mensagem..." rows="1" maxlength="4000"></textarea>
             <button id="aiChatSendBtn" class="btn-primary icon-btn-round" onclick="sendAiMessage()">
@@ -370,7 +413,7 @@
           </div>
         </div>
 
-        <!-- View 3: Setup de Recepção (Redação) -->
+        <!-- View 3: Setup de Redação -->
         <div id="profAiEssaySetup" class="study-view ai-chat-view" style="display:none;">
           <div class="page-top-bar">
             <button class="btn-sm" onclick="backToProfAiMenu()"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
@@ -405,7 +448,7 @@
           </div>
         </div>
 
-        <!-- View 4: Curso Premium Interativo (Redação) -->
+        <!-- View 4: Curso Premium (Redação) -->
         <div id="profAiEssayCourse" class="study-view" style="display:none;">
           <div class="page-top-bar">
             <button class="btn-sm" onclick="showEssaySetup()"><i class="ph ph-arrow-left"></i> <span>Sair</span></button>
@@ -413,43 +456,101 @@
           </div>
 
           <div class="essay-course-container">
-            <div class="course-timeline" id="courseTimeline">
-               <!-- Steps Renderizados via JS -->
-            </div>
-            
-            <div class="course-content-area" id="courseContentArea">
-               <!-- Conteúdo e Microtarefas -->
-            </div>
+            <div class="course-timeline" id="courseTimeline"></div>
+            <div class="course-content-area" id="courseContentArea"></div>
           </div>
         </div>
       </section>
-    </div>
-  </div>
 
+      <!-- ══════════════════════════════════════
+           👤  PERFIL (via avatar no header)
+      ═══════════════════════════════════════ -->
+      <section id="perfil" class="page card">
+        <div class="page-top-bar">
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Início</span></button>
+          <h3 class="page-title"><i class="ph ph-user-circle"></i> Meu Perfil</h3>
+        </div>
+        <div id="perfilContent" class="perfil-wrapper">
+          <div style="text-align:center; padding:40px; color:var(--text-muted);">
+            <i class="ph ph-spinner-gap ph-spin" style="font-size:32px;"></i>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+           📊  DASHBOARD (manter para compatibilidade)
+      ═══════════════════════════════════════ -->
+      <section id="dashboard" class="page card">
+        <div class="page-top-bar">
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
+          <h3 class="page-title"><i class="ph ph-chart-line-up"></i> Meu Desempenho</h3>
+        </div>
+        <div class="badges-container card-inner">
+          <div class="section-title"><i class="ph-fill ph-trophy"></i> Conquistas</div>
+          <div class="badges-grid" id="badgesGrid"></div>
+        </div>
+        <div class="stats-chart-container card-inner">
+          <div class="section-title"><i class="ph-fill ph-chart-bar"></i> Desempenho por Matéria</div>
+          <div id="statsChartBody">
+            <div style="text-align:center; color: var(--text-muted); font-size: 14px;">Responda questões para gerar estatísticas.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+           🃏  FLASHCARDS
+      ═══════════════════════════════════════ -->
+      <section id="cards" class="page card">
+        <div class="page-top-bar">
+          <button class="btn-sm" onclick="go('home')"><i class="ph ph-arrow-left"></i> <span>Voltar</span></button>
+          <h3 class="page-title"><i class="ph ph-cards"></i> Flashcards</h3>
+        </div>
+        <div class="deck-container">
+           <div id="cardsList" class="deck"></div>
+           <div class="deck-controls" style="text-align:center; margin-top:20px; color:var(--text-muted); font-size:14px; font-weight:600;">
+             <i class="ph ph-arrows-left-right"></i> Arraste o cartão para os lados para pular
+           </div>
+        </div>
+      </section>
+
+    </div><!-- /pages -->
+  </div><!-- /app -->
+
+  <!-- ═══ BARRA DE NAVEGAÇÃO INFERIOR (5 ABAS) ════════════════════════════ -->
   <div class="tabs-nav" role="navigation" id="tabsBar">
-    <button class="tabbtn active" data-target="home" onclick="go('home')">
+    <button class="tabbtn active" data-target="home" onclick="go('home')" id="tab-home">
       <i class="ph ph-house"></i>
       <span>Início</span>
     </button>
-    <button class="tabbtn" data-target="resumos" onclick="go('resumos')">
-      <i class="ph ph-book-open"></i>
-      <span>Estudo</span>
+    <button class="tabbtn" data-target="jornada" onclick="go('jornada')" id="tab-jornada">
+      <i class="ph ph-map-trifold"></i>
+      <span>Jornada</span>
     </button>
-    <button class="tabbtn" data-target="quiz" onclick="go('quiz')">
-      <i class="ph ph-target"></i>
-      <span>Simulado</span>
+    <button class="tabbtn" data-target="resumos" onclick="go('resumos')" id="tab-resumos">
+      <i class="ph ph-books"></i>
+      <span>Biblioteca</span>
     </button>
-    <button class="tabbtn" data-target="cards" onclick="go('cards')">
-      <i class="ph ph-cards"></i>
-      <span>Cartões</span>
+    <button class="tabbtn" data-target="quiz" onclick="go('quiz')" id="tab-quiz">
+      <i class="ph ph-trophy"></i>
+      <span>Simulados</span>
     </button>
-    <button class="tabbtn" data-target="prof-ai" onclick="go('prof-ai')">
-      <i class="ph ph-magic-wand"></i>
-      <span>Prof AI</span>
+    <button class="tabbtn" data-target="prof-ai" onclick="go('prof-ai')" id="tab-prof-ai">
+      <i class="ph ph-robot"></i>
+      <span>Prof IA</span>
     </button>
   </div>
 
-  <!-- Bottom Sheet (Painel Deslizante para Explicação) -->
+  <!-- ═══ MODAL DE MISSÃO ══════════════════════════════════════════════════ -->
+  <div id="missaoModal" class="missao-modal-overlay" onclick="handleMissaoOverlayClick(event)">
+    <div class="missao-modal-card">
+      <button class="missao-modal-close" onclick="fecharMissaoModal()">
+        <i class="ph ph-x"></i>
+      </button>
+      <div id="missaoModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ═══ BOTTOM SHEET (Explicação) ═══════════════════════════════════════ -->
   <div id="explainSheet" class="bottom-sheet">
     <div class="sheet-overlay" onclick="closeExplain()"></div>
     <div class="sheet-content">
@@ -464,8 +565,8 @@
     </div>
   </div>
 
-  <!-- Three.js (Apenas para Loading/Reception) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- ═══ SCRIPTS ═══════════════════════════════════════════════════════════ -->
+
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -475,9 +576,34 @@
   
   <script src="./js/auth.js"></script>
   <script src="./js/subscription.js"></script>
-  <script src="./js/app.js?v=2.7"></script>
+  <script src="./js/app.js?v=3.0"></script>
   <script src="./js/prof-ai.js"></script>
   <script src="./js/essay-course.js"></script>
+  <script src="./js/missao-flow.js"></script>
+  <script src="./js/engajamento.js"></script>
+  <script src="./js/jornada.js"></script>
+
+  <script>
+    // ─── Utilitários globais menores ──────────────────────────────────
+    window.handleMissaoOverlayClick = function(e) {
+      if (e.target.id === 'missaoModal') fecharMissaoModal();
+    };
+
+    // Atualiza avatar e nome no header quando o auth estiver pronto
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.firebase && firebase.auth) {
+        firebase.auth().onAuthStateChanged(user => {
+          if (user) {
+            const nome = user.displayName || user.email || 'Estudante';
+            const el = document.getElementById('profileUserName');
+            if (el) el.textContent = nome.split(' ')[0];
+            const av = document.getElementById('avatarLetter');
+            if (av) av.textContent = nome[0].toUpperCase();
+          }
+        });
+      }
+    });
+  </script>
 
 </body>
 </html>

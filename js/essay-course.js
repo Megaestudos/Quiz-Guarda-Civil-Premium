@@ -22,10 +22,20 @@ window.showEssaySetup = function() {
     initThreeJsBg();
 };
 
-function initThreeJsBg() {
+async function initThreeJsBg() {
    const container = document.getElementById('threeJsContainer');
    if(!container || container.innerHTML !== '') return;
-   if (!window.THREE) return;
+   if (!window.THREE) {
+       try {
+           await new Promise((resolve, reject) => {
+               const script = document.createElement('script');
+               script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+               script.onload = resolve;
+               script.onerror = reject;
+               document.head.appendChild(script);
+           });
+       } catch(e) { console.error('Failed to load Three.js', e); return; }
+   }
 
    threeScene = new THREE.Scene();
    threeCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);

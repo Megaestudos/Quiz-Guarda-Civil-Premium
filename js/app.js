@@ -31,6 +31,8 @@ window.showPage = window.go = function(id) {
   if (target) target.classList.add('active');
   
   // Atualiza as tabs (se existirem)
+  // Para Perfil e Dashboard (sem tab própria), não altera seleção
+  const tabPageIds = ['home','jornada','resumos','quiz','prof-ai'];
   document.querySelectorAll('.tabbtn').forEach(btn => {
      btn.classList.toggle('active', btn.getAttribute('data-target') === id);
   });
@@ -40,12 +42,25 @@ window.showPage = window.go = function(id) {
   else document.body.classList.remove('quiz-focus');
 
   // Gatilhos extras de carregamento
-  if (id === 'home' || id === 'dashboard') {
+  if (id === 'home') {
+     showBestRecord();
+     updateXPUI();
+     checkStreak();
+     if(typeof renderMissaoDoDia === 'function') renderMissaoDoDia();
+     if(typeof renderJornadaHomeStats === 'function') renderJornadaHomeStats();
+  }
+  if (id === 'dashboard') {
      showBestRecord();
      updateXPUI();
      checkStreak();
      if(typeof renderBadges === 'function') renderBadges();
      if(typeof renderStatsChart === 'function') renderStatsChart();
+  }
+  if(id === 'jornada') {
+     if(typeof renderJornada === 'function') renderJornada();
+  }
+  if(id === 'perfil') {
+     if(typeof renderPerfil === 'function') renderPerfil();
   }
   if(id === 'resumos' || id === 'study') renderStudies();
   if(id === 'cards') renderCards();
@@ -82,29 +97,57 @@ function registerStudyDay() {
   if(window.syncGamificationToCloud) window.syncGamificationToCloud();
 }
 
-function getRankName(xp) {
-  if(xp < 100) return 'Recruta';
-  if(xp < 500) return 'Soldado';
-  if(xp < 1500) return 'Cabo';
-  if(xp < 3000) return 'Sargento';
-  if(xp < 6000) return 'Tenente';
-  if(xp < 10000) return 'Capitão';
-  return 'Comandante';
+function getLevelInfo(xp) {
+    let level = 1;
+    let requiredXP = 100;
+    let currentLevelXP = 0;
+    while (xp >= requiredXP) {
+        level++;
+        currentLevelXP = requiredXP;
+        requiredXP = Math.floor(requiredXP * 1.5) + 50;
+    }
+    return {
+        level: level,
+        currentXP: xp,
+        minXP: currentLevelXP,
+        nextXP: requiredXP,
+        progressPct: Math.max(0, Math.min(100, ((xp - currentLevelXP) / (requiredXP - currentLevelXP)) * 100))
+    };
 }
 
 function updateXPUI() {
   const xp = parseInt(localStorage.getItem(XP_KEY) || '0');
-  const elXP = document.getElementById('xpValue');
+  const elXP   = document.getElementById('xpValue');
+  const elNextXP = document.getElementById('xpNextValue');
   const elRank = document.getElementById('rankValue');
-  if(elXP) elXP.textContent = xp;
-  if(elRank) elRank.textContent = getRankName(xp);
+  const elNext = document.getElementById('xpNextRank');
+  const elFill = document.getElementById('xpBarFill');
+  const elRestante = document.getElementById('xpRestante');
+  
+  const levelInfo = getLevelInfo(xp);
+  const xpRestante = levelInfo.nextXP - xp;
+
+  if(elXP) elXP.textContent = xp.toLocaleString('pt-BR');
+  if(elNextXP) elNextXP.textContent = levelInfo.nextXP.toLocaleString('pt-BR');
+  if(elRank) elRank.textContent = `Nível ${levelInfo.level}`;
+  if(elNext) elNext.textContent = `Próximo: Nível ${levelInfo.level + 1}`;
+  if(elRestante) elRestante.textContent = `faltam ${xpRestante} XP`;
+  
+  if(elFill) {
+    elFill.style.width = levelInfo.progressPct + '%';
+  }
 }
 
 function addXP(amount) {
   let xp = parseInt(localStorage.getItem(XP_KEY) || '0');
+  const levelAntes = getLevelInfo(xp).level;
   xp += amount;
   localStorage.setItem(XP_KEY, xp);
   updateXPUI();
+  
+
+
+  if(window.animarGanhoXP) window.animarGanhoXP(amount);
   if(window.syncGamificationToCloud) window.syncGamificationToCloud();
 }
 
@@ -187,12 +230,7 @@ function updateSoundUI() {
 }
 if (localStorage.getItem(SOUND_KEY) === null) localStorage.setItem(SOUND_KEY, '1');
 
-// Função removida por ser duplicata (agora unificada no topo)
-
-function linkify(text) {
-  const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-  return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
-}
+// Função de links movida/unificada
 
 // =====================================================================
 // CATÁLOGO DE VÍDEOS E ÁUDIOS POR MATÉRIA
@@ -202,21 +240,64 @@ function linkify(text) {
 // =====================================================================
 let MEDIA_CATALOG = [];
 
+window.getMateriasAulas = async function() {
+  const cached = sessionStorage.getItem('cache_materias_aulas');
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (parsed && Array.isArray(parsed)) return parsed;
+    } catch(e){}
+  }
+  const db = firebase.firestore();
+  const snap = await db.collection("materias_aulas").get();
+  const data = [];
+  snap.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+  sessionStorage.setItem('cache_materias_aulas', JSON.stringify(data));
+  return data;
+};
+
 window.initContentCMS = async function() {
   try {
     if(!window.firebase || !firebase.firestore) return setTimeout(window.initContentCMS, 500);
-    const db = firebase.firestore();
-    const snap = await db.collection("materias_aulas").get();
-    MEDIA_CATALOG = [];
-    snap.forEach(doc => {
-       const cd = doc.data();
-       MEDIA_CATALOG.push({ id: doc.id, ...cd });
-    });
+    const dados = await window.getMateriasAulas();
+    MEDIA_CATALOG = dados;
     console.log("CMS Aulas Carregado:", MEDIA_CATALOG.length, "matérias.");
     if(typeof renderStudies === 'function') renderStudies();
   } catch(e) { console.error("CMS Load Error:", e); }
 };
 window.initContentCMS();
+
+window.initJornadaCMS = async function() {
+  if(!window.firebase || !firebase.firestore) return setTimeout(window.initJornadaCMS, 500);
+  try {
+    const db = firebase.firestore();
+    const snap = await db.collection("jornada_missoes").get();
+    if (snap.empty) return;
+    
+    const cmsMap = {};
+    snap.forEach(doc => {
+      if (doc.data().cms) cmsMap[doc.id] = doc.data().cms;
+    });
+    
+    if (window.CARREIRAS) {
+      Object.values(window.CARREIRAS).forEach(c => {
+        if (c.modulos) {
+          c.modulos.forEach(mod => {
+            if (mod.missoes) {
+              mod.missoes.forEach(m => {
+                if (cmsMap[m.id]) m.cms = cmsMap[m.id];
+              });
+            }
+          });
+        }
+      });
+      console.log("Jornada CMS Carregado do Firebase.");
+    }
+  } catch(e) {
+    console.error("Erro ao carregar Jornada CMS:", e);
+  }
+};
+window.initJornadaCMS();
 
 const GITHUB_RESUMOS_BASE = './';
 
@@ -252,7 +333,7 @@ function stopCurrentMedia() {
   if (pc) pc.innerHTML = '';
 }
 
-function openSubject(subjectId) {
+window.openSubject = function openSubject(subjectId) {
   currentSubjectId = subjectId;
   const subject = MEDIA_CATALOG.find(s => s.id === subjectId);
   if (!subject) return;
@@ -427,30 +508,168 @@ function openMediaPlayer(item, type) {
   showStudyViews('mediaPlayerView');
 }
 
-async function renderStudies() {
+// ─── Biblioteca: estado de filtro ─────────────────────────────────────────────
+let _bibliotecaFiltroAtivo = 'todas';
+const BIBLIOTECA_FAVORITOS_KEY = 'biblioteca_favoritos';
+const BIBLIOTECA_RECENTES_KEY  = 'biblioteca_recentes';
+
+function getLibraryFavoritos() {
+  try { return JSON.parse(localStorage.getItem(BIBLIOTECA_FAVORITOS_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function getLibraryRecentes() {
+  try { return JSON.parse(localStorage.getItem(BIBLIOTECA_RECENTES_KEY) || '[]'); } catch(e) { return []; }
+}
+
+window.trackRecentSubject = function(subjectId) {
+  try {
+    let recentes = getLibraryRecentes();
+    recentes = recentes.filter(id => id !== subjectId);
+    recentes.unshift(subjectId);
+    recentes = recentes.slice(0, 5);
+    localStorage.setItem(BIBLIOTECA_RECENTES_KEY, JSON.stringify(recentes));
+  } catch(e) {}
+};
+
+window.toggleFavorite = function(subjectId, e) {
+  e && e.stopPropagation();
+  try {
+    let favs = getLibraryFavoritos();
+    const idx = favs.indexOf(subjectId);
+    if (idx >= 0) favs.splice(idx, 1);
+    else favs.push(subjectId);
+    localStorage.setItem(BIBLIOTECA_FAVORITOS_KEY, JSON.stringify(favs));
+    renderStudies(_bibliotecaFiltroAtivo);
+  } catch(err) {}
+};
+
+window.setLibraryFilter = function(filtro) {
+  _bibliotecaFiltroAtivo = filtro;
+  // Atualiza visual dos botões
+  ['todas','favoritos','estudadas','recentes'].forEach(f => {
+    const btn = document.getElementById('bfb-' + f);
+    if (btn) btn.classList.toggle('bfb-active', f === filtro);
+  });
+  renderStudies(filtro);
+};
+
+async function renderStudies(filtro) {
+  filtro = filtro || _bibliotecaFiltroAtivo || 'todas';
   const container = document.getElementById('studyList');
   if (!container) return;
 
-  container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)"><i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i><br><br>Carregando matérias...</div>';
+  if (!MEDIA_CATALOG.length) {
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)"><i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i><br><br>Carregando matérias...</div>';
+    return;
+  }
 
   try {
     container.innerHTML = '';
-    MEDIA_CATALOG.forEach(subject => {
+
+    // Define quais subjects exibir conforme filtro (para todas, recentes, estudadas)
+    let subjects = [...MEDIA_CATALOG];
+    const recentes = getLibraryRecentes();
+
+    if (filtro === 'favoritos') {
+      let favsUnificados = {};
+      try { favsUnificados = JSON.parse(localStorage.getItem('plenAula_favoritos') || '{}'); } catch(e) {}
+      const lista = Object.values(favsUnificados).sort((a, b) => b.ts - a.ts);
+      
+      if (lista.length === 0) {
+        container.innerHTML = `
+          <div class="biblioteca-empty-state">
+            <i class="ph ph-star"></i>
+            <p>Você ainda não marcou favoritos.<br>Clique na ★ em matérias, flashcards ou aulas para salvá-los aqui.</p>
+          </div>`;
+        return;
+      }
+      
+      const icones = { materia: 'ph-books', flashcard: 'ph-cards', aula: 'ph-video', missao: 'ph-map-pin' };
+      const cores  = { materia: '#3B82F6', flashcard: '#F59E0B', aula: '#8B5CF6', missao: '#10B981' };
+      
+      // Aplicar estilo de grid para os itens de favorito se quiser, ou usar o estilo de lista fav-item
+      // Vamos reutilizar fav-item que já existe no premium.css
+      container.innerHTML = lista.map(f => `
+        <div class="fav-item" onclick="${f.tipo === 'materia' ? `openSubject('${f.id}')` : f.tipo === 'flashcard' ? `go('cards')` : ''}" style="cursor:pointer; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 14px;">
+          <div class="fav-item-icon" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; background:${cores[f.tipo] || '#7C3AED'}22; border: 1px solid ${cores[f.tipo] || '#7C3AED'}44;">
+            <i class="ph-fill ${icones[f.tipo] || 'ph-star'}" style="color:${cores[f.tipo] || '#7C3AED'};"></i>
+          </div>
+          <div class="fav-item-info" style="flex: 1; min-width: 0;">
+            <div class="fav-item-nome" style="font-size: 15px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${f.nome}</div>
+            <div class="fav-item-tipo" style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">${f.tipo.charAt(0).toUpperCase() + f.tipo.slice(1)}</div>
+          </div>
+          <button class="fav-star-btn fav-ativo" data-fav-key="${f.tipo}_${f.id}"
+            onclick="event.stopPropagation(); if(window.toggleFavorito) { window.toggleFavorito('${f.tipo}', '${f.id}', '${f.nome.replace(/'/g, "\\'")}'); renderStudies('favoritos'); }"
+            style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #F59E0B; cursor: pointer;">
+            <i class="ph-fill ph-star" style="font-size: 20px;"></i>
+          </button>
+        </div>
+      `).join('');
+      
+      // Adicionar CSS grid para que fique em 2 colunas no desktop, igual matérias
+      container.style.display = 'grid';
+      container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+      container.style.gap = '16px';
+      
+      return;
+    } else if (filtro === 'recentes') {
+      subjects = recentes
+        .map(id => subjects.find(s => s.id === id))
+        .filter(Boolean);
+    } else if (filtro === 'estudadas') {
+      let tStats = {};
+      try { tStats = JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}'); } catch(e) {}
+      subjects = subjects.sort((a, b) => {
+        const sa = tStats[a.name] || { t: 0 };
+        const sb = tStats[b.name] || { t: 0 };
+        return (sb.t || 0) - (sa.t || 0);
+      });
+    }
+
+    // Exibe empty state se filtro não tiver resultados
+    if (subjects.length === 0) {
+      let emptyMsg = 'Nenhuma matéria nesta categoria.';
+      let emptyIcon = 'ph-magnifying-glass';
+      if (filtro === 'recentes')  { emptyMsg = 'Você ainda não acessou nenhuma matéria.'; emptyIcon = 'ph-clock-clockwise'; }
+      if (filtro === 'estudadas') { emptyMsg = 'Responda questões para ver as mais estudadas.'; emptyIcon = 'ph-chart-bar'; }
+      container.innerHTML = `
+        <div class="biblioteca-empty-state">
+          <i class="ph ${emptyIcon}"></i>
+          <p>${emptyMsg.replace('\n','<br>')}</p>
+        </div>`;
+      return;
+    }
+
+    container.style.display = 'grid';
+    container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+    container.style.gap = '16px';
+
+    subjects.forEach(subject => {
       const vCount = subject.videos ? subject.videos.length : 0;
       const aCount = subject.audios ? subject.audios.length : 0;
       const sCount = subject.slides ? subject.slides.length : 0;
       const totalMedia = vCount + aCount + sCount;
+      const isFav = window.isFavorito ? window.isFavorito('materia', subject.id) : false;
+
       const card = document.createElement('div');
-      card.className = 'resumo-card';
+      card.className = 'resumo-card' + (isFav ? ' favorito' : '');
       card.innerHTML = `
         <div class="resumo-icon"><i class="ph-fill ${subject.icon}"></i></div>
         <div class="resumo-info">
           <h4>${subject.name}</h4>
-          <p>${totalMedia > 0 ? `${vCount} vídeo${vCount !== 1 ? 's' : ''} · ${aCount} áudio${aCount !== 1 ? 's' : ''}${sCount > 0 ? ` · ${sCount} slide${sCount !== 1 ? 's' : ''}` : ''}` : 'Resumo + Mídia'}</p>
+          <p>${totalMedia > 0
+            ? `${vCount} vídeo${vCount !== 1 ? 's' : ''} · ${aCount} áudio${aCount !== 1 ? 's' : ''}${sCount > 0 ? ` · ${sCount} slide${sCount !== 1 ? 's' : ''}` : ''}`
+            : 'Resumo + Mídia'}</p>
         </div>
+        <button class="resumo-fav-btn${isFav ? ' ativo' : ''}" onclick="event.stopPropagation(); if(window.toggleFavorito) { window.toggleFavorito('materia', '${subject.id}', '${subject.name.replace(/'/g, "\\'")}'); renderStudies('${filtro}'); }" title="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
+          <i class="${isFav ? 'ph-fill ph-star' : 'ph ph-star'}"></i>
+        </button>
         <div class="resumo-action"><i class="ph ph-arrow-right"></i></div>
       `;
-      card.onclick = () => openSubject(subject.id);
+      card.onclick = () => {
+        trackRecentSubject(subject.id);
+        openSubject(subject.id);
+      };
       container.appendChild(card);
     });
   } catch (e) {
@@ -458,6 +677,7 @@ async function renderStudies() {
     container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger)">Erro ao carregar matérias.</div>';
   }
 }
+
 
 async function showTopicSelection(){
   try {
@@ -689,10 +909,17 @@ function finishQuiz(){
   
   // Salva no histórico para a nova UI
   const timeOnSeconds = simulationStartTime ? Math.floor((Date.now() - simulationStartTime) / 1000) : 0;
+  const selectedTopic = document.getElementById('topicSelect')?.value || 'Geral';
   saveToSimuladoHistory(score, POOL.length, timeOnSeconds);
 
   saveRecord(score, POOL.length);
-  checkBadges(score, POOL.length);
+  const gd = typeof isGrandeDia !== 'undefined' ? isGrandeDia : false;
+  if (window.verificarConquistas) window.verificarConquistas({ acertos: score, total: POOL.length, isGrandeDia: gd });
+
+  // Notifica a Jornada se o quiz foi iniciado por ela
+  if(typeof window.jornadaOnQuizFinish === 'function') {
+    window.jornadaOnQuizFinish(score, POOL.length, selectedTopic);
+  }
 }
 
 function saveRecord(s, t){
@@ -714,9 +941,12 @@ function saveRecord(s, t){
 
 function showBestRecord(){
   const rec = JSON.parse(localStorage.getItem(BEST_KEY));
-  document.getElementById('bestRecord').innerHTML = rec 
-    ? `<i class="ph-fill ph-trophy"></i> Recorde: ${rec.score}/${rec.total} (${rec.pct}%)` 
-    : '<i class="ph ph-rocket"></i> Faça seu primeiro simulado.';
+  const el = document.getElementById('bestRecord');
+  if (el) {
+    el.innerHTML = rec 
+      ? `<i class="ph-fill ph-trophy"></i> Recorde: ${rec.score}/${rec.total} (${rec.pct}%)` 
+      : '<i class="ph ph-rocket"></i> Faça seu primeiro simulado.';
+  }
 }
 
 async function renderCards(){
@@ -761,6 +991,9 @@ async function renderCards(){
           <div class="flash-back">
             <div class="flash-topic">${topicText}</div>
             <div class="flash-text">${backText}</div>
+            <div class="flash-hint" style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1); color: #fff;">
+              <i class="ph-bold ph-arrow-u-down-left"></i> TOQUE P/ VOLTAR
+            </div>
           </div>
         </div>
       `;
@@ -837,29 +1070,7 @@ function makeSwipeable(el) {
   };
 }
 
-window.swipeFlashcardLeft = function() {
-  const container = document.getElementById('cardsList');
-  const cards = Array.from(container.querySelectorAll('.flashcard'));
-  if (cards.length > 0 && cards[0]) {
-     const elTop = cards[0];
-     elTop.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
-     elTop.style.transform = `translate(-${window.innerWidth}px, 0) rotate(-30deg)`;
-     elTop.style.opacity = '0';
-     setTimeout(() => { elTop.remove(); setupTinderSwipe(); }, 400);
-  }
-}
-
-window.swipeFlashcardRight = function() {
-  const container = document.getElementById('cardsList');
-  const cards = Array.from(container.querySelectorAll('.flashcard'));
-  if (cards.length > 0 && cards[0]) {
-     const elTop = cards[0];
-     elTop.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
-     elTop.style.transform = `translate(${window.innerWidth}px, 0) rotate(30deg)`;
-     elTop.style.opacity = '0';
-     setTimeout(() => { elTop.remove(); setupTinderSwipe(); }, 400);
-  }
-}
+// Funções de botões swipe flashcard removidas (não utilizadas)
 
 /* --- NOVAS FUNCIONALIDADES: O Grande Dia --- */
 window.startGrandeDia = async function() {
@@ -914,57 +1125,7 @@ function startTimer(duration) {
 }
 
 /* --- NOVAS FUNCIONALIDADES: GAMIFICAÇÃO --- */
-const BADGES_LIST = [
-  { id: 'first_blood', name: 'Iniciante', icon: 'ph-footprints' },
-  { id: 'streak_3', name: 'Focado', icon: 'ph-fire' },
-  { id: 'streak_7', name: 'Maratonista', icon: 'ph-sneaker' },
-  { id: 'mestre', name: 'Mestre GCM', icon: 'ph-crown' },
-  { id: 'grande_dia', name: 'Aprovado', icon: 'ph-star' }
-];
-
-function checkBadges(scoreVal, totalVal) {
-  let unlocked = JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]');
-  let newlyUnlocked = false;
-  
-  const addBadge = (id) => { if(!unlocked.includes(id)) { unlocked.push(id); newlyUnlocked = true; } };
-  
-  if (totalVal > 0) addBadge('first_blood');
-  
-  const streak = parseInt(localStorage.getItem(STREAK_KEY) || '0');
-  if (streak >= 3) addBadge('streak_3');
-  if (streak >= 7) addBadge('streak_7');
-  
-  const xp = parseInt(localStorage.getItem(XP_KEY) || '0');
-  if (xp >= 3000) addBadge('mestre');
-  
-  // Condição para badge O Grande Dia (+80% acertos)
-  if (isGrandeDia && totalVal >= 100 && (scoreVal / totalVal) >= 0.8) {
-    addBadge('grande_dia');
-  }
-  
-  if (newlyUnlocked) {
-    localStorage.setItem('quiz_unlocked_badges', JSON.stringify(unlocked));
-    if (typeof renderBadges === 'function') renderBadges();
-    if(window.syncGamificationToCloud) window.syncGamificationToCloud();
-  }
-}
-
-window.renderBadges = function() {
-  const container = document.getElementById('badgesGrid');
-  if(!container) return;
-  const unlocked = JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]');
-  
-  container.innerHTML = '';
-  BADGES_LIST.forEach(b => {
-    const isUnlocked = unlocked.includes(b.id);
-    container.innerHTML += `
-      <div class="badge-item ${isUnlocked ? 'unlocked' : ''}">
-        <div class="badge-icon"><i class="ph-fill ${b.icon}"></i></div>
-        <div class="badge-name">${b.name}</div>
-      </div>
-    `;
-  });
-}
+// Sistema de badges unificado e movido para engajamento.js
 
 window.renderStatsChart = function() {
   const container = document.getElementById('statsChartBody');
@@ -1014,6 +1175,36 @@ window.startRapidClassic = function() {
   const topic = document.getElementById('topicSelect').value;
   loadTopicQuestions(topic);
 };
+
+// Versão da Jornada: inicia simulado com qtd limitada e registra nó pendente
+window.startRapidClassicJornada = async function(materia, qtd, modId, missaoId) {
+  window._jornada_pending_no = { modId, missaoId, materia, qtd };
+  await loadTopicQuestionsLimited(materia, qtd);
+};
+
+async function loadTopicQuestionsLimited(topic, qtd) {
+  isGrandeDia = false;
+  if(grandeDiaInterval) { clearInterval(grandeDiaInterval); grandeDiaInterval = null; }
+  document.getElementById('quizTimerContainer').style.display = 'none';
+  document.getElementById('quizSetup').style.display = 'none';
+  document.getElementById('quizActive').style.display = 'flex';
+  document.body.classList.add('quiz-focus');
+  document.getElementById('question').innerHTML = '<div class="empty-state"><i class="ph ph-spinner-gap ph-spin"></i><p>Preparando...</p></div>';
+  simulationStartTime = Date.now();
+  try {
+    let ref = getFirestoreDb().collection('questoes').where('ativo', '==', true);
+    if (topic && topic !== 'Todos') ref = ref.where('materia', '==', topic);
+    const snap = await ref.get();
+    let allQ = [];
+    snap.forEach(doc => allQ.push({ id: doc.id, ...doc.data() }));
+    for (let i = allQ.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [allQ[i],allQ[j]]=[allQ[j],allQ[i]]; }
+    POOL = allQ.slice(0, qtd || 5);
+    currentIndex = 0; score = 0; quizStarted = true;
+    renderQuestion();
+  } catch(e) {
+    POOL = []; currentIndex = 0; score = 0; quizStarted = true; renderQuestion();
+  }
+}
 
 function saveToSimuladoHistory(score, total, timeOnSeconds) {
   try {
