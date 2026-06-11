@@ -55,6 +55,7 @@ function initDropdowns() {
         });
         selModulo.disabled = false;
         selMissao.disabled = true;
+        $('selEtapa').disabled = true;
         $('cmsArea').classList.add('hidden');
     };
 
@@ -63,6 +64,7 @@ function initDropdowns() {
         const mIdx = selModulo.value;
         if (mIdx === "") {
             selMissao.disabled = true;
+            $('selEtapa').disabled = true;
             $('cmsArea').classList.add('hidden');
             return;
         }
@@ -72,23 +74,39 @@ function initDropdowns() {
             selMissao.innerHTML += `<option value="${m.id}">${m.nome} (${m.subassunto})</option>`;
         });
         selMissao.disabled = false;
+        $('selEtapa').disabled = true;
         $('cmsArea').classList.add('hidden');
     };
 
     selMissao.onchange = () => {
         const mId = selMissao.value;
         if (!mId) {
+            $('selEtapa').disabled = true;
+            $('cmsArea').classList.add('hidden');
+            return;
+        }
+        $('selEtapa').disabled = false;
+        $('selEtapa').value = "";
+        $('cmsArea').classList.add('hidden');
+    };
+
+    $('selEtapa').onchange = () => {
+        const mId = selMissao.value;
+        const eId = $('selEtapa').value;
+        if (!mId || !eId) {
             $('cmsArea').classList.add('hidden');
             return;
         }
         currentMissaoId = mId;
+        window.currentEtapaId = eId;
         const mName = selMissao.options[selMissao.selectedIndex].text;
-        $('cmsTitle').innerText = mName;
-        loadMissaoContent(mId);
+        const eName = $('selEtapa').options[$('selEtapa').selectedIndex].text;
+        $('cmsTitle').innerText = `${mName} - ${eName}`;
+        loadMissaoContent(mId, eId);
     };
 }
 
-async function loadMissaoContent(missaoId) {
+async function loadMissaoContent(missaoId, etapaId) {
     $('cmsArea').classList.remove('hidden');
     const list = $('cmsList');
     list.innerHTML = '<div class="text-center py-6"><i data-lucide="loader-2" class="w-6 h-6 animate-spin text-blue-500 mx-auto"></i><p class="text-xs text-gray-500 mt-2">Carregando do Firebase...</p></div>';
@@ -98,7 +116,9 @@ async function loadMissaoContent(missaoId) {
         const docRef = doc(db, "jornada_missoes", missaoId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists() && docSnap.data().cms) {
-            currentCmsData = docSnap.data().cms;
+            let cmsData = docSnap.data().cms;
+            if (Array.isArray(cmsData)) cmsData = { aprender: cmsData, resumo: [] };
+            currentCmsData = cmsData[etapaId] || [];
         } else {
             currentCmsData = [];
         }
@@ -200,7 +220,17 @@ window.saveCmsBlock = async function() {
     
     btn.disabled = true; btn.innerText = "Salvando...";
     try {
-        await setDoc(doc(db, "jornada_missoes", currentMissaoId), { cms: currentCmsData }, { merge: true });
+        const docRef = doc(db, "jornada_missoes", currentMissaoId);
+        const docSnap = await getDoc(docRef);
+        let cmsObj = {};
+        if (docSnap.exists() && docSnap.data().cms) {
+            let existing = docSnap.data().cms;
+            if (Array.isArray(existing)) cmsObj = { aprender: existing, resumo: [] };
+            else cmsObj = existing;
+        }
+        cmsObj[window.currentEtapaId] = currentCmsData;
+
+        await setDoc(docRef, { cms: cmsObj }, { merge: true });
         window.closeCmsModal();
         renderCmsList();
     } catch (e) {
@@ -215,7 +245,17 @@ window.deleteCmsBlock = async function(index) {
     currentCmsData.splice(index, 1);
     
     try {
-        await setDoc(doc(db, "jornada_missoes", currentMissaoId), { cms: currentCmsData }, { merge: true });
+        const docRef = doc(db, "jornada_missoes", currentMissaoId);
+        const docSnap = await getDoc(docRef);
+        let cmsObj = {};
+        if (docSnap.exists() && docSnap.data().cms) {
+            let existing = docSnap.data().cms;
+            if (Array.isArray(existing)) cmsObj = { aprender: existing, resumo: [] };
+            else cmsObj = existing;
+        }
+        cmsObj[window.currentEtapaId] = currentCmsData;
+
+        await setDoc(docRef, { cms: cmsObj }, { merge: true });
         renderCmsList();
     } catch (e) {
         alert("Erro ao remover: " + e.message);

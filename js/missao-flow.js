@@ -273,16 +273,25 @@ window.iniciarFluxoMissao = async function(modId, missaoId) {
     ]);
 
     let finalCms = missao.cms || cms;
-    if (Array.isArray(finalCms)) {
-      const mapped = { videos: [], audios: [], resumo: '' };
-      finalCms.forEach(block => {
-        if (block.type === 'video') mapped.videos.push(block);
-        else if (block.type === 'audio') mapped.audios.push(block);
-        else if (block.type === 'resumo' || block.type === 'texto') {
-           mapped.resumo += block.conteudo + "\\n\\n";
-        }
-      });
-      finalCms = mapped;
+    if (finalCms) {
+      let arrayBlocks = [];
+      if (Array.isArray(finalCms)) {
+        arrayBlocks = finalCms;
+      } else if (finalCms.aprender || finalCms.resumo) {
+        arrayBlocks = [...(finalCms.aprender || []), ...(finalCms.resumo || [])];
+      }
+      
+      if (arrayBlocks.length > 0) {
+        const mapped = { videos: [], audios: [], resumo: '' };
+        arrayBlocks.forEach(block => {
+          if (block.type === 'video') mapped.videos.push(block);
+          else if (block.type === 'audio') mapped.audios.push(block);
+          else if (block.type === 'resumo' || block.type === 'texto') {
+             mapped.resumo += block.conteudo + "\\n\\n";
+          }
+        });
+        finalCms = mapped;
+      }
     }
     _missaoSessao.cms = finalCms;
     _missaoSessao.questoesEtapa2 = questoesE2;

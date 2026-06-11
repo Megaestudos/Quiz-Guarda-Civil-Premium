@@ -62,7 +62,7 @@
 
         <div class="p-10 flex flex-col gap-8 max-w-5xl">
             <!-- Seletores -->
-            <div class="glass-panel p-6 rounded-3xl grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass-panel p-6 rounded-3xl grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
                     <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Carreira</label>
                     <select id="selCarreira" class="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white">
@@ -79,6 +79,14 @@
                     <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Missão</label>
                     <select id="selMissao" class="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" disabled>
                         <option value="">Selecione o Módulo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Etapa</label>
+                    <select id="selEtapa" class="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" disabled>
+                        <option value="">Selecione a Missão</option>
+                        <option value="aprender">Aprender (Vídeos/Áudios)</option>
+                        <option value="resumo">Resumo Rápido (Textos)</option>
                     </select>
                 </div>
             </div>
