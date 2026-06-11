@@ -158,6 +158,22 @@ async function buscarQuestoesMissao(missao, limite) {
     }
   }
 
+  // SUPER FALLBACK: Se não encontrou NADA usando filtro exato no Firestore, busca as ultimas 50 questoes e tenta filtrar na memoria (ignorando maiusculas/minusculas)
+  try {
+    const snap3 = await db.collection('questoes').limit(50).get();
+    let q3 = [];
+    snap3.forEach(doc => q3.push({ id: doc.id, ...doc.data() }));
+    
+    // Tenta achar da materia (case insensitive)
+    const matLower = materia.toLowerCase().trim();
+    let qMat = q3.filter(q => (q.materia || '').toLowerCase().trim() === matLower || (q.materia || '').toLowerCase().includes(matLower));
+    
+    if (qMat.length > 0) return shuffleArray(qMat).slice(0, limite);
+    
+    // Se ainda assim nao achou, retorna aleatorias para a interface nao ficar vazia (modo demonstração)
+    if (q3.length > 0) return shuffleArray(q3).slice(0, limite);
+  } catch(e3) {}
+
   return [];
 }
 
@@ -198,6 +214,13 @@ async function buscarFlashcardsMissao(missao) {
           cards2.push({ id: doc.id, ...d });
         }
       });
+      
+      // SUPER FALLBACK: retorna 15 aleatorios se não achar da materia
+      if (cards2.length === 0 && snap2.size > 0) {
+        let todos = [];
+        snap2.forEach(doc => todos.push({ id: doc.id, ...doc.data() }));
+        return shuffleArray(todos).slice(0, 15);
+      }
       return shuffleArray(cards2).slice(0, 15);
     } catch (e2) {
       return [];
