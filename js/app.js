@@ -91,6 +91,7 @@ function registerStudyDay() {
     streak = (diffDays <= 1 || !lastDate) ? streak + 1 : 1;
     localStorage.setItem(STREAK_KEY, streak);
     localStorage.setItem(LAST_DATE_KEY, todayStr);
+    if (window.sincronizarCloud) window.sincronizarCloud();
   }
   const el = document.getElementById('streakValue');
   if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
@@ -143,6 +144,7 @@ function addXP(amount) {
   const levelAntes = getLevelInfo(xp).level;
   xp += amount;
   localStorage.setItem(XP_KEY, xp);
+  if (window.sincronizarCloud) window.sincronizarCloud();
   updateXPUI();
   
 

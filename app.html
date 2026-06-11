@@ -599,6 +599,14 @@
             if (el) el.textContent = nome.split(' ')[0];
             const av = document.getElementById('avatarLetter');
             if (av) av.textContent = nome[0].toUpperCase();
+            
+            // Sync Firebase progress to local storage
+            if (window.baixarDadosCloud) {
+              window.baixarDadosCloud();
+            } else {
+              // Em caso do script de jornada ainda não estar pronto
+              setTimeout(() => { if (window.baixarDadosCloud) window.baixarDadosCloud(); }, 1000);
+            }
           }
         });
       }

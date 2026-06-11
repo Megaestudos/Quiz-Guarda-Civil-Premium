@@ -231,16 +231,64 @@ function salvarProgress() {
 }
 
 let _sincronizarTimeout = null;
-async function sincronizarCloud() {
+window.sincronizarCloud = async function() {
   if (_sincronizarTimeout) clearTimeout(_sincronizarTimeout);
   _sincronizarTimeout = setTimeout(async () => {
     try {
       if (!window.firebase || !firebase.auth().currentUser) return;
+      
+      const payload = {
+        jornada_progress: JORNADA_PROGRESS,
+        jornada_carreira: CARREIRA_ATIVA,
+        tempo_estudo: parseInt(localStorage.getItem(TEMPO_ESTUDO_KEY) || '0'),
+        quiz_topic_stats: JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}'),
+        quiz_xp: parseInt(localStorage.getItem('quiz_xp') || '0'),
+        quiz_streak: parseInt(localStorage.getItem('quiz_streak') || '0'),
+        quiz_unlocked_badges: JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]')
+      };
+
       await firebase.firestore()
-        .collection('users').doc(firebase.auth().currentUser.uid)
-        .update({ jornada_progress: JORNADA_PROGRESS, jornada_carreira: CARREIRA_ATIVA });
-    } catch(e) {}
-  }, 3000);
+        .collection('users_progress').doc(firebase.auth().currentUser.uid)
+        .set(payload, { merge: true });
+        
+      console.log("Progresso salvo no Firestore com sucesso.");
+    } catch(e) {
+      console.error("Erro ao salvar no Firestore:", e);
+    }
+  }, 2000);
+}
+
+window.baixarDadosCloud = async function() {
+  try {
+    if (!window.firebase || !firebase.auth().currentUser) return;
+    const uid = firebase.auth().currentUser.uid;
+    const docSnap = await firebase.firestore().collection('users_progress').doc(uid).get();
+    
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (data.jornada_progress) localStorage.setItem(JORNADA_KEY, JSON.stringify(data.jornada_progress));
+      if (data.jornada_carreira) localStorage.setItem(CARREIRA_KEY, data.jornada_carreira);
+      if (data.tempo_estudo !== undefined) localStorage.setItem(TEMPO_ESTUDO_KEY, data.tempo_estudo);
+      if (data.quiz_topic_stats) localStorage.setItem('quiz_topic_stats', JSON.stringify(data.quiz_topic_stats));
+      if (data.quiz_xp !== undefined) localStorage.setItem('quiz_xp', data.quiz_xp);
+      if (data.quiz_streak !== undefined) localStorage.setItem('quiz_streak', data.quiz_streak);
+      if (data.quiz_unlocked_badges) localStorage.setItem('quiz_unlocked_badges', JSON.stringify(data.quiz_unlocked_badges));
+      
+      console.log("Progresso baixado do Firestore com sucesso.");
+      
+      // Reload in-memory variables
+      carregarProgress();
+      carregarCarreira();
+      
+      // Re-render UI
+      if (typeof renderMissaoDoDia === 'function') renderMissaoDoDia();
+      if (typeof renderJornadaHomeStats === 'function') renderJornadaHomeStats();
+      if (typeof renderResumoDesempenho === 'function') renderResumoDesempenho();
+      if (typeof renderMapList === 'function') renderMapList(CARREIRA_ATIVA);
+    }
+  } catch (e) {
+    console.error("Erro ao baixar dados do Firestore:", e);
+  }
 }
 
 function carregarCarreira() {
@@ -250,7 +298,7 @@ function carregarCarreira() {
 function salvarCarreira(id) {
   CARREIRA_ATIVA = id;
   localStorage.setItem(CARREIRA_KEY, id);
-  sincronizarCloud();
+  if (window.sincronizarCloud) window.sincronizarCloud();
 }
 
 // ─── Registro de tempo de estudo ──────────────────────────────────────────────
@@ -264,6 +312,7 @@ function registrarTempoSessao() {
   const total = parseInt(localStorage.getItem(TEMPO_ESTUDO_KEY) || '0') + mins;
   localStorage.setItem(TEMPO_ESTUDO_KEY, total);
   _TEMPO_INICIO_SESSAO = null;
+  if (window.sincronizarCloud) window.sincronizarCloud();
 }
 
 function getTempoEstudado() {
@@ -818,6 +867,7 @@ function mostrarRecompensaModulo(mod) {
     if (!badges.includes(badgeId)) {
       badges.push(badgeId);
       localStorage.setItem('quiz_unlocked_badges', JSON.stringify(badges));
+      if (window.sincronizarCloud) window.sincronizarCloud();
     }
   } catch(e) {}
 
