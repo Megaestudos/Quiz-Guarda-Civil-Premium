@@ -37,11 +37,11 @@ const CARREIRAS = {
       {
         id: 'gm_dh', nome: 'Direitos Humanos', icon: 'ph-handshake', cor: '#8B5CF6',
         missoes: [
-          { id: 'gm_dh_001', nome: 'Fundamentos',            materia: 'Direitos Humanos e Legislação Extravagante (HLE)', subassunto: 'Fundamentos',             tempoMin: 15, xp: 50 },
+          { id: 'gm_dh_001', nome: 'Abuso de Autoridade',    materia: 'Abuso de Autoridade', subassunto: '',                                     tempoMin: 20, xp: 60 },
           { id: 'gm_dh_002', nome: 'Declaração Universal',   materia: 'Direitos Humanos e Legislação Extravagante (HLE)', subassunto: 'Declaração Universal',    tempoMin: 20, xp: 60 },
           { id: 'gm_dh_003', nome: 'Pacto de San José',      materia: 'Direitos Humanos e Legislação Extravagante (HLE)', subassunto: 'Pacto de San José',       tempoMin: 20, xp: 60 },
           { id: 'gm_dh_004', nome: 'Sistemas de Proteção',   materia: 'Direitos Humanos e Legislação Extravagante (HLE)', subassunto: 'Sistemas de Proteção',    tempoMin: 25, xp: 70 },
-          { id: 'gm_dh_fin', nome: 'Missão Final',           materia: 'Direitos Humanos e Legislação Extravagante (HLE)', subassunto: '',                        tempoMin: 30, xp: 150, isFinal: true },
+          { id: 'gm_dh_fin', nome: 'Missão Final',           materia: 'Abuso de Autoridade', subassunto: '',                                     tempoMin: 30, xp: 150, isFinal: true },
         ]
       },
       {
