@@ -448,23 +448,7 @@ function renderEtapa1() {
     }
   }
 
-  // Resumo
-  let resumoHTML = '';
-  const resumoData = detectResumoRapido(cms);
-  if (resumoData) {
-    const textoResumo = resumoData.tipo === 'lista'
-      ? resumoData.itens.map(i => `<li>${i}</li>`).join('')
-      : resumoData.conteudo;
-    resumoHTML = `
-      <div class="mf-secao">
-        <div class="mf-secao-titulo"><i class="ph-fill ph-file-text" style="color:#10B981;"></i> Resumo</div>
-        <div class="mf-resumo-box">
-          ${resumoData.tipo === 'lista'
-            ? `<ul class="mf-resumo-lista">${textoResumo}</ul>`
-            : `<p class="mf-resumo-texto">${textoResumo}</p>`}
-        </div>
-      </div>`;
-  }
+  // Resumo foi movido inteiramente para a Etapa 4
 
   // Áudio
   let audioHTML = '';
@@ -506,7 +490,7 @@ function renderEtapa1() {
   }
 
   // Estado vazio se nenhum conteúdo disponível
-  if (!temConteudo && !resumoData) {
+  if (!temConteudo) {
     el.innerHTML = `
       <div class="mf-etapa-titulo">
         <i class="ph-fill ph-book-open" style="color:#8B5CF6;"></i>
@@ -531,7 +515,6 @@ function renderEtapa1() {
       <span>Aprender</span>
     </div>
     ${videoHTML}
-    ${resumoHTML}
     ${audioHTML}
     ${mapaMentalHTML}
     <button class="btn btn-primary mf-btn-avancar" onclick="renderEtapa(2)">
