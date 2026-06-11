@@ -184,6 +184,17 @@ window.openCmsModal = function() {
     $('cmsUrl').value = '';
     $('cmsDuration').value = '';
     $('cmsContent').value = '';
+    
+    const cmsType = $('cmsType');
+    cmsType.innerHTML = '';
+    if (window.currentEtapaId === 'aprender') {
+        cmsType.innerHTML = '<option value="video">Vídeo (YouTube/MP4)</option><option value="audio">Áudio (Podcast)</option>';
+    } else if (window.currentEtapaId === 'resumo') {
+        cmsType.innerHTML = '<option value="resumo">Resumo (Texto Longo)</option>';
+    } else {
+        cmsType.innerHTML = '<option value="video">Vídeo</option><option value="audio">Áudio</option><option value="resumo">Resumo</option>';
+    }
+    window.toggleCmsFields();
 }
 
 window.closeCmsModal = function() {
