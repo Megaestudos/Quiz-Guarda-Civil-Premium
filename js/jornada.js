@@ -96,11 +96,11 @@ window.carregarMissoesFirebase = async function() {
       conteudos[key] = d;
     });
 
-    // Garante que a Carreira principal GCM exista
-    if (!CARREIRAS['gcm']) {
-      CARREIRAS['gcm'] = {
-        id: 'gcm',
-        nome: 'GCM',
+    // Garante que a Carreira principal Guarda Municipal exista
+    if (!CARREIRAS['guarda_municipal']) {
+      CARREIRAS['guarda_municipal'] = {
+        id: 'guarda_municipal',
+        nome: 'Guarda Municipal',
         emoji: '🚓',
         descricao: 'Trilha principal focada na Guarda Civil Municipal',
         cor: '#3B82F6',
@@ -109,8 +109,8 @@ window.carregarMissoesFirebase = async function() {
       };
     }
     
-    CARREIRAS['gcm'].modulos = [];
-    const carreira = CARREIRAS['gcm'];
+    CARREIRAS['guarda_municipal'].modulos = [];
+    const carreira = CARREIRAS['guarda_municipal'];
 
     // Para ordenar as matérias (Módulos), vamos buscar a coleção 'materias'
     let materiasOrdem = {};
@@ -200,8 +200,8 @@ window.carregarMissoesFirebase = async function() {
       }
     });
 
-    // Força a carreira GCM como a ativa para renderizar direto (ignorar seletor se só tem uma)
-    if (!CARREIRA_ATIVA) CARREIRA_ATIVA = 'gcm';
+    // Força a carreira Guarda Municipal como a ativa para renderizar direto (ignorar seletor se só tem uma)
+    if (!CARREIRA_ATIVA) CARREIRA_ATIVA = 'guarda_municipal';
 
     // Re-render
     if (typeof renderMapaCarreira === 'function') {
