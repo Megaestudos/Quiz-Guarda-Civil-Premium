@@ -59,73 +59,156 @@ const CARREIRAS = {
 window.carregarMissoesFirebase = async function() {
   if (!window.firebase || !firebase.firestore) return;
   try {
-    const snap = await firebase.firestore().collection('missoes')
-      .where('ativo', '==', true)
-      .orderBy('ordem')
-      .get();
-      
-    // Limpa módulos das carreiras existentes
-    Object.values(CARREIRAS).forEach(c => c.modulos = []);
+    const db = firebase.firestore();
+
+    // Busca todas as questões ativas para extrair a hierarquia
+    const qSnap = await db.collection('questoes').where('ativo', '==', true).get();
     
-    // Agrupa missões
-    snap.forEach(doc => {
-      const data = { id: doc.id, ...doc.data() };
-      const { carreira, modulo, materia } = data;
+    // Agrupa: Matéria -> Assunto -> Subassunto
+    const hierarchy = {};
+    
+    qSnap.forEach(doc => {
+      const data = doc.data();
+      const mat = (data.materia || '').trim();
+      const ass = (data.assunto || data.topico || '').trim();
+      const sub = (data.subassunto || '').trim();
       
-      // Cria a carreira se não existir no objeto estático
-      if (carreira && !CARREIRAS[carreira]) {
-        CARREIRAS[carreira] = {
-          id: carreira,
-          nome: carreira,
-          emoji: '🎯',
-          descricao: 'Trilha ' + carreira,
-          cor: '#8B5CF6',
-          corGradient: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
-          modulos: []
-        };
+      if (!mat) return;
+      
+      if (!hierarchy[mat]) hierarchy[mat] = {};
+      if (ass) {
+        if (!hierarchy[mat][ass]) hierarchy[mat][ass] = new Set();
+        if (sub && sub.toLowerCase() !== ass.toLowerCase()) {
+          hierarchy[mat][ass].add(sub);
+        }
       }
-      
-      if (!carreira) return;
-      
-      const objCarreira = CARREIRAS[carreira];
-      
-      // Busca ou cria o módulo
-      let mod = objCarreira.modulos.find(m => m.nome === modulo);
-      if (!mod) {
-        mod = {
-          id: `${carreira}_${modulo.replace(/\s+/g, '_').toLowerCase()}`,
-          nome: modulo,
-          icon: 'ph-folder',
-          cor: objCarreira.cor,
-          missoes: []
-        };
-        objCarreira.modulos.push(mod);
-      }
-      
-      // Adiciona a missão no módulo
-      mod.missoes.push({
-        id: data.id,
-        nome: data.titulo,
-        materia: data.materia,
-        assunto: data.assunto,
-        subassunto: data.assunto,
-        aprender_tipo: data.aprender_tipo,
-        aprender_url: data.aprender_url,
-        pdf_url: data.pdf_url,
-        xp: data.xp || 50,
-        ordem: data.ordem || 0,
-        isFinal: data.titulo.toLowerCase().includes('final') // mantem isFinal se o admin chamar de final, ou podemos adicionar um toggle no painel
-      });
     });
+
+    // Busca conteúdos anexados pelo Admin
+    const cSnap = await db.collection('conteudos_jornada').where('ativo', '==', true).get();
+    const conteudos = {}; // chave: "materia|assunto|subassunto" (tudo minusculo para match facil)
+    cSnap.forEach(doc => {
+      const d = doc.data();
+      const mat = (d.materia || '').trim().toLowerCase();
+      const ass = (d.assunto || '').trim().toLowerCase();
+      const sub = (d.subassunto || '').trim().toLowerCase();
+      const key = `${mat}|${ass}|${sub}`;
+      conteudos[key] = d;
+    });
+
+    // Garante que a Carreira principal GCM exista
+    if (!CARREIRAS['gcm']) {
+      CARREIRAS['gcm'] = {
+        id: 'gcm',
+        nome: 'GCM',
+        emoji: '🚓',
+        descricao: 'Trilha principal focada na Guarda Civil Municipal',
+        cor: '#3B82F6',
+        corGradient: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+        modulos: []
+      };
+    }
     
+    CARREIRAS['gcm'].modulos = [];
+    const carreira = CARREIRAS['gcm'];
+
+    // Para ordenar as matérias (Módulos), vamos buscar a coleção 'materias'
+    let materiasOrdem = {};
+    try {
+      const mSnap = await db.collection('materias').get();
+      mSnap.forEach(doc => {
+        const d = doc.data();
+        materiasOrdem[(d.nome || '').trim().toLowerCase()] = d.ordem || 99;
+      });
+    } catch(e) {}
+
+    // Constrói a trilha
+    const materiasNomes = Object.keys(hierarchy);
+    
+    // Ordena as matérias com base na coleção materias (ou alfabética se não houver)
+    materiasNomes.sort((a, b) => {
+      const oa = materiasOrdem[a.toLowerCase()] || 99;
+      const ob = materiasOrdem[b.toLowerCase()] || 99;
+      if (oa !== ob) return oa - ob;
+      return a.localeCompare(b);
+    });
+
+    materiasNomes.forEach(mat => {
+      const modId = `mod_${mat.replace(/\s+/g, '_').toLowerCase()}`;
+      const mod = {
+        id: modId,
+        nome: mat,
+        icon: 'ph-folder',
+        cor: carreira.cor,
+        missoes: []
+      };
+
+      const assuntos = hierarchy[mat];
+      
+      for (const ass in assuntos) {
+        const subassuntos = Array.from(assuntos[ass]);
+        
+        if (subassuntos.length > 0) {
+          // Cada subassunto vira uma missão
+          subassuntos.forEach(sub => {
+            const cKey = `${mat.toLowerCase()}|${ass.toLowerCase()}|${sub.toLowerCase()}`;
+            const cInfo = conteudos[cKey] || conteudos[`${mat.toLowerCase()}|${ass.toLowerCase()}|`] || {}; // fallback pro assunto se nao tiver sub
+            
+            mod.missoes.push({
+              id: `missao_${mat}_${ass}_${sub}`.replace(/[^a-z0-9]/gi, '_').toLowerCase(),
+              nome: sub,
+              materia: mat,
+              assunto: ass,
+              subassunto: sub,
+              aprender_tipo: cInfo.aprender_tipo || null,
+              aprender_url: cInfo.aprender_url || null,
+              pdf_url: cInfo.resumo_pdf_url || null,
+              xp: 100, // XP total aproximado
+              ordem: cInfo.ordem || 99,
+              isFinal: false // todas têm as 5 etapas, a etapa 5 é a final
+            });
+          });
+        } else {
+          // O próprio assunto vira a missão
+          const cKey = `${mat.toLowerCase()}|${ass.toLowerCase()}|`;
+          const cInfo = conteudos[cKey] || {};
+          
+          mod.missoes.push({
+            id: `missao_${mat}_${ass}`.replace(/[^a-z0-9]/gi, '_').toLowerCase(),
+            nome: ass,
+            materia: mat,
+            assunto: ass,
+            subassunto: '',
+            aprender_tipo: cInfo.aprender_tipo || null,
+            aprender_url: cInfo.aprender_url || null,
+            pdf_url: cInfo.resumo_pdf_url || null,
+            xp: 100,
+            ordem: cInfo.ordem || 99,
+            isFinal: false
+          });
+        }
+      }
+
+      // Ordena missões do módulo usando o campo ordem preenchido pelo admin
+      mod.missoes.sort((a, b) => {
+        if (a.ordem !== b.ordem) return a.ordem - b.ordem;
+        return a.nome.localeCompare(b.nome);
+      });
+
+      if (mod.missoes.length > 0) {
+        carreira.modulos.push(mod);
+      }
+    });
+
+    // Força a carreira GCM como a ativa para renderizar direto (ignorar seletor se só tem uma)
+    if (!CARREIRA_ATIVA) CARREIRA_ATIVA = 'gcm';
+
     // Re-render
-    if (typeof renderSelecaoCarreira === 'function' && !CARREIRA_ATIVA) {
-      renderSelecaoCarreira();
-    } else if (CARREIRA_ATIVA) {
+    if (typeof renderMapaCarreira === 'function') {
       renderMapaCarreira();
     }
   } catch (e) {
-    console.error("Erro ao carregar missoes do Firebase:", e);
+    console.error("Erro ao gerar missões a partir do Firebase:", e);
   }
 };
 

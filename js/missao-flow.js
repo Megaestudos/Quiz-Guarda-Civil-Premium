@@ -128,10 +128,13 @@ async function buscarQuestoesMissao(missao, limite) {
       const qa = (q.assunto || q.topico || '').toLowerCase();
       const qs = (q.subassunto || '').toLowerCase();
 
-      if (ass && (qa === ass || qa.includes(ass))) {
-        qAssunto.push(q);
-      } else if (sub && (qs === sub || qs.includes(sub))) {
+      let isTargetSub = sub && (qs === sub || qs.includes(sub));
+      let isTargetAss = ass && (qa === ass || qa.includes(ass));
+
+      if (sub && isTargetSub) {
         qSubassunto.push(q);
+      } else if (isTargetAss) {
+        qAssunto.push(q);
       } else {
         qRestoMateria.push(q);
       }
@@ -142,15 +145,14 @@ async function buscarQuestoesMissao(missao, limite) {
     qSubassunto = shuffleArray(qSubassunto);
     qRestoMateria = shuffleArray(qRestoMateria);
 
-    // Preenche respeitando a prioridade
-    questoes = [...qAssunto];
-    if (questoes.length < limite) {
-      const faltam = limite - questoes.length;
-      questoes = [...questoes, ...qSubassunto.slice(0, faltam)];
-    }
-    if (questoes.length < limite) {
-      const faltam = limite - questoes.length;
-      questoes = [...questoes, ...qRestoMateria.slice(0, faltam)];
+    // Preenche respeitando a prioridade (Subassunto -> Assunto -> Matéria)
+    if (sub) {
+       questoes.push(...qSubassunto);
+       if (questoes.length < limite) questoes.push(...qAssunto);
+       if (questoes.length < limite) questoes.push(...qRestoMateria);
+    } else {
+       questoes.push(...qAssunto);
+       if (questoes.length < limite) questoes.push(...qRestoMateria);
     }
 
     return questoes.slice(0, limite);

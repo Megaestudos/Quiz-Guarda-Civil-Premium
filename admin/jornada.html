@@ -85,10 +85,10 @@
                     <table class="w-full text-left text-sm text-gray-400">
                         <thead class="text-xs uppercase bg-white/5 border-b border-white/10 text-gray-500">
                             <tr>
+                                <th class="px-6 py-4 font-bold tracking-wider">Módulo/Matéria</th>
+                                <th class="px-6 py-4 font-bold tracking-wider">Missão (Assunto/Subassunto)</th>
                                 <th class="px-6 py-4 font-bold tracking-wider">Ordem</th>
-                                <th class="px-6 py-4 font-bold tracking-wider">Missão / Título</th>
-                                <th class="px-6 py-4 font-bold tracking-wider">Módulo / Matéria</th>
-                                <th class="px-6 py-4 font-bold tracking-wider">Assunto</th>
+                                <th class="px-6 py-4 font-bold tracking-wider">Tipo (Vídeo/Áudio)</th>
                                 <th class="px-6 py-4 font-bold tracking-wider">Status</th>
                                 <th class="px-6 py-4 font-bold tracking-wider text-right">Ações</th>
                             </tr>
@@ -114,40 +114,28 @@
             <div class="space-y-5 modal-scroll flex-1">
                 <input type="hidden" id="mId">
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 gap-4">
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Carreira (ex: GCM)</label>
-                        <input type="text" id="mCarreira" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="ID da carreira">
-                    </div>
-                    <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Ordem</label>
-                        <input type="number" id="mOrdem" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" value="1">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Módulo (ex: Direitos Humanos)</label>
-                    <input type="text" id="mModulo" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Nome do módulo">
-                </div>
-
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Título da Missão</label>
-                    <input type="text" id="mTitulo" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Ex: Pacto de San José">
-                </div>
-
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Descricao da Missão</label>
-                    <textarea id="mDescricao" rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Resumo do que será aprendido"></textarea>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Matéria</label>
-                        <input type="text" id="mMateria" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Matéria principal">
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Matéria (Módulo)</label>
+                        <select id="mMateria" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" onchange="window.onMateriaChange()">
+                            <option value="">Selecione a Matéria</option>
+                        </select>
                     </div>
                     <div>
                         <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Assunto</label>
-                        <input type="text" id="mAssunto" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" placeholder="Assunto específico">
+                        <select id="mAssunto" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" onchange="window.onAssuntoChange()">
+                            <option value="">Selecione o Assunto</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Subassunto (Opcional - Vira a Missão se existir)</label>
+                        <select id="mSubassunto" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white">
+                            <option value="">Nenhum (Usar Assunto principal)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Ordem no Módulo</label>
+                        <input type="number" id="mOrdem" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-blue-500 outline-none text-sm text-white" value="1">
                     </div>
                 </div>
 
@@ -178,8 +166,6 @@
 
                 <div class="border-t border-white/10 pt-4 mt-4 flex items-center justify-between">
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-widest block">XP de Conclusão Total</label>
-                        <input type="number" id="mXp" class="w-32 bg-white/5 border border-white/10 rounded-xl px-4 py-2 mt-1 focus:border-blue-500 outline-none text-sm text-white" value="100">
                     </div>
                     
                     <label class="flex items-center gap-3 cursor-pointer mt-4">
