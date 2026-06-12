@@ -82,10 +82,11 @@ window.carregarMissoesFirebase = async function() {
     qSnap.forEach(doc => {
       const data = doc.data();
       const mat = (data.materia || '').trim();
-      const ass = (data.assunto || data.topico || '').trim();
+      let ass = (data.assunto || data.topico || data.tópico || data.topic || '').trim();
       const sub = (data.subassunto || '').trim();
       
       if (!mat) return;
+      if (!ass) ass = 'Geral'; // Fallback se a questão tiver apenas Matéria
       
       auditMaterias.add(mat);
       if (ass) auditAssuntos.add(`${mat} -> ${ass}`);
@@ -100,10 +101,29 @@ window.carregarMissoesFirebase = async function() {
       }
     });
 
-    console.log(`Matérias:`, Array.from(auditMaterias));
-    console.log(`Assuntos:`, Array.from(auditAssuntos));
-    console.log(`Subassuntos:`, Array.from(auditSubassuntos));
-    console.log("============================");
+    const debugLogs = `
+      <div style="position:fixed; top:10px; left:10px; right:10px; z-index:99999; padding:15px; background:rgba(0,0,0,0.9); color:#0f0; border:2px solid #0f0; border-radius:8px; font-family:monospace; font-size:12px; max-height:400px; overflow-y:auto; text-align:left; box-shadow:0 0 20px #000;">
+        <h3 style="color:#0f0; margin-top:0;">=== AUDITORIA JORNADA V2 ===</h3>
+        <p>1. Executando consulta: db.collection('questoes').where('ativo', '==', true).get()</p>
+        <p>2. Questões encontradas: <b>${qSnap.size}</b></p>
+        <p>3. Matérias únicas: <b>${auditMaterias.size}</b></p>
+        <p>4. Assuntos únicos: <b>${auditAssuntos.size}</b></p>
+        <p>5. Subassuntos únicos: <b>${auditSubassuntos.size}</b></p>
+        <hr style="border-color:#0f0;">
+        <p><b>Matérias:</b> ${Array.from(auditMaterias).join(', ')}</p>
+        <button onclick="this.parentElement.remove()" style="margin-top:10px; background:#0f0; color:#000; border:none; padding:5px 10px; cursor:pointer; font-weight:bold;">Fechar Debug</button>
+      </div>
+    `;
+
+    // Injeta painel flutuante no body (impossível de não ver e não é apagado pelo render do mapa)
+    const debugDiv = document.createElement('div');
+    debugDiv.innerHTML = debugLogs;
+    document.body.appendChild(debugDiv);
+
+    if (qSnap.empty) {
+      return;
+    }
+
 
     // Busca conteúdos anexados pelo Admin
     const conteudos = {}; // chave: "materia|assunto|subassunto" (tudo minusculo para match facil)
@@ -235,6 +255,7 @@ window.carregarMissoesFirebase = async function() {
     }
   } catch (e) {
     console.error("Erro ao gerar missões a partir do Firebase:", e);
+    alert("CRASH JORNADA: " + e.message);
   }
 };
 
