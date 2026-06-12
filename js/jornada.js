@@ -86,7 +86,7 @@ window.carregarMissoesFirebase = async function() {
       const sub = (data.subassunto || '').trim();
       
       if (!mat) return;
-      if (!ass) ass = 'Geral'; // Fallback se a questão tiver apenas Matéria
+      if (!ass) ass = mat; // Fallback se a questão tiver apenas Matéria, usar o nome dela
       
       auditMaterias.add(mat);
       if (ass) auditAssuntos.add(`${mat} -> ${ass}`);
