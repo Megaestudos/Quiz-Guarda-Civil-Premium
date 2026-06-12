@@ -62,10 +62,22 @@ window.carregarMissoesFirebase = async function() {
     const db = firebase.firestore();
 
     // Busca todas as questões ativas para extrair a hierarquia
+    console.log("=== AUDITORIA JORNADA V2 ===");
+    console.log("1. Executando consulta: db.collection('questoes').where('ativo', '==', true).get()");
     const qSnap = await db.collection('questoes').where('ativo', '==', true).get();
+    
+    console.log(`2. Questões encontradas: ${qSnap.size}`);
+
+    if (qSnap.empty) {
+      alert("Nenhuma questão encontrada para gerar a Jornada. Verifique se as questões possuem o campo 'ativo' == true e se a coleção 'questoes' tem permissão de leitura.");
+      console.warn("Nenhuma questão ativa retornada pela consulta.");
+    }
     
     // Agrupa: Matéria -> Assunto -> Subassunto
     const hierarchy = {};
+    const auditMaterias = new Set();
+    const auditAssuntos = new Set();
+    const auditSubassuntos = new Set();
     
     qSnap.forEach(doc => {
       const data = doc.data();
@@ -75,6 +87,10 @@ window.carregarMissoesFirebase = async function() {
       
       if (!mat) return;
       
+      auditMaterias.add(mat);
+      if (ass) auditAssuntos.add(`${mat} -> ${ass}`);
+      if (sub) auditSubassuntos.add(`${mat} -> ${ass} -> ${sub}`);
+
       if (!hierarchy[mat]) hierarchy[mat] = {};
       if (ass) {
         if (!hierarchy[mat][ass]) hierarchy[mat][ass] = new Set();
@@ -83,6 +99,11 @@ window.carregarMissoesFirebase = async function() {
         }
       }
     });
+
+    console.log(`Matérias:`, Array.from(auditMaterias));
+    console.log(`Assuntos:`, Array.from(auditAssuntos));
+    console.log(`Subassuntos:`, Array.from(auditSubassuntos));
+    console.log("============================");
 
     // Busca conteúdos anexados pelo Admin
     const conteudos = {}; // chave: "materia|assunto|subassunto" (tudo minusculo para match facil)
