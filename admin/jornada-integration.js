@@ -92,7 +92,7 @@ window.onAssuntoChange = function() {
 window.loadMissoes = async function() {
     const list = $('missoesList');
     list.innerHTML = '<tr><td colspan="6" class="text-center py-8"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-blue-500"></i></td></tr>';
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
 
     try {
         const q = query(collection(db, "conteudos_jornada"), orderBy("ordem"));

@@ -71,12 +71,6 @@
         <div class="p-10 flex flex-col gap-6 max-w-6xl mx-auto w-full">
             <div class="flex justify-between items-center">
                 <h2 class="text-lg font-bold text-white">Missões Cadastradas</h2>
-                
-                <div class="flex gap-4">
-                    <select id="filterCarreira" class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500" onchange="window.loadMissoes()">
-                        <option value="">Todas as Carreiras</option>
-                    </select>
-                </div>
             </div>
 
             <!-- Tabela de Missões -->
@@ -187,9 +181,11 @@
     </div>
 
     <!-- Scripts -->
-    <script type="module" src="jornada-integration.js"></script>
+    <script type="module" src="jornada-integration.js?v=2"></script>
     <script>
-        lucide.createIcons();
+        if (window.lucide) {
+            lucide.createIcons();
+        }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
     </script>
 </body>
