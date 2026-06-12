@@ -36,10 +36,12 @@ async function loadHierarchy() {
             const data = doc.data();
             if (data.ativo === false) return;
             const mat = (data.materia || '').trim();
-            const ass = (data.assunto || data.topico || '').trim();
+            let ass = (data.assunto || data.topico || data.tópico || data.topic || '').trim();
             const sub = (data.subassunto || '').trim();
             
             if (!mat) return;
+            if (!ass) ass = mat;
+            
             if (!hierarchy[mat]) hierarchy[mat] = {};
             if (ass) {
                 if (!hierarchy[mat][ass]) hierarchy[mat][ass] = new Set();
