@@ -101,26 +101,9 @@ window.carregarMissoesFirebase = async function() {
       }
     });
 
-    const debugLogs = `
-      <div style="position:fixed; top:10px; left:10px; right:10px; z-index:99999; padding:15px; background:rgba(0,0,0,0.9); color:#0f0; border:2px solid #0f0; border-radius:8px; font-family:monospace; font-size:12px; max-height:400px; overflow-y:auto; text-align:left; box-shadow:0 0 20px #000;">
-        <h3 style="color:#0f0; margin-top:0;">=== AUDITORIA JORNADA V2 ===</h3>
-        <p>1. Executando consulta: db.collection('questoes').where('ativo', '==', true).get()</p>
-        <p>2. Questões encontradas: <b>${qSnap.size}</b></p>
-        <p>3. Matérias únicas: <b>${auditMaterias.size}</b></p>
-        <p>4. Assuntos únicos: <b>${auditAssuntos.size}</b></p>
-        <p>5. Subassuntos únicos: <b>${auditSubassuntos.size}</b></p>
-        <hr style="border-color:#0f0;">
-        <p><b>Matérias:</b> ${Array.from(auditMaterias).join(', ')}</p>
-        <button onclick="this.parentElement.remove()" style="margin-top:10px; background:#0f0; color:#000; border:none; padding:5px 10px; cursor:pointer; font-weight:bold;">Fechar Debug</button>
-      </div>
-    `;
-
-    // Injeta painel flutuante no body (impossível de não ver e não é apagado pelo render do mapa)
-    const debugDiv = document.createElement('div');
-    debugDiv.innerHTML = debugLogs;
-    document.body.appendChild(debugDiv);
-
+    // Se estiver vazio, exibe log e para a execução para não crachar a tela
     if (qSnap.empty) {
+      console.warn("Nenhuma questão encontrada com ativo==true.");
       return;
     }
 
