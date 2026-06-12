@@ -85,16 +85,21 @@ window.carregarMissoesFirebase = async function() {
     });
 
     // Busca conteúdos anexados pelo Admin
-    const cSnap = await db.collection('conteudos_jornada').where('ativo', '==', true).get();
     const conteudos = {}; // chave: "materia|assunto|subassunto" (tudo minusculo para match facil)
-    cSnap.forEach(doc => {
-      const d = doc.data();
-      const mat = (d.materia || '').trim().toLowerCase();
-      const ass = (d.assunto || '').trim().toLowerCase();
-      const sub = (d.subassunto || '').trim().toLowerCase();
-      const key = `${mat}|${ass}|${sub}`;
-      conteudos[key] = d;
-    });
+    try {
+      const cSnap = await db.collection('conteudos_jornada').where('ativo', '==', true).get();
+      cSnap.forEach(doc => {
+        const d = doc.data();
+        const mat = (d.materia || '').trim().toLowerCase();
+        const ass = (d.assunto || '').trim().toLowerCase();
+        const sub = (d.subassunto || '').trim().toLowerCase();
+        const key = `${mat}|${ass}|${sub}`;
+        conteudos[key] = d;
+      });
+    } catch(e) {
+      console.warn("Aviso: Não foi possível carregar conteudos_jornada. Verifique as regras do Firestore.", e);
+    }
+
 
     // Garante que a Carreira principal Guarda Municipal exista
     if (!CARREIRAS['guarda_municipal']) {
