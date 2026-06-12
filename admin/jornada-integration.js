@@ -1,7 +1,3 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyB36ZszS8v_DeOn3at7zEo_tFq86WU0sI4",
   authDomain: "simulados-concursos-22c91.firebaseapp.com",
@@ -10,16 +6,19 @@ const firebaseConfig = {
 
 const ADMIN_EMAIL = "lomateco@gmail.com";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 const $ = (id) => document.getElementById(id);
 
 let todosConteudos = [];
 let hierarchy = {};
 
-onAuthStateChanged(auth, async (user) => {
+auth.onAuthStateChanged(async (user) => {
     if (!user || user.email !== ADMIN_EMAIL) {
         window.location.href = "login.html";
         return;
@@ -30,7 +29,7 @@ onAuthStateChanged(auth, async (user) => {
 
 async function loadHierarchy() {
     try {
-        const qSnap = await getDocs(query(collection(db, 'questoes'))); // TODO: where ativo == true
+        const qSnap = await db.collection('questoes').get();
         hierarchy = {};
         qSnap.forEach(doc => {
             const data = doc.data();
@@ -95,8 +94,7 @@ window.loadMissoes = async function() {
     if (window.lucide) lucide.createIcons();
 
     try {
-        const q = query(collection(db, "conteudos_jornada"), orderBy("ordem"));
-        const snap = await getDocs(q);
+        const snap = await db.collection("conteudos_jornada").orderBy("ordem").get();
         todosConteudos = [];
 
         snap.forEach(doc => {
@@ -196,7 +194,7 @@ window.closeMissaoModal = function() {
 
 window.deleteMissao = async function(id) {
     if (confirm("Deletar esse conteúdo?")) {
-        await deleteDoc(doc(db, "conteudos_jornada", id));
+        await db.collection("conteudos_jornada").doc(id).delete();
         window.loadMissoes();
     }
 }
@@ -225,19 +223,19 @@ window.saveMissao = async function() {
     };
     
     // Gerar um ID previsível
-    const docId = id || \`\${materia}_\${assunto}_\${subassunto}\`.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const docId = id || `${materia}_${assunto}_${subassunto}`.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
     btn.disabled = true;
     btn.innerText = "Salvando...";
     
     try {
-        await setDoc(doc(db, "conteudos_jornada", docId), data);
+        await db.collection("conteudos_jornada").doc(docId).set(data);
         window.closeMissaoModal();
         window.loadMissoes();
     } catch (e) {
         alert("Erro ao salvar: " + e.message);
     } finally {
         btn.disabled = false;
-        btn.innerText = "Salvar Missão no Firebase";
+        btn.innerText = "Salvar Missão";
     }
 }
