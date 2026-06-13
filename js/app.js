@@ -207,6 +207,20 @@ document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
 });
 
+window.toggleAppPdfZoom = function(btn) {
+  const wrapper = document.getElementById('pdfPlayerWrapper');
+  if (!wrapper) return;
+  wrapper.classList.toggle('zoomed');
+  const icon = btn.querySelector('i');
+  if (wrapper.classList.contains('zoomed')) {
+    icon.classList.remove('ph-magnifying-glass-plus');
+    icon.classList.add('ph-magnifying-glass-minus');
+  } else {
+    icon.classList.remove('ph-magnifying-glass-minus');
+    icon.classList.add('ph-magnifying-glass-plus');
+  }
+};
+
 let audioCtx = null;
 function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function playTone(freq, dur=120, type='sine', gainVal=0.06){
@@ -515,7 +529,10 @@ function openMediaPlayer(item, type) {
         pdfUrl = pdfUrl.replace(/\/view.*$/, '/preview');
       }
       pc.innerHTML = `
-        <div class="pdf-player-wrapper" style="width:100%; height:70vh; border-radius:12px; overflow:hidden; margin-bottom: 16px;">
+        <div class="pdf-player-wrapper" id="pdfPlayerWrapper" style="width:100%; height:70vh; border-radius:12px; overflow:hidden; margin-bottom: 16px; position:relative;">
+          <button class="pdf-zoom-btn" onclick="toggleAppPdfZoom(this)" style="position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 22px; cursor: pointer; transition: all 0.3s ease;">
+            <i class="ph ph-magnifying-glass-plus"></i>
+          </button>
           <iframe src="${pdfUrl}" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
         </div>
         <div class="player-info-box">

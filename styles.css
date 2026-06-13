@@ -4294,3 +4294,19 @@ audio {
   box-shadow: 0 12px 30px rgba(245,158,11,0.4) !important;
   background: linear-gradient(135deg, #F59E0B 0%, #EF4444 60%, #7C3AED 100%) !important;
 }
+/* PDF Player Zoom */
+.pdf-player-wrapper.zoomed {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  z-index: 999999 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+.pdf-zoom-btn:hover {
+  background: rgba(0,0,0,0.6) !important;
+  transform: scale(1.05);
+}
