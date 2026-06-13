@@ -884,7 +884,7 @@ function renderEtapa4() {
     </div>
     <div class="mf-rr-bottom-bar">
       <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
-        <i class="ph-fill ph-trophy"></i> Ir para Missão Final
+        <i class="ph-fill ph-check-circle"></i> Marcar como Lido
       </button>
     </div>
   `;
