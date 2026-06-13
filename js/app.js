@@ -42,6 +42,8 @@ window.showPage = window.go = function(id) {
   else document.body.classList.remove('quiz-focus');
 
   document.body.classList.remove('summary-focus');
+  const existing = document.getElementById('mfRrFullscreen');
+  if (existing) existing.remove();
 
   // Gatilhos extras de carregamento
   if (id === 'home') {

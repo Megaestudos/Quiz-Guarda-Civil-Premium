@@ -290,6 +290,9 @@ window.iniciarFluxoMissao = async function(modId, missaoId) {
 // ─── Render de etapa ──────────────────────────────────────────────────────────
 
 function renderEtapa(num) {
+  const existing = document.getElementById('mfRrFullscreen');
+  if (existing) existing.remove();
+
   if (num === 4) {
     document.body.classList.add('summary-focus');
   } else {
@@ -782,23 +785,33 @@ function renderEtapa4() {
     return;
   }
 
-  el.innerHTML = `
+  // Remove container existente para evitar duplicados
+  const existing = document.getElementById('mfRrFullscreen');
+  if (existing) existing.remove();
+
+  const container = document.createElement('div');
+  container.id = 'mfRrFullscreen';
+  container.className = 'mf-rr-fullscreen-container';
+  container.innerHTML = `
     <style>
       .mf-rr-fullscreen-container {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
+        width: 100vw;
         height: 100vh;
         height: 100dvh;
         z-index: 99999;
         background-color: #0b0f19;
         display: flex;
         flex-direction: column;
+        align-items: center;
         overflow: hidden;
       }
       .mf-rr-fullscreen-iframe {
         width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
         height: calc(100% - 110px);
         border: none;
         background-color: #ffffff;
@@ -807,7 +820,7 @@ function renderEtapa4() {
         position: absolute;
         bottom: 32px;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%) translateY(0) scale(1);
         z-index: 100000;
         background: linear-gradient(135deg, #10B981, #059669);
         color: #ffffff;
@@ -824,16 +837,14 @@ function renderEtapa4() {
         gap: 10px;
         cursor: pointer;
         box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        animation: slowPulse 4s infinite ease-in-out;
+        animation: slowPulse 3s infinite ease-in-out;
+        transition: background 0.3s ease, opacity 0.2s ease;
       }
       .mf-rr-btn-pulsante:hover {
-        transform: translateX(-50%) scale(1.04);
-        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.55);
         background: linear-gradient(135deg, #059669, #047857);
       }
       .mf-rr-btn-pulsante:active {
-        transform: translateX(-50%) scale(0.98);
+        opacity: 0.9;
       }
       @keyframes slowPulse {
         0% {
@@ -842,7 +853,7 @@ function renderEtapa4() {
         }
         50% {
           box-shadow: 0 8px 30px rgba(16, 185, 129, 0.55), 0 0 0 10px rgba(16, 185, 129, 0.12);
-          transform: translateX(-50%) translateY(-3px) scale(1.03);
+          transform: translateX(-50%) translateY(-4px) scale(1.04);
         }
         100% {
           box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
@@ -850,11 +861,17 @@ function renderEtapa4() {
         }
       }
     </style>
-    <div class="mf-rr-fullscreen-container">
-      <iframe src="${pdfUrl}" class="mf-rr-fullscreen-iframe"></iframe>
-      <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
-        <i class="ph-fill ph-check-circle"></i> Marcar como Lido
-      </button>
+    <iframe src="${pdfUrl}" class="mf-rr-fullscreen-iframe"></iframe>
+    <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
+      <i class="ph-fill ph-check-circle"></i> Marcar como Lido
+    </button>
+  `;
+  document.body.appendChild(container);
+
+  el.innerHTML = `
+    <div style="text-align:center; padding:40px; color:var(--text-muted);">
+      <i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i>
+      <br><br>Lendo resumo...
     </div>
   `;
 }
@@ -1110,6 +1127,8 @@ window.concluirMissaoSemQuestoes = function() {
 
 window.voltarJornadaMissoes = function() {
   document.body.classList.remove('summary-focus');
+  const existing = document.getElementById('mfRrFullscreen');
+  if (existing) existing.remove();
   if (!_missaoSessao) { if (typeof window.renderJornada === 'function') window.renderJornada(); return; }
   const { modId } = _missaoSessao;
   const carreira = typeof CARREIRAS !== 'undefined' && typeof CARREIRA_ATIVA !== 'undefined'
