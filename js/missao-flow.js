@@ -778,36 +778,78 @@ function renderEtapa4() {
   }
 
   el.innerHTML = `
-    <div class="mf-etapa-titulo">
-      <i class="ph-fill ph-file-pdf" style="color:#EF4444;"></i>
-      <span>Resumo</span>
+    <style>
+      .mf-rr-fullscreen-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 99999;
+        background-color: #0b0f19;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .mf-rr-fullscreen-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background-color: #ffffff;
+      }
+      .mf-rr-btn-pulsante {
+        position: absolute;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100000;
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: #ffffff;
+        border: none;
+        padding: 16px 28px;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slowPulse 4s infinite ease-in-out;
+      }
+      .mf-rr-btn-pulsante:hover {
+        transform: translateX(-50%) scale(1.04);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.55);
+        background: linear-gradient(135deg, #059669, #047857);
+      }
+      .mf-rr-btn-pulsante:active {
+        transform: translateX(-50%) scale(0.98);
+      }
+      @keyframes slowPulse {
+        0% {
+          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+          transform: translateX(-50%) scale(1);
+        }
+        50% {
+          box-shadow: 0 6px 28px rgba(16, 185, 129, 0.5), 0 0 0 8px rgba(16, 185, 129, 0.08);
+          transform: translateX(-50%) scale(1.02);
+        }
+        100% {
+          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+          transform: translateX(-50%) scale(1);
+        }
+      }
+    </style>
+    <div class="mf-rr-fullscreen-container">
+      <iframe src="${pdfUrl}" class="mf-rr-fullscreen-iframe"></iframe>
+      <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
+        <i class="ph-fill ph-check-circle"></i> Marcar como Lido
+      </button>
     </div>
-    <div class="mf-rr-header">
-      <div class="mf-rr-icon" style="background:${mod.cor}22; border-color:${mod.cor}44;">
-        <i class="ph-fill ${mod.icon}" style="color:${mod.cor};"></i>
-      </div>
-      <div>
-        <div class="mf-rr-titulo">${missao.nome}</div>
-        <div class="mf-rr-sub">${missao.descricao || 'Material de leitura complementar'}</div>
-      </div>
-    </div>
-    
-    <div class="mf-rr-box p-0 mt-4 overflow-hidden rounded-xl border border-white/10" style="height: 500px;">
-      <iframe src="${pdfUrl}" width="100%" height="100%" frameborder="0" style="background: white;"></iframe>
-    </div>
-    
-    <div class="flex gap-4 mt-6">
-      <a href="${pdfUrl}" target="_blank" class="btn btn-secondary flex-1 text-center" style="display:flex; justify-content:center;">
-        <i class="ph-fill ph-download-simple"></i> Download
-      </a>
-      <a href="${pdfUrl}" target="_blank" class="btn btn-secondary flex-1 text-center" style="display:flex; justify-content:center;">
-        <i class="ph-fill ph-eye"></i> Visualizar Nova Aba
-      </a>
-    </div>
-
-    <button class="btn btn-primary mf-btn-avancar mt-6" onclick="concluirEtapa4()">
-      <i class="ph-fill ph-check-circle"></i> Marcar como Lido
-    </button>
   `;
 }
 
