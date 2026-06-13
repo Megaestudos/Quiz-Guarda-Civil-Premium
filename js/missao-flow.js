@@ -788,8 +788,9 @@ function renderEtapa4() {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100vw;
+        width: 100%;
         height: 100vh;
+        height: 100dvh;
         z-index: 99999;
         background-color: #0b0f19;
         display: flex;
@@ -798,8 +799,6 @@ function renderEtapa4() {
       }
       .mf-rr-fullscreen-iframe {
         width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
         height: calc(100% - 110px);
         border: none;
         background-color: #ffffff;
