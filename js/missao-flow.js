@@ -817,10 +817,10 @@ function renderEtapa4() {
         align-items: flex-start;
       }
       .mf-rr-fullscreen-iframe {
-        width: 116.28%;
-        max-width: 930px;
-        height: 116.28%;
-        transform: scale(0.86);
+        width: 133.33%;
+        max-width: 1066px;
+        height: 133.33%;
+        transform: scale(0.75);
         transform-origin: top center;
         border: none;
         background-color: #ffffff;
@@ -884,7 +884,7 @@ function renderEtapa4() {
     </div>
     <div class="mf-rr-bottom-bar">
       <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
-        <i class="ph-fill ph-check-circle"></i> Marcar como Lido
+        <i class="ph-fill ph-trophy"></i> Ir para Missão Final
       </button>
     </div>
   `;
