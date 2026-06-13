@@ -510,9 +510,13 @@ function openMediaPlayer(item, type) {
         </div>`;
     } else if (type === 'slide') {
       // PDF nativo via iframe
+      let pdfUrl = item.url;
+      if (pdfUrl && pdfUrl.includes('drive.google.com') && pdfUrl.includes('/view')) {
+        pdfUrl = pdfUrl.replace(/\/view.*$/, '/preview');
+      }
       pc.innerHTML = `
         <div class="pdf-player-wrapper" style="width:100%; height:70vh; border-radius:12px; overflow:hidden; margin-bottom: 16px;">
-          <iframe src="${item.url}" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
+          <iframe src="${pdfUrl}" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
         </div>
         <div class="player-info-box">
           <div class="player-subject-tag"><i class="ph-fill ${subject.icon}"></i> ${subject.name}</div>

@@ -765,7 +765,12 @@ function renderEtapa4() {
   const el = document.getElementById('mfConteudo');
   if (!el) return;
   const { missao, mod } = _missaoSessao;
-  const pdfUrl = missao.pdf_url;
+  let pdfUrl = missao.pdf_url;
+
+  // Auto-corrige links do Google Drive para funcionarem no iframe
+  if (pdfUrl && pdfUrl.includes('drive.google.com') && pdfUrl.includes('/view')) {
+    pdfUrl = pdfUrl.replace(/\/view.*$/, '/preview');
+  }
 
   if (!pdfUrl) {
     el.innerHTML = `
