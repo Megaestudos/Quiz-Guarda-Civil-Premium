@@ -290,6 +290,11 @@ window.iniciarFluxoMissao = async function(modId, missaoId) {
 // ─── Render de etapa ──────────────────────────────────────────────────────────
 
 function renderEtapa(num) {
+  if (num === 4) {
+    document.body.classList.add('summary-focus');
+  } else {
+    document.body.classList.remove('summary-focus');
+  }
   _missaoSessao.etapa = num;
   const container = document.getElementById('jornadaContainer');
   if (!container) return;
@@ -793,7 +798,9 @@ function renderEtapa4() {
       }
       .mf-rr-fullscreen-iframe {
         width: 100%;
-        height: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        height: calc(100% - 110px);
         border: none;
         background-color: #ffffff;
       }
@@ -832,15 +839,15 @@ function renderEtapa4() {
       @keyframes slowPulse {
         0% {
           box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-          transform: translateX(-50%) scale(1);
+          transform: translateX(-50%) translateY(0) scale(1);
         }
         50% {
-          box-shadow: 0 6px 28px rgba(16, 185, 129, 0.5), 0 0 0 8px rgba(16, 185, 129, 0.08);
-          transform: translateX(-50%) scale(1.02);
+          box-shadow: 0 8px 30px rgba(16, 185, 129, 0.55), 0 0 0 10px rgba(16, 185, 129, 0.12);
+          transform: translateX(-50%) translateY(-3px) scale(1.03);
         }
         100% {
           box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-          transform: translateX(-50%) scale(1);
+          transform: translateX(-50%) translateY(0) scale(1);
         }
       }
     </style>
@@ -1103,6 +1110,7 @@ window.concluirMissaoSemQuestoes = function() {
 // ─── Voltar para a trilha de missões ──────────────────────────────────────────
 
 window.voltarJornadaMissoes = function() {
+  document.body.classList.remove('summary-focus');
   if (!_missaoSessao) { if (typeof window.renderJornada === 'function') window.renderJornada(); return; }
   const { modId } = _missaoSessao;
   const carreira = typeof CARREIRAS !== 'undefined' && typeof CARREIRA_ATIVA !== 'undefined'

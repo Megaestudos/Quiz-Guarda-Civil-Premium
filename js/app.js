@@ -41,6 +41,8 @@ window.showPage = window.go = function(id) {
   if(id === 'quiz' && quizStarted) document.body.classList.add('quiz-focus');
   else document.body.classList.remove('quiz-focus');
 
+  document.body.classList.remove('summary-focus');
+
   // Gatilhos extras de carregamento
   if (id === 'home') {
      showBestRecord();
