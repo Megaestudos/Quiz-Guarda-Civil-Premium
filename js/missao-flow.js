@@ -334,7 +334,7 @@ function renderEtapa(num) {
     <div class="mf-container">
       <div class="mf-header">
         <button class="btn-sm mf-btn-voltar" onclick="${voltarDestino}">
-          <i class="ph ph-arrow-left"></i> ${voltarLabel}
+          <i class="ph ph-arrow-left"></i> <span>${voltarLabel}</span>
         </button>
         <div class="mf-titulo-missao">
           <div class="mf-mod-icon" style="background:${mod.cor}22; border-color:${mod.cor}44;">
