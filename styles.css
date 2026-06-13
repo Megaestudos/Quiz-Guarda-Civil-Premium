@@ -3201,10 +3201,24 @@ audio {
 }
 .mf-linha-done { background: #10B981; }
 
-@media (max-width: 400px) {
-  .mf-dot-label { display: none; }
-  .mf-etapa-linha { width: 12px; }
-  .mf-dot-circulo { width: 30px; height: 30px; font-size: 13px; }
+@media (max-width: 600px) {
+  .mf-etapas-bar {
+    padding: 12px 6px;
+  }
+  .mf-dot-label {
+    font-size: 8px;
+    letter-spacing: -0.2px;
+  }
+  .mf-etapa-linha {
+    width: 10px;
+    margin: 0 2px;
+    margin-bottom: 14px;
+  }
+  .mf-dot-circulo {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
 }
 
 /* ConteÃƒÂºdo da etapa */
