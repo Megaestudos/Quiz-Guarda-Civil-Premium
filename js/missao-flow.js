@@ -805,25 +805,41 @@ function renderEtapa4() {
         background-color: #0b0f19;
         display: flex;
         flex-direction: column;
-        align-items: center;
         overflow: hidden;
       }
+      .mf-rr-iframe-wrapper {
+        flex: 1;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
       .mf-rr-fullscreen-iframe {
-        width: 106.38%;
-        max-width: 851px;
-        margin: 0 auto;
-        height: calc(106.38% - 117px);
-        transform: scale(0.94);
+        width: 116.28%;
+        max-width: 930px;
+        height: 116.28%;
+        transform: scale(0.86);
         transform-origin: top center;
         border: none;
         background-color: #ffffff;
+        flex-shrink: 0;
+      }
+      .mf-rr-bottom-bar {
+        height: 100px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #0b0f19;
+        position: relative;
+        z-index: 100000;
+        padding-bottom: env(safe-area-inset-bottom);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
       }
       .mf-rr-btn-pulsante {
-        position: absolute;
-        bottom: 32px;
-        left: 50%;
-        transform: translateX(-50%) translateY(0) scale(1);
-        z-index: 100000;
+        position: relative;
         background: linear-gradient(135deg, #10B981, #059669);
         color: #ffffff;
         border: none;
@@ -851,22 +867,26 @@ function renderEtapa4() {
       @keyframes slowPulse {
         0% {
           box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-          transform: translateX(-50%) translateY(0) scale(1);
+          transform: translateY(0) scale(1);
         }
         50% {
           box-shadow: 0 8px 30px rgba(16, 185, 129, 0.55), 0 0 0 10px rgba(16, 185, 129, 0.12);
-          transform: translateX(-50%) translateY(-4px) scale(1.04);
+          transform: translateY(-4px) scale(1.04);
         }
         100% {
           box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-          transform: translateX(-50%) translateY(0) scale(1);
+          transform: translateY(0) scale(1);
         }
       }
     </style>
-    <iframe src="${pdfUrl}" class="mf-rr-fullscreen-iframe"></iframe>
-    <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
-      <i class="ph-fill ph-check-circle"></i> Marcar como Lido
-    </button>
+    <div class="mf-rr-iframe-wrapper">
+      <iframe src="${pdfUrl}" class="mf-rr-fullscreen-iframe"></iframe>
+    </div>
+    <div class="mf-rr-bottom-bar">
+      <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
+        <i class="ph-fill ph-check-circle"></i> Marcar como Lido
+      </button>
+    </div>
   `;
   document.body.appendChild(container);
 
