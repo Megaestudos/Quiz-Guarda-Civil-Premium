@@ -362,7 +362,29 @@ window.openSubject = function openSubject(subjectId) {
 
   // Link do resumo em texto
   const resumoLink = document.getElementById('resumoTextLink');
-  if (resumoLink) resumoLink.href = 'https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/index.html';
+  if (resumoLink) {
+    if (subject.resumoFile) {
+      let file = subject.resumoFile.trim();
+      if (file.startsWith('http://') || file.startsWith('https://')) {
+        resumoLink.href = file;
+      } else {
+        if (file.startsWith('/')) {
+          file = file.substring(1);
+        }
+        resumoLink.href = `https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/${file}`;
+      }
+      resumoLink.style.opacity = '1';
+      resumoLink.style.pointerEvents = 'auto';
+      const countEl = resumoLink.querySelector('.media-type-count');
+      if (countEl) countEl.textContent = 'Abrir material de apoio';
+    } else {
+      resumoLink.href = 'https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/index.html';
+      resumoLink.style.opacity = '0.5';
+      resumoLink.style.pointerEvents = 'none';
+      const countEl = resumoLink.querySelector('.media-type-count');
+      if (countEl) countEl.textContent = 'Em breve';
+    }
+  }
 
   // Desabilita botões sem conteúdo
   const videoBtn = document.querySelector('.video-btn');
