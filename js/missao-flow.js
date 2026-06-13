@@ -809,10 +809,12 @@ function renderEtapa4() {
         overflow: hidden;
       }
       .mf-rr-fullscreen-iframe {
-        width: 100%;
-        max-width: 800px;
+        width: 106.38%;
+        max-width: 851px;
         margin: 0 auto;
-        height: calc(100% - 110px);
+        height: calc(106.38% - 117px);
+        transform: scale(0.94);
+        transform-origin: top center;
         border: none;
         background-color: #ffffff;
       }
