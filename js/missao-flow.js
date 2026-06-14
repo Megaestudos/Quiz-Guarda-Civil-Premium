@@ -895,53 +895,19 @@ function renderEtapa4() {
       /* Diminuição de zoom em smartphone */
       @media (max-width: 600px) {
         .mf-rr-fullscreen-iframe {
-          width: 181.82%;
-          height: 181.82%;
-          transform: scale(0.55);
+          width: 153.84%;
+          height: 153.84%;
+          transform: scale(0.65);
         }
       }
       @media (max-width: 400px) {
         .mf-rr-fullscreen-iframe {
-          width: 208.33%;
-          height: 208.33%;
-          transform: scale(0.48);
+          width: 166.66%;
+          height: 166.66%;
+          transform: scale(0.60);
         }
       }
-      /* Zoom styling */
-      .mf-rr-zoom-btn {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 100001;
-        background: rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #fff;
-        font-size: 24px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-      .mf-rr-zoom-btn:hover {
-        background: rgba(0, 0, 0, 0.6);
-        transform: scale(1.05);
-      }
-      .mf-rr-fullscreen-iframe.zoomed {
-        width: 100% !important;
-        max-width: none !important;
-        height: 100% !important;
-        transform: scale(1) !important;
-      }
     </style>
-    <button class="mf-rr-zoom-btn" onclick="togglePdfZoom(this)">
-      <i class="ph ph-magnifying-glass-plus"></i>
-    </button>
     <div class="mf-rr-iframe-wrapper">
       <iframe src="${pdfUrl}" class="mf-rr-fullscreen-iframe" id="mfPdfIframe"></iframe>
     </div>
@@ -960,20 +926,6 @@ function renderEtapa4() {
     </div>
   `;
 }
-
-window.togglePdfZoom = function(btn) {
-  const iframe = document.getElementById('mfPdfIframe');
-  if (!iframe) return;
-  iframe.classList.toggle('zoomed');
-  const icon = btn.querySelector('i');
-  if (iframe.classList.contains('zoomed')) {
-    icon.classList.remove('ph-magnifying-glass-plus');
-    icon.classList.add('ph-magnifying-glass-minus');
-  } else {
-    icon.classList.remove('ph-magnifying-glass-minus');
-    icon.classList.add('ph-magnifying-glass-plus');
-  }
-};
 
 window.concluirEtapa3 = function() {
   if (typeof window.addXP === 'function') window.addXP(10);
