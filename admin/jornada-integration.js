@@ -24,8 +24,8 @@ auth.onAuthStateChanged(async (user) => {
         return;
     }
     await loadHierarchy();
+    await loadResumosSelect();
     window.loadMissoes();
-    loadResumosSelect();
 });
 
 async function loadResumosSelect() {
@@ -42,7 +42,9 @@ async function loadResumosSelect() {
                 optionsHtml += `<option value="${url}">${file.name}</option>`;
             }
         });
+        const currentValue = select.value;
         select.innerHTML = optionsHtml;
+        if (currentValue) select.value = currentValue;
     } catch (e) {
         console.error("Erro ao carregar resumos do github:", e);
     }
