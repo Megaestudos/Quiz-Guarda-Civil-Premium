@@ -761,7 +761,7 @@ window.classificarFlashcard = function(nivel) {
 
 // ─── ETAPA 4 — RESUMO RÁPIDO ──────────────────────────────────────────────────
 
-function renderEtapa4() {
+async function renderEtapa4() {
   const el = document.getElementById('mfConteudo');
   if (!el) return;
   const { missao, mod } = _missaoSessao;
@@ -782,12 +782,12 @@ function renderEtapa4() {
   if (!pdfUrl) {
     el.innerHTML = `
       <div class="mf-etapa-titulo">
-        <i class="ph-fill ph-file-pdf" style="color:#EF4444;"></i>
-        <span>Resumo em PDF</span>
+        <i class="ph-fill ph-file-text" style="color:#10B981;"></i>
+        <span>Resumo da Missão</span>
       </div>
       <div class="mf-empty-state">
         <i class="ph-fill ph-clock" style="color:#F59E0B; font-size:36px;"></i>
-        <p>PDF em atualização</p>
+        <p>Resumo em atualização</p>
         <small>O material de revisão será disponibilizado em breve.</small>
       </div>
       <button class="btn btn-primary mf-btn-avancar" onclick="concluirEtapa4()">
@@ -824,23 +824,14 @@ function renderEtapa4() {
         width: 100%;
         position: relative;
         overflow-y: auto;
-        overflow-x: auto;
+        overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
         display: flex;
-        justify-content: center;
-        align-items: flex-start;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
         padding-bottom: calc(100px + env(safe-area-inset-bottom));
         box-sizing: border-box;
-      }
-      .mf-rr-fullscreen-iframe {
-        width: 133.33%;
-        max-width: 1066px;
-        height: 133.33%;
-        transform: scale(0.75);
-        transform-origin: top center;
-        border: none;
-        background-color: #ffffff;
-        flex-shrink: 0;
       }
       .mf-rr-bottom-bar {
         position: fixed;
@@ -898,79 +889,8 @@ function renderEtapa4() {
           transform: translateY(0) scale(1);
         }
       }
-
-      /* Diminuição de zoom em smartphone */
-      @media (max-width: 600px) {
-        .mf-rr-fullscreen-iframe {
-          width: 153.84%;
-          height: 153.84%;
-          transform: scale(0.65);
-        }
-      }
-      @media (max-width: 400px) {
-        .mf-rr-fullscreen-iframe {
-          width: 166.66%;
-          height: 166.66%;
-          transform: scale(0.60);
-        }
-      }
-      /* Zoom Slider */
-      .mf-zoom-slider-container {
-        position: fixed;
-        bottom: calc(110px + env(safe-area-inset-bottom));
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(11, 15, 25, 0.85);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border-radius: 30px;
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        z-index: 100002;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-      }
-      .mf-zoom-slider-container i {
-        color: #fff;
-        font-size: 20px;
-      }
-      .mf-zoom-slider {
-        -webkit-appearance: none;
-        width: 150px;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 2px;
-        outline: none;
-      }
-      .mf-zoom-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #10B981;
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      }
-      .mf-zoom-slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #10B981;
-        cursor: pointer;
-        border: none;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      }
     </style>
-    <div class="mf-rr-iframe-wrapper">
-      <iframe src="${pdfUrl}" class="mf-rr-fullscreen-iframe" id="mfPdfIframe"></iframe>
-    </div>
-    <div class="mf-zoom-slider-container">
-      <i class="ph ph-magnifying-glass-minus"></i>
-      <input type="range" min="30" max="150" value="65" class="mf-zoom-slider" oninput="changePdfZoom(this.value)">
-      <i class="ph ph-magnifying-glass-plus"></i>
+    <div class="mf-rr-iframe-wrapper" id="pdfContainer" style="padding: 0;">
     </div>
     <div class="mf-rr-bottom-bar">
       <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
@@ -980,13 +900,10 @@ function renderEtapa4() {
   `;
   document.body.appendChild(container);
 
-  el.innerHTML = `
-    <div style="text-align:center; padding:40px; color:var(--text-muted);">
-      <i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i>
-      <br><br>Lendo resumo...
-    </div>
-  `;
-}
+  const pdfContainer = document.getElementById('pdfContainer');
+  pdfContainer.innerHTML = `<iframe src="${pdfUrl}" style="width: 100%; height: 100%; border: none; background: #fff;"></iframe>`;
+
+
 
 window.changePdfZoom = function(val) {
   const iframe = document.getElementById('mfPdfIframe');

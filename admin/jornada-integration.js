@@ -25,7 +25,28 @@ auth.onAuthStateChanged(async (user) => {
     }
     await loadHierarchy();
     window.loadMissoes();
+    loadResumosSelect();
 });
+
+async function loadResumosSelect() {
+    const select = $('mPdfUrl');
+    try {
+        const response = await fetch('https://api.github.com/repos/Megaestudos/Quiz-Guarda-Civil-Premium/contents/resumos');
+        if (!response.ok) throw new Error('Failed to fetch from github');
+        const data = await response.json();
+        
+        let optionsHtml = '<option value="">Nenhum resumo selecionado</option>';
+        data.forEach(file => {
+            if (file.name.endsWith('.html')) {
+                const url = `https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/${file.name}`;
+                optionsHtml += `<option value="${url}">${file.name}</option>`;
+            }
+        });
+        select.innerHTML = optionsHtml;
+    } catch (e) {
+        console.error("Erro ao carregar resumos do github:", e);
+    }
+}
 
 async function loadHierarchy() {
     try {
