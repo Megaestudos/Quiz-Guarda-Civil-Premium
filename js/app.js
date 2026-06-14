@@ -23,6 +23,12 @@ window.syncGamificationToCloud = async function() {
 
 // Navegação entre telas do App
 window.showPage = window.go = function(id) {
+  // Garantir que pinch-to-zoom está desativado ao navegar
+  const viewportMeta = document.querySelector('meta[name="viewport"]');
+  if (viewportMeta) {
+    viewportMeta.content = "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0";
+  }
+  
   // Esconde todas as sections com classe 'page'
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   
@@ -514,6 +520,13 @@ function openMediaPlayer(item, type) {
       if (pdfUrl && pdfUrl.includes('drive.google.com') && pdfUrl.includes('/view')) {
         pdfUrl = pdfUrl.replace(/\/view.*$/, '/preview');
       }
+      
+      // Habilitar pinch-to-zoom para o PDF
+      const viewportMeta = document.querySelector('meta[name="viewport"]');
+      if (viewportMeta) {
+        viewportMeta.content = "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5, user-scalable=yes";
+      }
+
       pc.innerHTML = `
         <div class="pdf-player-wrapper" style="width:100%; height:70vh; border-radius:12px; overflow:hidden; margin-bottom: 16px;">
           <iframe src="${pdfUrl}" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>

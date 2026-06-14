@@ -765,6 +765,13 @@ function renderEtapa4() {
   const el = document.getElementById('mfConteudo');
   if (!el) return;
   const { missao, mod } = _missaoSessao;
+  
+  // Habilitar pinch-to-zoom no viewport enquanto estiver no resumo
+  const viewportMeta = document.querySelector('meta[name="viewport"]');
+  if (viewportMeta) {
+    viewportMeta.content = "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5, user-scalable=yes";
+  }
+
   let pdfUrl = missao.pdf_url;
 
   // Auto-corrige links do Google Drive para funcionarem no iframe
@@ -810,14 +817,14 @@ function renderEtapa4() {
         background-color: #0b0f19;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
+        overflow: auto; /* Permitir rolagem se o zoom ampliar muito */
       }
       .mf-rr-iframe-wrapper {
         flex: 1;
         width: 100%;
         position: relative;
         overflow-y: auto;
-        overflow-x: hidden;
+        overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         display: flex;
         justify-content: center;
@@ -933,6 +940,12 @@ window.concluirEtapa3 = function() {
 };
 
 window.concluirEtapa4 = function() {
+  // Desabilitar pinch-to-zoom ao sair do resumo
+  const viewportMeta = document.querySelector('meta[name="viewport"]');
+  if (viewportMeta) {
+    viewportMeta.content = "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0";
+  }
+
   if (typeof window.addXP === 'function') window.addXP(10);
   renderEtapa(5);
 };
