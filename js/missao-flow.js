@@ -774,13 +774,13 @@ function renderEtapa4() {
 
   let pdfUrl = missao.pdf_url;
 
-  // Auto-corrige links do Google Drive para funcionarem no iframe
+  // Auto-corrige links do Google Drive para funcionarem no iframe nativamente
   if (pdfUrl && pdfUrl.includes('drive.google.com') && pdfUrl.includes('/view')) {
     pdfUrl = pdfUrl.replace(/\/view.*$/, '/preview');
-  } else if (pdfUrl && pdfUrl.toLowerCase().endsWith('.pdf')) {
-    // Força o uso do Google Docs Viewer para links diretos de PDF
-    // Isso evita que navegadores mobile (iOS/Android) forcem o download ou abram o PDF fora do app
-    pdfUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(pdfUrl) + '&embedded=true';
+  } else if (pdfUrl && !pdfUrl.includes('drive.google.com')) {
+    // Para Firebase e outros links diretos, usamos a integração nativa com PDF.js (pdf-viewer.html)
+    // Isso resolve definitivamente o problema de abrir fora do app no mobile!
+    pdfUrl = './pdf-viewer.html?file=' + encodeURIComponent(pdfUrl);
   }
 
   if (!pdfUrl) {

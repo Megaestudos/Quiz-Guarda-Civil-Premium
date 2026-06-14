@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Visualizador de PDF</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: sans-serif;
+    }
+    #pdf-container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0;
+    }
+    .page-wrapper {
+      margin-bottom: 15px;
+      background-color: #fff;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border-radius: 4px;
+      position: relative;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .loader {
+      padding: 40px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 16px;
+    }
+    .error {
+      padding: 20px;
+      margin: 20px;
+      background-color: #fee2e2;
+      color: #991b1b;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #f87171;
+    }
+  </style>
+  <!-- Incluindo a biblioteca do PDF.js do CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+<body>
+
+  <div id="loading" class="loader">
+    <svg style="width:24px;height:24px;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-opacity="0.25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+    Carregando PDF...
+  </div>
+  
+  <div id="pdf-container"></div>
+
+  <style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+
+  <script>
+    // Configura o worker do PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const pdfUrl = urlParams.get('file');
+
+    if (!pdfUrl) {
+      document.getElementById('loading').innerHTML = '<div class="error">Nenhum arquivo PDF especificado.</div>';
+    } else {
+      const container = document.getElementById('pdf-container');
+      const loading = document.getElementById('loading');
+      
+      // Carrega o documento PDF
+      pdfjsLib.getDocument(pdfUrl).promise.then(pdfDoc => {
+        loading.style.display = 'none';
+        
+        // Renderiza todas as páginas
+        for (let num = 1; num <= pdfDoc.numPages; num++) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'page-wrapper';
+          const canvas = document.createElement('canvas');
+          wrapper.appendChild(canvas);
+          container.appendChild(wrapper);
+
+          pdfDoc.getPage(num).then(page => {
+            // Usa scale de alta resolução para nitidez
+            const renderScale = 2.5; 
+            const viewport = page.getViewport({ scale: renderScale });
+
+            const ctx = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderContext = {
+              canvasContext: ctx,
+              viewport: viewport
+            };
+            
+            page.render(renderContext);
+          });
+        }
+      }).catch(err => {
+        console.error('Erro no PDF.js:', err);
+        loading.innerHTML = '<div class="error"><b>Erro ao carregar o PDF.</b><br>Tente recarregar a página ou verifique se o link é válido.<br><small style="opacity:0.7;">' + err.message + '</small></div>';
+      });
+    }
+  </script>
+</body>
+</html>
