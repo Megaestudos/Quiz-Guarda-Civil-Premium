@@ -774,15 +774,6 @@ function renderEtapa4() {
 
   let pdfUrl = missao.pdf_url;
 
-  // Auto-corrige links do Google Drive para funcionarem no iframe nativamente
-  if (pdfUrl && pdfUrl.includes('drive.google.com') && pdfUrl.includes('/view')) {
-    pdfUrl = pdfUrl.replace(/\/view.*$/, '/preview');
-  } else if (pdfUrl && !pdfUrl.includes('drive.google.com')) {
-    // Para Firebase e outros links diretos, usamos a integração nativa com PDF.js (pdf-viewer.html)
-    // Isso resolve definitivamente o problema de abrir fora do app no mobile!
-    pdfUrl = './pdf-viewer.html?file=' + encodeURIComponent(pdfUrl);
-  }
-
   if (!pdfUrl) {
     el.innerHTML = `
       <div class="mf-etapa-titulo">
@@ -801,10 +792,7 @@ function renderEtapa4() {
     return;
   }
 
-  // Remove container existente para evitar duplicados (caso exista)
-  const existing = document.getElementById('mfRrFullscreen');
-  if (existing) existing.remove();
-
+  // Monta a estrutura da Etapa 4
   el.innerHTML = `
     <div class="mf-etapa-titulo" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
       <div style="display: flex; align-items: center; gap: 8px;">
@@ -815,10 +803,83 @@ function renderEtapa4() {
         <i class="ph-fill ph-check-circle"></i> Marcar como Lido
       </button>
     </div>
-    <div style="width: 100%; height: 70vh; min-height: 500px; border-radius: 12px; overflow: auto; background: #fff; position: relative; -webkit-overflow-scrolling: touch;">
-      <iframe src="${pdfUrl}" width="100%" height="100%" style="border: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></iframe>
+    
+    <div id="pdfLoadingIndicator" style="text-align: center; padding: 40px; color: #9ca3af; font-family: sans-serif;">
+      <svg style="width:24px;height:24px;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-opacity="0.25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+      Baixando e renderizando PDF...
     </div>
+    
+    <div id="pdfContainer" style="width: 100%; height: 70vh; min-height: 500px; overflow-y: auto; overflow-x: hidden; background: #e5e7eb; border-radius: 12px; display: flex; flex-direction: column; align-items: center; padding: 15px 0; -webkit-overflow-scrolling: touch;">
+    </div>
+    
+    <style>
+      @keyframes spin { 100% { transform: rotate(360deg); } }
+      .pdf-page-canvas {
+        display: block;
+        width: 100%;
+        max-width: 900px;
+        height: auto;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        border-radius: 4px;
+        background-color: #ffffff;
+      }
+    </style>
   `;
+
+  // Função assíncrona para desenhar o PDF no container
+  async function loadPdfInline() {
+    console.log("PDF URL:", pdfUrl);
+    
+    const loadingEl = document.getElementById('pdfLoadingIndicator');
+    const containerEl = document.getElementById('pdfContainer');
+    
+    try {
+      if (!window.pdfjsLib) {
+        throw new Error("A biblioteca PDF.js não foi carregada no app.html.");
+      }
+      
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+      
+      const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+      console.log("PDF carregado com sucesso. Total de páginas:", pdf.numPages);
+      
+      if (loadingEl) loadingEl.style.display = 'none';
+
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const canvas = document.createElement('canvas');
+        canvas.className = 'pdf-page-canvas';
+
+        // Escala aumentada para melhor nitidez no mobile/retina
+        const viewport = page.getViewport({ scale: 1.5 });
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({
+          canvasContext: canvas.getContext('2d'),
+          viewport
+        }).promise;
+
+        if (containerEl) {
+          containerEl.appendChild(canvas);
+        }
+      }
+    } catch (error) {
+      console.error("Erro PDF:", error);
+      if (loadingEl) {
+        loadingEl.innerHTML = `
+          <div style="background-color: #fee2e2; border: 1px solid #f87171; color: #991b1b; padding: 20px; border-radius: 8px; margin: 0 20px;">
+            <b>Erro ao exibir o PDF.</b><br><br>
+            <small style="opacity: 0.8;">Detalhe: ${error.message}</small><br><br>
+            <small>Dica: Verifique as políticas de CORS do seu Firebase Storage ou se a URL está correta.</small>
+          </div>
+        `;
+      }
+    }
+  }
+
+  loadPdfInline();
 }
 
 window.concluirEtapa3 = function() {
