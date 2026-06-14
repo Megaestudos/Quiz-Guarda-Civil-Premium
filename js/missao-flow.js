@@ -777,6 +777,10 @@ function renderEtapa4() {
   // Auto-corrige links do Google Drive para funcionarem no iframe
   if (pdfUrl && pdfUrl.includes('drive.google.com') && pdfUrl.includes('/view')) {
     pdfUrl = pdfUrl.replace(/\/view.*$/, '/preview');
+  } else if (pdfUrl && pdfUrl.toLowerCase().endsWith('.pdf')) {
+    // Força o uso do Google Docs Viewer para links diretos de PDF
+    // Isso evita que navegadores mobile (iOS/Android) forcem o download ou abram o PDF fora do app
+    pdfUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(pdfUrl) + '&embedded=true';
   }
 
   if (!pdfUrl) {
