@@ -914,9 +914,63 @@ function renderEtapa4() {
           transform: scale(0.60);
         }
       }
+      /* Zoom Slider */
+      .mf-zoom-slider-container {
+        position: fixed;
+        bottom: calc(110px + env(safe-area-inset-bottom));
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(11, 15, 25, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 30px;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        z-index: 100002;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      }
+      .mf-zoom-slider-container i {
+        color: #fff;
+        font-size: 20px;
+      }
+      .mf-zoom-slider {
+        -webkit-appearance: none;
+        width: 150px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+        outline: none;
+      }
+      .mf-zoom-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #10B981;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      }
+      .mf-zoom-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #10B981;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      }
     </style>
     <div class="mf-rr-iframe-wrapper">
       <iframe src="${pdfUrl}" class="mf-rr-fullscreen-iframe" id="mfPdfIframe"></iframe>
+    </div>
+    <div class="mf-zoom-slider-container">
+      <i class="ph ph-magnifying-glass-minus"></i>
+      <input type="range" min="30" max="150" value="65" class="mf-zoom-slider" oninput="changePdfZoom(this.value)">
+      <i class="ph ph-magnifying-glass-plus"></i>
     </div>
     <div class="mf-rr-bottom-bar">
       <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
@@ -933,6 +987,19 @@ function renderEtapa4() {
     </div>
   `;
 }
+
+window.changePdfZoom = function(val) {
+  const iframe = document.getElementById('mfPdfIframe');
+  if (iframe) {
+    const scale = val / 100;
+    // Como os tamanhos no CSS usam !important não, espere, não usam. 
+    // Só precisamos setar o width compensatório e o transform.
+    iframe.style.setProperty('transform', `scale(${scale})`, 'important');
+    const size = (1 / scale) * 100;
+    iframe.style.setProperty('width', `${size}%`, 'important');
+    iframe.style.setProperty('height', `${size}%`, 'important');
+  }
+};
 
 window.concluirEtapa3 = function() {
   if (typeof window.addXP === 'function') window.addXP(10);
