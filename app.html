@@ -13,6 +13,8 @@
   
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Bibliotecas de PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <link rel="stylesheet" href="./styles.css?v=3.0">
   <link rel="stylesheet" href="./engajamento.css">
 </head>
@@ -210,7 +212,7 @@
               </div>
               <i class="ph ph-arrow-right media-type-arrow"></i>
             </button>
-            <a id="resumoTextLink" href="#" target="_blank" class="media-type-btn resumo-btn">
+            <a id="resumoTextLink" href="#" class="media-type-btn resumo-btn" onclick="return false;">
               <div class="media-type-icon resumo-icon-btn">
                 <i class="ph-fill ph-file-text"></i>
               </div>
@@ -218,7 +220,7 @@
                 <span class="media-type-label">Resumo em Texto</span>
                 <span class="media-type-count">Abrir material de apoio</span>
               </div>
-              <i class="ph ph-arrow-up-right media-type-arrow"></i>
+              <i class="ph ph-arrow-right media-type-arrow"></i>
             </a>
           </div>
         </div>

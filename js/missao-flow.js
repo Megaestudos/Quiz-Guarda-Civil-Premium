@@ -774,11 +774,6 @@ function renderEtapa4() {
 
   let pdfUrl = missao.pdf_url;
 
-  // Auto-corrige links do Google Drive para funcionarem no iframe
-  if (pdfUrl && pdfUrl.includes('drive.google.com') && pdfUrl.includes('/view')) {
-    pdfUrl = pdfUrl.replace(/\/view.*$/, '/preview');
-  }
-
   if (!pdfUrl) {
     el.innerHTML = `
       <div class="mf-etapa-titulo">
@@ -797,209 +792,95 @@ function renderEtapa4() {
     return;
   }
 
-  // Remove container existente para evitar duplicados
-  const existing = document.getElementById('mfRrFullscreen');
-  if (existing) existing.remove();
-
-  const container = document.createElement('div');
-  container.id = 'mfRrFullscreen';
-  container.className = 'mf-rr-fullscreen-container';
-  container.innerHTML = `
-    <style>
-      .mf-rr-fullscreen-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        height: 100dvh;
-        z-index: 99999;
-        background-color: #0b0f19;
-        display: flex;
-        flex-direction: column;
-        overflow: auto; /* Permitir rolagem se o zoom ampliar muito */
-      }
-      .mf-rr-iframe-wrapper {
-        flex: 1;
-        width: 100%;
-        position: relative;
-        overflow-y: auto;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        padding-bottom: calc(100px + env(safe-area-inset-bottom));
-        box-sizing: border-box;
-      }
-      .mf-rr-fullscreen-iframe {
-        width: 133.33%;
-        max-width: 1066px;
-        height: 133.33%;
-        transform: scale(0.75);
-        transform-origin: top center;
-        border: none;
-        background-color: #ffffff;
-        flex-shrink: 0;
-      }
-      .mf-rr-bottom-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: calc(100px + env(safe-area-inset-bottom));
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: rgba(11, 15, 25, 0.95);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        z-index: 100000;
-        padding-bottom: env(safe-area-inset-bottom);
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-      }
-      .mf-rr-btn-pulsante {
-        position: relative;
-        background: linear-gradient(135deg, #10B981, #059669);
-        color: #ffffff;
-        border: none;
-        padding: 16px 28px;
-        border-radius: 50px;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        cursor: pointer;
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-        animation: slowPulse 3s infinite ease-in-out;
-        transition: background 0.3s ease, opacity 0.2s ease;
-      }
-      .mf-rr-btn-pulsante:hover {
-        background: linear-gradient(135deg, #059669, #047857);
-      }
-      .mf-rr-btn-pulsante:active {
-        opacity: 0.9;
-      }
-      @keyframes slowPulse {
-        0% {
-          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-          transform: translateY(0) scale(1);
-        }
-        50% {
-          box-shadow: 0 8px 30px rgba(16, 185, 129, 0.55), 0 0 0 10px rgba(16, 185, 129, 0.12);
-          transform: translateY(-4px) scale(1.04);
-        }
-        100% {
-          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-          transform: translateY(0) scale(1);
-        }
-      }
-
-      /* Diminuição de zoom em smartphone */
-      @media (max-width: 600px) {
-        .mf-rr-fullscreen-iframe {
-          width: 153.84%;
-          height: 153.84%;
-          transform: scale(0.65);
-        }
-      }
-      @media (max-width: 400px) {
-        .mf-rr-fullscreen-iframe {
-          width: 166.66%;
-          height: 166.66%;
-          transform: scale(0.60);
-        }
-      }
-      /* Zoom Slider */
-      .mf-zoom-slider-container {
-        position: fixed;
-        bottom: calc(110px + env(safe-area-inset-bottom));
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(11, 15, 25, 0.85);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border-radius: 30px;
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        z-index: 100002;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-      }
-      .mf-zoom-slider-container i {
-        color: #fff;
-        font-size: 20px;
-      }
-      .mf-zoom-slider {
-        -webkit-appearance: none;
-        width: 150px;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 2px;
-        outline: none;
-      }
-      .mf-zoom-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #10B981;
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      }
-      .mf-zoom-slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #10B981;
-        cursor: pointer;
-        border: none;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      }
-    </style>
-    <div class="mf-rr-iframe-wrapper">
-      <iframe src="${pdfUrl}" class="mf-rr-fullscreen-iframe" id="mfPdfIframe"></iframe>
-    </div>
-    <div class="mf-zoom-slider-container">
-      <i class="ph ph-magnifying-glass-minus"></i>
-      <input type="range" min="30" max="150" value="65" class="mf-zoom-slider" oninput="changePdfZoom(this.value)">
-      <i class="ph ph-magnifying-glass-plus"></i>
-    </div>
-    <div class="mf-rr-bottom-bar">
-      <button class="mf-rr-btn-pulsante" onclick="concluirEtapa4()">
+  // Monta a estrutura da Etapa 4
+  el.innerHTML = `
+    <div class="mf-etapa-titulo" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <i class="ph-fill ph-file-pdf" style="color:#EF4444; font-size: 24px;"></i>
+        <span style="font-size: 18px; font-weight: bold; color: #fff;">📄 Resumo da Missão</span>
+      </div>
+      <button class="btn btn-primary" onclick="concluirEtapa4()" style="margin: 0; padding: 10px 20px; border-radius: 8px; font-weight: bold; background: #10B981; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
         <i class="ph-fill ph-check-circle"></i> Marcar como Lido
       </button>
     </div>
-  `;
-  document.body.appendChild(container);
-
-  el.innerHTML = `
-    <div style="text-align:center; padding:40px; color:var(--text-muted);">
-      <i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i>
-      <br><br>Lendo resumo...
+    
+    <div id="pdfLoadingIndicator" style="text-align: center; padding: 40px; color: #9ca3af; font-family: sans-serif;">
+      <svg style="width:24px;height:24px;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-opacity="0.25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+      Baixando e renderizando PDF...
     </div>
+    
+    <div id="pdfContainer" style="width: 100%; height: 70vh; min-height: 500px; overflow-y: auto; overflow-x: hidden; background: #e5e7eb; border-radius: 12px; display: flex; flex-direction: column; align-items: center; padding: 15px 0; -webkit-overflow-scrolling: touch;">
+    </div>
+    
+    <style>
+      @keyframes spin { 100% { transform: rotate(360deg); } }
+      .pdf-page-canvas {
+        display: block;
+        width: 100%;
+        max-width: 900px;
+        height: auto;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        border-radius: 4px;
+        background-color: #ffffff;
+      }
+    </style>
   `;
-}
 
-window.changePdfZoom = function(val) {
-  const iframe = document.getElementById('mfPdfIframe');
-  if (iframe) {
-    const scale = val / 100;
-    // Como os tamanhos no CSS usam !important não, espere, não usam. 
-    // Só precisamos setar o width compensatório e o transform.
-    iframe.style.setProperty('transform', `scale(${scale})`, 'important');
-    const size = (1 / scale) * 100;
-    iframe.style.setProperty('width', `${size}%`, 'important');
-    iframe.style.setProperty('height', `${size}%`, 'important');
+  // Função assíncrona para desenhar o PDF no container
+  async function loadPdfInline() {
+    console.log("PDF URL:", pdfUrl);
+    
+    const loadingEl = document.getElementById('pdfLoadingIndicator');
+    const containerEl = document.getElementById('pdfContainer');
+    
+    try {
+      if (!window.pdfjsLib) {
+        throw new Error("A biblioteca PDF.js não foi carregada no app.html.");
+      }
+      
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+      
+      const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+      console.log("PDF carregado com sucesso. Total de páginas:", pdf.numPages);
+      
+      if (loadingEl) loadingEl.style.display = 'none';
+
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const canvas = document.createElement('canvas');
+        canvas.className = 'pdf-page-canvas';
+
+        // Escala aumentada para melhor nitidez no mobile/retina
+        const viewport = page.getViewport({ scale: 1.5 });
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({
+          canvasContext: canvas.getContext('2d'),
+          viewport
+        }).promise;
+
+        if (containerEl) {
+          containerEl.appendChild(canvas);
+        }
+      }
+    } catch (error) {
+      console.error("Erro PDF:", error);
+      if (loadingEl) {
+        loadingEl.innerHTML = `
+          <div style="background-color: #fee2e2; border: 1px solid #f87171; color: #991b1b; padding: 20px; border-radius: 8px; margin: 0 20px;">
+            <b>Erro ao exibir o PDF.</b><br><br>
+            <small style="opacity: 0.8;">Detalhe: ${error.message}</small><br><br>
+            <small>Dica: Verifique as políticas de CORS do seu Firebase Storage ou se a URL está correta.</small>
+          </div>
+        `;
+      }
+    }
   }
-};
+
+  loadPdfInline();
+}
 
 window.concluirEtapa3 = function() {
   if (typeof window.addXP === 'function') window.addXP(10);
