@@ -902,8 +902,7 @@ async function renderEtapa4() {
 
   const pdfContainer = document.getElementById('pdfContainer');
   pdfContainer.innerHTML = `<iframe src="${pdfUrl}" style="width: 100%; height: 100%; border: none; background: #fff;"></iframe>`;
-
-
+}
 
 window.changePdfZoom = function(val) {
   const iframe = document.getElementById('mfPdfIframe');
