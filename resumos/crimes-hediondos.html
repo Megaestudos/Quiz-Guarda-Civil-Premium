@@ -16,461 +16,18 @@
     <!-- Chart.js para gráficos -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(180deg, #1E40AF 0%, #0EA5E9 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Animated background elements */
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            mix-blend-mode: multiply;
-            filter: blur(60px);
-            opacity: 0.2;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .blob-1 {
-            width: 400px;
-            height: 400px;
-            background: #60A5FA;
-            top: -50px;
-            right: -50px;
-            animation-delay: 0s;
-        }
-
-        .blob-2 {
-            width: 400px;
-            height: 400px;
-            background: #06B6D4;
-            bottom: -50px;
-            left: -50px;
-            animation-delay: 2s;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(20px);
-            }
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        /* Header */
-        header {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 50px;
-            animation: slideInDown 0.8s ease-out;
-        }
-
-        .logo-box {
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0;
-        }
-
-        .logo-text {
-            font-size: 28px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .logo-sub {
-            font-size: 9px;
-            font-weight: 700;
-            color: #EF4444;
-            margin-top: 2px;
-        }
-
-        .header-content h1 {
-            font-size: 48px;
-            font-weight: 900;
-            margin-bottom: 15px;
-            line-height: 1.2;
-        }
-
-        .header-content h1 span {
-            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header-content p {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.6;
-            max-width: 600px;
-        }
-
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px 20px;
-            border-radius: 12px;
-            color: #06B6D4;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-bottom: 30px;
-        }
-
-        .back-button:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Seções de Conteúdo */
-        .content-section {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 30px;
-            animation: fadeInUp 0.6s ease-out forwards;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .content-section:nth-child(2) { animation-delay: 0.1s; }
-        .content-section:nth-child(3) { animation-delay: 0.2s; }
-        .content-section:nth-child(4) { animation-delay: 0.3s; }
-        .content-section:nth-child(5) { animation-delay: 0.4s; }
-        .content-section:nth-child(6) { animation-delay: 0.5s; }
-        .content-section:nth-child(7) { animation-delay: 0.6s; }
-
-        .content-section h2 {
-            font-size: 32px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .content-section h2 i {
-            color: #EF4444;
-            font-size: 28px;
-        }
-
-        .content-section h3 {
-            font-size: 22px;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            color: #06B6D4;
-        }
-
-        .content-section p {
-            font-size: 15px;
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.8;
-            margin-bottom: 15px;
-        }
-
-        /* Cards de Informação */
-        .info-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
-        }
-
-        .info-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .info-card:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-5px);
-        }
-
-        .info-card h4 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: #06B6D4;
-        }
-
-        .info-card p {
-            font-size: 14px;
-            margin: 0;
-        }
-
-        /* Gráficos */
-        .chart-container {
-            position: relative;
-            height: 400px;
-            margin: 30px 0;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Listas */
-        .content-list {
-            list-style: none;
-            margin: 20px 0;
-        }
-
-        .content-list li {
-            padding: 12px 0;
-            padding-left: 30px;
-            position: relative;
-            font-size: 15px;
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.6;
-        }
-
-        .content-list li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #06B6D4;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        /* Tabelas */
-        .table-container {
-            overflow-x: auto;
-            margin: 25px 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        table th {
-            background: rgba(239, 68, 68, 0.2);
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-            color: #EF4444;
-        }
-
-        table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        /* Destaque */
-        .highlight-box {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
-            border-left: 4px solid #EF4444;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .highlight-box strong {
-            color: #EF4444;
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            animation: fadeIn 1s ease-out 0.8s forwards;
-            opacity: 0;
-            margin-top: 50px;
-        }
-
-        footer p {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 5px;
-        }
-
-        footer .sub {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* Animations */
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 20px;
-            }
-
-            .logo-box {
-                width: 80px;
-                height: 80px;
-            }
-
-            .logo-text {
-                font-size: 22px;
-            }
-
-            .header-content h1 {
-                font-size: 36px;
-            }
-
-            .header-content p {
-                font-size: 14px;
-            }
-
-            .content-section {
-                padding: 25px;
-            }
-
-            .content-section h2 {
-                font-size: 24px;
-            }
-
-            .content-section h3 {
-                font-size: 18px;
-            }
-
-            .chart-container {
-                height: 300px;
-            }
-
-            .container {
-                padding: 30px 15px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header-content h1 {
-                font-size: 28px;
-            }
-
-            .header-content p {
-                font-size: 13px;
-            }
-
-            .content-section {
-                padding: 20px;
-            }
-
-            .content-section h2 {
-                font-size: 20px;
-            }
-
-            .content-section h3 {
-                font-size: 16px;
-            }
-
-            .chart-container {
-                height: 250px;
-            }
-
-            .info-cards {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
     <div class="bg-animation">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
+        <div class="blob blob-1" style="background: linear-gradient(135deg, #EF4444, #991B1B);"></div>
+        <div class="blob blob-2" style="background: linear-gradient(135deg, #DC2626, #7F1D1D);"></div>
     </div>
 
     <div class="container">
         <!-- Botão Voltar -->
-        <a href="index.html" class="back-button">
+        <a href="index.html" class="back-button" style="color: #EF4444;">
             <i class="fas fa-arrow-left"></i>
             Voltar ao Índice
         </a>
@@ -482,299 +39,190 @@
                 <div class="logo-sub">Lei 8.072</div>
             </div>
             <div class="header-content">
-                <h1>Crimes Hediondos<br><span>Resumo Profissional Completo</span></h1>
-                <p>Análise detalhada da Lei nº 8.072/1990, crimes hediondos, penas, regime de cumprimento e procedimentos com foco em concursos públicos.</p>
+                <h1>Crimes Hediondos<br><span style="background: linear-gradient(135deg, #EF4444, #F87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Resumo Profissional Completo</span></h1>
+                <p>Análise dogmática e jurisprudencial da Lei nº 8.072/1990. O rol taxativo de crimes, as frações de progressão de regime após o Pacote Anticrime e os crimes equiparados.</p>
             </div>
         </header>
 
         <!-- Seção 1: Conceito e Fundamentos -->
         <div class="content-section">
-            <h2><i class="fas fa-gavel"></i> Conceito e Fundamentos</h2>
+            <h2 id="conceito-fundamentos"><i class="fas fa-gavel" style="background: #EF4444; -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i> Sistema Legal e Equiparados</h2>
             
-            <p>A Lei nº 8.072, de 25 de julho de 1990, dispõe sobre os crimes hediondos, nos termos do art. 5º, inciso XLIII, da Constituição Federal. Crimes hediondos são aqueles considerados de extrema gravidade, que causam repugnância social.</p>
-
-            <h3>Características Fundamentais</h3>
-            <ul class="content-list">
-                <li>Lei que tipifica crimes hediondos</li>
-                <li>Sancionada em 25 de julho de 1990</li>
-                <li>Fundamentação constitucional (Art. 5º, XLIII, CF)</li>
-                <li>Regime de cumprimento especial (fechado)</li>
-                <li>Impossibilidade de anistia, graça ou indulto</li>
-                <li>Múltiplas reformas: Lei nº 8.930/1994, Lei nº 12.015/2009, Lei nº 13.104/2015, Lei nº 13.964/2019, Lei nº 14.994/2024</li>
-            </ul>
+            <p>O Brasil adotou o <strong>sistema legal</strong> (ou legal-formal) para definir o que é crime hediondo. Ou seja, é hediondo apenas o que está expressamente listado no Art. 1º da Lei 8.072/90 (rol taxativo), não cabendo ao juiz, por analogia ou gravidade do fato, rotular outro crime como hediondo.</p>
 
             <div class="info-cards">
-                <div class="info-card">
-                    <h4><i class="fas fa-gavel"></i> Lei nº 8.072/1990</h4>
-                    <p>Lei de Crimes Hediondos</p>
+                <div class="info-card" style="border-left: 4px solid #EF4444;">
+                    <h4 style="color: #EF4444;"><i class="fas fa-list-ol"></i> Rol Taxativo</h4>
+                    <p>A lista do Art. 1º é exaustiva (<em>numerus clausus</em>). O homicídio simples, regra geral, NÃO é hediondo, salvo se praticado em atividade típica de grupo de extermínio.</p>
                 </div>
-                <div class="info-card">
-                    <h4><i class="fas fa-ban"></i> Regime</h4>
-                    <p>Cumprimento em Regime Fechado</p>
-                </div>
-                <div class="info-card">
-                    <h4><i class="fas fa-shield-alt"></i> Proteção</h4>
-                    <p>Crimes de Extrema Gravidade</p>
+                <div class="info-card" style="border-left: 4px solid #EF4444;">
+                    <h4 style="color: #EF4444;"><i class="fas fa-link"></i> Equiparados (TTT)</h4>
+                    <p>Tráfico de Drogas, Tortura e Terrorismo <strong>não são</strong> crimes hediondos, mas <strong>são equiparados</strong> a eles por força constitucional (Art. 5º, XLIII), sofrendo as mesmas restrições.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Seção 2: Crimes Hediondos -->
+        <!-- Seção 2: Rol de Crimes Hediondos -->
         <div class="content-section">
-            <h2><i class="fas fa-exclamation-triangle"></i> Crimes Considerados Hediondos</h2>
+            <h2 id="rol-crimes"><i class="fas fa-exclamation-triangle" style="background: #EF4444; -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i> O Rol de Crimes (Art. 1º)</h2>
             
-            <h3>Art. 1º - Lista de Crimes Hediondos</h3>
-            
-            <h4>I - Homicídio</h4>
-            <ul class="content-list">
-                <li>Homicídio em atividade típica de grupo de extermínio</li>
-                <li>Homicídio qualificado (qualquer modalidade)</li>
-            </ul>
+            <p>Com as sucessivas reformas (incluindo Pacote Anticrime e leis recentes), a lista de crimes hediondos cresceu substancialmente. <em>Atenção: A tentativa de crime hediondo também é hedionda.</em></p>
 
-            <h4>I-A - Lesão Corporal Dolosa de Natureza Gravíssima (Lei nº 15.159/2025)</h4>
-            <ul class="content-list">
-                <li>Contra autoridade ou agente de segurança pública</li>
-                <li>Contra membro do Poder Judiciário, MP, DP ou Advocacia Pública</li>
-                <li>Nas dependências de instituição de ensino</li>
-            </ul>
+            <div class="accordion">
+                <button class="accordion-header">
+                    <span>Crimes Contra a Vida (Homicídio)</span>
+                    <i class="fas fa-chevron-down" style="color: #EF4444;"></i>
+                </button>
+                <div class="accordion-content">
+                    <ul class="content-list">
+                        <li><strong>Homicídio Simples:</strong> Apenas quando praticado em atividade típica de grupo de extermínio.</li>
+                        <li><strong>Homicídio Qualificado:</strong> TODAS as formas de homicídio qualificado são hediondas (inclusive o Feminicídio, que agora tem lei própria).</li>
+                        <li><strong>Lesão Corporal Dolosa de Natureza Gravíssima (Recente):</strong> Contra autoridades de segurança (Lei 15.159/2025).</li>
+                    </ul>
+                </div>
+            </div>
 
-            <h4>I-B - Feminicídio (Lei nº 14.994/2024)</h4>
-            <ul class="content-list">
-                <li>Homicídio praticado contra mulher por razões da condição de sexo feminino</li>
-            </ul>
+            <div class="accordion">
+                <button class="accordion-header">
+                    <span>Crimes Contra o Patrimônio (Roubo, Extorsão, Furto)</span>
+                    <i class="fas fa-chevron-down" style="color: #EF4444;"></i>
+                </button>
+                <div class="accordion-content">
+                    <ul class="content-list">
+                        <li><strong>Latrocínio:</strong> Roubo com resultado morte.</li>
+                        <li><strong>Roubo:</strong> Restrito a 3 casos: Roubo com restrição de liberdade da vítima, Roubo com emprego de arma de fogo (qualquer tipo), e Roubo com resultado lesão grave ou morte.</li>
+                        <li><strong>Extorsão:</strong> Qualificada pela restrição da liberdade, lesão grave ou morte.</li>
+                        <li><strong>Extorsão Mediante Sequestro:</strong> EM TODAS AS SUAS FORMAS (simples e qualificadas).</li>
+                        <li><strong>Furto Qualificado pelo Explosivo:</strong> Adicionado pelo Pacote Anticrime (furtar caixa eletrônico com dinamite). <em>Cuidado: Roubo com explosivo NÃO é hediondo.</em></li>
+                    </ul>
+                </div>
+            </div>
 
-            <h4>II - Latrocínio</h4>
-            <ul class="content-list">
-                <li>Roubo com restrição de liberdade da vítima</li>
-                <li>Roubo com emprego de arma de fogo</li>
-                <li>Roubo qualificado por lesão corporal grave ou morte</li>
-            </ul>
+            <div class="accordion">
+                <button class="accordion-header">
+                    <span>Crimes Contra a Dignidade Sexual</span>
+                    <i class="fas fa-chevron-down" style="color: #EF4444;"></i>
+                </button>
+                <div class="accordion-content">
+                    <ul class="content-list">
+                        <li><strong>Estupro:</strong> Art. 213 do CP (simples ou qualificado).</li>
+                        <li><strong>Estupro de Vulnerável:</strong> Art. 217-A do CP.</li>
+                        <li><strong>Favorecimento da Prostituição de Criança/Adolescente/Vulnerável:</strong> Art. 218-B do CP.</li>
+                    </ul>
+                </div>
+            </div>
 
-            <h4>III - Extorsão Qualificada</h4>
-            <ul class="content-list">
-                <li>Extorsão com restrição de liberdade</li>
-                <li>Extorsão com lesão corporal ou morte</li>
-            </ul>
+            <div class="accordion">
+                <button class="accordion-header">
+                    <span>Estatuto do Desarmamento e Outros</span>
+                    <i class="fas fa-chevron-down" style="color: #EF4444;"></i>
+                </button>
+                <div class="accordion-content">
+                    <ul class="content-list">
+                        <li><strong>Posse/Porte de Arma de Fogo de Uso PROIBIDO:</strong> (Atenção: Uso <em>restrito</em> deixou de ser hediondo com o Pacote Anticrime).</li>
+                        <li><strong>Comércio Ilegal de Arma de Fogo:</strong> Art. 17 do ED.</li>
+                        <li><strong>Tráfico Internacional de Arma de Fogo:</strong> Art. 18 do ED.</li>
+                        <li><strong>Epidemia com Resultado Morte:</strong> Art. 267, §1º do CP.</li>
+                        <li><strong>Genocídio:</strong> Lei 2.889/56.</li>
+                    </ul>
+                </div>
+            </div>
 
-            <h4>IV - Extorsão Mediante Sequestro</h4>
-            <ul class="content-list">
-                <li>Sequestro para obtenção de vantagem econômica</li>
-                <li>Formas qualificadas</li>
-            </ul>
-
-            <h4>V - Estupro</h4>
-            <ul class="content-list">
-                <li>Estupro (constranger mulher à conjunção carnal)</li>
-            </ul>
-
-            <h4>VI - Estupro de Vulnerável</h4>
-            <ul class="content-list">
-                <li>Conjunção carnal ou ato libidinoso com menor de 14 anos</li>
-                <li>Formas qualificadas</li>
-            </ul>
-
-            <h4>VII - Epidemia com Resultado Morte</h4>
-            <ul class="content-list">
-                <li>Causar epidemia que resulte em morte</li>
-            </ul>
-
-            <h4>VIII - Genocídio</h4>
-            <ul class="content-list">
-                <li>Destruição de grupo nacional, étnico, racial ou religioso</li>
-            </ul>
-
-            <h4>IX - Tráfico de Drogas (Lei nº 11.343/2006)</h4>
-            <ul class="content-list">
-                <li>Tráfico de drogas (Art. 33)</li>
-            </ul>
-
-            <div class="chart-container">
+            <div class="chart-container" style="height: 350px;">
                 <canvas id="chartCrimesHediondos"></canvas>
             </div>
         </div>
 
-        <!-- Seção 3: Regime de Cumprimento -->
+        <!-- Seção 3: Consequências Restritivas -->
         <div class="content-section">
-            <h2><i class="fas fa-lock"></i> Regime de Cumprimento de Pena</h2>
+            <h2 id="consequencias"><i class="fas fa-ban" style="background: #EF4444; -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i> Consequências e Restrições Penais</h2>
             
-            <h3>Regime Fechado Obrigatório (Art. 2º)</h3>
-            <div class="highlight-box">
-                <p><strong>Regra:</strong> Condenado a crime hediondo cumpre pena em regime fechado</p>
-            </div>
-
-            <h3>Impossibilidade de Benefícios (Art. 2º, § 1º)</h3>
-            <ul class="content-list">
-                <li>Não é permitida a concessão de anistia, graça ou indulto</li>
-                <li>Não é permitida a liberdade condicional</li>
-                <li>Não é permitida a progressão de regime</li>
-            </ul>
-
-            <h3>Progressão de Regime (Lei nº 11.464/2007)</h3>
-            <p>Após reforma, é possível progressão de regime, mas com requisitos especiais:</p>
-            <ul class="content-list">
-                <li>Cumprimento de no mínimo 2/5 da pena se reincidente</li>
-                <li>Cumprimento de no mínimo 3/5 da pena se primário</li>
-                <li>Comprovação de bom comportamento</li>
-                <li>Avaliação criminológica favorável</li>
-            </ul>
-
-            <h3>Livramento Condicional (Art. 83)</h3>
-            <p>Possível após cumprimento de 2/3 da pena, com requisitos especiais.</p>
-
-            <div class="chart-container">
-                <canvas id="chartRegime"></canvas>
-            </div>
-        </div>
-
-        <!-- Seção 4: Procedimento e Competência -->
-        <div class="content-section">
-            <h2><i class="fas fa-balance-scale"></i> Procedimento e Competência</h2>
-            
-            <h3>Competência Judicial (Art. 5º)</h3>
-            <ul class="content-list">
-                <li>Tribunal do Júri (crimes dolosos contra vida)</li>
-                <li>Juiz singular (crimes culposos ou sem morte)</li>
-                <li>Competência especial para crimes contra autoridades</li>
-            </ul>
-
-            <h3>Procedimento (Art. 8º)</h3>
-            <ul class="content-list">
-                <li>Ação penal pública incondicionada</li>
-                <li>Inquérito policial obrigatório</li>
-                <li>Denúncia do Ministério Público</li>
-                <li>Processo ordinário ou sumário conforme tipo de crime</li>
-            </ul>
-
-            <h3>Prisão Preventiva (Art. 5º, § 1º)</h3>
-            <p>A prisão preventiva é obrigatória para crimes hediondos, salvo circunstâncias excepcionais.</p>
-
-            <h3>Prazos Processuais (Art. 10)</h3>
-            <ul class="content-list">
-                <li>Prazo para resposta à acusação: 10 dias</li>
-                <li>Prazo para recursos: 10 dias</li>
-                <li>Prazo para execução da pena: 10 dias</li>
-            </ul>
+            <p>Cometer um crime hediondo (ou equiparado) traz uma série de vedações expressas na legislação e na Constituição.</p>
 
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>Crime</th>
-                            <th>Tipo</th>
-                            <th>Pena Mínima</th>
+                            <th>Benefício</th>
+                            <th>Regra para Hediondos</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Homicídio Qualificado</strong></td>
-                            <td>Doloso</td>
-                            <td>12 anos</td>
+                            <td><strong>Anistia, Graça e Indulto</strong></td>
+                            <td><span style="color: #EF4444; font-weight: bold;">VEDADO</span> pela Constituição e pela Lei 8.072/90.</td>
                         </tr>
                         <tr>
-                            <td><strong>Latrocínio</strong></td>
-                            <td>Doloso</td>
-                            <td>20 anos</td>
+                            <td><strong>Fiança</strong></td>
+                            <td><span style="color: #EF4444; font-weight: bold;">INAFIANÇÁVEL</span> (Mas cabe liberdade provisória SEM fiança se não houver requisitos da prisão preventiva).</td>
                         </tr>
                         <tr>
-                            <td><strong>Extorsão Mediante Sequestro</strong></td>
-                            <td>Doloso</td>
-                            <td>8 anos</td>
+                            <td><strong>Prisão Temporária</strong></td>
+                            <td>Prazo dilatado: <strong>30 dias</strong>, prorrogáveis por mais 30 dias (A regra comum é 5+5).</td>
                         </tr>
                         <tr>
-                            <td><strong>Estupro</strong></td>
-                            <td>Doloso</td>
-                            <td>6 anos</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Estupro de Vulnerável</strong></td>
-                            <td>Doloso</td>
-                            <td>8 anos</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Tráfico de Drogas</strong></td>
-                            <td>Doloso</td>
-                            <td>5 anos</td>
+                            <td><strong>Livramento Condicional</strong></td>
+                            <td>Permitido, mas com requisito endurecido: cumprimento de <strong>mais de 2/3 da pena</strong> (se não for reincidente específico em hediondo).</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
 
-        <!-- Seção 5: Efeitos da Condenação -->
-        <div class="content-section">
-            <h2><i class="fas fa-gavel"></i> Efeitos da Condenação</h2>
-            
-            <h3>Efeitos Penais</h3>
-            <ul class="content-list">
-                <li>Cumprimento em regime fechado obrigatório</li>
-                <li>Impossibilidade de anistia, graça ou indulto</li>
-                <li>Impossibilidade de liberdade condicional (antes da reforma)</li>
-                <li>Impossibilidade de progressão de regime (antes da reforma)</li>
-            </ul>
-
-            <h3>Efeitos Civis</h3>
-            <ul class="content-list">
-                <li>Perda de direitos políticos</li>
-                <li>Incapacidade para exercer funções públicas</li>
-                <li>Inabilitação para profissões reguladas</li>
-                <li>Obrigação de reparação de danos</li>
-            </ul>
-
-            <h3>Efeitos Sociais</h3>
-            <ul class="content-list">
-                <li>Antecedentes criminais permanentes</li>
-                <li>Restrições para viagens internacionais</li>
-                <li>Dificuldades para obtenção de emprego</li>
-                <li>Estigma social</li>
-            </ul>
-
-            <div class="chart-container">
-                <canvas id="chartEfeitos"></canvas>
+            <div class="highlight-box" style="border-left-color: #EF4444; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));">
+                <p><strong>Atenção ao Regime Inicial:</strong> A lei dizia que a pena seria cumprida "inicialmente em regime fechado". O STF declarou essa obrigatoriedade <strong>INCONSTITUCIONAL</strong>. Portanto, um condenado por crime hediondo PODE iniciar a pena no regime semiaberto ou aberto, dependendo da pena e das circunstâncias judiciais.</p>
             </div>
         </div>
 
-        <!-- Seção 6: Pontos-Chave para Concursos -->
+        <!-- Seção 4: Progressão de Regime -->
         <div class="content-section">
-            <h2><i class="fas fa-star"></i> Pontos-Chave para Concursos</h2>
+            <h2 id="progressao"><i class="fas fa-lock-open" style="background: #EF4444; -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i> Progressão de Regime (Lei de Execução Penal)</h2>
             
-            <div class="highlight-box">
-                <p><strong>1. Lei nº 8.072/1990:</strong> Lei de Crimes Hediondos, sancionada em 25 de julho de 1990</p>
+            <p>O Pacote Anticrime (Lei 13.964/2019) alterou as frações de progressão (que eram de 2/5 e 3/5) para <strong>porcentagens</strong> escalonadas no art. 112 da LEP:</p>
+
+            <ul class="content-list">
+                <li><strong>40%</strong> da pena: se for primário (hediondo s/ resultado morte).</li>
+                <li><strong>50%</strong> da pena: se for primário, e o crime hediondo tiver resultado morte (aqui também é vedado o livramento condicional).</li>
+                <li><strong>60%</strong> da pena: se for reincidente na prática de crime hediondo/equiparado.</li>
+                <li><strong>70%</strong> da pena: se for reincidente específico em crime hediondo/equiparado COM resultado morte (também veda livramento condicional).</li>
+            </ul>
+
+            <div class="chart-container" style="height: 300px;">
+                <canvas id="chartRegime"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção 5: Pontos-Chave -->
+        <div class="content-section">
+            <h2 id="pontos-chave"><i class="fas fa-star" style="background: #EF4444; -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i> Pegadinhas Clássicas de Concurso</h2>
+            
+            <div class="accordion">
+                <button class="accordion-header">
+                    <span>Tráfico Privilegiado é Hediondo?</span>
+                    <i class="fas fa-chevron-down" style="color: #EF4444;"></i>
+                </button>
+                <div class="accordion-content">
+                    <p><strong>NÃO.</strong> O STF já decidiu (e o Pacote Anticrime colocou expressamente na LEP) que o tráfico privilegiado (Art. 33, §4º da Lei de Drogas) não possui natureza hedionda nem é a ele equiparado. Assim, ele admite livramento condicional com 1/3 da pena e progressão com 16%.</p>
+                </div>
             </div>
 
-            <div class="highlight-box">
-                <p><strong>2. Fundamentação:</strong> Art. 5º, XLIII da Constituição Federal</p>
+            <div class="accordion">
+                <button class="accordion-header">
+                    <span>Homicídio Qualificado-Privilegiado</span>
+                    <i class="fas fa-chevron-down" style="color: #EF4444;"></i>
+                </button>
+                <div class="accordion-content">
+                    <p><strong>NÃO é hediondo.</strong> Quando o homicídio for ao mesmo tempo qualificado (por ordem objetiva) e privilegiado (violenta emoção, motivo de relevante valor moral/social), a natureza do privilégio afasta a hediondez do crime.</p>
+                </div>
             </div>
-
-            <div class="highlight-box">
-                <p><strong>3. Crimes Hediondos:</strong> Homicídio qualificado, latrocínio, extorsão mediante sequestro, estupro, estupro de vulnerável, epidemia com morte, genocídio, tráfico de drogas</p>
-            </div>
-
-            <div class="highlight-box">
-                <p><strong>4. Regime Fechado:</strong> Obrigatório para condenados por crime hediondo</p>
-            </div>
-
-            <div class="highlight-box">
-                <p><strong>5. Impossibilidade de Benefícios (Original):</strong> Anistia, graça, indulto, liberdade condicional e progressão de regime</p>
-            </div>
-
-            <div class="highlight-box">
-                <p><strong>6. Progressão de Regime (Lei nº 11.464/2007):</strong> Possível após 2/5 (reincidente) ou 3/5 (primário) da pena</p>
-            </div>
-
-            <div class="highlight-box">
-                <p><strong>7. Prisão Preventiva:</strong> Obrigatória para crimes hediondos, salvo circunstâncias excepcionais</p>
-            </div>
-
-            <div class="highlight-box">
-                <p><strong>8. Ação Penal:</strong> Pública incondicionada, com denúncia do Ministério Público</p>
-            </div>
-
-            <div class="highlight-box">
-                <p><strong>9. Feminicídio (Lei nº 14.994/2024):</strong> Incluído como crime hediondo</p>
-            </div>
-
-            <div class="highlight-box">
-                <p><strong>10. Lesão Corporal Gravíssima (Lei nº 15.159/2025):</strong> Contra autoridades e em instituições de ensino é crime hediondo</p>
+            
+            <div class="accordion">
+                <button class="accordion-header">
+                    <span>Organização Criminosa</span>
+                    <i class="fas fa-chevron-down" style="color: #EF4444;"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>O crime de organização criminosa SÓ será considerado hediondo se a ORCRIM for direcionada à prática de crime hediondo ou equiparado.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -782,177 +230,47 @@
     <!-- Footer -->
     <footer>
         <p>© PlenAula Concursos — Resumo Profissional de Crimes Hediondos</p>
-        <p class="sub">Material feito para revisão intensiva e aprovação em concursos públicos</p>
+        <p class="sub">Estrutura mobile-first otimizada, atualizada com as inovações do Pacote Anticrime.</p>
     </footer>
 
     <script>
-        // Gráfico 1: Crimes Hediondos (Barras Verticais)
-        const ctx1 = document.getElementById('chartCrimesHediondos').getContext('2d');
-        new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: ['Homicídio', 'Latrocínio', 'Extorsão', 'Estupro', 'Estupro Vulnerável', 'Tráfico', 'Genocídio'],
-                datasets: [{
-                    label: 'Pena Mínima (Anos)',
-                    data: [12, 20, 8, 6, 8, 5, 30],
-                    backgroundColor: '#EF4444',
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'rgba(255, 255, 255, 0.8)',
-                            font: {
-                                family: "'Inter', sans-serif"
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.6)'
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        }
+        document.addEventListener('DOMContentLoaded', () => {
+            // Re-render chart 1
+            const ctx1 = document.getElementById('chartCrimesHediondos');
+            if(ctx1) {
+                new Chart(ctx1.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Homicídio Qual.', 'Latrocínio', 'Extorsão M. Sequestro', 'Estupro/Vulnerável', 'Epidemia c/ Morte'],
+                        datasets: [{
+                            label: 'Pena Mínima Abstrata (Anos)',
+                            data: [12, 20, 8, 8, 20],
+                            backgroundColor: '#EF4444',
+                            borderRadius: 6
+                        }]
                     },
-                    x: {
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.8)'
-                        },
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#f8fafc' } } }, scales: { y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } }, x: { ticks: { color: '#f8fafc' }, grid: { display: false } } } }
+                });
             }
-        });
 
-        // Gráfico 2: Regime de Cumprimento
-        const ctx2 = document.getElementById('chartRegime').getContext('2d');
-        new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: ['Início', '1/5', '2/5', '3/5', '4/5', 'Final'],
-                datasets: [{
-                    label: 'Progressão de Regime (Primário)',
-                    data: [0, 0, 100, 100, 100, 100],
-                    borderColor: '#EF4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#EF4444',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'rgba(255, 255, 255, 0.8)',
-                            font: {
-                                family: "'Inter', sans-serif"
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.6)'
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        }
+            // Re-render chart 2
+            const ctx2 = document.getElementById('chartRegime');
+            if(ctx2) {
+                new Chart(ctx2.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Primário s/ Morte', 'Primário c/ Morte', 'Reincidente s/ Morte', 'Reincidente c/ Morte'],
+                        datasets: [{
+                            label: 'Progressão de Regime (%)',
+                            data: [40, 50, 60, 70],
+                            backgroundColor: '#DC2626',
+                            borderRadius: 6
+                        }]
                     },
-                    x: {
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.8)'
-                        },
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-
-        // Gráfico 3: Efeitos da Condenação
-        const ctx3 = document.getElementById('chartEfeitos').getContext('2d');
-        new Chart(ctx3, {
-            type: 'doughnut',
-            data: {
-                labels: ['Efeitos Penais', 'Efeitos Civis', 'Efeitos Sociais'],
-                datasets: [{
-                    data: [40, 35, 25],
-                    backgroundColor: [
-                        '#EF4444',
-                        '#DC2626',
-                        '#B91C1C'
-                    ],
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'rgba(255, 255, 255, 0.8)',
-                            font: {
-                                family: "'Inter', sans-serif",
-                                size: 14
-                            }
-                        }
-                    }
-                }
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#f8fafc' } } }, scales: { x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } }, y: { ticks: { color: '#f8fafc' }, grid: { display: false } } } }
+                });
             }
         });
     </script>
-
-    <style>
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-    </style>
 </body>
 </html>
