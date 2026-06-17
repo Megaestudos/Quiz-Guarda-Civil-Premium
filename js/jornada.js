@@ -1171,7 +1171,7 @@ window.renderMissaoDoDia = async function() {
         <div style="flex:1; min-width:0;">
           <div style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px; line-height:1.2;">${materiaHtml}</div>
           <div style="font-size:13px; color:var(--text-muted); font-weight:600;">
-            <i class="ph-fill ph-database" style="color:#10B981;"></i> Matéria sorteada do Firestore
+            <i class="ph-fill ph-database" style="color:#10B981;"></i> Matéria Escolhida para hoje
           </div>
         </div>
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-left:8px;">
