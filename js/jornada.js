@@ -1058,6 +1058,185 @@ window.renderMissaoDoDia = function() {
 };
 
 // ─── Continuar Jornada ────────────────────────────────────────────────────────
+const MISSAO_DIA_KEY = 'missao_do_dia_v1';
+
+function getDataLocalMissaoDia() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function normalizarMateriaMissaoDia(nome) {
+  return (nome || '').toString().trim();
+}
+
+function escapeHtmlMissaoDia(text = '') {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function buscarMateriasParaMissaoDia() {
+  const db = typeof getFirestoreDb === 'function'
+    ? getFirestoreDb()
+    : (window.firebase && firebase.firestore ? firebase.firestore() : null);
+  if (!db) return [];
+
+  const [qSnap, fSnap] = await Promise.all([
+    db.collection('questoes').where('ativo', '==', true).get(),
+    db.collection('flashcards').get(),
+  ]);
+
+  const mapa = {};
+  qSnap.forEach(doc => {
+    const materia = normalizarMateriaMissaoDia(doc.data().materia);
+    if (!materia) return;
+    if (!mapa[materia]) mapa[materia] = { materia, questoes: 0, flashcards: 0 };
+    mapa[materia].questoes++;
+  });
+
+  fSnap.forEach(doc => {
+    const materia = normalizarMateriaMissaoDia(doc.data().materia);
+    if (!materia) return;
+    if (!mapa[materia]) mapa[materia] = { materia, questoes: 0, flashcards: 0 };
+    mapa[materia].flashcards++;
+  });
+
+  const materias = Object.values(mapa)
+    .filter(item => item.questoes > 0 || item.flashcards > 0)
+    .sort((a, b) => a.materia.localeCompare(b.materia));
+
+  return materias;
+}
+
+function sortearMateriaMissaoDia(materias) {
+  const hoje = getDataLocalMissaoDia();
+  let salva = null;
+  try {
+    salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
+  } catch (e) {}
+
+  if (salva?.data === hoje && materias.some(item => item.materia === salva.materia)) {
+    return materias.find(item => item.materia === salva.materia);
+  }
+
+  const sorteada = materias[Math.floor(Math.random() * materias.length)];
+  try {
+    localStorage.setItem(MISSAO_DIA_KEY, JSON.stringify({
+      data: hoje,
+      materia: sorteada.materia,
+      questoes: sorteada.questoes,
+      flashcards: sorteada.flashcards,
+    }));
+  } catch (e) {}
+  return sorteada;
+}
+
+window.renderMissaoDoDia = async function() {
+  const container = document.getElementById('missaoDoDiaCard');
+  const body = document.getElementById('mddContentBody');
+  if (!container || !body) return;
+
+  body.innerHTML = `
+    <div class="mdd-loading" style="color:var(--text-muted); font-size:14px;">
+      <i class="ph ph-spinner-gap ph-spin"></i> Sorteando missão do dia...
+    </div>
+  `;
+
+  try {
+    const materias = await buscarMateriasParaMissaoDia();
+    if (!materias.length) {
+      body.innerHTML = `
+        <div style="text-align:center;">
+          <i class="ph-fill ph-clock" style="color:#F59E0B; font-size:38px; margin-bottom:8px;"></i>
+          <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">Missão em preparação</div>
+          <div style="font-size:13px; color:var(--text-muted);">Não encontrei matérias com questões ou flashcards no Firestore.</div>
+        </div>`;
+      return;
+    }
+
+    const selecionada = sortearMateriaMissaoDia(materias);
+    const materia = selecionada.materia;
+    const materiaHtml = escapeHtmlMissaoDia(materia);
+    const questoesTxt = Math.min(selecionada.questoes, 20);
+    const flashcardsTxt = Math.min(selecionada.flashcards, 15);
+
+    body.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px;">
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px; line-height:1.2;">${materiaHtml}</div>
+          <div style="font-size:13px; color:var(--text-muted); font-weight:600;">
+            <i class="ph-fill ph-database" style="color:#10B981;"></i> Matéria sorteada do Firestore
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-left:8px;">
+          <span style="background:rgba(245,158,11,0.2); border:1px solid rgba(245,158,11,0.4); color:#FBBF24; padding:4px 8px; border-radius:8px; font-size:13px; font-weight:800; white-space:nowrap;"><i class="ph-fill ph-star"></i> +100 XP</span>
+          <span style="font-size:12px; color:var(--text-muted); font-weight:700;"><i class="ph-fill ph-clock"></i> 25 min</span>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; margin-bottom:14px;">
+        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px;">
+          <div style="font-size:18px; color:#fff; font-weight:900;">${flashcardsTxt}/15</div>
+          <div style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Flashcards</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px;">
+          <div style="font-size:18px; color:#fff; font-weight:900;">${questoesTxt}/20</div>
+          <div style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Questões</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="iniciarMissaoDoDia()" style="width:100%; padding:14px; border-radius:14px; font-size:16px; box-shadow:0 4px 15px rgba(16,185,129,0.3); background:linear-gradient(135deg, #10B981, #059669);"><i class="ph-fill ph-play-circle"></i> Iniciar Agora</button>
+    `;
+  } catch (e) {
+    body.innerHTML = `
+      <div style="text-align:center;">
+        <i class="ph-fill ph-warning-circle" style="color:#F59E0B; font-size:38px; margin-bottom:8px;"></i>
+        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">Não foi possível carregar a missão</div>
+        <button class="btn btn-secondary" style="width:100%; border-radius:14px; margin-top:12px;" onclick="renderMissaoDoDia()"><i class="ph-fill ph-arrow-clockwise"></i> Tentar novamente</button>
+      </div>`;
+  }
+};
+
+window.iniciarMissaoDoDia = async function() {
+  let salva = null;
+  try {
+    salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
+  } catch (e) {}
+
+  if (!salva?.materia) {
+    await renderMissaoDoDia();
+    try {
+      salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
+    } catch (e) {}
+  }
+
+  if (!salva?.materia) return;
+
+  if (typeof window.iniciarFluxoMissaoAvulsa !== 'function') {
+    console.error('[Jornada] missao-flow.js não carregou iniciarFluxoMissaoAvulsa.');
+    return;
+  }
+
+  window.iniciarFluxoMissaoAvulsa({
+    modId: 'missao_do_dia',
+    missaoId: `missao_do_dia_${salva.data}_${salva.materia}`.replace(/[^a-z0-9_-]/gi, '_').toLowerCase(),
+    modNome: 'Missão do Dia',
+    modIcon: 'ph-target',
+    cor: '#10B981',
+    nome: `Missão do Dia - ${escapeHtmlMissaoDia(salva.materia)}`,
+    materia: salva.materia,
+    flashcardsLimite: 15,
+    questoesLimite: 20,
+    flashcardsSomenteMateria: true,
+    tempoMin: 25,
+    xp: 100,
+  });
+};
+
 window.continuarJornada = function() {
   carregarCarreira();
   carregarProgress();

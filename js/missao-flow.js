@@ -193,6 +193,8 @@ async function buscarFlashcardsMissao(missao) {
   }
 
   // SUPER FALLBACK: Se não encontrou NADA, tenta buscar os ultimos flashcards da base
+  if (missao.flashcardsSomenteMateria) return [];
+
   try {
     const snap2 = await db.collection('flashcards').limit(50).get();
     let todos = [];
@@ -289,9 +291,105 @@ window.iniciarFluxoMissao = async function(modId, missaoId) {
 
 // ─── Render de etapa ──────────────────────────────────────────────────────────
 
+window.iniciarFluxoMissaoAvulsa = async function(config = {}) {
+  const modal = document.getElementById('missaoModal');
+  if (modal) modal.classList.remove('show');
+  if (typeof window.go === 'function') window.go('jornada');
+
+  const container = document.getElementById('jornadaContainer');
+  if (!container) return;
+
+  const materia = (config.materia || '').trim();
+  const assunto = (config.assunto || '').trim();
+  const displayMateria = String(materia)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+  const flashcardsLimite = Number(config.flashcardsLimite || 15);
+  const questoesLimite = Number(config.questoesLimite || 20);
+  const nome = config.nome || `Missão do Dia - ${displayMateria || 'Revisão Geral'}`;
+  const mod = {
+    id: config.modId || 'missao_do_dia',
+    nome: config.modNome || 'Missão do Dia',
+    icon: config.modIcon || 'ph-target',
+    cor: config.cor || '#10B981',
+  };
+  const missao = {
+    id: config.missaoId || `missao_do_dia_${Date.now()}`,
+    nome,
+    materia,
+    assunto,
+    subassunto: config.subassunto || '',
+    descricao: config.descricao || `Revisão diária de ${displayMateria || 'conteúdos essenciais'}.`,
+    tempoMin: config.tempoMin || 25,
+    xp: config.xp || 100,
+    aprender_tipo: config.aprender_tipo || '',
+    aprender_url: config.aprender_url || '',
+    flashcardsSomenteMateria: !!config.flashcardsSomenteMateria,
+  };
+
+  container.innerHTML = `
+    <div class="mf-loading">
+      <div class="mf-loading-icon">
+        <i class="ph ph-spinner-gap ph-spin"></i>
+      </div>
+      <div class="mf-loading-text">Preparando sua missão...</div>
+      <div class="mf-loading-sub">${nome}</div>
+    </div>
+  `;
+
+  _missaoSessao = {
+    modId: mod.id,
+    missaoId: missao.id,
+    mod,
+    missao,
+    isFinal: false,
+    etapa: 1,
+    questoesLimite,
+    inicioTotal: Date.now(),
+    xpTotal: missao.xp,
+    cms: null,
+    questoesEtapa2: [],
+    questoesEtapa5: [],
+    flashcards: [],
+    resumoRapido: null,
+    pularEtapa2: true,
+    etapa2Idx: 0,
+    etapa3Idx: 0,
+    etapa5Idx: 0,
+    etapa5Acertos: 0,
+    etapa5Respostas: [],
+  };
+
+  try {
+    const [flashcards, questoes, cms] = await Promise.all([
+      buscarFlashcardsMissao(missao),
+      buscarQuestoesMissao(missao, questoesLimite),
+      buscarCmsMissao(materia),
+    ]);
+
+    _missaoSessao.flashcards = flashcards.slice(0, flashcardsLimite);
+    _missaoSessao.questoesEtapa2 = [];
+    _missaoSessao.questoesEtapa5 = questoes.slice(0, questoesLimite);
+    _missaoSessao.cms = cms;
+    _missaoSessao.resumoRapido = detectResumoRapido(cms);
+  } catch (e) {
+    console.warn('[MissaoFlow] Erro ao carregar missão avulsa:', e);
+  }
+
+  renderEtapa(1);
+};
+
 function renderEtapa(num) {
   const existing = document.getElementById('mfRrFullscreen');
   if (existing) existing.remove();
+
+  if (_missaoSessao?.pularEtapa2 && num === 2) {
+    renderEtapa(3);
+    return;
+  }
 
   if (num === 4) {
     document.body.classList.add('summary-focus');
