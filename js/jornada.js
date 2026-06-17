@@ -1108,7 +1108,7 @@ async function buscarMateriasParaMissaoDia() {
   });
 
   const materias = Object.values(mapa)
-    .filter(item => item.questoes > 0 || item.flashcards > 0)
+    .filter(item => item.questoes > 0 && item.flashcards > 0)
     .sort((a, b) => a.materia.localeCompare(b.materia));
 
   return materias;
@@ -1155,7 +1155,7 @@ window.renderMissaoDoDia = async function() {
         <div style="text-align:center;">
           <i class="ph-fill ph-clock" style="color:#F59E0B; font-size:38px; margin-bottom:8px;"></i>
           <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">Missão em preparação</div>
-          <div style="font-size:13px; color:var(--text-muted);">Não encontrei matérias com questões ou flashcards no Firestore.</div>
+          <div style="font-size:13px; color:var(--text-muted);">Não encontrei matérias com questões e flashcards no Firestore.</div>
         </div>`;
       return;
     }
@@ -1235,6 +1235,295 @@ window.iniciarMissaoDoDia = async function() {
     tempoMin: 25,
     xp: 100,
   });
+};
+
+let _missaoDiaSessao = {
+  materia: '',
+  flashcards: [],
+  questoes: [],
+  etapa: 'flashcards',
+  index: 0,
+  acertos: 0,
+};
+
+function getDbMissaoDia() {
+  return typeof getFirestoreDb === 'function'
+    ? getFirestoreDb()
+    : (window.firebase && firebase.firestore ? firebase.firestore() : null);
+}
+
+function getFlashcardFrenteMissaoDia(fc) {
+  return fc.frente || fc.pergunta || fc.titulo || fc.front || fc.question || '';
+}
+
+function getFlashcardVersoMissaoDia(fc) {
+  return fc.verso || fc.resposta || fc.conteudo || fc.back || fc.answer || fc.content || '';
+}
+
+async function carregarConteudoMissaoDia(materia) {
+  const db = getDbMissaoDia();
+  if (!db) return { flashcards: [], questoes: [] };
+
+  const [fSnap, qSnap] = await Promise.all([
+    db.collection('flashcards').where('materia', '==', materia).get(),
+    db.collection('questoes').where('ativo', '==', true).where('materia', '==', materia).get(),
+  ]);
+
+  const flashcards = [];
+  const questoes = [];
+  fSnap.forEach(doc => flashcards.push({ id: doc.id, ...doc.data() }));
+  qSnap.forEach(doc => questoes.push({ id: doc.id, ...doc.data() }));
+
+  return {
+    flashcards: shuffleArray(flashcards).slice(0, 15),
+    questoes: shuffleArray(questoes).slice(0, 20),
+  };
+}
+
+function garantirModalMissaoDia() {
+  let modal = document.getElementById('missaoDiaModal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'missaoDiaModal';
+  modal.style.cssText = 'position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(8,12,24,.96); backdrop-filter:blur(12px);';
+  modal.innerHTML = `
+    <div style="width:min(100%,860px); max-height:calc(100vh - 40px); overflow:auto; background:rgba(15,23,42,.96); border:1px solid rgba(16,185,129,.24); border-radius:20px; padding:20px; box-shadow:0 24px 70px rgba(0,0,0,.55);">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px;">
+        <button class="btn-sm" onclick="fecharMissaoDoDia()" style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:#fff;">
+          <i class="ph ph-arrow-left"></i> Voltar
+        </button>
+        <div id="missaoDiaTitulo" style="font-size:13px; font-weight:900; color:#fff; text-transform:uppercase; letter-spacing:.4px;"></div>
+      </div>
+      <div id="missaoDiaConteudo"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  return modal;
+}
+
+function renderMissaoDiaFlashcard() {
+  const el = document.getElementById('missaoDiaConteudo');
+  if (!el) return;
+  const { flashcards, index } = _missaoDiaSessao;
+  const total = flashcards.length;
+
+  if (index >= total) {
+    _missaoDiaSessao.etapa = 'questoes';
+    _missaoDiaSessao.index = 0;
+    renderMissaoDiaQuestao();
+    return;
+  }
+
+  const fc = flashcards[index];
+  const frente = escapeHtmlMissaoDia(getFlashcardFrenteMissaoDia(fc) || '(sem frente cadastrada)');
+  const verso = escapeHtmlMissaoDia(getFlashcardVersoMissaoDia(fc) || '(sem resposta cadastrada)');
+  const pct = Math.round((index / Math.max(total, 1)) * 100);
+
+  el.innerHTML = `
+    <div class="mf-etapa-titulo">
+      <i class="ph-fill ph-cards" style="color:#8B5CF6;"></i>
+      <span>Flashcards - ${index + 1}/${total}</span>
+    </div>
+    <div class="mf-progress-mini">
+      <div class="mf-prog-barra"><div class="mf-prog-fill" style="width:${pct}%; background:#8B5CF6;"></div></div>
+      <span class="mf-prog-label">${pct}%</span>
+    </div>
+    <div class="mf-flashcard-wrap" style="margin:20px auto 18px; max-width:760px;">
+      <div class="mf-flashcard" id="mddFlashcard" onclick="virarFlashcardMissaoDia()">
+        <div class="mf-flashcard-frente">
+          <div class="mf-flashcard-hint"><i class="ph ph-hand-tap"></i> Toque para revelar</div>
+          <p class="mf-flashcard-texto">${frente}</p>
+          <div class="mf-flashcard-icon-frente"><i class="ph-fill ph-question"></i></div>
+        </div>
+        <div class="mf-flashcard-verso">
+          <div class="mf-flashcard-hint-verso"><i class="ph-fill ph-check-circle"></i> Resposta</div>
+          <p class="mf-flashcard-texto">${verso}</p>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="proximoFlashcardMissaoDia()" style="width:100%; max-width:760px; margin:0 auto; display:block; border-radius:14px;">
+      <i class="ph-fill ph-arrow-right"></i> Próximo
+    </button>
+  `;
+}
+
+function renderMissaoDiaQuestao() {
+  const el = document.getElementById('missaoDiaConteudo');
+  if (!el) return;
+  const { questoes, index, acertos } = _missaoDiaSessao;
+  const total = questoes.length;
+
+  if (index >= total) {
+    const pct = total ? Math.round((acertos / total) * 100) : 0;
+    el.innerHTML = `
+      <div class="mf-etapa-concluida">
+        <i class="ph-fill ph-check-circle" style="color:#10B981; font-size:52px;"></i>
+        <p>Missão do Dia concluída!</p>
+        <small>${acertos}/${total} acertos (${pct}%).</small>
+      </div>
+      <button class="btn btn-primary mf-btn-avancar" onclick="fecharMissaoDoDia()">
+        <i class="ph-fill ph-house"></i> Voltar ao início
+      </button>
+    `;
+    return;
+  }
+
+  const q = questoes[index];
+  const pct = Math.round((index / Math.max(total, 1)) * 100);
+  const texto = escapeHtmlMissaoDia(q.pergunta || q.perguntas || q.question || '');
+  const letras = ['A', 'B', 'C', 'D', 'E'];
+  const opcoesHTML = letras.map(l => {
+    const txt = q[l] || q[l.toLowerCase()] || '';
+    if (!txt) return '';
+    return `
+      <button class="mf-questao-opt mf-mdd-opt" id="mddOpt_${l}" onclick="responderQuestaoMissaoDia('${l}')">
+        <span class="mf-opt-letra">${l})</span>
+        <span class="mf-opt-txt">${escapeHtmlMissaoDia(txt)}</span>
+      </button>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="mf-etapa-titulo">
+      <i class="ph-fill ph-target" style="color:#10B981;"></i>
+      <span>Questões - ${index + 1}/${total}</span>
+    </div>
+    <div class="mf-progress-mini">
+      <div class="mf-prog-barra"><div class="mf-prog-fill" style="width:${pct}%; background:#10B981;"></div></div>
+      <span class="mf-prog-label">${_missaoDiaSessao.acertos} acertos</span>
+    </div>
+    <div class="mf-questao-box">
+      <div class="mf-questao-tag">${escapeHtmlMissaoDia(q.materia || _missaoDiaSessao.materia)}</div>
+      <p class="mf-questao-texto">${texto}</p>
+    </div>
+    <div class="mf-questao-opcoes">${opcoesHTML}</div>
+    <div class="mf-correcao" id="mddCorrecao" style="display:none;"></div>
+    <button class="btn btn-primary mf-btn-avancar" id="mddProximaQuestao" style="display:none;" onclick="proximaQuestaoMissaoDia()">
+      ${index < total - 1 ? '<i class="ph-fill ph-arrow-right"></i> Próxima' : '<i class="ph-fill ph-check-circle"></i> Concluir'}
+    </button>
+  `;
+}
+
+window.iniciarMissaoDoDia = async function() {
+  let salva = null;
+  try {
+    salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
+  } catch (e) {}
+
+  if (!salva?.materia) {
+    await renderMissaoDoDia();
+    try {
+      salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
+    } catch (e) {}
+  }
+
+  if (!salva?.materia) return;
+
+  const modal = garantirModalMissaoDia();
+  const titulo = document.getElementById('missaoDiaTitulo');
+  const el = document.getElementById('missaoDiaConteudo');
+  modal.style.display = 'flex';
+  if (titulo) titulo.textContent = `Missão do Dia - ${salva.materia}`;
+  if (el) {
+    el.innerHTML = `
+      <div class="mf-loading">
+        <div class="mf-loading-icon"><i class="ph ph-spinner-gap ph-spin"></i></div>
+        <div class="mf-loading-text">Carregando flashcards e questões existentes...</div>
+        <div class="mf-loading-sub">${escapeHtmlMissaoDia(salva.materia)}</div>
+      </div>
+    `;
+  }
+
+  try {
+    const conteudo = await carregarConteudoMissaoDia(salva.materia);
+    _missaoDiaSessao = {
+      materia: salva.materia,
+      flashcards: conteudo.flashcards,
+      questoes: conteudo.questoes,
+      etapa: 'flashcards',
+      index: 0,
+      acertos: 0,
+    };
+
+    if (!_missaoDiaSessao.flashcards.length && !_missaoDiaSessao.questoes.length) {
+      if (el) {
+        el.innerHTML = `
+          <div class="mf-empty-state">
+            <i class="ph-fill ph-warning-circle" style="color:#F59E0B; font-size:36px;"></i>
+            <p>Nenhum conteúdo existente encontrado para esta matéria.</p>
+            <small>A missão usa apenas flashcards e questões já cadastrados no Firestore.</small>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    if (_missaoDiaSessao.flashcards.length) renderMissaoDiaFlashcard();
+    else renderMissaoDiaQuestao();
+  } catch (e) {
+    if (el) {
+      el.innerHTML = `
+        <div class="mf-empty-state">
+          <i class="ph-fill ph-warning-circle" style="color:#F59E0B; font-size:36px;"></i>
+          <p>Não foi possível carregar a missão.</p>
+          <small>Tente novamente em instantes.</small>
+        </div>
+      `;
+    }
+  }
+};
+
+window.fecharMissaoDoDia = function() {
+  const modal = document.getElementById('missaoDiaModal');
+  if (modal) modal.style.display = 'none';
+};
+
+window.virarFlashcardMissaoDia = function() {
+  const card = document.getElementById('mddFlashcard');
+  if (card) card.classList.toggle('mf-flashcard-virado');
+};
+
+window.proximoFlashcardMissaoDia = function() {
+  _missaoDiaSessao.index++;
+  renderMissaoDiaFlashcard();
+};
+
+window.responderQuestaoMissaoDia = function(letra) {
+  const q = _missaoDiaSessao.questoes[_missaoDiaSessao.index];
+  if (!q) return;
+  const resposta = (q.resposta || q.answer || '').toString().trim().charAt(0).toUpperCase();
+  const correta = letra === resposta;
+  if (correta) _missaoDiaSessao.acertos++;
+
+  document.querySelectorAll('.mf-mdd-opt').forEach(b => b.disabled = true);
+  const elCorreta = document.getElementById(`mddOpt_${resposta}`);
+  if (elCorreta) elCorreta.classList.add('mf-opt-correta');
+  if (!correta) {
+    const elErrada = document.getElementById(`mddOpt_${letra}`);
+    if (elErrada) elErrada.classList.add('mf-opt-errada');
+  }
+
+  const correcao = document.getElementById('mddCorrecao');
+  if (correcao) {
+    const expl = escapeHtmlMissaoDia(q.explicacao || q.explicação || q.explanation || 'Sem explicação cadastrada.');
+    correcao.style.display = 'block';
+    correcao.innerHTML = `
+      <div class="mf-correcao-inner ${correta ? 'mf-correcao-ok' : 'mf-correcao-erro'}">
+        <div class="mf-correcao-titulo">
+          ${correta ? '<i class="ph-fill ph-check-circle"></i> Correto!' : `<i class="ph-fill ph-x-circle"></i> Incorreto - Resposta: ${resposta}`}
+        </div>
+        <p class="mf-correcao-texto">${expl}</p>
+      </div>
+    `;
+  }
+
+  const btn = document.getElementById('mddProximaQuestao');
+  if (btn) btn.style.display = 'block';
+};
+
+window.proximaQuestaoMissaoDia = function() {
+  _missaoDiaSessao.index++;
+  renderMissaoDiaQuestao();
 };
 
 window.continuarJornada = function() {
