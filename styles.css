@@ -318,7 +318,7 @@ button.opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: 
   box-shadow: 0 18px 42px rgba(79,70,229,0.26), inset 0 1px 1px rgba(255,255,255,0.12);
 }
 .flash-back {
-  background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%);
+  background: linear-gradient(135deg, #6D28D9 0%, #4338CA 100%);
   transform: rotateY(180deg);
   border: 1px solid rgba(255,255,255,0.12);
   box-shadow: 0 18px 42px rgba(79,70,229,0.26), inset 0 1px 1px rgba(255,255,255,0.12);
@@ -3648,7 +3648,7 @@ audio {
   box-shadow: 0 18px 42px rgba(79,70,229,0.26), inset 0 1px 1px rgba(255,255,255,0.12);
 }
 .mf-flashcard-verso {
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #6D28D9 0%, #4338CA 100%);
   border: 1px solid rgba(255,255,255,0.12);
   transform: rotateY(180deg);
   box-shadow: 0 18px 42px rgba(79,70,229,0.26), inset 0 1px 1px rgba(255,255,255,0.12);
