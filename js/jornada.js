@@ -631,7 +631,7 @@ function renderMapaCarreira() {
     return p.feitas === p.total;
   }).length;
 
-  // ─── Hero Card Premium ──────────────────────────────────────────────────────
+  // ─── Hero Card da carreira ──────────────────────────────────────────────────
   const heroHTML = `
     <div class="carreira-hero-card">
       <div class="carreira-hero-top">
@@ -909,7 +909,7 @@ function mostrarToastXP(xp) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// ─── 4. RECOMPENSAS DE MÓDULO — Animação premium ─────────────────────────────
+// ─── 4. RECOMPENSAS DE MÓDULO — Animação de conquista ────────────────────────
 function mostrarRecompensaModulo(mod) {
   // Confetti em 4 rajadas escalonadas para impacto máximo
   if (window.confetti) {
@@ -934,7 +934,7 @@ function mostrarRecompensaModulo(mod) {
   // Calcula XP total de missões do módulo para exibir corretamente
   const xpModulo = JORNADA_XP_BONUS.modulo;
 
-  // Modal de recompensa com animação premium
+  // Modal de recompensa com animação de conquista
   let overlay = document.getElementById('recompensaModuloOverlay');
   if (!overlay) {
     overlay = document.createElement('div');

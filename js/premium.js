@@ -1,5 +1,5 @@
 /* =====================================================
-   PREMIUM — PlenAula Fase 4
+   UI LEGADA — PlenAula Fase 4
    XP Flutuante · Favoritos · Nível · Sons · Locks
    ===================================================== */
 
@@ -258,7 +258,7 @@ window.renderBotaoFavorito = function(tipo, id, nome, extra = {}) {
   `;
 };
 
-// ─── Confetti Premium (cores da carreira) ─────────────────────────────────────
+// ─── Confetti da carreira ─────────────────────────────────────────────────────
 window.confettiPremium = function(cor1 = '#7C3AED', cor2 = '#F59E0B') {
   if (!window.confetti) return;
   const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
@@ -315,8 +315,8 @@ function _mostrarLevelUpOverlay(info) {
   overlay.classList.add('lvlup-show');
 }
 
-// ─── Preparação Premium (locks visuais) ───────────────────────────────────────
-window.renderPremiumLock = function(label = 'Premium') {
+// ─── Compatibilidade legada: marcador visual de recurso indisponível ──────────
+window.renderPremiumLock = function(label = 'Indisponível') {
   return `
     <div class="premium-lock">
       <i class="ph-fill ph-lock-key"></i>
@@ -326,12 +326,11 @@ window.renderPremiumLock = function(label = 'Premium') {
 };
 
 window.isPremiumUser = function() {
-  // Verificar se o usuário tem acesso premium (Firebase)
+  // Compatibilidade com código antigo. O projeto atual é gratuito.
   try {
     const user = firebase.auth().currentUser;
     if (!user) return false;
-    // Pode verificar custom claims ou Firestore aqui no futuro
-    return false; // por enquanto todos são free
+    return false;
   } catch(e) { return false; }
 };
 

@@ -101,7 +101,7 @@ No fluxo de 'study_plan':
 
 
 // ==========================================
-// 2. GERAÇÃO DE AULA PREMIUM (JSON RÍGIDO E CACHE GLOBAL)
+// 2. GERAÇÃO DE AULA DE REDAÇÃO (JSON RÍGIDO E CACHE GLOBAL)
 // ==========================================
 exports.generateEssayLesson = onCall({ maxInstances: 10, timeoutSeconds: 60 }, async (request) => {
   const { GoogleGenerativeAI } = require('@google/generative-ai');

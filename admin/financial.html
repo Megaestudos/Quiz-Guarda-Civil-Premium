@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro - PlenAula Admin</title>
+    <title>Acessos - PlenAula Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -61,7 +61,7 @@
             </a>
             <a href="financial.html" class="sidebar-item active flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium">
                 <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
-                Financeiro
+                Acessos
             </a>
             <a href="ai-control.html" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
                 <i data-lucide="brain-circuit" class="w-5 h-5"></i>
@@ -87,10 +87,10 @@
     <!-- Main Content -->
     <main class="flex-1 flex flex-col bg-[#020617] relative">
         <header class="h-20 border-b border-white/5 flex items-center justify-between px-10 z-10 backdrop-blur-sm">
-            <h1 class="text-xl font-bold">Saúde Financeira</h1>
+            <h1 class="text-xl font-bold">Saúde da Plataforma</h1>
             <div class="flex gap-4">
                  <div class="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Gateway Online
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Acesso gratuito
                  </div>
             </div>
         </header>
@@ -100,31 +100,31 @@
             <!-- Cards Financial -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="glass-panel p-8 rounded-[32px] flex flex-col justify-between">
-                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Receita Bruta Estimada</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Alunos cadastrados</span>
                     <div class="flex items-end justify-between mt-4">
-                        <span id="finTotalRevenue" class="text-4xl font-black italic">R$ 0,00</span>
+                        <span id="finTotalRevenue" class="text-4xl font-black italic">0</span>
                         <span class="text-xs text-emerald-500 font-bold mb-1 flex items-center animate-pulse"><i data-lucide="users" class="w-3 h-3 mr-1"></i> <span id="finTotalUsers">0</span> Alunos</span>
                     </div>
                 </div>
                 <div class="glass-panel p-8 rounded-[32px] flex flex-col justify-between border-blue-500/20">
-                    <span class="text-[10px] text-blue-400 font-bold uppercase tracking-[0.2em]">Receita Líquida (PlayStore -15%)</span>
+                    <span class="text-[10px] text-blue-400 font-bold uppercase tracking-[0.2em]">Alunos ativos em 30 dias</span>
                     <div class="flex items-end justify-between mt-4">
-                        <span id="finNetRevenue" class="text-4xl font-black italic">R$ 0,00</span>
-                        <span class="text-xs text-blue-400 font-bold mb-1 tracking-tighter">Taxa Aplicada</span>
+                        <span id="finNetRevenue" class="text-4xl font-black italic">0</span>
+                        <span class="text-xs text-blue-400 font-bold mb-1 tracking-tighter">Uso recente</span>
                     </div>
                 </div>
                 <div class="glass-panel p-8 rounded-[32px] flex flex-col justify-between">
-                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">LTV por Assinante</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Modelo de acesso</span>
                     <div class="flex items-end justify-between mt-4">
-                        <span class="text-4xl font-black italic">R$ 1.120</span>
-                        <span class="text-xs text-gray-500 font-bold mb-1 italic">Average</span>
+                        <span class="text-4xl font-black italic">Grátis</span>
+                        <span class="text-xs text-gray-500 font-bold mb-1 italic">Sem cobrança</span>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                  <div class="glass-panel p-8 rounded-[32px]">
-                    <h3 class="text-lg font-bold mb-8">Performance por Plano</h3>
+                    <h3 class="text-lg font-bold mb-8">Distribuição de Acesso</h3>
                     <div class="flex gap-10">
                         <div class="w-full h-[250px]">
                             <canvas id="planChart"></canvas>
@@ -133,7 +133,7 @@
                  </div>
 
                  <div class="glass-panel p-8 rounded-[32px]">
-                    <h3 class="text-lg font-bold mb-8">Churn Rate (Cancelamentos)</h3>
+                    <h3 class="text-lg font-bold mb-8">Inatividade</h3>
                     <div class="h-[250px]">
                         <canvas id="churnChart"></canvas>
                     </div>
@@ -143,7 +143,7 @@
             <!-- Transactions List -->
             <div class="glass-panel rounded-[32px] overflow-hidden">
                 <div class="px-8 py-6 border-b border-white/5 flex justify-between items-center">
-                    <h3 class="text-lg font-bold">Últimos Pagamentos</h3>
+                    <h3 class="text-lg font-bold">Últimos Acessos</h3>
                     <button class="text-xs text-blue-500 font-bold uppercase tracking-widest hover:underline">Download CSV</button>
                 </div>
                 <div class="p-4">
@@ -153,11 +153,11 @@
                                 <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-500 flex items-center justify-center"><i data-lucide="arrow-up-right" class="w-5 h-5"></i></div>
                                 <div>
                                     <div class="text-sm font-bold">Matheus Pereira</div>
-                                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Plano Anual Elite</div>
+                                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Acesso gratuito</div>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <div class="text-sm font-black text-emerald-500">+ R$ 1.188,00</div>
+                                <div class="text-sm font-black text-emerald-500">Ativo</div>
                                 <div class="text-[10px] text-gray-500 font-bold uppercase tracking-tight">Hoje, 14:22</div>
                             </div>
                         </div>
@@ -171,11 +171,11 @@
     <script>
         lucide.createIcons();
 
-        // Plan Chart
+        // Access Chart
         new Chart(document.getElementById('planChart'), {
             type: 'doughnut',
             data: {
-                labels: ['Anual Elite', 'Mensal Pro', 'Semestral Plus'],
+                labels: ['Ativos', 'Novos', 'Inativos'],
                 datasets: [{
                     data: [65, 20, 15],
                     backgroundColor: ['#3b82f6', '#6366f1', '#1e293b'],
@@ -186,13 +186,13 @@
             options: { cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#64748b', font: { size: 10, weight: 'bold' }, padding: 20 } } } }
         });
 
-        // Churn Chart
+        // Inactivity Chart
         new Chart(document.getElementById('churnChart'), {
             type: 'bar',
             data: {
                 labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
                 datasets: [{
-                    label: 'Churn %',
+                    label: 'Inatividade %',
                     data: [5.2, 4.8, 3.9, 4.2, 3.5, 4.1],
                     backgroundColor: '#ef4444',
                     borderRadius: 8,

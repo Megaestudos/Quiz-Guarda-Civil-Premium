@@ -53,7 +53,7 @@ auth.onAuthStateChanged(async (user) => {
     }
   } else {
     console.log("Usuário autenticado:", user.email);
-    // Se há usuário, verifica subscrição ou redireciona da landing para o app
+    // Se há usuário, verifica acesso ou redireciona da landing para o app
     if (isApp || isResumos) {
        document.body.style.opacity = '1';
        await checkSubscription(user);
@@ -117,7 +117,7 @@ async function checkSubscription(user) {
       
     } else {
       // Falha de sincronia (o redirecionamento interrompeu o registro original)
-      // A plataforma agora é 100% gratuita, então o App auto-repara o banco instantaneamente
+      // A plataforma é gratuita, então o app auto-repara o perfil de acesso.
       await docRef.set({
         email: user.email || "Sem email",
         displayName: user.displayName || "Aluno Cursista",
@@ -130,6 +130,6 @@ async function checkSubscription(user) {
       await checkSubscription(user);
     }
   } catch(e) {
-    console.error("Erro ao checar subscrição:", e);
+    console.error("Erro ao checar acesso:", e);
   }
 }

@@ -163,8 +163,8 @@
                 <div class="h-8 w-[1px] bg-white/5"></div>
                 <div class="flex items-center gap-4">
                     <div class="text-right hidden sm:block">
-                        <div class="text-xs font-medium text-blue-400">Plano Corporate</div>
-                        <div class="text-[10px] text-gray-500">Upgrade em 14 dias</div>
+                        <div class="text-xs font-medium text-blue-400">Acesso gratuito</div>
+                        <div class="text-[10px] text-gray-500">Plataforma ativa</div>
                     </div>
                 </div>
             </div>
@@ -184,7 +184,7 @@
                         <i data-lucide="download" class="w-4 h-4"></i> Relatório Completo
                     </button>
                     <button onclick="window.location.href='students.html'" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Novo Assinante
+                        <i data-lucide="plus" class="w-4 h-4"></i> Novo Aluno
                     </button>
                 </div>
             </div>
@@ -207,7 +207,7 @@
                 <div class="glass-panel p-6 rounded-3xl stat-card relative overflow-hidden group">
                     <div class="flex justify-between items-start mb-4">
                         <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
-                            <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+                            <i data-lucide="activity" class="w-6 h-6"></i>
                         </div>
                         <div class="text-xs font-bold text-emerald-500 flex items-center gap-1">
                             <i data-lucide="trending-up" class="w-3 h-3"></i> +8.4%
@@ -246,12 +246,12 @@
 
             <!-- Main Analytics Area -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style="animation-delay: 0.2s">
-                <!-- Revenue Chart -->
+                <!-- Growth Chart -->
                 <div class="lg:col-span-2 glass-panel p-8 rounded-[32px] min-h-[400px] flex flex-col">
                     <div class="flex justify-between items-start mb-8">
                         <div>
-                            <h3 class="text-lg font-bold">Crescimento de Receita</h3>
-                            <p class="text-gray-500 text-xs text-muted">Projeção semestral de MRR e LTV.</p>
+                            <h3 class="text-lg font-bold">Crescimento de Alunos</h3>
+                            <p class="text-gray-500 text-xs text-muted">Evolução semestral de cadastros e acessos.</p>
                         </div>
                         <div class="flex bg-white/5 p-1 rounded-lg border border-white/5">
                             <button class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white bg-blue-600 rounded-md">6 Meses</button>
@@ -309,7 +309,7 @@
                  <div class="glass-panel p-8 rounded-[32px] flex items-center justify-between">
                     <div>
                         <h3 class="text-lg font-bold mb-1">Status de Retenção</h3>
-                        <p class="text-gray-500 text-xs mb-4">Probabilidade de Churn nos próximos 30 dias.</p>
+                        <p class="text-gray-500 text-xs mb-4">Indicador estimado de alunos ativos nos próximos 30 dias.</p>
                         <div class="flex items-end gap-3">
                             <span class="text-4xl font-black text-emerald-500">4.1%</span>
                             <span class="text-xs text-emerald-600 font-bold mb-1">-1.2% que o mês passado</span>
@@ -338,15 +338,15 @@
             sidebar.classList.toggle('-translate-x-full');
         }
 
-        // Revenue Chart Logic
+        // Growth Chart Logic
         const ctx = document.getElementById('revenueChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
                 datasets: [{
-                    label: 'Receita Mensal (R$)',
-                    data: [85000, 92000, 105000, 118000, 134000, 142500],
+                    label: 'Alunos ativos',
+                    data: [85, 92, 105, 118, 134, 142],
                     borderColor: '#3b82f6',
                     borderWidth: 4,
                     pointBackgroundColor: '#020617',

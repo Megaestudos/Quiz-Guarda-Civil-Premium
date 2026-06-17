@@ -633,7 +633,7 @@ async function renderStudies(filtro) {
       const cores  = { materia: '#3B82F6', flashcard: '#F59E0B', aula: '#8B5CF6', missao: '#10B981' };
       
       // Aplicar estilo de grid para os itens de favorito se quiser, ou usar o estilo de lista fav-item
-      // Vamos reutilizar fav-item que já existe no premium.css
+      // Vamos reutilizar fav-item que já existe no CSS legado.
       container.innerHTML = lista.map(f => `
         <div class="fav-item" onclick="${f.tipo === 'materia' ? `openSubject('${f.id}')` : f.tipo === 'flashcard' ? `go('cards')` : ''}" style="cursor:pointer; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 14px;">
           <div class="fav-item-icon" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; background:${cores[f.tipo] || '#7C3AED'}22; border: 1px solid ${cores[f.tipo] || '#7C3AED'}44;">
@@ -1203,7 +1203,7 @@ window.renderStatsChart = function() {
   });
 }
 
-/* --- NOVAS FUNCIONALIDADES: SIMULADOS PREMIUM UI --- */
+/* --- FUNCIONALIDADES: UI DE SIMULADOS --- */
 
 window.showClassicTopicSelection = function() {
   document.getElementById('simuladosDashboard').style.display = 'none';

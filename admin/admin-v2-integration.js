@@ -87,16 +87,13 @@ function updateUIStats(users) {
     if ($('statAccessWeek')) $('statAccessWeek').innerText = accessWeek;
     if ($('statChurned')) $('statChurned').innerText = churned;
     
-    // Cálculos Financeiros
+    // Métricas de acesso para a plataforma gratuita.
     const totalUsers = users.length;
-    const grossRevenue = totalUsers * 29.90;
-    const netRevenue = grossRevenue * 0.85; // Menos 15% da PlayStore
-    
-    const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-    
-    if ($('finTotalRevenue')) $('finTotalRevenue').innerText = formatter.format(grossRevenue);
+    const activeUsers = users.filter(u => u.lastLogin && new Date(u.lastLogin) > monthAgo).length;
+
+    if ($('finTotalRevenue')) $('finTotalRevenue').innerText = totalUsers;
     if ($('finTotalUsers')) $('finTotalUsers').innerText = totalUsers;
-    if ($('finNetRevenue')) $('finNetRevenue').innerText = formatter.format(netRevenue);
+    if ($('finNetRevenue')) $('finNetRevenue').innerText = activeUsers;
 }
 
 function renderStudentsTable(users) {
@@ -174,7 +171,7 @@ window.createStudent = async function() {
     } catch (e) {
         alert("Erro: " + e.message);
     } finally {
-        btn.disabled = false; btn.innerText = "Criar Assinante";
+        btn.disabled = false; btn.innerText = "Criar Aluno";
     }
 }
 
@@ -241,7 +238,7 @@ window.toggleUser = async function(uid, isCurrentlyDisabled) {
 }
 
 function updateRevenueChart(users) {
-    // Se quiser atualizar o gráfico de receita com dados reais de cadastros por mês
+    // Se quiser atualizar o gráfico de crescimento com dados reais de cadastros por mês
     // Podemos fazer isso se o Chart.js estiver disponível globalmente
 }
 

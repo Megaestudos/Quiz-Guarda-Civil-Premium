@@ -1,5 +1,5 @@
 // ==========================================
-// AULAS DE REDAÇÃO PREMIUM (JSON & MICRO-TASKS)
+// AULAS DE REDAÇÃO (JSON & MICRO-TASKS)
 // ==========================================
 
 let essayLessonState = {

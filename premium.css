@@ -1,5 +1,5 @@
 /* =====================================================
-   PREMIUM CSS — PlenAula Fase 4
+   CSS LEGADO — PlenAula Fase 4
    Nível · XP Float · Favoritos · Level-Up · Sons
    ===================================================== */
 
@@ -236,7 +236,7 @@
 .fav-empty p { font-size: 15px; font-weight: 600; color: #fff; margin: 0; }
 .fav-empty small { font-size: 13px; color: #94A3B8; }
 
-/* ─── Premium Lock ──────────────────────────────────── */
+/* ─── Marcador de recurso indisponível ──────────────── */
 .premium-lock {
   display: inline-flex;
   align-items: center;
@@ -274,7 +274,7 @@
 #btnSomToggle:hover { transform: scale(1.1); background: rgba(124,58,237,0.2); }
 #btnSomToggle:active { transform: scale(0.92); }
 
-/* ─── Mobile premium: touch targets ────────────────── */
+/* ─── Mobile: touch targets ─────────────────────────── */
 button, .btn, .tabbtn, [onclick], .mf-questao-opt, .mf-classif-btn {
   touch-action: manipulation;
 }
@@ -360,7 +360,7 @@ button, .btn, .tabbtn, [onclick], .mf-questao-opt, .mf-classif-btn {
   border: 1px solid rgba(255,255,255,0.05);
 }
 
-/* ─── Carreira Header premium ───────────────────────── */
+/* ─── Carreira Header ───────────────────────────────── */
 .carreira-hero {
   border-radius: 20px;
   padding: 24px 20px 20px;
