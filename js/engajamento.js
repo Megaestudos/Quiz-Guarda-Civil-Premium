@@ -250,7 +250,224 @@ function _getQuestoesErradas() {
 
 window.iniciarRevisaoPendente = function() {
   // Vai para flashcards — maior impacto de revisão
-  if (typeof window.go === 'function') window.go('cards');
+  iniciarRevisaoFlashcardsPendentes();
+};
+
+let _rpReviewState = {
+  flashcards: [],
+  index: 0
+};
+
+function _rpDetectFrente(fc) {
+  if (typeof detectFlashcardFrente === 'function') return detectFlashcardFrente(fc);
+  return fc.frente || fc.pergunta || fc.titulo || fc.front || fc.question || null;
+}
+
+function _rpDetectVerso(fc) {
+  if (typeof detectFlashcardVerso === 'function') return detectFlashcardVerso(fc);
+  return fc.verso || fc.resposta || fc.conteudo || fc.back || fc.answer || fc.content || null;
+}
+
+function _rpEscape(text = '') {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function _rpEnsureModal() {
+  let modal = document.getElementById('rpReviewModal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'rpReviewModal';
+  modal.className = 'rp-review-modal';
+  modal.innerHTML = `
+    <div class="rp-review-shell">
+      <div class="rp-review-topbar">
+        <button class="btn-sm rp-review-back" onclick="fecharRevisaoPendente()">
+          <i class="ph ph-arrow-left"></i> <span>Voltar</span>
+        </button>
+        <div class="rp-review-title">
+          <i class="ph-fill ph-cards"></i>
+          <span>Revisão Pendente</span>
+        </div>
+      </div>
+      <div id="rpReviewContent" class="rp-review-content"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  return modal;
+}
+
+async function _rpCarregarFlashcardsDificeis() {
+  const dificeis = _getFlashDificeis();
+  const ids = new Set(
+    dificeis
+      .map(item => item.key ? item.key.replace(ENG_FLASH_REVIEW_PREFIX, '') : '')
+      .filter(Boolean)
+  );
+
+  if (!ids.size) return [];
+
+  const db = typeof getFirestoreDb === 'function'
+    ? getFirestoreDb()
+    : (window.firebase && firebase.firestore ? firebase.firestore() : null);
+  if (!db) return [];
+
+  const snap = await db.collection('flashcards').get();
+  const list = [];
+  snap.forEach(doc => {
+    if (ids.has(doc.id)) list.push({ id: doc.id, ...doc.data() });
+  });
+  return list;
+}
+
+async function iniciarRevisaoFlashcardsPendentes() {
+  const modal = _rpEnsureModal();
+  const content = document.getElementById('rpReviewContent');
+  modal.classList.add('active');
+  if (content) {
+    content.innerHTML = `
+      <div class="rp-review-loading">
+        <i class="ph ph-spinner-gap ph-spin"></i>
+        <span>Carregando flashcards pendentes...</span>
+      </div>
+    `;
+  }
+
+  try {
+    const flashcards = await _rpCarregarFlashcardsDificeis();
+    if (!flashcards.length) {
+      if (content) {
+        content.innerHTML = `
+          <div class="rp-review-empty">
+            <i class="ph-fill ph-check-circle"></i>
+            <p>Nenhum flashcard difícil encontrado.</p>
+            <small>Você ainda pode revisar todos os flashcards pela área de Cards.</small>
+            <button class="btn btn-primary" onclick="fecharRevisaoPendente(); if (typeof go === 'function') go('cards');">
+              <i class="ph-fill ph-cards"></i> Abrir Cards
+            </button>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    _rpReviewState = { flashcards, index: 0 };
+    renderRevisaoPendenteFlashcard();
+  } catch (e) {
+    if (content) {
+      content.innerHTML = `
+        <div class="rp-review-empty">
+          <i class="ph-fill ph-warning-circle" style="color:#F59E0B;"></i>
+          <p>Não foi possível carregar as revisões.</p>
+          <small>Tente novamente em instantes.</small>
+        </div>
+      `;
+    }
+  }
+}
+
+window.fecharRevisaoPendente = function() {
+  const modal = document.getElementById('rpReviewModal');
+  if (modal) modal.classList.remove('active');
+  if (typeof window.renderRevisoesPendentes === 'function') window.renderRevisoesPendentes();
+};
+
+window.renderRevisaoPendenteFlashcard = function() {
+  const content = document.getElementById('rpReviewContent');
+  if (!content) return;
+
+  const { flashcards, index } = _rpReviewState;
+  const total = flashcards.length;
+
+  if (index >= total) {
+    content.innerHTML = `
+      <div class="rp-review-empty">
+        <i class="ph-fill ph-check-circle"></i>
+        <p>Revisão concluída!</p>
+        <small>Você classificou todos os flashcards pendentes.</small>
+        <button class="btn btn-primary" onclick="fecharRevisaoPendente()">
+          <i class="ph-fill ph-house"></i> Voltar ao início
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  const fc = flashcards[index];
+  const frente = _rpDetectFrente(fc) || '(sem conteúdo na frente)';
+  const verso = _rpDetectVerso(fc) || '(sem conteúdo no verso)';
+  const pct = Math.round((index / total) * 100);
+
+  content.innerHTML = `
+    <div class="mf-etapa-titulo rp-review-heading">
+      <i class="ph-fill ph-cards" style="color:#F59E0B;"></i>
+      <span>Revisão — ${index + 1}/${total}</span>
+    </div>
+    <div class="mf-progress-mini">
+      <div class="mf-prog-barra">
+        <div class="mf-prog-fill" style="width:${pct}%; background:#F59E0B;"></div>
+      </div>
+      <span class="mf-prog-label">${pct}%</span>
+    </div>
+
+    <div class="mf-flashcard-wrap rp-flashcard-wrap">
+      <div class="mf-flashcard" id="rpReviewFlashcard" onclick="virarRevisaoPendenteFlashcard()">
+        <div class="mf-flashcard-frente">
+          <div class="mf-flashcard-hint"><i class="ph ph-hand-tap"></i> Toque para revelar</div>
+          <p class="mf-flashcard-texto">${_rpEscape(frente)}</p>
+          <div class="mf-flashcard-icon-frente"><i class="ph-fill ph-question"></i></div>
+        </div>
+        <div class="mf-flashcard-verso">
+          <div class="mf-flashcard-hint-verso"><i class="ph-fill ph-check-circle"></i> Resposta</div>
+          <p class="mf-flashcard-texto">${_rpEscape(verso)}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mf-classificacao" id="rpReviewClassificacao" style="display:none;">
+      <p class="mf-classif-label">Como foi essa?</p>
+      <div class="mf-classif-btns">
+        <button class="mf-classif-btn mf-classif-dificil" onclick="classificarRevisaoPendenteFlashcard('dificil')">
+          <i class="ph-fill ph-smiley-sad"></i> Difícil
+        </button>
+        <button class="mf-classif-btn mf-classif-medio" onclick="classificarRevisaoPendenteFlashcard('medio')">
+          <i class="ph-fill ph-smiley-meh"></i> Médio
+        </button>
+        <button class="mf-classif-btn mf-classif-facil" onclick="classificarRevisaoPendenteFlashcard('facil')">
+          <i class="ph-fill ph-smiley"></i> Fácil
+        </button>
+      </div>
+    </div>
+  `;
+};
+
+window.virarRevisaoPendenteFlashcard = function() {
+  const card = document.getElementById('rpReviewFlashcard');
+  if (!card) return;
+  card.classList.toggle('mf-flashcard-virado');
+  const classif = document.getElementById('rpReviewClassificacao');
+  if (classif) setTimeout(() => classif.style.display = 'block', 200);
+};
+
+window.classificarRevisaoPendenteFlashcard = function(nivel) {
+  const { flashcards, index } = _rpReviewState;
+  const fc = flashcards[index];
+  if (fc?.id) {
+    try {
+      localStorage.setItem(`${ENG_FLASH_REVIEW_PREFIX}${fc.id}`, JSON.stringify({
+        nivel,
+        missaoId: 'revisao_pendente',
+        ts: Date.now()
+      }));
+    } catch (e) {}
+  }
+  _rpReviewState.index++;
+  renderRevisaoPendenteFlashcard();
 };
 
 // ─── RENDER: Perfil Completo com Estatísticas e Conquistas ────────────────────
