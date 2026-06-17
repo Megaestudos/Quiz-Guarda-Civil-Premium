@@ -1384,9 +1384,20 @@ function renderMissaoDiaFlashcard() {
         </div>
       </div>
     </div>
-    <button class="btn btn-primary" onclick="proximoFlashcardMissaoDia()" style="width:100%; max-width:760px; margin:0 auto; display:block; border-radius:14px;">
-      <i class="ph-fill ph-arrow-right"></i> Próximo
-    </button>
+    <div class="mf-classificacao" id="mddClassificacao">
+      <p class="mf-classif-label">Como foi essa?</p>
+      <div class="mf-classif-btns">
+        <button class="mf-classif-btn mf-classif-dificil" onclick="classificarFlashcardMissaoDia('dificil')">
+          <i class="ph-fill ph-smiley-sad"></i> Dif&iacute;cil
+        </button>
+        <button class="mf-classif-btn mf-classif-medio" onclick="classificarFlashcardMissaoDia('medio')">
+          <i class="ph-fill ph-smiley-meh"></i> M&eacute;dio
+        </button>
+        <button class="mf-classif-btn mf-classif-facil" onclick="classificarFlashcardMissaoDia('facil')">
+          <i class="ph-fill ph-smiley"></i> F&aacute;cil
+        </button>
+      </div>
+    </div>
   `;
 }
 
@@ -1528,6 +1539,23 @@ window.virarFlashcardMissaoDia = function() {
 window.proximoFlashcardMissaoDia = function() {
   _missaoDiaSessao.index++;
   renderMissaoDiaFlashcard();
+};
+
+window.classificarFlashcardMissaoDia = function(nivel) {
+  const { flashcards, index, missao } = _missaoDiaSessao;
+  const fc = flashcards[index];
+
+  if (fc?.id) {
+    try {
+      localStorage.setItem(`flashcard_review_${fc.id}`, JSON.stringify({
+        nivel,
+        missaoId: missao?.id || 'missao-dia',
+        ts: Date.now()
+      }));
+    } catch (e) {}
+  }
+
+  proximoFlashcardMissaoDia();
 };
 
 window.responderQuestaoMissaoDia = function(letra) {
