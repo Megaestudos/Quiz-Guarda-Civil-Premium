@@ -694,6 +694,7 @@ window.responderEtapa2 = function(letra) {
   const q = questoesEtapa2[etapa2Idx];
   const resposta = (q.resposta || q.answer || '').toString().trim().charAt(0).toUpperCase();
   const correta = letra === resposta;
+  if (typeof window.playQuestionFeedback === 'function') window.playQuestionFeedback(correta);
 
   // Desabilita todos os botões
   document.querySelectorAll('.mf-questao-opt').forEach(b => b.disabled = true);
@@ -1123,6 +1124,7 @@ window.responderFinal = function(letra) {
   const q = questoesEtapa5[etapa5Idx];
   const resposta = (q.resposta || q.answer || '').toString().trim().charAt(0).toUpperCase();
   const correta = letra === resposta;
+  if (typeof window.playQuestionFeedback === 'function') window.playQuestionFeedback(correta);
 
   if (correta) _missaoSessao.etapa5Acertos++;
   _missaoSessao.etapa5Respostas.push({ letra, resposta, correta });

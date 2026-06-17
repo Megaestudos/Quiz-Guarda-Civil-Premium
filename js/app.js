@@ -227,13 +227,23 @@ function playTone(freq, dur=120, type='sine', gainVal=0.06){
   }catch(e){}
 }
 function playCorrect(){
-  playTone(880,120,'sine',0.06);
+  playTone(660,90,'sine',0.055);
+  setTimeout(() => playTone(880,110,'sine',0.06), 85);
+  setTimeout(() => playTone(1175,130,'triangle',0.045), 175);
   if(navigator.vibrate) navigator.vibrate([50]); 
 }
 function playWrong(){
-  playTone(220,220,'sawtooth',0.08);
+  playTone(260,130,'sawtooth',0.065);
+  setTimeout(() => playTone(180,210,'sawtooth',0.07), 115);
   if(navigator.vibrate) navigator.vibrate([100, 50, 100]); // Vibrar quando erra
 }
+
+window.playCorrect = playCorrect;
+window.playWrong = playWrong;
+window.playQuestionFeedback = function(isCorrect) {
+  if (isCorrect) playCorrect();
+  else playWrong();
+};
 
 function updateSoundUI() {
   const isOff = localStorage.getItem(SOUND_KEY) === '0';
@@ -1116,6 +1126,158 @@ function makeSwipeable(el) {
 }
 
 // Funções de botões swipe flashcard removidas (não utilizadas)
+
+let _cardsReviewState = {
+  list: [],
+  index: 0
+};
+
+function escapeFlashcardHtml(text = '') {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function detectCardFront(card = {}) {
+  const perguntaKey = Object.keys(card).find(k => /perg/i.test(k));
+  return (card.frente || card.pergunta || card.perguntas || card.titulo || card.front || card.question || card[perguntaKey] || '').toString();
+}
+
+function detectCardBack(card = {}) {
+  const respostaKey = Object.keys(card).find(k => /resp/i.test(k));
+  return (card.verso || card.resposta || card.respostas || card.conteudo || card.explicacao || card.explanation || card.back || card.answer || card.content || card[respostaKey] || '').toString();
+}
+
+async function renderCards(){
+  const container = document.getElementById('cardsList');
+  if (!container) return;
+  const controls = document.querySelector('#cards .deck-controls');
+  if (controls) controls.innerHTML = '<i class="ph ph-hand-tap"></i> Toque no cartão e classifique sua revisão';
+  container.innerHTML = '<div style="color:var(--text-muted); padding:30px;"><i class="ph ph-spinner-gap ph-spin" style="font-size:32px;"></i></div>';
+
+  try {
+    const db = getFirestoreDb();
+    let list = [];
+    let snap = await db.collection('flashcards').get();
+    snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+
+    if (!list.length) {
+      snap = await db.collection('questoes').where('ativo', '==', true).get();
+      snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+    }
+
+    if (!list.length) {
+      container.innerHTML = '<div class="empty-state"><p>Nenhum flashcard encontrado.</p></div>';
+      return;
+    }
+
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+
+    _cardsReviewState = { list: list.slice(0, 50), index: 0 };
+    renderCardsReviewItem();
+  } catch(e) {
+    container.innerHTML = 'Erro ao carregar.';
+  }
+}
+
+function renderCardsReviewItem() {
+  const container = document.getElementById('cardsList');
+  if (!container) return;
+  const { list, index } = _cardsReviewState;
+  const total = list.length;
+
+  if (index >= total) {
+    container.innerHTML = `
+      <div class="mf-etapa-concluida cards-review-done">
+        <i class="ph-fill ph-check-circle" style="color:#10B981; font-size:52px;"></i>
+        <p>Você revisou todos os flashcards!</p>
+        <button class="btn btn-primary" onclick="renderCards()">
+          <i class="ph-fill ph-arrow-clockwise"></i> Revisar novamente
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  const card = list[index];
+  const frontText = escapeFlashcardHtml(detectCardFront(card) || '(sem conteúdo na frente)');
+  const backText = escapeFlashcardHtml(detectCardBack(card) || '(sem conteúdo no verso)');
+  const topicText = escapeFlashcardHtml(card.topico || card.tópico || card.materia || card.topic || '');
+  const pct = Math.round((index / Math.max(total, 1)) * 100);
+
+  container.innerHTML = `
+    <div class="cards-review-shell">
+      <div class="mf-etapa-titulo">
+        <i class="ph-fill ph-cards" style="color:#8B5CF6;"></i>
+        <span>Flashcards - ${index + 1}/${total}</span>
+      </div>
+      <div class="mf-progress-mini">
+        <div class="mf-prog-barra">
+          <div class="mf-prog-fill" style="width:${pct}%; background:#8B5CF6;"></div>
+        </div>
+        <span class="mf-prog-label">${pct}%</span>
+      </div>
+      ${topicText ? `<div class="cards-review-topic">${topicText}</div>` : ''}
+      <div class="mf-flashcard-wrap cards-review-wrap">
+        <div class="mf-flashcard" id="cardsReviewFlashcard" onclick="virarCardReviewFlashcard()">
+          <div class="mf-flashcard-frente">
+            <div class="mf-flashcard-hint"><i class="ph ph-hand-tap"></i> Toque para revelar</div>
+            <p class="mf-flashcard-texto">${frontText}</p>
+            <div class="mf-flashcard-icon-frente"><i class="ph-fill ph-question"></i></div>
+          </div>
+          <div class="mf-flashcard-verso">
+            <div class="mf-flashcard-hint-verso"><i class="ph-fill ph-check-circle"></i> Resposta</div>
+            <p class="mf-flashcard-texto">${backText}</p>
+          </div>
+        </div>
+      </div>
+      <div class="mf-classificacao" id="cardsReviewClassificacao" style="display:none;">
+        <p class="mf-classif-label">Como foi essa?</p>
+        <div class="mf-classif-btns">
+          <button class="mf-classif-btn mf-classif-dificil" onclick="classificarCardReviewFlashcard('dificil')">
+            <i class="ph-fill ph-smiley-sad"></i> Difícil
+          </button>
+          <button class="mf-classif-btn mf-classif-medio" onclick="classificarCardReviewFlashcard('medio')">
+            <i class="ph-fill ph-smiley-meh"></i> Médio
+          </button>
+          <button class="mf-classif-btn mf-classif-facil" onclick="classificarCardReviewFlashcard('facil')">
+            <i class="ph-fill ph-smiley"></i> Fácil
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+window.virarCardReviewFlashcard = function() {
+  const card = document.getElementById('cardsReviewFlashcard');
+  if (!card) return;
+  card.classList.toggle('mf-flashcard-virado');
+  const classif = document.getElementById('cardsReviewClassificacao');
+  if (classif) setTimeout(() => classif.style.display = 'block', 200);
+};
+
+window.classificarCardReviewFlashcard = function(nivel) {
+  const { list, index } = _cardsReviewState;
+  const card = list[index];
+  if (card?.id) {
+    try {
+      localStorage.setItem(`flashcard_review_${card.id}`, JSON.stringify({
+        nivel,
+        missaoId: 'cards',
+        ts: Date.now()
+      }));
+    } catch (e) {}
+  }
+  _cardsReviewState.index++;
+  renderCardsReviewItem();
+};
 
 /* --- NOVAS FUNCIONALIDADES: O Grande Dia --- */
 window.startGrandeDia = async function() {

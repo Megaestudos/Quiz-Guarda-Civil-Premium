@@ -1563,6 +1563,7 @@ window.responderQuestaoMissaoDia = function(letra) {
   if (!q) return;
   const resposta = (q.resposta || q.answer || '').toString().trim().charAt(0).toUpperCase();
   const correta = letra === resposta;
+  if (typeof window.playQuestionFeedback === 'function') window.playQuestionFeedback(correta);
   if (correta) _missaoDiaSessao.acertos++;
 
   document.querySelectorAll('.mf-mdd-opt').forEach(b => b.disabled = true);
