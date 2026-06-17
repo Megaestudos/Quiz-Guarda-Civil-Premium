@@ -1072,6 +1072,20 @@ function normalizarMateriaMissaoDia(nome) {
   return (nome || '').toString().trim();
 }
 
+function chaveMateriaMissaoDia(nome) {
+  return normalizarMateriaMissaoDia(nome)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
+
+function obterMateriaDocMissaoDia(data = {}) {
+  return normalizarMateriaMissaoDia(
+    data.materia || data.disciplina || data.subject || data.categoria || ''
+  );
+}
+
 function escapeHtmlMissaoDia(text = '') {
   return String(text)
     .replace(/&/g, '&amp;')
@@ -1094,17 +1108,21 @@ async function buscarMateriasParaMissaoDia() {
 
   const mapa = {};
   qSnap.forEach(doc => {
-    const materia = normalizarMateriaMissaoDia(doc.data().materia);
-    if (!materia) return;
-    if (!mapa[materia]) mapa[materia] = { materia, questoes: 0, flashcards: 0 };
-    mapa[materia].questoes++;
+    const materia = obterMateriaDocMissaoDia(doc.data());
+    const chave = chaveMateriaMissaoDia(materia);
+    if (!chave) return;
+    if (!mapa[chave]) mapa[chave] = { materia, materiaKey: chave, questoes: 0, flashcards: 0 };
+    if (!mapa[chave].materia && materia) mapa[chave].materia = materia;
+    mapa[chave].questoes++;
   });
 
   fSnap.forEach(doc => {
-    const materia = normalizarMateriaMissaoDia(doc.data().materia);
-    if (!materia) return;
-    if (!mapa[materia]) mapa[materia] = { materia, questoes: 0, flashcards: 0 };
-    mapa[materia].flashcards++;
+    const materia = obterMateriaDocMissaoDia(doc.data());
+    const chave = chaveMateriaMissaoDia(materia);
+    if (!chave) return;
+    if (!mapa[chave]) mapa[chave] = { materia, materiaKey: chave, questoes: 0, flashcards: 0 };
+    if (!mapa[chave].materia && materia) mapa[chave].materia = materia;
+    mapa[chave].flashcards++;
   });
 
   const materias = Object.values(mapa)
@@ -1121,8 +1139,10 @@ function sortearMateriaMissaoDia(materias) {
     salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
   } catch (e) {}
 
-  if (salva?.data === hoje && materias.some(item => item.materia === salva.materia)) {
-    return materias.find(item => item.materia === salva.materia);
+  if (salva?.data === hoje) {
+    const chaveSalva = salva.materiaKey || chaveMateriaMissaoDia(salva.materia);
+    const existente = materias.find(item => item.materiaKey === chaveSalva);
+    if (existente) return existente;
   }
 
   const sorteada = materias[Math.floor(Math.random() * materias.length)];
@@ -1130,6 +1150,7 @@ function sortearMateriaMissaoDia(materias) {
     localStorage.setItem(MISSAO_DIA_KEY, JSON.stringify({
       data: hoje,
       materia: sorteada.materia,
+      materiaKey: sorteada.materiaKey,
       questoes: sorteada.questoes,
       flashcards: sorteada.flashcards,
     }));
@@ -1260,9 +1281,10 @@ function getFlashcardVersoMissaoDia(fc) {
   return fc.verso || fc.resposta || fc.conteudo || fc.back || fc.answer || fc.content || '';
 }
 
-async function carregarConteudoMissaoDia(materia) {
+async function carregarConteudoMissaoDia(materia, materiaKeySalva = '') {
   const db = getDbMissaoDia();
   if (!db) return { flashcards: [], questoes: [] };
+  const materiaKey = materiaKeySalva || chaveMateriaMissaoDia(materia);
 
   const [fSnap, qSnap] = await Promise.all([
     db.collection('flashcards').where('materia', '==', materia).get(),
@@ -1273,6 +1295,26 @@ async function carregarConteudoMissaoDia(materia) {
   const questoes = [];
   fSnap.forEach(doc => flashcards.push({ id: doc.id, ...doc.data() }));
   qSnap.forEach(doc => questoes.push({ id: doc.id, ...doc.data() }));
+
+  if (!flashcards.length && materiaKey) {
+    const todosFlashcards = await db.collection('flashcards').get();
+    todosFlashcards.forEach(doc => {
+      const data = doc.data();
+      if (chaveMateriaMissaoDia(obterMateriaDocMissaoDia(data)) === materiaKey) {
+        flashcards.push({ id: doc.id, ...data });
+      }
+    });
+  }
+
+  if (!questoes.length && materiaKey) {
+    const todasQuestoes = await db.collection('questoes').where('ativo', '==', true).get();
+    todasQuestoes.forEach(doc => {
+      const data = doc.data();
+      if (chaveMateriaMissaoDia(obterMateriaDocMissaoDia(data)) === materiaKey) {
+        questoes.push({ id: doc.id, ...data });
+      }
+    });
+  }
 
   return {
     flashcards: shuffleArray(flashcards).slice(0, 15),
@@ -1435,7 +1477,7 @@ window.iniciarMissaoDoDia = async function() {
   }
 
   try {
-    const conteudo = await carregarConteudoMissaoDia(salva.materia);
+    const conteudo = await carregarConteudoMissaoDia(salva.materia, salva.materiaKey);
     _missaoDiaSessao = {
       materia: salva.materia,
       flashcards: conteudo.flashcards,
