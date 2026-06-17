@@ -60,7 +60,7 @@
                 Simulados
             </a>
             <a href="financial.html" class="sidebar-item active flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium">
-                <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
+                <i data-lucide="activity" class="w-5 h-5"></i>
                 Acessos
             </a>
             <a href="ai-control.html" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
@@ -135,7 +135,7 @@
                  <div class="glass-panel p-8 rounded-[32px]">
                     <h3 class="text-lg font-bold mb-8">Inatividade</h3>
                     <div class="h-[250px]">
-                        <canvas id="churnChart"></canvas>
+                        <canvas id="inactivityChart"></canvas>
                     </div>
                  </div>
             </div>
@@ -147,20 +147,8 @@
                     <button class="text-xs text-blue-500 font-bold uppercase tracking-widest hover:underline">Download CSV</button>
                 </div>
                 <div class="p-4">
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between p-4 bg-white/[0.02] rounded-2xl border border-white/5">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-500 flex items-center justify-center"><i data-lucide="arrow-up-right" class="w-5 h-5"></i></div>
-                                <div>
-                                    <div class="text-sm font-bold">Matheus Pereira</div>
-                                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Acesso gratuito</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-sm font-black text-emerald-500">Ativo</div>
-                                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-tight">Hoje, 14:22</div>
-                            </div>
-                        </div>
+                    <div class="space-y-2" id="recentAccessList">
+                        <div class="p-4 text-center text-xs text-gray-500 italic">Carregando acessos reais...</div>
                     </div>
                 </div>
             </div>
@@ -171,41 +159,6 @@
     <script>
         lucide.createIcons();
 
-        // Access Chart
-        new Chart(document.getElementById('planChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Ativos', 'Novos', 'Inativos'],
-                datasets: [{
-                    data: [65, 20, 15],
-                    backgroundColor: ['#3b82f6', '#6366f1', '#1e293b'],
-                    borderWidth: 0,
-                    hoverOffset: 15
-                }]
-            },
-            options: { cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#64748b', font: { size: 10, weight: 'bold' }, padding: 20 } } } }
-        });
-
-        // Inactivity Chart
-        new Chart(document.getElementById('churnChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-                datasets: [{
-                    label: 'Inatividade %',
-                    data: [5.2, 4.8, 3.9, 4.2, 3.5, 4.1],
-                    backgroundColor: '#ef4444',
-                    borderRadius: 8,
-                    barThickness: 20
-                }]
-            },
-            options: {
-                scales: {
-                    y: { grid: { display: false }, ticks: { color: '#64748b' } },
-                    x: { grid: { display: false }, ticks: { color: '#64748b' } }
-                }
-            }
-        });
     </script>
 </body>
 </html>

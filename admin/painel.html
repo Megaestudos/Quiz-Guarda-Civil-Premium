@@ -107,7 +107,7 @@
             </a>
             <a href="financial.html" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
                 <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
-                Financeiro
+                Acessos
             </a>
             <a href="ai-control.html" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
                 <i data-lucide="brain-circuit" class="w-5 h-5"></i>
@@ -196,12 +196,12 @@
                         <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
                             <i data-lucide="users" class="w-6 h-6"></i>
                         </div>
-                        <div class="text-xs font-bold text-emerald-500 flex items-center gap-1">
-                            <i data-lucide="trending-up" class="w-3 h-3"></i> +12%
+                        <div class="text-xs font-bold text-blue-400 flex items-center gap-1">
+                            <i data-lucide="database" class="w-3 h-3"></i> Auth
                         </div>
                     </div>
-                    <div id="statCreatedToday" class="text-2xl font-black mb-1">0</div>
-                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Criados Hoje</div>
+                    <div id="statTotalUsers" class="text-2xl font-black mb-1">0</div>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Usuários cadastrados</div>
                 </div>
 
                 <div class="glass-panel p-6 rounded-3xl stat-card relative overflow-hidden group">
@@ -210,7 +210,7 @@
                             <i data-lucide="activity" class="w-6 h-6"></i>
                         </div>
                         <div class="text-xs font-bold text-emerald-500 flex items-center gap-1">
-                            <i data-lucide="trending-up" class="w-3 h-3"></i> +8.4%
+                            <i data-lucide="calendar-plus" class="w-3 h-3"></i> <span id="statCreatedToday">0</span> novos
                         </div>
                     </div>
                     <div id="statAccessToday" class="text-2xl font-black mb-1">0</div>
@@ -222,8 +222,8 @@
                         <div class="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
                             <i data-lucide="brain" class="w-6 h-6"></i>
                         </div>
-                        <div class="text-xs font-bold text-gray-500 flex items-center gap-1">
-                            Estábil
+                        <div id="statAccessWeekRate" class="text-xs font-bold text-gray-500 flex items-center gap-1">
+                            0% do total
                         </div>
                     </div>
                     <div id="statAccessWeek" class="text-2xl font-black mb-1">0</div>
@@ -235,12 +235,12 @@
                         <div class="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
                             <i data-lucide="zap" class="w-6 h-6"></i>
                         </div>
-                        <div class="text-xs font-bold text-orange-500 flex items-center gap-1">
-                            <i data-lucide="flame" class="w-3 h-3"></i> Alta
+                        <div id="statInactiveRate" class="text-xs font-bold text-orange-500 flex items-center gap-1">
+                            0% do total
                         </div>
                     </div>
-                    <div id="statChurned" class="text-2xl font-black mb-1">0</div>
-                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Desistentes (>1m)</div>
+                    <div id="statInactive30" class="text-2xl font-black mb-1">0</div>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Inativos há 30 dias</div>
                 </div>
             </div>
 
@@ -284,15 +284,8 @@
                         <h3 class="text-lg font-bold">Frequência de Estudos</h3>
                         <span class="text-xs text-gray-500 italic">Média global dos últimos 30 dias</span>
                     </div>
-                    <div class="grid grid-cols-7 gap-2">
-                        <!-- Pseudo Heatmap -->
-                        <script>
-                            for(let i=0; i<35; i++){
-                                const level = Math.floor(Math.random()*4);
-                                const opacity = level === 0 ? 'bg-white/5' : level === 1 ? 'bg-blue-900/30' : level === 2 ? 'bg-blue-700/50' : 'bg-blue-500';
-                                document.write(`<div class="${opacity} h-4 rounded-sm transition-all hover:ring-2 hover:ring-white/20"></div>`);
-                            }
-                        </script>
+                    <div class="grid grid-cols-7 gap-2" id="activityHeatmap">
+                        <div class="col-span-7 text-xs text-gray-500 italic">Carregando frequência real...</div>
                     </div>
                     <div class="mt-4 flex justify-between items-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
                         <span>Menos Atividade</span>
@@ -311,16 +304,16 @@
                         <h3 class="text-lg font-bold mb-1">Status de Retenção</h3>
                         <p class="text-gray-500 text-xs mb-4">Indicador estimado de alunos ativos nos próximos 30 dias.</p>
                         <div class="flex items-end gap-3">
-                            <span class="text-4xl font-black text-emerald-500">4.1%</span>
-                            <span class="text-xs text-emerald-600 font-bold mb-1">-1.2% que o mês passado</span>
+                            <span id="retentionRate" class="text-4xl font-black text-emerald-500">0%</span>
+                            <span id="retentionLabel" class="text-xs text-emerald-600 font-bold mb-1">calculando...</span>
                         </div>
                     </div>
                     <div class="w-32 h-32 relative">
                         <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
                             <path class="text-white/5" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            <path class="text-emerald-500" stroke-width="3" stroke-dasharray="90, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="retentionCircle" class="text-emerald-500" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         </svg>
-                        <div class="absolute inset-0 flex items-center justify-center font-black text-lg">90%</div>
+                        <div id="retentionCenter" class="absolute inset-0 flex items-center justify-center font-black text-lg">0%</div>
                     </div>
                  </div>
             </div>
@@ -338,53 +331,6 @@
             sidebar.classList.toggle('-translate-x-full');
         }
 
-        // Growth Chart Logic
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-                datasets: [{
-                    label: 'Alunos ativos',
-                    data: [85, 92, 105, 118, 134, 142],
-                    borderColor: '#3b82f6',
-                    borderWidth: 4,
-                    pointBackgroundColor: '#020617',
-                    pointBorderColor: '#3b82f6',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    tension: 0.4,
-                    fill: true,
-                    backgroundColor: (context) => {
-                        const chart = context.chart;
-                        const {ctx, chartArea} = chart;
-                        if (!chartArea) return null;
-                        const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-                        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
-                        gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
-                        return gradient;
-                    }
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
-                        ticks: { color: '#64748b', font: { size: 10, weight: '600' }, callback: (v) => 'R$ ' + v/1000 + 'k' }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#64748b', font: { size: 10, weight: '600' } }
-                    }
-                },
-                hover: { mode: 'index', intersect: false }
-            }
-        });
     </script>
 </body>
 </html>

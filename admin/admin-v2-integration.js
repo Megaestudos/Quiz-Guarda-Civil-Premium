@@ -18,6 +18,54 @@ const functions = getFunctions(app, "southamerica-east1");
 
 // Helper para selecionar elementos
 const $ = (id) => document.getElementById(id);
+let growthChart = null;
+let accessChart = null;
+let inactivityChart = null;
+let aiRequestChart = null;
+
+function parseDate(value) {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isSameDay(a, b) {
+    return a && b &&
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate();
+}
+
+function percentage(part, total) {
+    if (!total) return 0;
+    return Math.round((part / total) * 100);
+}
+
+function monthKey(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthLabel(date) {
+    return date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+}
+
+function getLastMonths(count = 6) {
+    const months = [];
+    const now = new Date();
+    for (let i = count - 1; i >= 0; i--) {
+        months.push(new Date(now.getFullYear(), now.getMonth() - i, 1));
+    }
+    return months;
+}
+
+function escapeHtml(value = '') {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
 
 // Verifica Autenticação
 onAuthStateChanged(auth, async (user) => {
@@ -56,6 +104,10 @@ async function initDashboard() {
         }
 
         updateUIStats(users);
+        renderGrowthChart(users);
+        renderActivityHeatmap(users);
+        renderRetention(users);
+        renderFinancialCharts(users);
         
         if ($('studentsTableBody')) renderStudentsTable(users);
         if ($('recentActivityList')) renderActivityLog(users);
@@ -63,6 +115,7 @@ async function initDashboard() {
         // Carrega Conteúdos e Simulados dependendo da página
         if ($('contentsGrid')) initContents();
         if ($('topStudentsList')) initSimulados(users);
+        if ($('iaRequestChart')) initAiControl(users);
         
         console.log("UI atualizada com sucesso.");
 
@@ -73,27 +126,296 @@ async function initDashboard() {
 }
 
 function updateUIStats(users) {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
     const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
     const monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 30);
 
-    const createdToday = users.filter(u => u.createdAt && u.createdAt.includes(today)).length;
-    const accessToday = users.filter(u => u.lastLogin && u.lastLogin.includes(today)).length;
-    const accessWeek = users.filter(u => u.lastLogin && new Date(u.lastLogin) > weekAgo).length;
-    const churned = users.filter(u => !u.lastLogin || new Date(u.lastLogin) < monthAgo).length;
+    const totalUsers = users.length;
+    const createdToday = users.filter(u => isSameDay(parseDate(u.createdAt), today)).length;
+    const accessToday = users.filter(u => isSameDay(parseDate(u.lastLogin), today)).length;
+    const accessWeek = users.filter(u => {
+        const lastLogin = parseDate(u.lastLogin);
+        return lastLogin && lastLogin >= weekAgo;
+    }).length;
+    const inactive30 = users.filter(u => {
+        const lastLogin = parseDate(u.lastLogin);
+        return !lastLogin || lastLogin < monthAgo;
+    }).length;
 
+    if ($('statTotalUsers')) $('statTotalUsers').innerText = totalUsers;
     if ($('statCreatedToday')) $('statCreatedToday').innerText = createdToday;
     if ($('statAccessToday')) $('statAccessToday').innerText = accessToday;
     if ($('statAccessWeek')) $('statAccessWeek').innerText = accessWeek;
-    if ($('statChurned')) $('statChurned').innerText = churned;
+    if ($('statInactive30')) $('statInactive30').innerText = inactive30;
+    if ($('statAccessWeekRate')) $('statAccessWeekRate').innerText = `${percentage(accessWeek, totalUsers)}% do total`;
+    if ($('statInactiveRate')) $('statInactiveRate').innerText = `${percentage(inactive30, totalUsers)}% do total`;
     
     // Métricas de acesso para a plataforma gratuita.
-    const totalUsers = users.length;
-    const activeUsers = users.filter(u => u.lastLogin && new Date(u.lastLogin) > monthAgo).length;
+    const activeUsers = users.filter(u => {
+        const lastLogin = parseDate(u.lastLogin);
+        return lastLogin && lastLogin >= monthAgo;
+    }).length;
 
     if ($('finTotalRevenue')) $('finTotalRevenue').innerText = totalUsers;
     if ($('finTotalUsers')) $('finTotalUsers').innerText = totalUsers;
     if ($('finNetRevenue')) $('finNetRevenue').innerText = activeUsers;
+}
+
+function renderGrowthChart(users) {
+    const canvas = $('revenueChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const months = getLastMonths(6);
+    const createdByMonth = Object.fromEntries(months.map(date => [monthKey(date), 0]));
+    const activeByMonth = Object.fromEntries(months.map(date => [monthKey(date), 0]));
+
+    users.forEach(user => {
+        const createdAt = parseDate(user.createdAt);
+        const lastLogin = parseDate(user.lastLogin);
+        if (createdAt && createdByMonth[monthKey(createdAt)] !== undefined) createdByMonth[monthKey(createdAt)]++;
+        if (lastLogin && activeByMonth[monthKey(lastLogin)] !== undefined) activeByMonth[monthKey(lastLogin)]++;
+    });
+
+    if (growthChart) growthChart.destroy();
+    growthChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels: months.map(monthLabel),
+            datasets: [
+                {
+                    label: 'Novos alunos',
+                    data: months.map(date => createdByMonth[monthKey(date)]),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.18)',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    tension: 0.35,
+                    fill: true
+                },
+                {
+                    label: 'Acessos no mês',
+                    data: months.map(date => activeByMonth[monthKey(date)]),
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    tension: 0.35,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#94a3b8', font: { size: 11, weight: 'bold' } } }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0, color: '#64748b', font: { size: 10, weight: '600' } },
+                    grid: { color: 'rgba(255,255,255,0.04)' }
+                },
+                x: {
+                    ticks: { color: '#64748b', font: { size: 10, weight: '600' } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+function renderActivityHeatmap(users) {
+    const container = $('activityHeatmap');
+    if (!container) return;
+
+    const days = [];
+    const today = new Date();
+    for (let i = 34; i >= 0; i--) {
+        days.push(new Date(today.getFullYear(), today.getMonth(), today.getDate() - i));
+    }
+
+    const counts = Object.fromEntries(days.map(day => [day.toISOString().split('T')[0], 0]));
+    users.forEach(user => {
+        const lastLogin = parseDate(user.lastLogin);
+        if (!lastLogin) return;
+        const key = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate()).toISOString().split('T')[0];
+        if (counts[key] !== undefined) counts[key]++;
+    });
+
+    const max = Math.max(...Object.values(counts), 1);
+    container.innerHTML = days.map(day => {
+        const key = day.toISOString().split('T')[0];
+        const count = counts[key];
+        const pct = count / max;
+        const color = count === 0 ? 'bg-white/5' : pct < 0.34 ? 'bg-blue-900/30' : pct < 0.67 ? 'bg-blue-700/50' : 'bg-blue-500';
+        const title = `${day.toLocaleDateString('pt-BR')}: ${count} acesso(s)`;
+        return `<div class="${color} h-4 rounded-sm transition-all hover:ring-2 hover:ring-white/20" title="${title}"></div>`;
+    }).join('');
+}
+
+function renderRetention(users) {
+    const monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 30);
+    const total = users.length;
+    const active = users.filter(user => {
+        const lastLogin = parseDate(user.lastLogin);
+        return lastLogin && lastLogin >= monthAgo;
+    }).length;
+    const rate = percentage(active, total);
+
+    if ($('retentionRate')) $('retentionRate').innerText = `${rate}%`;
+    if ($('retentionCenter')) $('retentionCenter').innerText = `${rate}%`;
+    if ($('retentionCircle')) $('retentionCircle').setAttribute('stroke-dasharray', `${rate}, 100`);
+    if ($('retentionLabel')) $('retentionLabel').innerText = `${active} de ${total} ativos em 30 dias`;
+}
+
+function renderFinancialCharts(users) {
+    const accessCanvas = $('planChart');
+    const inactivityCanvas = $('inactivityChart');
+    const total = users.length;
+    const today = new Date();
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 30);
+
+    const active30 = users.filter(user => {
+        const lastLogin = parseDate(user.lastLogin);
+        return lastLogin && lastLogin >= monthAgo;
+    }).length;
+    const activeWeek = users.filter(user => {
+        const lastLogin = parseDate(user.lastLogin);
+        return lastLogin && lastLogin >= weekAgo;
+    }).length;
+    const newToday = users.filter(user => isSameDay(parseDate(user.createdAt), today)).length;
+    const inactive30 = total - active30;
+
+    if (accessCanvas && typeof Chart !== 'undefined') {
+        const existing = Chart.getChart ? Chart.getChart(accessCanvas) : null;
+        if (existing) existing.destroy();
+        if (accessChart) accessChart.destroy();
+        accessChart = new Chart(accessCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Ativos em 30 dias', 'Ativos na semana', 'Novos hoje'],
+                datasets: [{
+                    data: [active30, activeWeek, newToday],
+                    backgroundColor: ['#10b981', '#3b82f6', '#6366f1'],
+                    borderWidth: 0,
+                    hoverOffset: 12
+                }]
+            },
+            options: {
+                cutout: '72%',
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10, weight: 'bold' }, padding: 16 } }
+                }
+            }
+        });
+    }
+
+    if (inactivityCanvas && typeof Chart !== 'undefined') {
+        const existing = Chart.getChart ? Chart.getChart(inactivityCanvas) : null;
+        if (existing) existing.destroy();
+        if (inactivityChart) inactivityChart.destroy();
+        inactivityChart = new Chart(inactivityCanvas, {
+            type: 'bar',
+            data: {
+                labels: ['Ativos 30d', 'Inativos 30d'],
+                datasets: [{
+                    label: 'Alunos',
+                    data: [active30, inactive30],
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderRadius: 8,
+                    maxBarThickness: 56
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                    x: { ticks: { color: '#64748b' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+}
+
+async function initAiControl(users) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const planUses = users.filter(user => user.lastStudyPlanDate === todayStr).length;
+    const lessonUses = users.filter(user => user.lastLessonGenDate === todayStr).length;
+    const essayEvalUses = users.filter(user => user.lastEssayEvalDate === todayStr).length;
+    const usersUsingAi = users.filter(user =>
+        user.lastStudyPlanDate === todayStr ||
+        user.lastLessonGenDate === todayStr ||
+        user.lastEssayEvalDate === todayStr
+    ).length;
+    const totalUses = planUses + lessonUses + essayEvalUses;
+
+    if ($('aiUsesToday')) $('aiUsesToday').innerText = totalUses;
+    if ($('aiUsersToday')) $('aiUsersToday').innerText = usersUsingAi;
+
+    const canvas = $('iaRequestChart');
+    if (canvas && typeof Chart !== 'undefined') {
+        const existing = Chart.getChart ? Chart.getChart(canvas) : null;
+        if (existing) existing.destroy();
+        if (aiRequestChart) aiRequestChart.destroy();
+        aiRequestChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: ['Plano de estudos', 'Aulas de redação', 'Correções finais'],
+                datasets: [{
+                    label: 'Usos hoje',
+                    data: [planUses, lessonUses, essayEvalUses],
+                    backgroundColor: ['#6366f1', '#3b82f6', '#10b981'],
+                    borderRadius: 12
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                    x: { grid: { display: false }, ticks: { color: '#64748b' } }
+                }
+            }
+        });
+    }
+
+    try {
+        const snap = await getDocs(collection(db, 'global_essay_lessons'));
+        if ($('aiCachedLessons')) $('aiCachedLessons').innerText = snap.size;
+        const list = $('aiCachedLessonsList');
+        if (list) {
+            if (snap.empty) {
+                list.innerHTML = '<div class="p-6 text-sm text-gray-500 italic">Nenhuma aula em cache ainda.</div>';
+            } else {
+                const items = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    items.push({
+                        topic: data.generatedTopic || docSnap.id,
+                        createdAt: parseDate(data.createdAt)
+                    });
+                });
+                list.innerHTML = items
+                    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+                    .slice(0, 8)
+                    .map(item => `
+                        <div class="flex items-center justify-between p-6 hover:bg-white/5 transition-all">
+                            <span class="text-sm font-semibold">${escapeHtml(item.topic)}</span>
+                            <span class="text-xs bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full font-bold">${item.createdAt ? item.createdAt.toLocaleDateString('pt-BR') : 'cache'}</span>
+                        </div>
+                    `).join('');
+            }
+        }
+    } catch (e) {
+        if ($('aiCachedLessonsList')) {
+            $('aiCachedLessonsList').innerHTML = `<div class="p-6 text-sm text-red-400">Erro ao carregar cache: ${e.message}</div>`;
+        }
+    }
 }
 
 function renderStudentsTable(users) {
@@ -176,9 +498,9 @@ window.createStudent = async function() {
 }
 
 function renderActivityLog(users) {
-    const list = $('recentActivityList');
-    if (!list) return;
-    list.innerHTML = '';
+    const lists = [$('recentActivityList'), $('recentAccessList')].filter(Boolean);
+    if (!lists.length) return;
+    lists.forEach(list => list.innerHTML = '');
 
     // Filtrar quem logou recentemente e ordenar
     const recentOnes = users
@@ -187,24 +509,44 @@ function renderActivityLog(users) {
         .slice(0, 5);
 
     if (recentOnes.length === 0) {
-        list.innerHTML = '<div class="text-center py-10 text-gray-500 text-xs italic">Sem atividade recente.</div>';
+        lists.forEach(list => {
+            list.innerHTML = '<div class="text-center py-10 text-gray-500 text-xs italic">Sem atividade recente.</div>';
+        });
         return;
     }
 
     recentOnes.forEach(u => {
         const timeAgo = getTimeAgo(new Date(u.lastLogin));
-        const div = document.createElement('div');
-        div.className = "flex gap-4 items-start relative pb-6 border-l border-white/5 ml-3";
-        div.innerHTML = `
-            <div class="absolute -left-[5px] top-1 w-2.5 h-2.5 bg-blue-500 border border-blue-600 rounded-full"></div>
-            <div class="flex flex-col gap-1 ml-4">
-                <span class="text-sm font-semibold">${u.email}</span>
-                <span class="text-xs text-gray-500">Acessou a plataforma</span>
-                <span class="text-[10px] text-blue-500 font-bold uppercase">${timeAgo}</span>
-            </div>
-        `;
-        list.appendChild(div);
+        lists.forEach(list => {
+            const isCompactList = list.id === 'recentAccessList';
+            const div = document.createElement('div');
+            div.className = isCompactList
+                ? "flex items-center justify-between p-4 bg-white/[0.02] rounded-2xl border border-white/5"
+                : "flex gap-4 items-start relative pb-6 border-l border-white/5 ml-3";
+            div.innerHTML = isCompactList ? `
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-500 flex items-center justify-center"><i data-lucide="log-in" class="w-5 h-5"></i></div>
+                    <div>
+                        <div class="text-sm font-bold">${u.email || 'Sem email'}</div>
+                        <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Acesso gratuito</div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-black text-emerald-500">Ativo</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-tight">${timeAgo}</div>
+                </div>
+            ` : `
+                <div class="absolute -left-[5px] top-1 w-2.5 h-2.5 bg-blue-500 border border-blue-600 rounded-full"></div>
+                <div class="flex flex-col gap-1 ml-4">
+                    <span class="text-sm font-semibold">${u.email || 'Sem email'}</span>
+                    <span class="text-xs text-gray-500">Acessou a plataforma</span>
+                    <span class="text-[10px] text-blue-500 font-bold uppercase">${timeAgo}</span>
+                </div>
+            `;
+            list.appendChild(div);
+        });
     });
+    if (window.lucide) window.lucide.createIcons();
 }
 
 function getTimeAgo(date) {

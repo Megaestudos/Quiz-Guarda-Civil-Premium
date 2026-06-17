@@ -60,7 +60,7 @@
             </a>
             <a href="financial.html" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium text-gray-400">
                 <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
-                Financeiro
+                Acessos
             </a>
             <a href="ai-control.html" class="sidebar-item active flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium">
                 <i data-lucide="brain-circuit" class="w-5 h-5"></i>
@@ -111,19 +111,19 @@
 
                 <div class="flex flex-col gap-6">
                     <div class="glass-panel p-6 rounded-[28px]">
-                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Custo Estimado</span>
-                        <div class="text-3xl font-black mt-2">R$ 48,20</div>
-                        <div class="text-[10px] text-emerald-500 font-bold mt-1 uppercase tracking-tighter">Muito eficiente</div>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Usos hoje</span>
+                        <div id="aiUsesToday" class="text-3xl font-black mt-2">0</div>
+                        <div class="text-[10px] text-emerald-500 font-bold mt-1 uppercase tracking-tighter">Registros reais</div>
                     </div>
                     <div class="glass-panel p-6 rounded-[28px]">
-                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Eficiência Global</span>
-                        <div class="text-3xl font-black mt-2">98.4%</div>
-                        <div class="text-[10px] text-gray-500 font-bold mt-1">Uptime Gemini API</div>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Alunos usando IA</span>
+                        <div id="aiUsersToday" class="text-3xl font-black mt-2">0</div>
+                        <div class="text-[10px] text-gray-500 font-bold mt-1">Com uso registrado hoje</div>
                     </div>
                     <div class="glass-panel p-6 rounded-[28px] bg-indigo-600/10 border-indigo-500/30">
-                        <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Cache Global Hit</span>
-                        <div class="text-3xl font-black mt-2">72%</div>
-                        <div class="text-[10px] text-indigo-400 font-bold mt-1 uppercase italic">Tokens Economizados</div>
+                        <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Aulas em cache</span>
+                        <div id="aiCachedLessons" class="text-3xl font-black mt-2">0</div>
+                        <div class="text-[10px] text-indigo-400 font-bold mt-1 uppercase italic">global_essay_lessons</div>
                     </div>
                 </div>
             </div>
@@ -131,20 +131,9 @@
             <!-- AI Topics Table -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="glass-panel rounded-[32px] overflow-hidden">
-                    <div class="p-8 border-b border-white/5"><h3 class="text-lg font-bold">Temas Mais Pesquisados (Redação)</h3></div>
-                    <div class="divide-y divide-white/5">
-                        <div class="flex items-center justify-between p-6 hover:bg-white/5 transition-all">
-                            <span class="text-sm font-semibold">Segurança Pública</span>
-                            <span class="text-xs bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full font-bold">1,420 refs</span>
-                        </div>
-                        <div class="flex items-center justify-between p-6 hover:bg-white/5 transition-all">
-                            <span class="text-sm font-semibold">Inteligência Artificial</span>
-                            <span class="text-xs bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full font-bold">980 refs</span>
-                        </div>
-                        <div class="flex items-center justify-between p-6 hover:bg-white/5 transition-all">
-                            <span class="text-sm font-semibold">Violência Urbana</span>
-                            <span class="text-xs bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full font-bold">840 refs</span>
-                        </div>
+                    <div class="p-8 border-b border-white/5"><h3 class="text-lg font-bold">Aulas de Redação em Cache</h3></div>
+                    <div id="aiCachedLessonsList" class="divide-y divide-white/5">
+                        <div class="p-6 text-sm text-gray-500 italic">Carregando temas reais...</div>
                     </div>
                 </div>
 
@@ -177,28 +166,6 @@
     <script>
         lucide.createIcons();
 
-        // AI Request Chart
-        new Chart(document.getElementById('iaRequestChart'), {
-            type: 'bar',
-            data: {
-                labels: ['00h', '04h', '08h', '12h', '16h', '20h', '23h'],
-                datasets: [{
-                    label: 'Tokens/Hora',
-                    data: [120, 50, 480, 720, 950, 1200, 600],
-                    backgroundColor: '#6366f1',
-                    borderRadius: 12
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { grid: { display: false }, ticks: { color: '#64748b' } },
-                    x: { grid: { display: false }, ticks: { color: '#64748b' } }
-                }
-            }
-        });
     </script>
 </body>
 </html>
