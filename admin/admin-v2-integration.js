@@ -9,8 +9,6 @@ const firebaseConfig = {
   projectId: "simulados-concursos-22c91"
 };
 
-const ADMIN_EMAIL = "lomateco@gmail.com";
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -68,18 +66,41 @@ function escapeHtml(value = '') {
 }
 
 // Verifica Autenticação
+function revealAdmin() {
+    document.body.classList.remove('admin-pending');
+    document.body.classList.add('admin-authorized');
+    if (window.lucide) window.lucide.createIcons();
+}
+
+async function denyAdminAccess() {
+    document.body.className = '';
+    document.body.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;background:#020617;color:#f8fafc;font:600 16px Inter,Arial,sans-serif">Acesso negado.</main>';
+    try {
+        await signOut(auth);
+    } finally {
+        window.location.replace('login.html');
+    }
+}
+
+// No administrative data is fetched or rendered before the refreshed claim is verified.
 onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        window.location.href = "login.html";
-        return;
+    try {
+        if (!user) {
+            await denyAdminAccess();
+            return;
+        }
+        const token = await user.getIdTokenResult(true);
+        if (token.claims.admin !== true) {
+            await denyAdminAccess();
+            return;
+        }
+        revealAdmin();
+        console.log("Autenticado como Admin:", user.email);
+        await initDashboard();
+    } catch (error) {
+        console.error('Falha ao verificar a permissão administrativa:', error);
+        await denyAdminAccess();
     }
-    if (user.email !== ADMIN_EMAIL) {
-        alert("Acesso Negado: Você não é um administrador.");
-        signOut(auth).then(() => window.location.href = "login.html");
-        return;
-    }
-    console.log("Autenticado como Admin:", user.email);
-    initDashboard();
 });
 
 async function initDashboard() {

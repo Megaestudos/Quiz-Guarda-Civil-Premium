@@ -1,0 +1,137 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function userCreateFields() {
+      return request.resource.data.keys().hasOnly([
+        'email',
+        'displayName',
+        'createdAt',
+        'plan',
+        'status'
+      ]);
+    }
+
+    function userUpdateFields() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'displayName',
+        'quiz_xp',
+        'quiz_streak',
+        'quiz_last_date',
+        'quiz_best_record',
+        'quiz_unlocked_badges',
+        'quiz_topic_stats',
+        'lastLogin'
+      ]);
+    }
+
+    function validOwnUserCreate(uid) {
+      return isOwner(uid)
+        && userCreateFields()
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.plan == 'premium'
+        && request.resource.data.status == 'active';
+    }
+
+    function validOwnUserUpdate(uid) {
+      return isOwner(uid) && userUpdateFields();
+    }
+
+    function validOwnProgress(uid) {
+      return isOwner(uid)
+        && request.resource.data.keys().hasOnly([
+          'jornada_progress',
+          'jornada_carreira',
+          'tempo_estudo',
+          'quiz_topic_stats',
+          'quiz_xp',
+          'quiz_streak',
+          'quiz_unlocked_badges',
+          'updatedAt'
+        ]);
+    }
+
+    function validAiSession(uid) {
+      return isOwner(uid)
+        && request.resource.data.keys().hasOnly([
+          'sessionId',
+          'updatedAt',
+          'flow',
+          'persistentContext',
+          'conversationHistory'
+        ]);
+    }
+
+    match /users/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin() || validOwnUserCreate(uid);
+      allow update: if isAdmin() || validOwnUserUpdate(uid);
+      allow delete: if isAdmin();
+
+      match /ai_sessions/{sessionId} {
+        allow get, list: if isOwner(uid) || isAdmin();
+        allow create, update: if isAdmin() || validAiSession(uid);
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /users_progress/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() || validOwnProgress(uid);
+      allow delete: if isAdmin();
+    }
+
+    match /materias_aulas/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /questoes/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /flashcards/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /materias/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /conteudos_jornada/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /jornada_missoes/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /global_essay_lessons/{docId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -8,8 +8,6 @@ const firebaseConfig = {
   projectId: "simulados-concursos-22c91"
 };
 
-const ADMIN_EMAIL = "lomateco@gmail.com";
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app, "southamerica-east1");
@@ -405,6 +403,7 @@ async function toggleUserStatus(uid, currentlyDisabled) {
 }
 
 function showAccessDenied() {
+  document.body.className = "";
   document.body.innerHTML = `
     <div style="
       display:flex;
@@ -462,18 +461,26 @@ function showAccessDenied() {
 }
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "./login.html";
-    return;
-  }
+  try {
+    if (!user) {
+      showAccessDenied();
+      return;
+    }
 
-  if (user.email !== ADMIN_EMAIL) {
+    const token = await user.getIdTokenResult(true);
+    if (token.claims.admin !== true) {
+      showAccessDenied();
+      return;
+    }
+
+    document.body.classList.remove('admin-pending');
+    document.body.classList.add('admin-authorized');
+    setStatus(`Logado como administrador: ${user.email}`);
+    await carregarUsuarios();
+  } catch (error) {
+    console.error('Falha ao verificar a permissão administrativa:', error);
     showAccessDenied();
-    return;
   }
-
-  setStatus(`Logado como administrador: ${user.email}`);
-  await carregarUsuarios();
 });
 
 const btnLogout = $("btnLogout");
@@ -759,4 +766,3 @@ carregarUsuarios = async function() {
   await originalCarregar();
   await window.loadSubjects();
 };
-

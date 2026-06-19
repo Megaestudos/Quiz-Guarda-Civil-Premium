@@ -4,8 +4,6 @@ const firebaseConfig = {
   projectId: "simulados-concursos-22c91"
 };
 
-const ADMIN_EMAIL = "lomateco@gmail.com";
-
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -18,14 +16,41 @@ const $ = (id) => document.getElementById(id);
 let todosConteudos = [];
 let hierarchy = {};
 
-auth.onAuthStateChanged(async (user) => {
-    if (!user || user.email !== ADMIN_EMAIL) {
-        window.location.href = "login.html";
-        return;
+function revealAdmin() {
+    document.body.classList.remove('admin-pending');
+    document.body.classList.add('admin-authorized');
+}
+
+async function denyAdminAccess() {
+    document.body.className = '';
+    document.body.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;background:#020617;color:#f8fafc;font:600 16px Inter,Arial,sans-serif">Acesso negado.</main>';
+    try {
+        await auth.signOut();
+    } finally {
+        window.location.replace('login.html');
     }
-    await loadHierarchy();
-    await loadResumosSelect();
-    window.loadMissoes();
+}
+
+auth.onAuthStateChanged(async (user) => {
+    try {
+        if (!user) {
+            await denyAdminAccess();
+            return;
+        }
+        const token = await user.getIdTokenResult(true);
+        if (token.claims.admin !== true) {
+            await denyAdminAccess();
+            return;
+        }
+        revealAdmin();
+        if (window.lucide) lucide.createIcons();
+        await loadHierarchy();
+        await loadResumosSelect();
+        await window.loadMissoes();
+    } catch (error) {
+        console.error('Falha ao verificar a permissão administrativa:', error);
+        await denyAdminAccess();
+    }
 });
 
 async function loadResumosSelect() {

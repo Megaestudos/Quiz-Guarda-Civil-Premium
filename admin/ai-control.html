@@ -27,7 +27,9 @@
         .node-connector { border-left: 2px dashed rgba(255,255,255,0.05); }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden admin-pending">
+    <div id="adminAuthGate" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#020617;color:#f8fafc;font:600 16px Inter,Arial,sans-serif;">Verificando permissão...</div>
+    <style>body.admin-pending > :not(#adminAuthGate){display:none!important}body.admin-authorized #adminAuthGate{display:none!important}</style>
 
     <!-- Sidebar (Shared) -->
     <aside class="w-64 border-r border-white/5 bg-[#020617] flex flex-col z-50">
@@ -164,8 +166,6 @@
 
     <script type="module" src="admin-v2-integration.js"></script>
     <script>
-        lucide.createIcons();
-
     </script>
 </body>
 </html>

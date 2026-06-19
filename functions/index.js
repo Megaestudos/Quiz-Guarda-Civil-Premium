@@ -1,5 +1,6 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { setGlobalOptions } = require('firebase-functions/v2');
+const { defineSecret } = require('firebase-functions/params');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
@@ -14,11 +15,10 @@ function getTodayBRT() {
 }
 
 const db = admin.firestore();
-const ADMIN_EMAIL = 'lomateco@gmail.com';
+const GEMINI_KEY = defineSecret('GEMINI_KEY');
 
 function assertAdmin(request) {
-  const email = request.auth?.token?.email;
-  if (!request.auth || email !== ADMIN_EMAIL) {
+  if (!request.auth?.token?.admin) {
     throw new HttpsError('permission-denied', 'Acesso restrito ao administrador.');
   }
 }
@@ -137,7 +137,7 @@ exports.toggleUserStatus = onCall({ maxInstances: 5 }, async (request) => {
 // ==========================================
 // 1. PROFESSOR AI (PLANO DE ESTUDOS)
 // ==========================================
-exports.askProfessorAI = onCall({ maxInstances: 10 }, async (request) => {
+exports.askProfessorAI = onCall({ maxInstances: 10, secrets: [GEMINI_KEY] }, async (request) => {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   
   if (!request.auth) throw new HttpsError('unauthenticated', 'É necessário estar logado.');
@@ -149,7 +149,7 @@ exports.askProfessorAI = onCall({ maxInstances: 10 }, async (request) => {
     throw new HttpsError('invalid-argument', 'Mensagem vazia.');
   }
 
-  const apiKey = process.env.GEMINI_KEY;
+  const apiKey = GEMINI_KEY.value();
   if (!apiKey) throw new HttpsError('failed-precondition', 'ALERTA_SEGREDO: GEMINI_KEY não configurada.');
 
   const userRef = db.collection('users').doc(uid);
@@ -222,7 +222,7 @@ No fluxo de 'study_plan':
 // ==========================================
 // 2. GERAÇÃO DE AULA DE REDAÇÃO (JSON RÍGIDO E CACHE GLOBAL)
 // ==========================================
-exports.generateEssayLesson = onCall({ maxInstances: 10, timeoutSeconds: 60 }, async (request) => {
+exports.generateEssayLesson = onCall({ maxInstances: 10, timeoutSeconds: 60, secrets: [GEMINI_KEY] }, async (request) => {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   if (!request.auth) throw new HttpsError('unauthenticated', 'É necessário estar logado.');
 
@@ -252,7 +252,7 @@ exports.generateEssayLesson = onCall({ maxInstances: 10, timeoutSeconds: 60 }, a
      }
 
      // Gerar nova via IA
-     const apiKey = process.env.GEMINI_KEY;
+     const apiKey = GEMINI_KEY.value();
      if (!apiKey) throw new HttpsError('failed-precondition', 'Chave de API ausente.');
      
      const genAI = new GoogleGenerativeAI(apiKey);
@@ -295,7 +295,7 @@ Retorne APENAS o JSON válido, sem markdown envolta.
 // ==========================================
 // 3. AVALIAÇÃO CIRÚRGICA DE REDAÇÃO (MICRO TAREFAS E FINAL)
 // ==========================================
-exports.evaluateEssayPart = onCall({ maxInstances: 10 }, async (request) => {
+exports.evaluateEssayPart = onCall({ maxInstances: 10, secrets: [GEMINI_KEY] }, async (request) => {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   if (!request.auth) throw new HttpsError('unauthenticated', 'Log-in obrigatório.');
 
@@ -315,7 +315,7 @@ exports.evaluateEssayPart = onCall({ maxInstances: 10 }, async (request) => {
       }
   }
 
-  const apiKey = process.env.GEMINI_KEY;
+  const apiKey = GEMINI_KEY.value();
   if (!apiKey) throw new HttpsError('failed-precondition', 'Chave ausente.');
 
   const genAI = new GoogleGenerativeAI(apiKey);
