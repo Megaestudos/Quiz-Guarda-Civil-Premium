@@ -380,6 +380,9 @@ button.opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: 
 
 @media (max-width: 600px) {
   body { padding-top: env(safe-area-inset-top); zoom: 1.12; }
+
+  /* Apenas o resumo em tela cheia da Jornada: remove a ampliação global no celular para o PDF caber sem cortes. */
+  body.summary-focus { zoom: 1; }
   .app { margin-top: 0; gap: 16px; }
   .card { padding: 16px; border-radius: 20px; }
   .header { padding: 16px; }
