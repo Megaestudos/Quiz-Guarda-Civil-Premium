@@ -28,14 +28,14 @@ window.showPage = window.go = function(id) {
   if (viewportMeta) {
     viewportMeta.content = "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0";
   }
-  
+
   // Esconde todas as sections com classe 'page'
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  
+
   // Mostra a alvo
   const target = document.getElementById(id);
   if (target) target.classList.add('active');
-  
+
   // Atualiza as tabs (se existirem)
   // Para Perfil e Dashboard (sem tab própria), não altera seleção
   const tabPageIds = ['home','jornada','resumos','quiz','prof-ai'];
@@ -75,7 +75,7 @@ window.showPage = window.go = function(id) {
   if(id === 'resumos' || id === 'study') renderStudies();
   if(id === 'cards') renderCards();
   if(id === 'quiz' && !quizStarted) showTopicSelection();
-  
+
   // Scroll para o topo
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -134,7 +134,7 @@ function updateXPUI() {
   const elNext = document.getElementById('xpNextRank');
   const elFill = document.getElementById('xpBarFill');
   const elRestante = document.getElementById('xpRestante');
-  
+
   const levelInfo = getLevelInfo(xp);
   const xpRestante = levelInfo.nextXP - xp;
 
@@ -143,7 +143,7 @@ function updateXPUI() {
   if(elRank) elRank.textContent = `Nível ${levelInfo.level}`;
   if(elNext) elNext.textContent = `Próximo: Nível ${levelInfo.level + 1}`;
   if(elRestante) elRestante.textContent = `faltam ${xpRestante} XP`;
-  
+
   if(elFill) {
     elFill.style.width = levelInfo.progressPct + '%';
   }
@@ -156,7 +156,7 @@ function addXP(amount) {
   localStorage.setItem(XP_KEY, xp);
   if (window.sincronizarCloud) window.sincronizarCloud();
   updateXPUI();
-  
+
 
 
   if(window.animarGanhoXP) window.animarGanhoXP(amount);
@@ -259,6 +259,579 @@ window.obterEstatisticasMateria = async function(materia) {
     return null;
   }
 };
+let MEDIA_CATALOG = [];
+
+window.getMateriasAulas = async function() {
+  const cached = sessionStorage.getItem('cache_materias_aulas');
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (parsed && Array.isArray(parsed)) return parsed;
+    } catch(e){}
+  }
+  const db = firebase.firestore();
+  const snap = await db.collection("materias_aulas").get();
+  const data = [];
+  snap.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+  sessionStorage.setItem('cache_materias_aulas', JSON.stringify(data));
+  return data;
+};
+
+window.initContentCMS = async function() {
+  try {
+    if(!window.firebase || !firebase.firestore) return setTimeout(window.initContentCMS, 500);
+    const dados = await window.getMateriasAulas();
+    MEDIA_CATALOG = dados;
+    console.log("CMS Aulas Carregado:", MEDIA_CATALOG.length, "matérias.");
+    if(typeof renderStudies === 'function') renderStudies();
+  } catch(e) { console.error("CMS Load Error:", e); }
+};
+window.initContentCMS();
+
+window.initJornadaCMS = async function() {
+  if(!window.firebase || !firebase.firestore) return setTimeout(window.initJornadaCMS, 500);
+  try {
+    const db = firebase.firestore();
+    const snap = await db.collection("jornada_missoes").get();
+    if (snap.empty) return;
+
+    const cmsMap = {};
+    snap.forEach(doc => {
+      if (doc.data().cms) cmsMap[doc.id] = doc.data().cms;
+    });
+
+    if (window.CARREIRAS) {
+      Object.values(window.CARREIRAS).forEach(c => {
+        if (c.modulos) {
+          c.modulos.forEach(mod => {
+            if (mod.missoes) {
+              mod.missoes.forEach(m => {
+                if (cmsMap[m.id]) m.cms = cmsMap[m.id];
+              });
+            }
+          });
+        }
+      });
+      console.log("Jornada CMS Carregado do Firebase.");
+    }
+  } catch(e) {
+    console.error("Erro ao carregar Jornada CMS:", e);
+  }
+};
+window.initJornadaCMS();
+
+const GITHUB_RESUMOS_BASE = './';
+
+// Estado de navegação de mídia
+let currentSubjectId = null;
+let currentMediaType = null; // 'video' | 'audio'
+
+// Funções de navegação entre as views da seção Estudar Leis
+function showStudyViews(viewId) {
+  ['studyView', 'mediaPicker', 'mediaListView', 'mediaPlayerView'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = (id === viewId) ? 'block' : 'none';
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.backToSubjects = function() {
+  stopCurrentMedia();
+  showStudyViews('studyView');
+};
+window.backToPicker = function() {
+  stopCurrentMedia();
+  showStudyViews('mediaPicker');
+};
+window.backToMediaList = function() {
+  stopCurrentMedia();
+  showStudyViews('mediaListView');
+};
+
+function stopCurrentMedia() {
+  // Para qualquer iframe ou áudio em reprodução
+  const pc = document.getElementById('playerContainer');
+  if (pc) pc.innerHTML = '';
+}
+
+function normalizarYoutubeId(valor) {
+  const entrada = String(valor || '').trim();
+  if (/^[A-Za-z0-9_-]{11}$/.test(entrada)) return entrada;
+
+  try {
+    const url = new URL(entrada);
+    const host = url.hostname.toLowerCase();
+    let id = '';
+    if (host === 'youtu.be' || host === 'www.youtu.be') {
+      id = url.pathname.split('/').filter(Boolean)[0] || '';
+    } else if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'www.youtube-nocookie.com', 'youtube-nocookie.com'].includes(host)) {
+      id = url.searchParams.get('v') || '';
+      if (!id) {
+        const partes = url.pathname.split('/').filter(Boolean);
+        if (['embed', 'shorts', 'live'].includes(partes[0])) id = partes[1] || '';
+      }
+    }
+    return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function obterUrlEmbedYoutube(valor) {
+  const youtubeId = normalizarYoutubeId(valor);
+  return youtubeId ? `https://www.youtube.com/embed/${youtubeId}?rel=0&playsinline=1` : null;
+}
+
+window.normalizarYoutubeId = normalizarYoutubeId;
+window.obterUrlEmbedYoutube = obterUrlEmbedYoutube;
+
+window.openSubject = function openSubject(subjectId) {
+  currentSubjectId = subjectId;
+  const subject = MEDIA_CATALOG.find(s => s.id === subjectId);
+  if (!subject) return;
+
+  // Atualiza título
+  const titleEl = document.getElementById('mediaPickerTitle');
+  titleEl.innerHTML = `<i class="ph-fill ${subject.icon}"></i> <span id="mPickerName"></span>`;
+  document.getElementById('mPickerName').textContent = subject.name;
+
+  // Atualiza contadores
+  const vCount = subject.videos ? subject.videos.length : 0;
+  const aCount = subject.audios ? subject.audios.length : 0;
+  const sCount = subject.slides ? subject.slides.length : 0;
+
+  document.getElementById('videoCount').textContent =
+    vCount > 0 ? `${vCount} aula${vCount !== 1 ? 's' : ''} disponível${vCount !== 1 ? 'is' : ''}` : 'Em breve';
+  document.getElementById('audioCount').textContent =
+    aCount > 0 ? `${aCount} aula${aCount !== 1 ? 's' : ''} disponível${aCount !== 1 ? 'is' : ''}` : 'Em breve';
+
+  const slideCountEl = document.getElementById('slideCount');
+  if(slideCountEl) {
+    slideCountEl.textContent = sCount > 0 ? `${sCount} aula${sCount !== 1 ? 's' : ''} disponível${sCount !== 1 ? 'is' : ''}` : 'Em breve';
+  }
+
+  // Link do resumo em texto
+  const resumoLink = document.getElementById('resumoTextLink');
+  if (resumoLink) {
+    if (subject.resumoFile) {
+      let file = subject.resumoFile.trim();
+      if (file.startsWith('http://') || file.startsWith('https://')) {
+        resumoLink.href = file;
+      } else {
+        if (file.startsWith('/')) {
+          file = file.substring(1);
+        }
+        resumoLink.href = `https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/${file}`;
+      }
+      resumoLink.style.opacity = '1';
+      resumoLink.style.pointerEvents = 'auto';
+      const countEl = resumoLink.querySelector('.media-type-count');
+      if (countEl) countEl.textContent = 'Abrir material de apoio';
+    } else {
+      resumoLink.href = 'https://megaestudos.github.io/Quiz-Guarda-Civil-Premium/resumos/index.html';
+      resumoLink.style.opacity = '0.5';
+      resumoLink.style.pointerEvents = 'none';
+      const countEl = resumoLink.querySelector('.media-type-count');
+      if (countEl) countEl.textContent = 'Em breve';
+    }
+  }
+
+  // Desabilita botões sem conteúdo
+  const videoBtn = document.querySelector('.video-btn');
+  const audioBtn = document.querySelector('.audio-btn');
+  const slideBtn = document.querySelector('.slide-btn');
+  if (videoBtn) videoBtn.style.opacity = vCount > 0 ? '1' : '0.5';
+  if (audioBtn) audioBtn.style.opacity = aCount > 0 ? '1' : '0.5';
+  if (slideBtn) slideBtn.style.opacity = sCount > 0 ? '1' : '0.5';
+
+  showStudyViews('mediaPicker');
+}
+
+window.showMediaList = function(type) {
+  const subject = MEDIA_CATALOG.find(s => s.id === currentSubjectId);
+  if (!subject) return;
+
+  currentMediaType = type;
+  const items = type === 'video' ? (subject.videos || []) : (type === 'audio' ? (subject.audios || []) : (subject.slides || []));
+
+  // Atualiza título
+  let icon = 'ph-video';
+  let label = 'Aulas em Vídeo';
+  if (type === 'audio') { icon = 'ph-headphones'; label = 'Aulas em Áudio'; }
+  else if (type === 'slide') { icon = 'ph-presentation-chart'; label = 'Slides em PDF'; }
+
+  const listTitleEl = document.getElementById('mediaListTitle');
+  listTitleEl.innerHTML = `<i class="ph-fill ${icon}"></i> <span id="mListLabelText"></span> — <span id="mListSubjName"></span>`;
+  document.getElementById('mListLabelText').textContent = label;
+  document.getElementById('mListSubjName').textContent = subject.name;
+
+  // Renderiza lista
+  const listEl = document.getElementById('mediaItemsList');
+  listEl.innerHTML = '';
+
+  if (items.length === 0) {
+    let emptyIcon = type === 'video' ? 'video-camera-slash' : (type === 'audio' ? 'speaker-slash' : 'presentation-chart');
+    listEl.innerHTML = `
+      <div class="media-empty-state">
+        <i class="ph ph-${emptyIcon}"></i>
+        <h4>Conteúdo em breve</h4>
+        <p>As ${label.toLowerCase()} de <strong>${subject.name}</strong> estão sendo preparadas e serão disponibilizadas em breve.</p>
+      </div>`;
+    showStudyViews('mediaListView');
+    return;
+  }
+
+  items.forEach((item, index) => {
+    const youtubeId = normalizarYoutubeId(item.youtubeId || (type === 'video' ? item.url : ''));
+    const card = document.createElement('div');
+    card.className = 'media-item-card';
+    card.innerHTML = `
+      <div class="media-item-thumb ${type === 'audio' ? 'audio-thumb' : ''} ${type === 'slide' ? 'slide-thumb' : ''}">
+        ${youtubeId
+          ? `<img src="https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg" alt="" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ${icon}\\'></i>'">`
+          : `<i class="ph-fill ${icon}"></i>`
+        }
+        <div class="media-play-overlay"><i class="ph-fill ph-play-circle"></i></div>
+      </div>
+      <div class="media-item-info">
+        <div class="media-item-num">Aula ${index + 1}</div>
+        <div class="media-item-title" id="mItemTitle_${index}"></div>
+        ${item.duration ? `<div class="media-item-dur"><i class="ph ph-clock"></i> <span id="mItemDur_${index}"></span></div>` : ''}
+      </div>
+      <i class="ph ph-caret-right media-item-arrow"></i>
+    `;
+    card.querySelector(`#mItemTitle_${index}`).textContent = item.title;
+    if(item.duration) card.querySelector(`#mItemDur_${index}`).textContent = item.duration;
+    card.onclick = () => openMediaPlayer(item, type);
+    listEl.appendChild(card);
+  });
+
+  showStudyViews('mediaListView');
+};
+
+function openMediaPlayer(item, type) {
+  const subject = MEDIA_CATALOG.find(s => s.id === currentSubjectId);
+  const playerTitle = document.getElementById('playerTitle');
+  const icon = type === 'video' ? 'video' : (type === 'audio' ? 'headphones' : 'presentation-chart');
+  playerTitle.innerHTML = `<i class="ph-fill ph-${icon}"></i> <span id="pTitleText"></span>`;
+  document.getElementById('pTitleText').textContent = item.title;
+
+  const pc = document.getElementById('playerContainer');
+  pc.innerHTML = '';
+
+  const youtubeEmbedUrl = obterUrlEmbedYoutube(item.youtubeId || (type === 'video' ? item.url : ''));
+  if (youtubeEmbedUrl) {
+    const avisoArquivoLocal = window.location.protocol === 'file:'
+      ? '<div style="margin:0 0 12px;padding:10px 12px;border:1px solid rgba(245,158,11,.35);border-radius:10px;color:#FCD34D;background:rgba(245,158,11,.1);font-size:13px;">Para testar vídeos do YouTube, use o link publicado do app.</div>'
+      : '';
+    // Player YouTube embutido
+    pc.innerHTML = `
+      ${avisoArquivoLocal}
+      <div class="yt-player-wrapper">
+        <iframe
+          src="${youtubeEmbedUrl}"
+          title="Player do YouTube"
+          frameborder="0"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div class="player-info-box">
+        <div class="player-subject-tag"><i class="ph-fill ${subject.icon}"></i> ${subject.name}</div>
+        <h4 class="player-item-title">${item.title}</h4>
+        ${item.duration ? `<div class="player-duration"><i class="ph ph-clock"></i> Duração: ${item.duration}</div>` : ''}
+      </div>`;
+  } else if (item.url) {
+    if (type === 'audio') {
+      // Player de áudio nativo
+      pc.innerHTML = `
+        <div class="audio-player-wrapper">
+          <div class="audio-player-art">
+            <i class="ph-fill ph-waveform"></i>
+          </div>
+          <div class="audio-player-info">
+            <div class="player-subject-tag"><i class="ph-fill ${subject.icon}"></i> ${subject.name}</div>
+            <h4 class="player-item-title">${item.title}</h4>
+            ${item.duration ? `<div class="player-duration"><i class="ph ph-clock"></i> Duração: ${item.duration}</div>` : ''}
+          </div>
+          <audio id="audioPlayer" controls autoplay style="width:100%; margin-top:20px; border-radius:12px;">
+            <source src="${item.url}" type="audio/mpeg">
+            <source src="${item.url}" type="audio/ogg">
+            Seu navegador não suporta áudio HTML5.
+          </audio>
+        </div>`;
+    } else if (type === 'slide') {
+      // PDF nativo via iframe
+      let pdfUrl = item.url;
+      if (pdfUrl && pdfUrl.includes('drive.google.com') && pdfUrl.includes('/view')) {
+        pdfUrl = pdfUrl.replace(/\/view.*$/, '/preview');
+      }
+
+      // Habilitar pinch-to-zoom para o PDF
+      const viewportMeta = document.querySelector('meta[name="viewport"]');
+      if (viewportMeta) {
+        viewportMeta.content = "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5, user-scalable=yes";
+      }
+
+      pc.innerHTML = `
+        <div class="pdf-player-wrapper" style="width:100%; height:70vh; border-radius:12px; overflow:hidden; margin-bottom: 16px;">
+          <iframe src="${pdfUrl}" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
+        </div>
+        <div class="player-info-box">
+          <div class="player-subject-tag"><i class="ph-fill ${subject.icon}"></i> ${subject.name}</div>
+          <h4 class="player-item-title">${item.title}</h4>
+        </div>`;
+    } else {
+      // Vídeo direto (não YouTube)
+      pc.innerHTML = `
+        <div class="yt-player-wrapper">
+          <video controls autoplay playsinline style="width:100%; border-radius:16px; background:#000;">
+            <source src="${item.url}" type="video/mp4">
+          </video>
+        </div>
+        <div class="player-info-box">
+          <div class="player-subject-tag"><i class="ph-fill ${subject.icon}"></i> ${subject.name}</div>
+          <h4 class="player-item-title">${item.title}</h4>
+        </div>`;
+    }
+  }
+
+  showStudyViews('mediaPlayerView');
+}
+
+// ─── Biblioteca: estado de filtro ─────────────────────────────────────────────
+let _bibliotecaFiltroAtivo = 'todas';
+const BIBLIOTECA_FAVORITOS_KEY = 'biblioteca_favoritos';
+const BIBLIOTECA_RECENTES_KEY  = 'biblioteca_recentes';
+
+function getLibraryFavoritos() {
+  try { return JSON.parse(localStorage.getItem(BIBLIOTECA_FAVORITOS_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function getLibraryRecentes() {
+  try { return JSON.parse(localStorage.getItem(BIBLIOTECA_RECENTES_KEY) || '[]'); } catch(e) { return []; }
+}
+
+window.trackRecentSubject = function(subjectId) {
+  try {
+    let recentes = getLibraryRecentes();
+    recentes = recentes.filter(id => id !== subjectId);
+    recentes.unshift(subjectId);
+    recentes = recentes.slice(0, 5);
+    localStorage.setItem(BIBLIOTECA_RECENTES_KEY, JSON.stringify(recentes));
+  } catch(e) {}
+};
+
+window.toggleFavorite = function(subjectId, e) {
+  e && e.stopPropagation();
+  try {
+    let favs = getLibraryFavoritos();
+    const idx = favs.indexOf(subjectId);
+    if (idx >= 0) favs.splice(idx, 1);
+    else favs.push(subjectId);
+    localStorage.setItem(BIBLIOTECA_FAVORITOS_KEY, JSON.stringify(favs));
+    renderStudies(_bibliotecaFiltroAtivo);
+  } catch(err) {}
+};
+
+window.setLibraryFilter = function(filtro) {
+  _bibliotecaFiltroAtivo = filtro;
+  // Atualiza visual dos botões
+  ['todas','favoritos','estudadas','recentes'].forEach(f => {
+    const btn = document.getElementById('bfb-' + f);
+    if (btn) btn.classList.toggle('bfb-active', f === filtro);
+  });
+  renderStudies(filtro);
+};
+
+async function renderStudies(filtro) {
+  filtro = filtro || _bibliotecaFiltroAtivo || 'todas';
+  const container = document.getElementById('studyList');
+  if (!container) return;
+
+  if (!MEDIA_CATALOG.length) {
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)"><i class="ph ph-spinner-gap ph-spin" style="font-size:24px;"></i><br><br>Carregando matérias...</div>';
+    return;
+  }
+
+  try {
+    container.innerHTML = '';
+
+    // Define quais subjects exibir conforme filtro (para todas, recentes, estudadas)
+    let subjects = [...MEDIA_CATALOG];
+    const recentes = getLibraryRecentes();
+
+    if (filtro === 'favoritos') {
+      let favsUnificados = {};
+      try { favsUnificados = JSON.parse(localStorage.getItem('plenAula_favoritos') || '{}'); } catch(e) {}
+      const lista = Object.values(favsUnificados).sort((a, b) => b.ts - a.ts);
+
+      if (lista.length === 0) {
+        container.innerHTML = `
+          <div class="biblioteca-empty-state">
+            <i class="ph ph-star"></i>
+            <p>Você ainda não marcou favoritos.<br>Clique na ★ em matérias, flashcards ou aulas para salvá-los aqui.</p>
+          </div>`;
+        return;
+      }
+
+      const icones = { materia: 'ph-books', flashcard: 'ph-cards', aula: 'ph-video', missao: 'ph-map-pin' };
+      const cores  = { materia: '#3B82F6', flashcard: '#F59E0B', aula: '#8B5CF6', missao: '#10B981' };
+
+      // Aplicar estilo de grid para os itens de favorito se quiser, ou usar o estilo de lista fav-item
+      // Vamos reutilizar fav-item que já existe no CSS legado.
+      container.innerHTML = lista.map(f => `
+        <div class="fav-item" onclick="${f.tipo === 'materia' ? `openSubject('${f.id}')` : f.tipo === 'flashcard' ? `go('cards')` : ''}" style="cursor:pointer; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 14px;">
+          <div class="fav-item-icon" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; background:${cores[f.tipo] || '#7C3AED'}22; border: 1px solid ${cores[f.tipo] || '#7C3AED'}44;">
+            <i class="ph-fill ${icones[f.tipo] || 'ph-star'}" style="color:${cores[f.tipo] || '#7C3AED'};"></i>
+          </div>
+          <div class="fav-item-info" style="flex: 1; min-width: 0;">
+            <div class="fav-item-nome" style="font-size: 15px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${f.nome}</div>
+            <div class="fav-item-tipo" style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">${f.tipo.charAt(0).toUpperCase() + f.tipo.slice(1)}</div>
+          </div>
+          <button class="fav-star-btn fav-ativo" data-fav-key="${f.tipo}_${f.id}"
+            onclick="event.stopPropagation(); if(window.toggleFavorito) { window.toggleFavorito('${f.tipo}', '${f.id}', '${f.nome.replace(/'/g, "\\'")}'); renderStudies('favoritos'); }"
+            style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #F59E0B; cursor: pointer;">
+            <i class="ph-fill ph-star" style="font-size: 20px;"></i>
+          </button>
+        </div>
+      `).join('');
+
+      // Adicionar CSS grid para que fique em 2 colunas no desktop, igual matérias
+      container.style.display = 'grid';
+      container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+      container.style.gap = '16px';
+
+      return;
+    } else if (filtro === 'recentes') {
+      subjects = recentes
+        .map(id => subjects.find(s => s.id === id))
+        .filter(Boolean);
+    } else if (filtro === 'estudadas') {
+      let tStats = {};
+      try { tStats = JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}'); } catch(e) {}
+      subjects = subjects.sort((a, b) => {
+        const sa = tStats[a.name] || { t: 0 };
+        const sb = tStats[b.name] || { t: 0 };
+        return (sb.t || 0) - (sa.t || 0);
+      });
+    }
+
+    // Exibe empty state se filtro não tiver resultados
+    if (subjects.length === 0) {
+      let emptyMsg = 'Nenhuma matéria nesta categoria.';
+      let emptyIcon = 'ph-magnifying-glass';
+      if (filtro === 'recentes')  { emptyMsg = 'Você ainda não acessou nenhuma matéria.'; emptyIcon = 'ph-clock-clockwise'; }
+      if (filtro === 'estudadas') { emptyMsg = 'Responda questões para ver as mais estudadas.'; emptyIcon = 'ph-chart-bar'; }
+      container.innerHTML = `
+        <div class="biblioteca-empty-state">
+          <i class="ph ${emptyIcon}"></i>
+          <p>${emptyMsg.replace('\n','<br>')}</p>
+        </div>`;
+      return;
+    }
+
+    container.style.display = 'grid';
+    container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+    container.style.gap = '16px';
+
+    subjects.forEach(subject => {
+      const vCount = subject.videos ? subject.videos.length : 0;
+      const aCount = subject.audios ? subject.audios.length : 0;
+      const sCount = subject.slides ? subject.slides.length : 0;
+      const totalMedia = vCount + aCount + sCount;
+      const isFav = window.isFavorito ? window.isFavorito('materia', subject.id) : false;
+
+      const card = document.createElement('div');
+      card.className = 'resumo-card' + (isFav ? ' favorito' : '');
+      card.innerHTML = `
+        <div class="resumo-icon"><i class="ph-fill ${subject.icon}"></i></div>
+        <div class="resumo-info">
+          <h4>${subject.name}</h4>
+          <p>${totalMedia > 0
+            ? `${vCount} vídeo${vCount !== 1 ? 's' : ''} · ${aCount} áudio${aCount !== 1 ? 's' : ''}${sCount > 0 ? ` · ${sCount} slide${sCount !== 1 ? 's' : ''}` : ''}`
+            : 'Resumo + Mídia'}</p>
+        </div>
+        <button class="resumo-fav-btn${isFav ? ' ativo' : ''}" onclick="event.stopPropagation(); if(window.toggleFavorito) { window.toggleFavorito('materia', '${subject.id}', '${subject.name.replace(/'/g, "\\'")}'); renderStudies('${filtro}'); }" title="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
+          <i class="${isFav ? 'ph-fill ph-star' : 'ph ph-star'}"></i>
+        </button>
+        <div class="resumo-action"><i class="ph ph-arrow-right"></i></div>
+      `;
+      card.onclick = () => {
+        trackRecentSubject(subject.id);
+        openSubject(subject.id);
+      };
+      container.appendChild(card);
+    });
+  } catch (e) {
+    console.error(e);
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger)">Erro ao carregar matérias.</div>';
+  }
+}
+
+
+async function showTopicSelection(){
+  try {
+    const motivacionais = [
+      "O sucesso é a soma de pequenos esforços repetidos dia após dia.",
+      "A persistência é o caminho do êxito.",
+      "Estude com dedicação e verá os resultados.",
+      "Não pare até se orgulhar.",
+      "A dor de estudar é passageira, mas a glória da aprovação é eterna.",
+      "Seu futuro é criado pelo que você faz hoje, não amanhã.",
+      "Foco, força e fé rumo à aprovação a Guarda Civil!",
+      "Cada questão resolvida é um passo a mais para sua posse."
+    ];
+    const motivacionalEl = document.getElementById('motivationalText');
+    if (motivacionalEl) {
+      motivacionalEl.textContent = motivacionais[Math.floor(Math.random() * motivacionais.length)];
+    }
+
+    const select = document.getElementById('topicSelect');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">Carregando tópicos...</option>';
+
+    try {
+      const db = getFirestoreDb();
+      const snap = await db.collection('materias').get();
+
+      select.innerHTML = '<option value="Todos">Todas as Matérias</option>';
+
+      let materias = [];
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d.ativo !== false) {
+          materias.push({ nome: d.nome, ordem: d.ordem || 99 });
+        }
+      });
+
+      materias.sort((a, b) => a.ordem - b.ordem);
+
+      materias.forEach(m => {
+        const nome = (m.nome || '').toString().trim();
+        if (nome) select.innerHTML += `<option value="${nome}">${nome}</option>`;
+      });
+
+      if (materias.length === 0) {
+          console.warn("Aviso: Nenhuma matéria encontrada no banco.");
+      }
+    } catch (err) {
+      console.error("Erro ao carregar tópicos:", err);
+      select.innerHTML = '<option value="Todos">Todas as Matérias (Erro ao Carregar)</option>';
+    }
+
+    // Renderiza o histórico na nova UI
+    renderSimuladoHistory();
+
+  } catch (e) {}
+}
+
+
+window.renderStudies = renderStudies;
+window.showTopicSelection = showTopicSelection;
+
 async function loadTopicQuestions(topic) {
   isGrandeDia = false;
   if (grandeDiaInterval) { clearInterval(grandeDiaInterval); grandeDiaInterval = null; }
@@ -313,10 +886,10 @@ function renderQuestion(){
     const spanLetter = document.createElement('span');
     spanLetter.style.cssText = "font-weight:800; color:var(--primary); min-width:24px;";
     spanLetter.textContent = `${letter})`;
-    
+
     const spanText = document.createElement('span');
     spanText.textContent = txt;
-    
+
     btn.appendChild(spanLetter);
     btn.appendChild(spanText);
     btn.onclick = () => selectOption(letter);
@@ -327,7 +900,7 @@ function renderQuestion(){
   document.getElementById('bar').style.width = pct + '%';
   document.getElementById('progressInfo').innerText = POOL.length ? `${currentIndex + 1} / ${POOL.length}` : '0 / 0';
   document.getElementById('progressText').textContent = `Pontos: ${score}`;
-  
+
   document.getElementById('sheetNextBtn').style.display = (currentIndex < POOL.length - 1) ? 'block' : 'none';
   document.getElementById('sheetFinishBtn').style.display = (currentIndex === POOL.length - 1) ? 'block' : 'none';
 }
@@ -336,10 +909,10 @@ function selectOption(letter){
   const q = POOL[currentIndex];
   const correct = q_answer_letter(q);
   document.querySelectorAll('.opt').forEach(b => b.disabled = true);
-  
+
   const elCorrect = document.getElementById('opt_' + correct);
   if (elCorrect) elCorrect.classList.add('correct');
-  
+
   const isCorrect = (letter === correct);
 
   // Gamificação: Salvar estatísticas
@@ -353,7 +926,7 @@ function selectOption(letter){
     if(window.syncGamificationToCloud) window.syncGamificationToCloud();
     if (window.atualizarEstatisticasMateria) void window.atualizarEstatisticasMateria(topStr, isCorrect);
   } catch(e) {}
-  
+
   if (!isCorrect) {
     const chosen = document.getElementById('opt_' + letter);
     if (chosen) chosen.classList.add('wrong');
@@ -362,10 +935,10 @@ function selectOption(letter){
     score++;
     playCorrect();
   }
-  
+
   const iconHtml = isCorrect ? '<i class="ph-fill ph-check-circle"></i> Acertou!' : '<i class="ph-fill ph-x-circle"></i> Errou!';
   const colorClass = isCorrect ? 'var(--success)' : 'var(--danger)';
-  
+
   const explBody = document.getElementById('explainBody');
   explBody.innerHTML = `
     <div id="explTitle" style="font-size: 24px; font-weight:800; display:flex; align-items:center; gap:8px; margin-bottom: 12px;"></div>
@@ -374,7 +947,7 @@ function selectOption(letter){
   const explTitle = document.getElementById('explTitle');
   explTitle.style.color = colorClass;
   explTitle.innerHTML = iconHtml;
-  
+
   document.getElementById('explText').textContent = q_expl(q) || 'Nenhuma explicação técnica fornecida para esta questão.';
   document.getElementById('explainSheet').classList.add('show');
 }
@@ -403,13 +976,13 @@ window.quitQuiz = function(){
   document.getElementById('btnQuit').style.display = 'block';
   document.getElementById('quizSetup').style.display = 'block';
   document.getElementById('quizActive').style.display = 'none';
-  
+
   // Reseta para o dashboard de simulados
   if(document.getElementById('simuladosDashboard')) {
       document.getElementById('simuladosDashboard').style.display = 'flex';
       document.getElementById('classicTopicSelection').style.display = 'none';
   }
-  
+
   showTopicSelection();
 }
 
@@ -428,7 +1001,7 @@ function finishQuiz(){
   document.getElementById('opts').innerHTML = '';
   document.getElementById('btnRestart').style.display = 'block';
   document.getElementById('btnQuit').style.display = 'none';
-  
+
   // Salva no histórico para a nova UI
   const timeOnSeconds = simulationStartTime ? Math.floor((Date.now() - simulationStartTime) / 1000) : 0;
   const selectedTopic = document.getElementById('topicSelect')?.value || 'Geral';
@@ -448,10 +1021,10 @@ function saveRecord(s, t){
   if(!t) return;
   const pct = Math.round((s/t)*100);
   const prev = JSON.parse(localStorage.getItem(BEST_KEY) || '{"pct":-1}');
-  
+
   registerStudyDay();
   addXP(s * 10); // 10 XP por acerto
-  
+
   if (pct > prev.pct) {
     localStorage.setItem(BEST_KEY, JSON.stringify({score:s, total:t, pct:pct}));
     if(window.syncGamificationToCloud) window.syncGamificationToCloud();
@@ -465,8 +1038,8 @@ function showBestRecord(){
   const rec = JSON.parse(localStorage.getItem(BEST_KEY));
   const el = document.getElementById('bestRecord');
   if (el) {
-    el.innerHTML = rec 
-      ? `<i class="ph-fill ph-trophy"></i> Recorde: ${rec.score}/${rec.total} (${rec.pct}%)` 
+    el.innerHTML = rec
+      ? `<i class="ph-fill ph-trophy"></i> Recorde: ${rec.score}/${rec.total} (${rec.pct}%)`
       : '<i class="ph ph-rocket"></i> Faça seu primeiro simulado.';
   }
 }
@@ -477,7 +1050,7 @@ async function renderCards(){
   try {
     const db = getFirestoreDb();
     let list = [];
-    
+
     // Tenta buscar da coleção "flashcards"
     let snap = await db.collection('flashcards').get();
     snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
@@ -540,14 +1113,14 @@ function setupTinderSwipe(){
 
 function makeSwipeable(el) {
   let startX = 0, currentX = 0, isDragging = false;
-  
+
   el.onpointerdown = (e) => {
     isDragging = false;
     startX = e.clientX;
     el.style.transition = 'none';
     el.setPointerCapture(e.pointerId);
   };
-  
+
   el.onpointermove = (e) => {
     if (!el.hasPointerCapture(e.pointerId)) return;
     currentX = e.clientX - startX;
@@ -555,18 +1128,18 @@ function makeSwipeable(el) {
     if (!isDragging) return;
     el.style.transform = `translate(${currentX}px, 0) rotate(${currentX * 0.05}deg)`;
   };
-  
+
   const handleEnd = (e) => {
     if (!el.hasPointerCapture(e.pointerId)) return;
     el.releasePointerCapture(e.pointerId);
-    
+
     el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease';
-    
+
     if (!isDragging) {
       el.style.transform = 'scale(1) translateY(0)';
       return;
     }
-    
+
     if (Math.abs(currentX) > window.innerWidth * 0.25 || Math.abs(currentX) > 80) {
       const dir = currentX > 0 ? 1 : -1;
       el.style.transform = `translate(${dir * window.innerWidth}px, 0) rotate(${dir * 30}deg)`;
@@ -583,7 +1156,7 @@ function makeSwipeable(el) {
 
   el.onpointerup = handleEnd;
   el.onpointercancel = handleEnd;
-  
+
   el.onclick = () => {
     if(!isDragging) {
       const inner = el.querySelector('.flash-inner');
@@ -753,7 +1326,7 @@ window.startGrandeDia = async function() {
   document.getElementById('quizTimerContainer').style.display = 'flex';
   document.body.classList.add('quiz-focus');
   document.getElementById('question').innerHTML = '<div class="empty-state"><i class="ph ph-spinner-gap ph-spin"></i><p>Preparando O Grande Dia...</p></div>';
-  
+
   simulationStartTime = Date.now();
 
   try {
@@ -761,7 +1334,7 @@ window.startGrandeDia = async function() {
       getFirestoreDb().collection('questoes').where('ativo', '==', true),
       100
     );
-    
+
     currentIndex = 0; score = 0; quizStarted = true; isGrandeDia = true;
     startTimer(3 * 60 * 60); // 3 horas em segundos
     renderQuestion();
@@ -775,7 +1348,7 @@ function startTimer(duration) {
   const display = document.getElementById('quizTimerDisplay');
   display.style.color = 'var(--text-main, #ffffff)'; // Reset color
   if(grandeDiaInterval) clearInterval(grandeDiaInterval);
-  
+
   grandeDiaInterval = setInterval(function () {
       let hours = parseInt(timer / 3600, 10);
       let minutes = parseInt((timer % 3600) / 60, 10);
@@ -786,7 +1359,7 @@ function startTimer(duration) {
       seconds = seconds < 10 ? "0" + seconds : seconds;
 
       display.textContent = hours + ":" + minutes + ":" + seconds;
-      
+
       if (timer <= 300) { display.style.color = '#ff0000'; } // Perto do fim (5 min)
 
       if (--timer < 0) {
@@ -804,12 +1377,12 @@ window.renderStatsChart = function() {
   if(!container) return;
   const tStats = JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}');
   const topics = Object.keys(tStats);
-  
+
   if (topics.length === 0) {
     container.innerHTML = '<div style="text-align:center; color: var(--text-muted); font-size: 14px;">Responda questões para gerar estatísticas.</div>';
     return;
   }
-  
+
   container.innerHTML = '';
   // Ordena os que mais respondeu primeiro
   topics.sort((a,b) => tStats[b].t - tStats[a].t).forEach(topic => {
@@ -892,7 +1465,7 @@ function saveToSimuladoHistory(score, total, timeOnSeconds) {
   try {
     const history = JSON.parse(localStorage.getItem('quiz_detailed_history') || '[]');
     const selectedTopic = document.getElementById('topicSelect').value || "Geral";
-    
+
     let displayTitle = "Simulado Geral";
     if (isGrandeDia) {
       displayTitle = "Simulado Completo";
@@ -914,7 +1487,7 @@ function saveToSimuladoHistory(score, total, timeOnSeconds) {
       isGrandeDia: isGrandeDia,
       timeSpent: timeOnSeconds || 0
     };
-    
+
     // Adiciona ao topo e limita a 10 registros
     history.unshift(newEntry);
     localStorage.setItem('quiz_detailed_history', JSON.stringify(history.slice(0, 10)));
@@ -937,9 +1510,9 @@ function formatTime(seconds) {
 window.renderSimuladoHistory = function() {
   const container = document.getElementById('simuladoHistoryList');
   if (!container) return;
-  
+
   const history = JSON.parse(localStorage.getItem('quiz_detailed_history') || '[]');
-  
+
   if (history.length === 0) {
     container.innerHTML = `
       <div style="text-align:center; padding:40px; color:var(--text-muted);">
@@ -949,7 +1522,7 @@ window.renderSimuladoHistory = function() {
     `;
     return;
   }
-  
+
   container.innerHTML = '';
   // Mostra apenas os 3 últimos no dashboard
   history.slice(0, 3).forEach(item => {
@@ -975,7 +1548,7 @@ window.renderSimuladoHistory = function() {
           </div>
           <div class="status-badge ${statusClass}">${statusText}</div>
         </div>
-        
+
         <div class="history-stats-grid">
           <div class="stat-item-premium">
             <span class="stat-item-label">Nota</span>
@@ -986,11 +1559,11 @@ window.renderSimuladoHistory = function() {
             <span class="stat-item-value">${item.score}/${item.total}</span>
           </div>
         </div>
-        
+
         <div class="premium-progress-track">
           <div class="premium-progress-bar ${colorClass}" style="width: ${item.pct}%"></div>
         </div>
-        
+
         <div class="history-item-footer">
           <i class="ph ph-calendar"></i> Realizado em ${item.date}
         </div>
