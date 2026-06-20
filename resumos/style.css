@@ -627,4 +627,10 @@ footer .sub { font-size: 12px; opacity: 0.6; }
     
     /* Touch target improvements */
     .back-button, .accordion-header { padding: 15px 20px; font-size: 16px; }
+
+    /* Desloca conteúdo levemente para a esquerda no smartphone */
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 }
