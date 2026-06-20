@@ -483,26 +483,50 @@ function renderEtapa1() {
 
   if (url) {
     if (tipo === 'video') {
-      let embedUrl = url;
-      if (url.includes('youtube.com/watch?v=')) {
-        embedUrl = url.replace('watch?v=', 'embed/');
-      } else if (url.includes('youtu.be/')) {
-        embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
+      const youtubeId = typeof window.normalizarYoutubeId === 'function'
+        ? window.normalizarYoutubeId(url)
+        : null;
+      const embedUrl = typeof window.obterUrlEmbedYoutube === 'function'
+        ? window.obterUrlEmbedYoutube(url)
+        : null;
+      const diagnosticoAtivo = window.location.hostname === 'localhost'
+        || window.location.hostname.endsWith('.web.app');
+      if (diagnosticoAtivo) {
+        console.log('[JORNADA_VIDEO_DEBUG]', {
+          valorOriginal: url,
+          embedFinal: embedUrl,
+          youtubeIdExtraido: youtubeId,
+          location: window.location.href
+        });
       }
-      mediaHTML = `
+      const diagnosticoHtml = diagnosticoAtivo && embedUrl
+        ? `<div style="margin-top:8px;color:var(--text-muted);font-size:12px;word-break:break-all;">URL embed usada: ${embedUrl}</div>`
+        : '';
+      const avisoArquivoLocal = window.location.protocol === 'file:'
+        ? '<div style="margin:0 0 12px;padding:10px 12px;border:1px solid rgba(245,158,11,.35);border-radius:10px;color:#FCD34D;background:rgba(245,158,11,.1);font-size:13px;">Para testar vídeos do YouTube, use o link publicado do app.</div>'
+        : '';
+      mediaHTML = embedUrl ? `
         <div class="mf-secao">
           <div class="mf-secao-titulo"><i class="ph-fill ph-video" style="color:#8B5CF6;"></i> Aula em Vídeo</div>
+          ${avisoArquivoLocal}
           <div class="mf-yt-wrap">
             <iframe
               src="${embedUrl}"
-              title="${missao.nome}"
+              title="Player do YouTube"
               frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowfullscreen>
             </iframe>
           </div>
+          ${diagnosticoHtml}
           <div class="mf-video-titulo">${missao.nome}</div>
           <div class="text-sm text-gray-400 mt-2">${missao.descricao || ''}</div>
+        </div>`
+      : `
+        <div class="mf-secao">
+          <div class="mf-secao-titulo"><i class="ph-fill ph-video" style="color:#8B5CF6;"></i> Aula em Vídeo</div>
+          <div class="mf-empty-state"><p>Vídeo do YouTube inválido ou não autorizado.</p></div>
         </div>`;
     } else if (tipo === 'audio') {
       mediaHTML = `

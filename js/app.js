@@ -355,6 +355,37 @@ function stopCurrentMedia() {
   if (pc) pc.innerHTML = '';
 }
 
+function normalizarYoutubeId(valor) {
+  const entrada = String(valor || '').trim();
+  if (/^[A-Za-z0-9_-]{11}$/.test(entrada)) return entrada;
+
+  try {
+    const url = new URL(entrada);
+    const host = url.hostname.toLowerCase();
+    let id = '';
+    if (host === 'youtu.be' || host === 'www.youtu.be') {
+      id = url.pathname.split('/').filter(Boolean)[0] || '';
+    } else if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'www.youtube-nocookie.com', 'youtube-nocookie.com'].includes(host)) {
+      id = url.searchParams.get('v') || '';
+      if (!id) {
+        const partes = url.pathname.split('/').filter(Boolean);
+        if (['embed', 'shorts', 'live'].includes(partes[0])) id = partes[1] || '';
+      }
+    }
+    return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function obterUrlEmbedYoutube(valor) {
+  const youtubeId = normalizarYoutubeId(valor);
+  return youtubeId ? `https://www.youtube.com/embed/${youtubeId}?rel=0&playsinline=1` : null;
+}
+
+window.normalizarYoutubeId = normalizarYoutubeId;
+window.obterUrlEmbedYoutube = obterUrlEmbedYoutube;
+
 window.openSubject = function openSubject(subjectId) {
   currentSubjectId = subjectId;
   const subject = MEDIA_CATALOG.find(s => s.id === subjectId);
@@ -452,12 +483,13 @@ window.showMediaList = function(type) {
   }
 
   items.forEach((item, index) => {
+    const youtubeId = normalizarYoutubeId(item.youtubeId || (type === 'video' ? item.url : ''));
     const card = document.createElement('div');
     card.className = 'media-item-card';
     card.innerHTML = `
       <div class="media-item-thumb ${type === 'audio' ? 'audio-thumb' : ''} ${type === 'slide' ? 'slide-thumb' : ''}">
-        ${item.youtubeId
-          ? `<img src="https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg" alt="" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ${icon}\\'></i>'">`
+        ${youtubeId
+          ? `<img src="https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg" alt="" onerror="this.parentElement.innerHTML='<i class=\\'ph-fill ${icon}\\'></i>'">`
           : `<i class="ph-fill ${icon}"></i>`
         }
         <div class="media-play-overlay"><i class="ph-fill ph-play-circle"></i></div>
@@ -488,14 +520,20 @@ function openMediaPlayer(item, type) {
   const pc = document.getElementById('playerContainer');
   pc.innerHTML = '';
 
-  if (item.youtubeId) {
+  const youtubeEmbedUrl = obterUrlEmbedYoutube(item.youtubeId || (type === 'video' ? item.url : ''));
+  if (youtubeEmbedUrl) {
+    const avisoArquivoLocal = window.location.protocol === 'file:'
+      ? '<div style="margin:0 0 12px;padding:10px 12px;border:1px solid rgba(245,158,11,.35);border-radius:10px;color:#FCD34D;background:rgba(245,158,11,.1);font-size:13px;">Para testar vídeos do YouTube, use o link publicado do app.</div>'
+      : '';
     // Player YouTube embutido
     pc.innerHTML = `
+      ${avisoArquivoLocal}
       <div class="yt-player-wrapper">
         <iframe
-          src="https://www.youtube.com/embed/${item.youtubeId}?rel=0&autoplay=1&playsinline=1"
-          title="${item.title}"
+          src="${youtubeEmbedUrl}"
+          title="Player do YouTube"
           frameborder="0"
+          referrerpolicy="strict-origin-when-cross-origin"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
         </iframe>

@@ -306,7 +306,8 @@ window.baixarDadosCloud = async function() {
     const uid = firebase.auth().currentUser.uid;
     const docSnap = await firebase.firestore().collection('users_progress').doc(uid).get();
     
-    if (docSnap.exists()) {
+    const exists = typeof docSnap.exists === 'function' ? docSnap.exists() : docSnap.exists;
+    if (exists) {
       const data = docSnap.data();
       if (data.jornada_progress) localStorage.setItem(JORNADA_KEY, JSON.stringify(data.jornada_progress));
       if (data.jornada_carreira) localStorage.setItem(CARREIRA_KEY, data.jornada_carreira);

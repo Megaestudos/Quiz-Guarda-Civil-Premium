@@ -751,6 +751,31 @@ window.closeMediaModal = function() {
     if($('modalMedia')) $('modalMedia').style.display = 'none';
 }
 
+function normalizarYoutubeId(valor) {
+    const entrada = String(valor || '').trim();
+    if (/^[A-Za-z0-9_-]{11}$/.test(entrada)) return entrada;
+
+    try {
+        const url = new URL(entrada);
+        const host = url.hostname.toLowerCase();
+        let id = '';
+
+        if (host === 'youtu.be' || host === 'www.youtu.be') {
+            id = url.pathname.split('/').filter(Boolean)[0] || '';
+        } else if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'www.youtube-nocookie.com', 'youtube-nocookie.com'].includes(host)) {
+            id = url.searchParams.get('v') || '';
+            if (!id) {
+                const partes = url.pathname.split('/').filter(Boolean);
+                if (['embed', 'shorts', 'live'].includes(partes[0])) id = partes[1] || '';
+            }
+        }
+
+        return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null;
+    } catch (e) {
+        return null;
+    }
+}
+
 window.saveMedia = async function() {
     const sid = $('mediaSubjectId').value;
     const type = $('mediaTypeSelect').value;
@@ -764,8 +789,11 @@ window.saveMedia = async function() {
     if(!sub) return;
     
     const newItem = { title: title, duration: dur || (type === 'videos' ? 'Vídeo' : 'Mídia') };
-    if(type === 'videos') newItem.youtubeId = urlOrId;
-    else newItem.url = urlOrId;
+    if(type === 'videos') {
+        const youtubeId = normalizarYoutubeId(urlOrId);
+        if (!youtubeId) return alert("Informe um ID ou URL válida do YouTube.");
+        newItem.youtubeId = youtubeId;
+    } else newItem.url = urlOrId;
     
     const currentArray = sub[type] || [];
     currentArray.push(newItem);
