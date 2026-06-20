@@ -154,162 +154,6 @@ function addXP(amount) {
   const levelAntes = getLevelInfo(xp).level;
   xp += amount;
   localStorage.setItem(XP_KEY, xp);
-const TEMPLATE_QUIZ_SIZE = 30;
-let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
-let simulationStartTime = null;
-let isGrandeDia = false; let grandeDiaInterval = null;
-const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
-const XP_KEY = 'quiz_xp'; const STREAK_KEY = 'quiz_streak'; const LAST_DATE_KEY = 'quiz_last_date';
-
-window.syncGamificationToCloud = async function() {
-  if (!window.firebase || !firebase.auth().currentUser) return;
-  try {
-      const db = firebase.firestore();
-      const docRef = db.collection('users').doc(firebase.auth().currentUser.uid);
-      await docRef.update({
-          quiz_xp: parseInt(localStorage.getItem('quiz_xp') || '0'),
-          quiz_streak: parseInt(localStorage.getItem('quiz_streak') || '0'),
-          quiz_last_date: localStorage.getItem('quiz_last_date') || '',
-          quiz_best_record: JSON.parse(localStorage.getItem('quiz_best_record') || '{"pct":-1}'),
-          quiz_unlocked_badges: JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]'),
-          quiz_topic_stats: JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}')
-      });
-  } catch(e) {}
-};
-
-// Navegação entre telas do App
-window.showPage = window.go = function(id) {
-  // Garantir que pinch-to-zoom está desativado ao navegar
-  const viewportMeta = document.querySelector('meta[name="viewport"]');
-  if (viewportMeta) {
-    viewportMeta.content = "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0";
-  }
-  
-  // Esconde todas as sections com classe 'page'
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  
-  // Mostra a alvo
-  const target = document.getElementById(id);
-  if (target) target.classList.add('active');
-  
-  // Atualiza as tabs (se existirem)
-  // Para Perfil e Dashboard (sem tab própria), não altera seleção
-  const tabPageIds = ['home','jornada','resumos','quiz','prof-ai'];
-  document.querySelectorAll('.tabbtn').forEach(btn => {
-     btn.classList.toggle('active', btn.getAttribute('data-target') === id);
-  });
-
-  // Foco no simulado
-  if(id === 'quiz' && quizStarted) document.body.classList.add('quiz-focus');
-  else document.body.classList.remove('quiz-focus');
-
-  document.body.classList.remove('summary-focus');
-  const existing = document.getElementById('mfRrFullscreen');
-  if (existing) existing.remove();
-
-  // Gatilhos extras de carregamento
-  if (id === 'home') {
-     showBestRecord();
-     updateXPUI();
-     checkStreak();
-     if(typeof renderMissaoDoDia === 'function') renderMissaoDoDia();
-     if(typeof renderJornadaHomeStats === 'function') renderJornadaHomeStats();
-  }
-  if (id === 'dashboard') {
-     showBestRecord();
-     updateXPUI();
-     checkStreak();
-     if(typeof renderBadges === 'function') renderBadges();
-     if(typeof renderStatsChart === 'function') renderStatsChart();
-  }
-  if(id === 'jornada') {
-     if(typeof renderJornada === 'function') renderJornada();
-  }
-  if(id === 'perfil') {
-     if(typeof renderPerfil === 'function') renderPerfil();
-  }
-  if(id === 'resumos' || id === 'study') renderStudies();
-  if(id === 'cards') renderCards();
-  if(id === 'quiz' && !quizStarted) showTopicSelection();
-  
-  // Scroll para o topo
-  window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-function checkStreak() {
-  let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0');
-  let lastDate = localStorage.getItem(LAST_DATE_KEY);
-  const todayStr = new Date().toISOString().split('T')[0];
-  if (lastDate) {
-    const diffDays = Math.floor(Math.abs(new Date(todayStr) - new Date(lastDate)) / (1000 * 60 * 60 * 24));
-    if (diffDays > 1) { streak = 0; localStorage.setItem(STREAK_KEY, streak); }
-  }
-  const el = document.getElementById('streakValue');
-  if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
-}
-
-function registerStudyDay() {
-  let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0');
-  let lastDate = localStorage.getItem(LAST_DATE_KEY);
-  const todayStr = new Date().toISOString().split('T')[0];
-  if (lastDate !== todayStr) {
-    const diffDays = lastDate ? Math.floor(Math.abs(new Date(todayStr) - new Date(lastDate)) / (1000 * 60 * 60 * 24)) : 0;
-    streak = (diffDays <= 1 || !lastDate) ? streak + 1 : 1;
-    localStorage.setItem(STREAK_KEY, streak);
-    localStorage.setItem(LAST_DATE_KEY, todayStr);
-    if (window.sincronizarCloud) window.sincronizarCloud();
-  }
-  const el = document.getElementById('streakValue');
-  if(el) el.textContent = `${streak} Dia${streak!==1?'s':''}`;
-  if(window.syncGamificationToCloud) window.syncGamificationToCloud();
-}
-
-function getLevelInfo(xp) {
-    let level = 1;
-    let requiredXP = 100;
-    let currentLevelXP = 0;
-    while (xp >= requiredXP) {
-        level++;
-        currentLevelXP = requiredXP;
-        requiredXP = Math.floor(requiredXP * 1.5) + 50;
-    }
-    return {
-        level: level,
-        currentXP: xp,
-        minXP: currentLevelXP,
-        nextXP: requiredXP,
-        progressPct: Math.max(0, Math.min(100, ((xp - currentLevelXP) / (requiredXP - currentLevelXP)) * 100))
-    };
-}
-
-function updateXPUI() {
-  const xp = parseInt(localStorage.getItem(XP_KEY) || '0');
-  const elXP   = document.getElementById('xpValue');
-  const elNextXP = document.getElementById('xpNextValue');
-  const elRank = document.getElementById('rankValue');
-  const elNext = document.getElementById('xpNextRank');
-  const elFill = document.getElementById('xpBarFill');
-  const elRestante = document.getElementById('xpRestante');
-  
-  const levelInfo = getLevelInfo(xp);
-  const xpRestante = levelInfo.nextXP - xp;
-
-  if(elXP) elXP.textContent = xp.toLocaleString('pt-BR');
-  if(elNextXP) elNextXP.textContent = levelInfo.nextXP.toLocaleString('pt-BR');
-  if(elRank) elRank.textContent = `Nível ${levelInfo.level}`;
-  if(elNext) elNext.textContent = `Próximo: Nível ${levelInfo.level + 1}`;
-  if(elRestante) elRestante.textContent = `faltam ${xpRestante} XP`;
-  
-  if(elFill) {
-    elFill.style.width = levelInfo.progressPct + '%';
-  }
-}
-
-function addXP(amount) {
-  let xp = parseInt(localStorage.getItem(XP_KEY) || '0');
-  const levelAntes = getLevelInfo(xp).level;
-  xp += amount;
-  localStorage.setItem(XP_KEY, xp);
   if (window.sincronizarCloud) window.sincronizarCloud();
   updateXPUI();
   
@@ -364,6 +208,57 @@ window.buscarQuestoesAleatorias = async function(ref, quantidade) {
   return Array.from(porId.values()).slice(0, limite);
 };
 
+window.atualizarEstatisticasMateria = async function(materia, acertou) {
+  if (!window.firebase || !firebase.auth().currentUser || !firebase.firestore) return null;
+
+  const nomeMateria = (typeof materia === 'string' && materia.trim()) ? materia.trim() : 'Gerais';
+  const ref = firebase.firestore().collection('users_progress').doc(firebase.auth().currentUser.uid);
+
+  try {
+    return await firebase.firestore().runTransaction(async (transaction) => {
+      const snap = await transaction.get(ref);
+      const data = snap.exists ? snap.data() : {};
+      const atual = (data.estatisticas && data.estatisticas[nomeMateria]) || {};
+      const acertos = (Number(atual.acertos) || 0) + (acertou ? 1 : 0);
+      const erros = (Number(atual.erros) || 0) + (acertou ? 0 : 1);
+      const totalRespondidas = acertos + erros;
+      const proxima = {
+        acertos,
+        erros,
+        totalRespondidas,
+        taxaAcerto: Number(((acertos / totalRespondidas) * 100).toFixed(1))
+      };
+
+      if (snap.exists) {
+        transaction.update(ref, new firebase.firestore.FieldPath('estatisticas', nomeMateria), proxima);
+      } else {
+        transaction.set(ref, { estatisticas: { [nomeMateria]: proxima } }, { merge: true });
+      }
+
+      return proxima;
+    });
+  } catch (erro) {
+    console.error('Erro ao atualizar estatísticas por matéria:', erro);
+    return null;
+  }
+};
+
+window.obterEstatisticasMateria = async function(materia) {
+  if (!window.firebase || !firebase.auth().currentUser || !firebase.firestore) return null;
+
+  const nomeMateria = (typeof materia === 'string' && materia.trim()) ? materia.trim() : 'Gerais';
+  try {
+    const snap = await firebase.firestore()
+      .collection('users_progress').doc(firebase.auth().currentUser.uid).get();
+    const data = snap.exists ? snap.data() : {};
+    return (data.estatisticas && data.estatisticas[nomeMateria]) || {
+      acertos: 0, erros: 0, totalRespondidas: 0, taxaAcerto: 0
+    };
+  } catch (erro) {
+    console.error('Erro ao obter estatísticas por matéria:', erro);
+    return null;
+  }
+};
 async function loadTopicQuestions(topic) {
   isGrandeDia = false;
   if (grandeDiaInterval) { clearInterval(grandeDiaInterval); grandeDiaInterval = null; }
@@ -456,6 +351,7 @@ function selectOption(letter){
     if(isCorrect) tStats[topStr].c += 1;
     localStorage.setItem('quiz_topic_stats', JSON.stringify(tStats));
     if(window.syncGamificationToCloud) window.syncGamificationToCloud();
+    if (window.atualizarEstatisticasMateria) void window.atualizarEstatisticasMateria(topStr, isCorrect);
   } catch(e) {}
   
   if (!isCorrect) {

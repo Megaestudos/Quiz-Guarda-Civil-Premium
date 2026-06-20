@@ -713,6 +713,9 @@ window.responderEtapa2 = function(letra) {
   const resposta = (q.resposta || q.answer || '').toString().trim().charAt(0).toUpperCase();
   const correta = letra === resposta;
   if (typeof window.playQuestionFeedback === 'function') window.playQuestionFeedback(correta);
+  if (typeof window.atualizarEstatisticasMateria === 'function') {
+    void window.atualizarEstatisticasMateria(q.materia || 'Gerais', correta);
+  }
 
   // Desabilita todos os botões
   document.querySelectorAll('.mf-questao-opt').forEach(b => b.disabled = true);
@@ -1146,6 +1149,9 @@ window.responderFinal = function(letra) {
 
   if (correta) _missaoSessao.etapa5Acertos++;
   _missaoSessao.etapa5Respostas.push({ letra, resposta, correta });
+  if (typeof window.atualizarEstatisticasMateria === 'function') {
+    void window.atualizarEstatisticasMateria(q.materia || 'Gerais', correta);
+  }
 
   document.querySelectorAll('.mf-questao-opt-final').forEach(b => b.disabled = true);
 

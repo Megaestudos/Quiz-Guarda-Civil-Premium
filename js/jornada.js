@@ -1566,6 +1566,9 @@ window.responderQuestaoMissaoDia = function(letra) {
   const correta = letra === resposta;
   if (typeof window.playQuestionFeedback === 'function') window.playQuestionFeedback(correta);
   if (correta) _missaoDiaSessao.acertos++;
+  if (typeof window.atualizarEstatisticasMateria === 'function') {
+    void window.atualizarEstatisticasMateria(q.materia || 'Gerais', correta);
+  }
 
   document.querySelectorAll('.mf-mdd-opt').forEach(b => b.disabled = true);
   const elCorreta = document.getElementById(`mddOpt_${resposta}`);
