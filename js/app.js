@@ -174,6 +174,21 @@ function getFirestoreDb(){
   throw new Error('Firebase Firestore não está disponível no front.');
 }
 
+window.buscarQuestoesAleatorias = async function(ref, quantidade) {
+  const limite = Math.max(1, Math.floor(Number(quantidade) || 1));
+  const ponto = Math.random();
+  const porId = new Map();
+  const adicionar = (snap) => snap.forEach(doc => porId.set(doc.id, { id: doc.id, ...doc.data() }));
+
+  const ordenada = ref.orderBy('randomKey');
+  adicionar(await ordenada.where('randomKey', '>=', ponto).limit(limite).get());
+  if (porId.size < limite) {
+    adicionar(await ordenada.where('randomKey', '<', ponto).limit(limite - porId.size).get());
+  }
+
+  return Array.from(porId.values()).slice(0, limite);
+};
+
 function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 600px)').matches; }
 
 function setScale(v){
@@ -844,20 +859,7 @@ async function loadTopicQuestions(topic){
     let ref = getFirestoreDb().collection('questoes').where('ativo', '==', true);
     if (topic && topic !== 'Todos') ref = ref.where('materia', '==', topic);
     
-    // Busca as questões sem limitar inicialmente para permitir sorteio
-    const snap = await ref.get();
-    
-    let allQuestions = [];
-    snap.forEach(doc => allQuestions.push({ id: doc.id, ...doc.data() }));
-    
-    // Embaralha as questões (sorteio aleatório)
-    for (let i = allQuestions.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
-    }
-    
-    // Seleciona a quantidade definida para o simulado
-    POOL = allQuestions.slice(0, TEMPLATE_QUIZ_SIZE);
+    POOL = await window.buscarQuestoesAleatorias(ref, TEMPLATE_QUIZ_SIZE);
     
     currentIndex = 0; score = 0; quizStarted = true;
     renderQuestion();
@@ -1328,12 +1330,10 @@ window.startGrandeDia = async function() {
   simulationStartTime = Date.now();
 
   try {
-    const snap = await getFirestoreDb().collection('questoes').where('ativo', '==', true).get();
-    let allQ = [];
-    snap.forEach(doc => allQ.push({ id: doc.id, ...doc.data() }));
-    // Sorteio
-    for(let i=allQ.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); [allQ[i],allQ[j]]=[allQ[j],allQ[i]]; }
-    POOL = allQ.slice(0, 100); // ATUALIZADO: 100 Questões
+    POOL = await window.buscarQuestoesAleatorias(
+      getFirestoreDb().collection('questoes').where('ativo', '==', true),
+      100
+    );
     
     currentIndex = 0; score = 0; quizStarted = true; isGrandeDia = true;
     startTimer(3 * 60 * 60); // 3 horas em segundos
@@ -1439,11 +1439,7 @@ async function loadTopicQuestionsLimited(topic, qtd) {
   try {
     let ref = getFirestoreDb().collection('questoes').where('ativo', '==', true);
     if (topic && topic !== 'Todos') ref = ref.where('materia', '==', topic);
-    const snap = await ref.get();
-    let allQ = [];
-    snap.forEach(doc => allQ.push({ id: doc.id, ...doc.data() }));
-    for (let i = allQ.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [allQ[i],allQ[j]]=[allQ[j],allQ[i]]; }
-    POOL = allQ.slice(0, qtd || 5);
+    POOL = await window.buscarQuestoesAleatorias(ref, qtd || 5);
     currentIndex = 0; score = 0; quizStarted = true;
     renderQuestion();
   } catch(e) {

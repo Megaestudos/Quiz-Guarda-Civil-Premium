@@ -106,6 +106,7 @@
                                     C: row['C'] || '',
                                     D: row['D'] || '',
                                     ativo: (row['Ativo'] == 'S' || row['Ativo'] == 'TRUE' || row['Ativo'] == 'true' || row['Ativo'] == '1'),
+                                    randomKey: Math.random(),
                                     explicacao: row['Explicação'] || row['Explicacao'] || '',
                                     materia: row['Matéria'] || row['Materia'] || 'Gerais',
                                     ordem: parseInt(row['Ordem']) || 0,

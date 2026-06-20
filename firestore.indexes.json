@@ -1,0 +1,22 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "questoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ativo", "order": "ASCENDING" },
+        { "fieldPath": "randomKey", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "questoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ativo", "order": "ASCENDING" },
+        { "fieldPath": "materia", "order": "ASCENDING" },
+        { "fieldPath": "randomKey", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -108,13 +108,12 @@ async function buscarQuestoesMissao(missao, limite) {
 
   let questoes = [];
   try {
-    // Busca TODAS as questões da matéria
+    // Busca um lote aleatório e limitado da matéria.
     let ref = db.collection('questoes').where('ativo', '==', true);
     if (materia) ref = ref.where('materia', '==', materia);
-    
-    const snap = await ref.get();
-    let qMateria = [];
-    snap.forEach(doc => qMateria.push({ id: doc.id, ...doc.data() }));
+    const qMateria = typeof window.buscarQuestoesAleatorias === 'function'
+      ? await window.buscarQuestoesAleatorias(ref, limite)
+      : (() => { throw new Error('Utilitário de sorteio não carregado.'); })();
 
     // Separa por prioridade
     let qAssunto = [];
@@ -139,11 +138,6 @@ async function buscarQuestoesMissao(missao, limite) {
         qRestoMateria.push(q);
       }
     });
-
-    // Mistura cada grupo
-    qAssunto = shuffleArray(qAssunto);
-    qSubassunto = shuffleArray(qSubassunto);
-    qRestoMateria = shuffleArray(qRestoMateria);
 
     // Preenche respeitando a prioridade (Subassunto -> Assunto -> Matéria)
     if (sub) {
