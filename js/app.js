@@ -1,5 +1,5 @@
 const TEMPLATE_QUIZ_SIZE = 30;
-let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false;
+let POOL = []; let currentIndex = 0; let score = 0; let quizStarted = false; let currentQuestionAnswered = false;
 let simulationStartTime = null;
 let isGrandeDia = false; let grandeDiaInterval = null;
 const SOUND_KEY = 'quiz_sound_on'; const SCALE_KEY = 'quiz_card_scale'; const BEST_KEY = 'quiz_best_record';
@@ -58,6 +58,7 @@ window.showPage = window.go = function(id) {
      checkStreak();
      if(typeof renderMissaoDoDia === 'function') renderMissaoDoDia();
      if(typeof renderJornadaHomeStats === 'function') renderJornadaHomeStats();
+     if(typeof window.renderDashboardMateria === 'function') void window.renderDashboardMateria();
   }
   if (id === 'dashboard') {
      showBestRecord();
@@ -259,6 +260,91 @@ window.obterEstatisticasMateria = async function(materia) {
     return null;
   }
 };
+const DASHBOARD_MATERIA_CACHE = { uid: null, dados: null, promise: null };
+
+async function carregarEstatisticasDashboard() {
+  if (!window.firebase || !firebase.auth().currentUser || !firebase.firestore) return {};
+  const uid = firebase.auth().currentUser.uid;
+  if (DASHBOARD_MATERIA_CACHE.uid === uid && DASHBOARD_MATERIA_CACHE.dados) return DASHBOARD_MATERIA_CACHE.dados;
+  if (DASHBOARD_MATERIA_CACHE.uid === uid && DASHBOARD_MATERIA_CACHE.promise) return DASHBOARD_MATERIA_CACHE.promise;
+
+  DASHBOARD_MATERIA_CACHE.uid = uid;
+  DASHBOARD_MATERIA_CACHE.promise = firebase.firestore().collection('users_progress').doc(uid).get()
+    .then((snap) => {
+      DASHBOARD_MATERIA_CACHE.dados = (snap.exists && snap.data().estatisticas) || {};
+      return DASHBOARD_MATERIA_CACHE.dados;
+    })
+    .catch((erro) => {
+      console.warn('[Dashboard por matéria] Estatísticas indisponíveis.', { colecao: `users_progress/${uid}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
+      DASHBOARD_MATERIA_CACHE.dados = {};
+      return {};
+    })
+    .finally(() => { DASHBOARD_MATERIA_CACHE.promise = null; });
+  return DASHBOARD_MATERIA_CACHE.promise;
+}
+
+function renderEstadoDesempenhoMateria(container, mensagem) {
+  container.innerHTML = '<div class="desempenho-materia-empty"><i class="ph ph-chart-line-up"></i><span></span></div>';
+  container.querySelector('span').textContent = mensagem;
+}
+
+window.renderDashboardMateria = async function() {
+  const container = document.getElementById('desempenhoMateriaHome');
+  if (!container) return;
+  if (!window.firebase || !firebase.auth().currentUser) {
+    renderEstadoDesempenhoMateria(container, 'Responda algumas questões para desbloquear seu diagnóstico.');
+    return;
+  }
+  if (!DASHBOARD_MATERIA_CACHE.dados && !DASHBOARD_MATERIA_CACHE.promise) renderEstadoDesempenhoMateria(container, 'Carregando seu diagnóstico...');
+
+  const dados = await carregarEstatisticasDashboard();
+  const materias = Object.entries(dados).map(([materia, stats]) => {
+    const acertos = Number(stats?.acertos) || 0;
+    const erros = Number(stats?.erros) || 0;
+    const total = Number(stats?.totalRespondidas) || (acertos + erros);
+    return { materia, acertos, total, taxa: total ? (acertos / total) * 100 : 0 };
+  }).filter((item) => item.total > 0);
+
+  if (!materias.length) {
+    renderEstadoDesempenhoMateria(container, 'Responda algumas questões para desbloquear seu diagnóstico.');
+    return;
+  }
+
+  const melhor = [...materias].sort((a, b) => b.taxa - a.taxa || b.total - a.total)[0];
+  const pior = [...materias].sort((a, b) => a.taxa - b.taxa || b.total - a.total)[0];
+  const total = materias.reduce((soma, item) => soma + item.total, 0);
+  const acertos = materias.reduce((soma, item) => soma + item.acertos, 0);
+  const taxaGeral = total ? (acertos / total) * 100 : 0;
+  const taxa = (valor) => `${valor.toFixed(1).replace('.', ',')}%`;
+
+  container.innerHTML = `
+    <div class="desempenho-materia-grid">
+      <div class="desempenho-materia-item desempenho-melhor"><span>Melhor matéria</span><strong></strong><small></small></div>
+      <div class="desempenho-materia-item desempenho-pior"><span>Ponto de atenção</span><strong></strong><small></small></div>
+      <div class="desempenho-materia-item"><span>Questões respondidas</span><strong></strong></div>
+      <div class="desempenho-materia-item"><span>Taxa geral de acerto</span><strong></strong></div>
+    </div>
+    <p class="desempenho-materia-recomendacao"><i class="ph-fill ph-lightbulb"></i><span></span></p>`;
+  const itens = container.querySelectorAll('.desempenho-materia-item');
+  itens[0].querySelector('strong').textContent = melhor.materia;
+  itens[0].querySelector('small').textContent = taxa(melhor.taxa);
+  itens[1].querySelector('strong').textContent = pior.materia;
+  itens[1].querySelector('small').textContent = taxa(pior.taxa);
+  itens[2].querySelector('strong').textContent = total.toLocaleString('pt-BR');
+  itens[3].querySelector('strong').textContent = taxa(taxaGeral);
+  container.querySelector('.desempenho-materia-recomendacao span').textContent = `Seu ponto fraco atual é ${pior.materia}. Recomendamos resolver mais 20 questões dessa matéria.`;
+};
+
+if (window.firebase && firebase.auth) {
+  firebase.auth().onAuthStateChanged((usuario) => {
+    if (DASHBOARD_MATERIA_CACHE.uid !== (usuario?.uid || null)) {
+      DASHBOARD_MATERIA_CACHE.uid = usuario?.uid || null;
+      DASHBOARD_MATERIA_CACHE.dados = null;
+      DASHBOARD_MATERIA_CACHE.promise = null;
+    }
+    if (usuario && document.getElementById('home')?.classList.contains('active')) void window.renderDashboardMateria();
+  });
+}
 let MEDIA_CATALOG = [];
 
 window.getMateriasAulas = async function() {
@@ -869,6 +955,7 @@ async function loadTopicQuestions(topic) {
 
 function renderQuestion(){
   if (currentIndex >= POOL.length) { finishQuiz(); return; }
+  currentQuestionAnswered = false;
   const q = POOL[currentIndex];
 
   const qBox = document.getElementById('question');
@@ -907,6 +994,9 @@ function renderQuestion(){
 
 function selectOption(letter){
   const q = POOL[currentIndex];
+  if (!q || currentQuestionAnswered) return;
+  currentQuestionAnswered = true;
+
   const correct = q_answer_letter(q);
   document.querySelectorAll('.opt').forEach(b => b.disabled = true);
 
@@ -930,11 +1020,12 @@ function selectOption(letter){
   if (!isCorrect) {
     const chosen = document.getElementById('opt_' + letter);
     if (chosen) chosen.classList.add('wrong');
-    playWrong();
+    if (typeof window.playWrong === 'function') window.playWrong();
   } else {
     score++;
-    playCorrect();
+    if (typeof window.playCorrect === 'function') window.playCorrect();
   }
+  document.getElementById('progressText').textContent = `Pontos: ${score}`;
 
   const iconHtml = isCorrect ? '<i class="ph-fill ph-check-circle"></i> Acertou!' : '<i class="ph-fill ph-x-circle"></i> Errou!';
   const colorClass = isCorrect ? 'var(--success)' : 'var(--danger)';
@@ -949,6 +1040,9 @@ function selectOption(letter){
   explTitle.innerHTML = iconHtml;
 
   document.getElementById('explText').textContent = q_expl(q) || 'Nenhuma explicação técnica fornecida para esta questão.';
+  const isLastQuestion = currentIndex === POOL.length - 1;
+  document.getElementById('sheetNextBtn').style.display = isLastQuestion ? 'none' : 'block';
+  document.getElementById('sheetFinishBtn').style.display = isLastQuestion ? 'block' : 'none';
   document.getElementById('explainSheet').classList.add('show');
 }
 

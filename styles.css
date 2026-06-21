@@ -4377,3 +4377,17 @@ audio {
   background: rgba(0,0,0,0.6) !important;
   transform: scale(1.05);
 }
+
+/* Sprint 2.6 — Diagnóstico por matéria na Home */
+.desempenho-materia-card { background:linear-gradient(135deg,rgba(59,130,246,.10),rgba(124,58,237,.08)); border:1px solid rgba(96,165,250,.22); border-radius:18px; padding:16px; margin-bottom:16px; }
+.desempenho-materia-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.desempenho-materia-item { min-width:0; background:rgba(15,23,42,.42); border-radius:12px; padding:12px; }
+.desempenho-materia-item span { display:block; color:var(--text-muted); font-size:11px; font-weight:700; margin-bottom:5px; }
+.desempenho-materia-item strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-main); font-size:14px; }
+.desempenho-materia-item small { display:block; margin-top:3px; color:#93C5FD; font-weight:800; }
+.desempenho-melhor small { color:#34D399; } .desempenho-pior small { color:#FBBF24; }
+.desempenho-materia-recomendacao { display:flex; gap:8px; align-items:flex-start; margin:14px 0 0; color:var(--text-muted); font-size:13px; line-height:1.45; }
+.desempenho-materia-recomendacao i { color:#FBBF24; font-size:17px; flex-shrink:0; margin-top:1px; }
+.desempenho-materia-empty { display:flex; align-items:center; gap:9px; color:var(--text-muted); font-size:13px; line-height:1.4; }
+.desempenho-materia-empty i { color:var(--primary); font-size:22px; }
+@media (max-width:380px) { .desempenho-materia-grid { grid-template-columns:1fr; } }
