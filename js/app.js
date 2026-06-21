@@ -215,8 +215,6 @@ window.atualizarEstatisticasMateria = async function(materia, acertou) {
   const uid = firebase.auth().currentUser.uid;
   const nomeMateria = (typeof materia === 'string' && materia.trim()) ? materia.trim() : 'Gerais';
   const ref = firebase.firestore().collection('users_progress').doc(uid);
-  console.info('[STATS_SAVE]', { uid, documento: `users_progress/${uid}`, campo: `estatisticas.${nomeMateria}`, acertou });
-
   try {
     const proxima = await firebase.firestore().runTransaction(async (transaction) => {
       const snap = await transaction.get(ref);
@@ -238,10 +236,8 @@ window.atualizarEstatisticasMateria = async function(materia, acertou) {
         void window.renderDashboardMateria();
       }
     }
-    console.info('[STATS_SAVE]', { status: 'sucesso', uid, materia: nomeMateria, estatistica: proxima });
     return proxima;
   } catch (erro) {
-    console.warn('[STATS_SAVE]', { status: 'erro', uid, documento: `users_progress/${uid}`, campo: `estatisticas.${nomeMateria}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
     return null;
   }
 };
@@ -250,7 +246,6 @@ window.obterEstatisticasMateria = async function(materia) {
 
   const uid = firebase.auth().currentUser.uid;
   const nomeMateria = (typeof materia === 'string' && materia.trim()) ? materia.trim() : 'Gerais';
-  console.info('[STATS_LOAD]', { uid, documento: `users_progress/${uid}`, campo: `estatisticas.${nomeMateria}` });
   try {
     const snap = await firebase.firestore()
       .collection('users_progress').doc(firebase.auth().currentUser.uid).get();
@@ -258,10 +253,8 @@ window.obterEstatisticasMateria = async function(materia) {
     const estatistica = (data.estatisticas && data.estatisticas[nomeMateria]) || {
       acertos: 0, erros: 0, totalRespondidas: 0, taxaAcerto: 0
     };
-    console.info('[STATS_LOAD]', { status: 'sucesso', uid, materia: nomeMateria, estatistica });
     return estatistica;
   } catch (erro) {
-    console.warn('[STATS_LOAD]', { status: 'erro', uid, documento: `users_progress/${uid}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
     return null;
   }
 };
@@ -270,19 +263,16 @@ const DASHBOARD_MATERIA_CACHE = { uid: null, dados: null, promise: null };
 async function carregarEstatisticasDashboard() {
   if (!window.firebase || !firebase.auth().currentUser || !firebase.firestore) return {};
   const uid = firebase.auth().currentUser.uid;
-  if (DASHBOARD_MATERIA_CACHE.uid === uid && DASHBOARD_MATERIA_CACHE.dados) { console.info('[STATS_DASHBOARD]', { fonte: 'cache', uid, materias: Object.keys(DASHBOARD_MATERIA_CACHE.dados).length }); return DASHBOARD_MATERIA_CACHE.dados; }
+  if (DASHBOARD_MATERIA_CACHE.uid === uid && DASHBOARD_MATERIA_CACHE.dados) return DASHBOARD_MATERIA_CACHE.dados;
   if (DASHBOARD_MATERIA_CACHE.uid === uid && DASHBOARD_MATERIA_CACHE.promise) return DASHBOARD_MATERIA_CACHE.promise;
 
   DASHBOARD_MATERIA_CACHE.uid = uid;
-  console.info('[STATS_DASHBOARD]', { fonte: 'firestore', uid, documento: `users_progress/${uid}`, campo: 'estatisticas' });
   DASHBOARD_MATERIA_CACHE.promise = firebase.firestore().collection('users_progress').doc(uid).get()
     .then((snap) => {
       DASHBOARD_MATERIA_CACHE.dados = (snap.exists && snap.data().estatisticas) || {};
-      console.info('[STATS_DASHBOARD]', { status: 'carregado', uid, materias: Object.keys(DASHBOARD_MATERIA_CACHE.dados).length });
       return DASHBOARD_MATERIA_CACHE.dados;
     })
     .catch((erro) => {
-      console.warn('[STATS_DASHBOARD]', { status: 'erro', uid, documento: `users_progress/${uid}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
       console.warn('[Dashboard por matéria] Estatísticas indisponíveis.', { colecao: `users_progress/${uid}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
       DASHBOARD_MATERIA_CACHE.dados = {};
       return {};
