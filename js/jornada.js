@@ -1174,6 +1174,20 @@ function sortearMateriaMissaoDia(materias) {
   return sorteada;
 }
 
+window.atualizarRecomendacaoMissaoDia = function(recomendacao) {
+  const container = document.getElementById('mddRecommendation');
+  if (!container) return;
+
+  if (!recomendacao) {
+    container.innerHTML = '<div class="mdd-recomendacao-vazia"><i class="ph ph-sparkle"></i><span></span></div>';
+    container.querySelector('span').textContent = 'Responda algumas questões para receber uma missão personalizada.';
+    return;
+  }
+
+  container.innerHTML = '<div class="mdd-recomendacao-personalizada"><i class="ph-fill ph-target"></i><div><strong></strong><small></small></div></div>';
+  container.querySelector('strong').textContent = `Matéria recomendada: ${recomendacao.materia}`;
+  container.querySelector('small').textContent = `Recomendado porque sua taxa em ${recomendacao.materia} está em ${recomendacao.taxa.toFixed(1).replace('.', ',')}%.`;
+};
 window.renderMissaoDoDia = async function() {
   const container = document.getElementById('missaoDoDiaCard');
   const body = document.getElementById('mddContentBody');
@@ -1226,8 +1240,12 @@ window.renderMissaoDoDia = async function() {
           <div style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Questões</div>
         </div>
       </div>
+            <div id="mddRecommendation" aria-live="polite"></div>
       <button class="btn btn-primary" onclick="iniciarMissaoDoDia()" style="width:100%; padding:14px; border-radius:14px; font-size:16px; box-shadow:0 4px 15px rgba(16,185,129,0.3); background:linear-gradient(135deg, #10B981, #059669);"><i class="ph-fill ph-play-circle"></i> Iniciar Agora</button>
     `;
+    if (typeof window.atualizarRecomendacaoMissaoDia === 'function') {
+      window.atualizarRecomendacaoMissaoDia(typeof window.obterPiorMateriaDashboard === 'function' ? window.obterPiorMateriaDashboard() : null);
+    }
   } catch (e) {
     body.innerHTML = `
       <div style="text-align:center;">

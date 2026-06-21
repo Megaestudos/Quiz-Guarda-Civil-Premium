@@ -288,31 +288,23 @@ function renderEstadoDesempenhoMateria(container, mensagem) {
   container.querySelector('span').textContent = mensagem;
 }
 
-function renderMissaoRecomendada(pior) {
-  const container = document.getElementById('missaoRecomendadaHome');
-  if (!container) return;
-
-  if (!pior) {
-    container.innerHTML = '<div class="missao-recomendada-empty"><i class="ph ph-sparkle"></i><span></span></div>';
-    container.querySelector('span').textContent = 'Responda mais questões para receber recomendações personalizadas.';
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="missao-recomendada-top"><i class="ph-fill ph-target"></i><div><span>Matéria</span><strong></strong></div></div>
-    <div class="missao-recomendada-taxa"><span>Taxa atual</span><strong></strong></div>
-    <p><i class="ph-fill ph-lightbulb"></i><span></span></p>
-  `;
-  container.querySelector('.missao-recomendada-top strong').textContent = pior.materia;
-  container.querySelector('.missao-recomendada-taxa strong').textContent = `${pior.taxa.toFixed(1).replace('.', ',')}%`;
-  container.querySelector('p span').textContent = 'Recomendamos resolver mais 20 questões desta matéria para melhorar seu desempenho.';
-}
+window.obterPiorMateriaDashboard = function() {
+  const dados = DASHBOARD_MATERIA_CACHE.dados;
+  if (!dados) return null;
+  const materias = Object.entries(dados).map(([materia, stats]) => {
+    const acertos = Number(stats?.acertos) || 0;
+    const erros = Number(stats?.erros) || 0;
+    const total = Number(stats?.totalRespondidas) || (acertos + erros);
+    return { materia, total, taxa: total ? (acertos / total) * 100 : 0 };
+  }).filter((item) => item.total > 0);
+  return materias.length ? materias.sort((a, b) => a.taxa - b.taxa || b.total - a.total)[0] : null;
+};
 window.renderDashboardMateria = async function() {
   const container = document.getElementById('desempenhoMateriaHome');
   if (!container) return;
   if (!window.firebase || !firebase.auth().currentUser) {
     renderEstadoDesempenhoMateria(container, 'Responda algumas questões para desbloquear seu diagnóstico.');
-    renderMissaoRecomendada(null);
+    if (typeof window.atualizarRecomendacaoMissaoDia === 'function') window.atualizarRecomendacaoMissaoDia(null);
     return;
   }
   if (!DASHBOARD_MATERIA_CACHE.dados && !DASHBOARD_MATERIA_CACHE.promise) renderEstadoDesempenhoMateria(container, 'Carregando seu diagnóstico...');
@@ -327,7 +319,7 @@ window.renderDashboardMateria = async function() {
 
   if (!materias.length) {
     renderEstadoDesempenhoMateria(container, 'Responda algumas questões para desbloquear seu diagnóstico.');
-    renderMissaoRecomendada(null);
+    if (typeof window.atualizarRecomendacaoMissaoDia === 'function') window.atualizarRecomendacaoMissaoDia(null);
     return;
   }
 
@@ -354,7 +346,7 @@ window.renderDashboardMateria = async function() {
   itens[2].querySelector('strong').textContent = total.toLocaleString('pt-BR');
   itens[3].querySelector('strong').textContent = taxa(taxaGeral);
   container.querySelector('.desempenho-materia-recomendacao span').textContent = `Seu ponto fraco atual é ${pior.materia}. Recomendamos resolver mais 20 questões dessa matéria.`;
-  renderMissaoRecomendada(pior);
+  if (typeof window.atualizarRecomendacaoMissaoDia === 'function') window.atualizarRecomendacaoMissaoDia(pior);
 };
 
 if (window.firebase && firebase.auth) {
