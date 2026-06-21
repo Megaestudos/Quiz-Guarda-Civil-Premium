@@ -4391,3 +4391,15 @@ audio {
 .desempenho-materia-empty { display:flex; align-items:center; gap:9px; color:var(--text-muted); font-size:13px; line-height:1.4; }
 .desempenho-materia-empty i { color:var(--primary); font-size:22px; }
 @media (max-width:380px) { .desempenho-materia-grid { grid-template-columns:1fr; } }
+/* Sprint 2.7 — Missão recomendada baseada no desempenho */
+.missao-recomendada-card { background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(239,68,68,.07)); border:1px solid rgba(245,158,11,.24); border-radius:18px; padding:16px; margin-bottom:16px; }
+.missao-recomendada-top { display:flex; align-items:center; gap:11px; }
+.missao-recomendada-top > i { display:grid; place-items:center; width:38px; height:38px; border-radius:11px; background:rgba(245,158,11,.14); color:#FBBF24; font-size:20px; }
+.missao-recomendada-top span, .missao-recomendada-taxa span { display:block; color:var(--text-muted); font-size:11px; font-weight:700; }
+.missao-recomendada-top strong { display:block; margin-top:2px; color:var(--text-main); font-size:16px; }
+.missao-recomendada-taxa { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,.08); }
+.missao-recomendada-taxa strong { color:#FBBF24; font-size:18px; }
+.missao-recomendada-card p { display:flex; gap:8px; align-items:flex-start; margin:13px 0 0; color:var(--text-muted); font-size:13px; line-height:1.45; }
+.missao-recomendada-card p i { color:#FBBF24; flex-shrink:0; margin-top:2px; }
+.missao-recomendada-empty { display:flex; align-items:center; gap:9px; color:var(--text-muted); font-size:13px; line-height:1.4; }
+.missao-recomendada-empty i { color:#FBBF24; font-size:22px; }
