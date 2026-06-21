@@ -59,6 +59,7 @@ service cloud.firestore {
           'quiz_xp',
           'quiz_streak',
           'quiz_unlocked_badges',
+          'estatisticas',
           'updatedAt'
         ]);
     }

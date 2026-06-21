@@ -212,51 +212,56 @@ window.buscarQuestoesAleatorias = async function(ref, quantidade) {
 window.atualizarEstatisticasMateria = async function(materia, acertou) {
   if (!window.firebase || !firebase.auth().currentUser || !firebase.firestore) return null;
 
+  const uid = firebase.auth().currentUser.uid;
   const nomeMateria = (typeof materia === 'string' && materia.trim()) ? materia.trim() : 'Gerais';
-  const ref = firebase.firestore().collection('users_progress').doc(firebase.auth().currentUser.uid);
+  const ref = firebase.firestore().collection('users_progress').doc(uid);
+  console.info('[STATS_SAVE]', { uid, documento: `users_progress/${uid}`, campo: `estatisticas.${nomeMateria}`, acertou });
 
   try {
-    return await firebase.firestore().runTransaction(async (transaction) => {
+    const proxima = await firebase.firestore().runTransaction(async (transaction) => {
       const snap = await transaction.get(ref);
       const data = snap.exists ? snap.data() : {};
       const atual = (data.estatisticas && data.estatisticas[nomeMateria]) || {};
       const acertos = (Number(atual.acertos) || 0) + (acertou ? 1 : 0);
       const erros = (Number(atual.erros) || 0) + (acertou ? 0 : 1);
       const totalRespondidas = acertos + erros;
-      const proxima = {
-        acertos,
-        erros,
-        totalRespondidas,
-        taxaAcerto: Number(((acertos / totalRespondidas) * 100).toFixed(1))
-      };
+      const estatistica = { acertos, erros, totalRespondidas, taxaAcerto: Number(((acertos / totalRespondidas) * 100).toFixed(1)) };
 
-      if (snap.exists) {
-        transaction.update(ref, new firebase.firestore.FieldPath('estatisticas', nomeMateria), proxima);
-      } else {
-        transaction.set(ref, { estatisticas: { [nomeMateria]: proxima } }, { merge: true });
-      }
-
-      return proxima;
+      if (snap.exists) transaction.update(ref, new firebase.firestore.FieldPath('estatisticas', nomeMateria), estatistica);
+      else transaction.set(ref, { estatisticas: { [nomeMateria]: estatistica } }, { merge: true });
+      return estatistica;
     });
+
+    if (DASHBOARD_MATERIA_CACHE.uid === uid) {
+      DASHBOARD_MATERIA_CACHE.dados = { ...(DASHBOARD_MATERIA_CACHE.dados || {}), [nomeMateria]: proxima };
+      if (document.getElementById('home')?.classList.contains('active') && typeof window.renderDashboardMateria === 'function') {
+        void window.renderDashboardMateria();
+      }
+    }
+    console.info('[STATS_SAVE]', { status: 'sucesso', uid, materia: nomeMateria, estatistica: proxima });
+    return proxima;
   } catch (erro) {
-    console.error('Erro ao atualizar estatísticas por matéria:', erro);
+    console.warn('[STATS_SAVE]', { status: 'erro', uid, documento: `users_progress/${uid}`, campo: `estatisticas.${nomeMateria}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
     return null;
   }
 };
-
 window.obterEstatisticasMateria = async function(materia) {
   if (!window.firebase || !firebase.auth().currentUser || !firebase.firestore) return null;
 
+  const uid = firebase.auth().currentUser.uid;
   const nomeMateria = (typeof materia === 'string' && materia.trim()) ? materia.trim() : 'Gerais';
+  console.info('[STATS_LOAD]', { uid, documento: `users_progress/${uid}`, campo: `estatisticas.${nomeMateria}` });
   try {
     const snap = await firebase.firestore()
       .collection('users_progress').doc(firebase.auth().currentUser.uid).get();
     const data = snap.exists ? snap.data() : {};
-    return (data.estatisticas && data.estatisticas[nomeMateria]) || {
+    const estatistica = (data.estatisticas && data.estatisticas[nomeMateria]) || {
       acertos: 0, erros: 0, totalRespondidas: 0, taxaAcerto: 0
     };
+    console.info('[STATS_LOAD]', { status: 'sucesso', uid, materia: nomeMateria, estatistica });
+    return estatistica;
   } catch (erro) {
-    console.error('Erro ao obter estatísticas por matéria:', erro);
+    console.warn('[STATS_LOAD]', { status: 'erro', uid, documento: `users_progress/${uid}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
     return null;
   }
 };
@@ -265,16 +270,19 @@ const DASHBOARD_MATERIA_CACHE = { uid: null, dados: null, promise: null };
 async function carregarEstatisticasDashboard() {
   if (!window.firebase || !firebase.auth().currentUser || !firebase.firestore) return {};
   const uid = firebase.auth().currentUser.uid;
-  if (DASHBOARD_MATERIA_CACHE.uid === uid && DASHBOARD_MATERIA_CACHE.dados) return DASHBOARD_MATERIA_CACHE.dados;
+  if (DASHBOARD_MATERIA_CACHE.uid === uid && DASHBOARD_MATERIA_CACHE.dados) { console.info('[STATS_DASHBOARD]', { fonte: 'cache', uid, materias: Object.keys(DASHBOARD_MATERIA_CACHE.dados).length }); return DASHBOARD_MATERIA_CACHE.dados; }
   if (DASHBOARD_MATERIA_CACHE.uid === uid && DASHBOARD_MATERIA_CACHE.promise) return DASHBOARD_MATERIA_CACHE.promise;
 
   DASHBOARD_MATERIA_CACHE.uid = uid;
+  console.info('[STATS_DASHBOARD]', { fonte: 'firestore', uid, documento: `users_progress/${uid}`, campo: 'estatisticas' });
   DASHBOARD_MATERIA_CACHE.promise = firebase.firestore().collection('users_progress').doc(uid).get()
     .then((snap) => {
       DASHBOARD_MATERIA_CACHE.dados = (snap.exists && snap.data().estatisticas) || {};
+      console.info('[STATS_DASHBOARD]', { status: 'carregado', uid, materias: Object.keys(DASHBOARD_MATERIA_CACHE.dados).length });
       return DASHBOARD_MATERIA_CACHE.dados;
     })
     .catch((erro) => {
+      console.warn('[STATS_DASHBOARD]', { status: 'erro', uid, documento: `users_progress/${uid}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
       console.warn('[Dashboard por matéria] Estatísticas indisponíveis.', { colecao: `users_progress/${uid}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
       DASHBOARD_MATERIA_CACHE.dados = {};
       return {};
