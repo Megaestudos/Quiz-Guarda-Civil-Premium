@@ -1178,14 +1178,13 @@ window.atualizarRecomendacaoMissaoDia = function(recomendacao) {
   const container = document.getElementById('mddRecommendation');
   if (!container) return;
 
-  if (!recomendacao) {
-    container.innerHTML = '<div class="mdd-recomendacao-vazia"><i class="ph ph-sparkle"></i><span></span></div>';
-    container.querySelector('span').textContent = 'Responda algumas questões para receber uma missão personalizada.';
+  const materiaAtual = container.dataset.materia || '';
+  if (!recomendacao || !materiaAtual || chaveMateriaMissaoDia(recomendacao.materia) !== chaveMateriaMissaoDia(materiaAtual)) {
+    container.innerHTML = '';
     return;
   }
 
-  container.innerHTML = '<div class="mdd-recomendacao-personalizada"><i class="ph-fill ph-target"></i><div><strong></strong><small></small></div></div>';
-  container.querySelector('strong').textContent = `Matéria recomendada: ${recomendacao.materia}`;
+  container.innerHTML = '<div class="mdd-recomendacao-personalizada"><i class="ph-fill ph-target"></i><div><small></small></div></div>';
   container.querySelector('small').textContent = `Recomendado porque sua taxa em ${recomendacao.materia} está em ${recomendacao.taxa.toFixed(1).replace('.', ',')}%.`;
 };
 window.renderMissaoDoDia = async function() {
@@ -1211,7 +1210,26 @@ window.renderMissaoDoDia = async function() {
       return;
     }
 
-    const selecionada = sortearMateriaMissaoDia(materias);
+    const recomendada = typeof window.obterPiorMateriaDashboard === 'function'
+      ? window.obterPiorMateriaDashboard()
+      : null;
+    const materiaRecomendada = recomendada
+      ? materias.find(item => chaveMateriaMissaoDia(item.materia) === chaveMateriaMissaoDia(recomendada.materia))
+      : null;
+    const selecionada = materiaRecomendada || sortearMateriaMissaoDia(materias);
+
+    if (materiaRecomendada) {
+      try {
+        localStorage.setItem(MISSAO_DIA_KEY, JSON.stringify({
+          data: getDataLocalMissaoDia(),
+          materia: selecionada.materia,
+          materiaKey: selecionada.materiaKey,
+          questoes: selecionada.questoes,
+          flashcards: selecionada.flashcards,
+        }));
+      } catch (e) {}
+    }
+
     const materia = selecionada.materia;
     const materiaHtml = escapeHtmlMissaoDia(materia);
     const questoesTxt = Math.min(selecionada.questoes, 20);
@@ -1222,7 +1240,7 @@ window.renderMissaoDoDia = async function() {
         <div style="flex:1; min-width:0;">
           <div style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px; line-height:1.2;">${materiaHtml}</div>
           <div style="font-size:13px; color:var(--text-muted); font-weight:600;">
-            <i class="ph-fill ph-database" style="color:#10B981;"></i> Matéria Escolhida para hoje
+            <i class="ph-fill ph-database" style="color:#10B981;"></i> Matéria escolhida da Missão:
           </div>
         </div>
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-left:8px;">
@@ -1240,7 +1258,7 @@ window.renderMissaoDoDia = async function() {
           <div style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Questões</div>
         </div>
       </div>
-            <div id="mddRecommendation" aria-live="polite"></div>
+            <div id="mddRecommendation" data-materia="${materiaHtml}" aria-live="polite"></div>
       <button class="btn btn-primary" onclick="iniciarMissaoDoDia()" style="width:100%; padding:14px; border-radius:14px; font-size:16px; box-shadow:0 4px 15px rgba(16,185,129,0.3); background:linear-gradient(135deg, #10B981, #059669);"><i class="ph-fill ph-play-circle"></i> Iniciar Agora</button>
     `;
     if (typeof window.atualizarRecomendacaoMissaoDia === 'function') {

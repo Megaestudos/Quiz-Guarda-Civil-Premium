@@ -354,7 +354,7 @@ window.renderDashboardMateria = async function() {
   itens[2].querySelector('strong').textContent = total.toLocaleString('pt-BR');
   itens[3].querySelector('strong').textContent = taxa(taxaGeral);
   container.querySelector('.desempenho-materia-recomendacao span').textContent = `Seu ponto fraco atual é ${pior.materia}. Recomendamos resolver mais 20 questões dessa matéria.`;
-  if (typeof window.atualizarRecomendacaoMissaoDia === 'function') window.atualizarRecomendacaoMissaoDia(pior);
+  if (typeof window.renderMissaoDoDia === 'function') window.renderMissaoDoDia();
 };
 
 if (window.firebase && firebase.auth) {
