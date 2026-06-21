@@ -101,8 +101,9 @@ service cloud.firestore {
     }
 
     match /questoes/{docId} {
-      allow read: if signedIn();
-      allow write: if isAdmin();
+      // Consultas de alunos devem restringir ativo == true; documentos inativos seguem visíveis apenas ao admin.
+      allow get, list: if isAdmin() || (signedIn() && resource.data.ativo == true);
+      allow create, update, delete: if isAdmin();
     }
 
     match /flashcards/{docId} {

@@ -56,6 +56,19 @@ const CARREIRAS = {
 };
 
 // ─── CARREGAMENTO DINÂMICO DE MISSÕES (FIREBASE) ─────────────────────────────
+function registrarAvisoAcessoJornada(funcao, acesso, erro) {
+  const usuario = (window.firebase && firebase.auth && firebase.auth().currentUser)
+    ? firebase.auth().currentUser
+    : null;
+
+  console.warn('[Jornada] Acesso Firestore indisponível; continuando sem dados dinâmicos.', {
+    funcao,
+    acesso,
+    usuario: usuario ? { uid: usuario.uid, email: usuario.email || null } : null,
+    codigo: erro?.code || 'sem-codigo',
+    mensagem: erro?.message || 'Sem mensagem de erro'
+  });
+}
 window.carregarMissoesFirebase = async function() {
   if (!window.firebase || !firebase.firestore) return;
   try {
@@ -69,7 +82,6 @@ window.carregarMissoesFirebase = async function() {
     console.log(`2. Questões encontradas: ${qSnap.size}`);
 
     if (qSnap.empty) {
-      alert("Nenhuma questão encontrada para gerar a Jornada. Verifique se as questões possuem o campo 'ativo' == true e se a coleção 'questoes' tem permissão de leitura.");
       console.warn("Nenhuma questão ativa retornada pela consulta.");
     }
     
@@ -237,8 +249,11 @@ window.carregarMissoesFirebase = async function() {
       renderMapaCarreira();
     }
   } catch (e) {
-    console.error("Erro ao gerar missões a partir do Firebase:", e);
-    alert("CRASH JORNADA: " + e.message);
+    registrarAvisoAcessoJornada(
+      'carregarMissoesFirebase',
+      'questoes (where ativo == true)',
+      e
+    );
   }
 };
 

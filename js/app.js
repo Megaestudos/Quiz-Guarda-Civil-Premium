@@ -1052,12 +1052,12 @@ async function renderCards(){
     let list = [];
 
     // Tenta buscar da coleção "flashcards"
-    let snap = await db.collection('flashcards').get();
+    let snap = await db.collection('flashcards').limit(50).get();
     snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
 
     // Se estiver vazio, cai para o fallback usando "questoes"
     if (!list.length) {
-      snap = await db.collection('questoes').where('ativo', '==', true).get();
+      snap = await db.collection('questoes').where('ativo', '==', true).limit(50).get();
       snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
     }
 
@@ -1201,11 +1201,11 @@ async function renderCards(){
   try {
     const db = getFirestoreDb();
     let list = [];
-    let snap = await db.collection('flashcards').get();
+    let snap = await db.collection('flashcards').limit(50).get();
     snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
 
     if (!list.length) {
-      snap = await db.collection('questoes').where('ativo', '==', true).get();
+      snap = await db.collection('questoes').where('ativo', '==', true).limit(50).get();
       snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
     }
 

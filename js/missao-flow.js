@@ -1009,13 +1009,6 @@ async function renderEtapa4() {
           transform: translateY(0) scale(1);
         }
       }
-      /* Zoom reduzido no resumo apenas em smartphones */
-      @media (max-width: 768px) {
-        #pdfContainer iframe {
-          zoom: 0.82;
-          width: calc(100% / 0.82) !important;
-        }
-      }
     </style>
     <div class="mf-rr-iframe-wrapper" id="pdfContainer" style="padding: 0;">
     </div>
