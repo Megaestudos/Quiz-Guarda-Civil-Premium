@@ -1184,7 +1184,8 @@ window.atualizarRecomendacaoMissaoDia = function(recomendacao) {
     return;
   }
 
-  container.innerHTML = '<div class="mdd-recomendacao-personalizada"><i class="ph-fill ph-target"></i><div><small></small></div></div>';
+  container.innerHTML = '<div class="mdd-recomendacao-personalizada"><i class="ph-fill ph-target"></i><div><strong></strong><small></small></div></div>';
+  container.querySelector('strong').textContent = `Matéria recomendada: ${recomendacao.materia}`;
   container.querySelector('small').textContent = `Recomendado porque sua taxa em ${recomendacao.materia} está em ${recomendacao.taxa.toFixed(1).replace('.', ',')}%.`;
 };
 window.renderMissaoDoDia = async function() {
