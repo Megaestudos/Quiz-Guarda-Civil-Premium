@@ -75,11 +75,8 @@ window.carregarMissoesFirebase = async function() {
     const db = firebase.firestore();
 
     // Busca todas as questões ativas para extrair a hierarquia
-    console.log("=== AUDITORIA JORNADA V2 ===");
-    console.log("1. Executando consulta: db.collection('questoes').where('ativo', '==', true).get()");
     const qSnap = await db.collection('questoes').where('ativo', '==', true).get();
     
-    console.log(`2. Questões encontradas: ${qSnap.size}`);
 
     if (qSnap.empty) {
       console.warn("Nenhuma questão ativa retornada pela consulta.");
@@ -308,7 +305,6 @@ window.sincronizarCloud = async function() {
         .collection('users_progress').doc(firebase.auth().currentUser.uid)
         .set(payload, { merge: true });
         
-      console.log("Progresso salvo no Firestore com sucesso.");
     } catch(e) {
       console.error("Erro ao salvar no Firestore:", e);
     }
@@ -332,7 +328,6 @@ window.baixarDadosCloud = async function() {
       if (data.quiz_streak !== undefined) localStorage.setItem('quiz_streak', data.quiz_streak);
       if (data.quiz_unlocked_badges) localStorage.setItem('quiz_unlocked_badges', JSON.stringify(data.quiz_unlocked_badges));
       
-      console.log("Progresso baixado do Firestore com sucesso.");
       
       // Reload in-memory variables
       carregarProgress();

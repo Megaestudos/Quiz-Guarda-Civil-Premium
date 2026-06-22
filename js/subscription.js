@@ -52,7 +52,6 @@ auth.onAuthStateChanged(async (user) => {
         document.body.style.opacity = '1';
     }
   } else {
-    console.log("Usuário autenticado:", user.email);
     // Se há usuário, verifica acesso ou redireciona da landing para o app
     if (isApp || isResumos) {
        document.body.style.opacity = '1';
@@ -125,7 +124,6 @@ async function checkSubscription(user) {
         plan: "premium",
         status: "active"
       });
-      console.log("Perfil auto-reparado com acesso livre.");
       // Recarrega a própria função na sequência para o fluxo normal de boas vindas
       await checkSubscription(user);
     }

@@ -380,7 +380,6 @@ window.initContentCMS = async function() {
     if(!window.firebase || !firebase.firestore) return setTimeout(window.initContentCMS, 500);
     const dados = await window.getMateriasAulas();
     MEDIA_CATALOG = dados;
-    console.log("CMS Aulas Carregado:", MEDIA_CATALOG.length, "matérias.");
     if(typeof renderStudies === 'function') renderStudies();
   } catch(e) { console.error("CMS Load Error:", e); }
 };
@@ -410,7 +409,6 @@ window.initJornadaCMS = async function() {
           });
         }
       });
-      console.log("Jornada CMS Carregado do Firebase.");
     }
   } catch(e) {
     console.error("Erro ao carregar Jornada CMS:", e);
@@ -952,7 +950,6 @@ async function loadTopicQuestions(topic) {
       const todas = await window.buscarQuestoesAleatorias(refGeral, 500);
       const filtradas = todas.filter(q => materiasCompatíveis(q_topic(q), topic));
       if (filtradas.length > 0) {
-        console.info(`[Simulado] Valor real do campo materia: "${q_topic(filtradas[0])}".`);
         POOL = filtradas.sort(() => Math.random() - 0.5).slice(0, TEMPLATE_QUIZ_SIZE);
       }
     }

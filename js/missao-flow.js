@@ -485,14 +485,6 @@ function renderEtapa1() {
         : null;
       const diagnosticoAtivo = window.location.hostname === 'localhost'
         || window.location.hostname.endsWith('.web.app');
-      if (diagnosticoAtivo) {
-        console.log('[JORNADA_VIDEO_DEBUG]', {
-          valorOriginal: url,
-          embedFinal: embedUrl,
-          youtubeIdExtraido: youtubeId,
-          location: window.location.href
-        });
-      }
       const diagnosticoHtml = diagnosticoAtivo && embedUrl
         ? `<div style="margin-top:8px;color:var(--text-muted);font-size:12px;word-break:break-all;">URL embed usada: ${embedUrl}</div>`
         : '';
