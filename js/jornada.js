@@ -1173,15 +1173,25 @@ window.atualizarRecomendacaoMissaoDia = function(recomendacao) {
   const container = document.getElementById('mddRecommendation');
   if (!container) return;
 
-  const materiaAtual = container.dataset.materia || '';
-  if (!recomendacao || !materiaAtual || chaveMateriaMissaoDia(recomendacao.materia) !== chaveMateriaMissaoDia(materiaAtual)) {
-    container.innerHTML = '';
+  const taxa = Number(recomendacao?.taxa);
+  const temRecomendacao = Boolean(
+    recomendacao &&
+    normalizarMateriaMissaoDia(recomendacao.materia) &&
+    Number.isFinite(taxa)
+  );
+
+  container.innerHTML = '<div class="mdd-recomendacao-personalizada"><i class="ph-fill ph-target"></i><div><strong></strong><small></small></div></div>';
+  const titulo = container.querySelector('strong');
+  const motivo = container.querySelector('small');
+
+  if (temRecomendacao) {
+    titulo.textContent = `Matéria recomendada: ${recomendacao.materia}`;
+    motivo.textContent = `Recomendado porque sua taxa em ${recomendacao.materia} está em ${taxa.toFixed(1).replace('.', ',')}%.`;
     return;
   }
 
-  container.innerHTML = '<div class="mdd-recomendacao-personalizada"><i class="ph-fill ph-target"></i><div><strong></strong><small></small></div></div>';
-  container.querySelector('strong').textContent = `Matéria recomendada: ${recomendacao.materia}`;
-  container.querySelector('small').textContent = `Recomendado porque sua taxa em ${recomendacao.materia} está em ${recomendacao.taxa.toFixed(1).replace('.', ',')}%.`;
+  titulo.textContent = 'Matéria recomendada';
+  motivo.textContent = 'Responda algumas questões para receber uma recomendação personalizada.';
 };
 window.renderMissaoDoDia = async function() {
   const container = document.getElementById('missaoDoDiaCard');
