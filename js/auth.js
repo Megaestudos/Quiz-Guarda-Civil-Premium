@@ -10,6 +10,13 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
+// App Check protege as chamadas Firebase do cliente com token reCAPTCHA v3.
+if (typeof firebase.initializeAppCheck === 'function' && typeof firebase.ReCaptchaV3Provider === 'function') {
+  firebase.initializeAppCheck(firebase.app(), {
+    provider: new firebase.ReCaptchaV3Provider('6Le6nDAtAAAAAG2RlT_9IwsiqENsKEMYyPIz0Tum'),
+    isTokenAutoRefreshEnabled: true
+  });
+}
 
 const auth = firebase.auth();
 const db = firebase.firestore();
