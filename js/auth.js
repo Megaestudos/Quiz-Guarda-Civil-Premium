@@ -44,8 +44,7 @@ async function registerWithEmail(name, email, password) {
       email: user.email,
       displayName: name,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      plan: "premium",
-      status: "active"
+      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     window.location.href = "app.html";

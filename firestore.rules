@@ -14,25 +14,20 @@ service cloud.firestore {
       return signedIn() && request.auth.token.admin == true;
     }
 
+    // O cliente só pode criar o perfil básico. Plano, status, assinatura,
+    // função e permissões são definidos exclusivamente por Admin SDK/admin.
     function userCreateFields() {
       return request.resource.data.keys().hasOnly([
         'email',
         'displayName',
         'createdAt',
-        'plan',
-        'status'
+        'lastLogin'
       ]);
     }
 
     function userUpdateFields() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
         'displayName',
-        'quiz_xp',
-        'quiz_streak',
-        'quiz_last_date',
-        'quiz_best_record',
-        'quiz_unlocked_badges',
-        'quiz_topic_stats',
         'lastLogin'
       ]);
     }
@@ -40,11 +35,8 @@ service cloud.firestore {
     function validOwnUserCreate(uid) {
       return isOwner(uid)
         && userCreateFields()
-        && request.resource.data.email == request.auth.token.email
-        && request.resource.data.plan == 'premium'
-        && request.resource.data.status == 'active';
+        && request.resource.data.email == request.auth.token.email;
     }
-
     function validOwnUserUpdate(uid) {
       return isOwner(uid) && userUpdateFields();
     }
@@ -58,6 +50,8 @@ service cloud.firestore {
           'quiz_topic_stats',
           'quiz_xp',
           'quiz_streak',
+          'quiz_last_date',
+          'quiz_best_record',
           'quiz_unlocked_badges',
           'estatisticas',
           'updatedAt'

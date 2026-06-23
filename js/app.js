@@ -9,15 +9,15 @@ window.syncGamificationToCloud = async function() {
   if (!window.firebase || !firebase.auth().currentUser) return;
   try {
       const db = firebase.firestore();
-      const docRef = db.collection('users').doc(firebase.auth().currentUser.uid);
-      await docRef.update({
+      const docRef = db.collection('users_progress').doc(firebase.auth().currentUser.uid);
+      await docRef.set({
           quiz_xp: parseInt(localStorage.getItem('quiz_xp') || '0'),
           quiz_streak: parseInt(localStorage.getItem('quiz_streak') || '0'),
           quiz_last_date: localStorage.getItem('quiz_last_date') || '',
           quiz_best_record: JSON.parse(localStorage.getItem('quiz_best_record') || '{"pct":-1}'),
           quiz_unlocked_badges: JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]'),
           quiz_topic_stats: JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}')
-      });
+      }, { merge: true });
   } catch(e) {}
 };
 

@@ -67,37 +67,39 @@ auth.onAuthStateChanged(async (user) => {
 async function checkSubscription(user) {
   try {
     const docRef = db.collection('users').doc(user.uid);
-    const docSnap = await docRef.get();
+    const progressRef = db.collection('users_progress').doc(user.uid);
+    const [docSnap, progressSnap] = await Promise.all([docRef.get(), progressRef.get()]);
     
     if (docSnap.exists) {
       const data = docSnap.data();
+      const gamificationData = progressSnap.exists ? progressSnap.data() : data;
       currentUserDoc = docSnap;
       
       const now = new Date();
       
       // GAMIFICATION SYNC: Cloud to Local (Merge)
       try {
-          const cXP = parseInt(data.quiz_xp || '0');
+          const cXP = parseInt(gamificationData.quiz_xp || '0');
           const lXP = parseInt(localStorage.getItem('quiz_xp') || '0');
           if(cXP > lXP) localStorage.setItem('quiz_xp', cXP);
 
-          const cStreak = parseInt(data.quiz_streak || '0');
+          const cStreak = parseInt(gamificationData.quiz_streak || '0');
           const lStreak = parseInt(localStorage.getItem('quiz_streak') || '0');
           if(cStreak > lStreak) localStorage.setItem('quiz_streak', cStreak);
           
-          if(data.quiz_last_date && !localStorage.getItem('quiz_last_date')) localStorage.setItem('quiz_last_date', data.quiz_last_date);
+          if(gamificationData.quiz_last_date && !localStorage.getItem('quiz_last_date')) localStorage.setItem('quiz_last_date', gamificationData.quiz_last_date);
 
           let lBest = JSON.parse(localStorage.getItem('quiz_best_record') || '{"pct":-1}');
-          let cBest = data.quiz_best_record || {pct:-1};
+          let cBest = gamificationData.quiz_best_record || {pct:-1};
           if((cBest.pct || -1) > (lBest.pct || -1)) localStorage.setItem('quiz_best_record', JSON.stringify(cBest));
 
           let lBadges = JSON.parse(localStorage.getItem('quiz_unlocked_badges') || '[]');
-          let cBadges = data.quiz_unlocked_badges || [];
+          let cBadges = gamificationData.quiz_unlocked_badges || [];
           let mergedB = [...new Set([...lBadges, ...cBadges])];
           localStorage.setItem('quiz_unlocked_badges', JSON.stringify(mergedB));
 
           let lStats = JSON.parse(localStorage.getItem('quiz_topic_stats') || '{}');
-          let cStats = data.quiz_topic_stats || {};
+          let cStats = gamificationData.quiz_topic_stats || {};
           let mergedStats = {...cStats, ...lStats}; // Local overrides old cloud stats
           localStorage.setItem('quiz_topic_stats', JSON.stringify(mergedStats));
           
@@ -115,17 +117,9 @@ async function checkSubscription(user) {
       }
       
     } else {
-      // Falha de sincronia (o redirecionamento interrompeu o registro original)
-      // A plataforma é gratuita, então o app auto-repara o perfil de acesso.
-      await docRef.set({
-        email: user.email || "Sem email",
-        displayName: user.displayName || "Aluno Cursista",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        plan: "premium",
-        status: "active"
-      });
-      // Recarrega a própria função na sequência para o fluxo normal de boas vindas
-      await checkSubscription(user);
+      // Perfil ausente não recebe plano ou status pelo cliente.
+      // O acesso permanece gratuito até que o servidor/admin crie o perfil válido.
+      currentUserDoc = null;
     }
   } catch(e) {
     console.error("Erro ao checar acesso:", e);
