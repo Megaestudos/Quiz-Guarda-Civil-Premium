@@ -194,7 +194,114 @@ function getFirestoreDb(){
   throw new Error('Firebase Firestore não está disponível no front.');
 }
 
-window.buscarQuestoesAleatorias = async function(ref, quantidade) {
+const PLENAULA_QUESTIONS_CACHE_DB = 'PlenAulaQuestionsCache';
+const PLENAULA_QUESTIONS_CACHE_STORE = 'questionsByTopic';
+const PLENAULA_QUESTIONS_CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+let plenAulaQuestionsCacheDbPromise = null;
+
+function getQuestionsCacheTopic(topic) {
+  const nome = (topic || '').toString().trim();
+  return (!nome || nome === 'Todos') ? 'Todos' : nome;
+}
+
+function isCacheValid(cachedAt) {
+  return Number.isFinite(Number(cachedAt)) && (Date.now() - Number(cachedAt)) < PLENAULA_QUESTIONS_CACHE_MAX_AGE;
+}
+
+function openPlenAulaDB() {
+  if (!window.indexedDB) return Promise.reject(new Error('IndexedDB indisponível.'));
+  if (plenAulaQuestionsCacheDbPromise) return plenAulaQuestionsCacheDbPromise;
+
+  plenAulaQuestionsCacheDbPromise = new Promise((resolve, reject) => {
+    const request = window.indexedDB.open(PLENAULA_QUESTIONS_CACHE_DB, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(PLENAULA_QUESTIONS_CACHE_STORE)) {
+        db.createObjectStore(PLENAULA_QUESTIONS_CACHE_STORE, { keyPath: 'topic' });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => {
+      plenAulaQuestionsCacheDbPromise = null;
+      reject(request.error || new Error('Não foi possível abrir o cache de questões.'));
+    };
+  });
+  return plenAulaQuestionsCacheDbPromise;
+}
+
+function readQuestionsCache(topic) {
+  return openPlenAulaDB().then(db => new Promise((resolve, reject) => {
+    const transaction = db.transaction(PLENAULA_QUESTIONS_CACHE_STORE, 'readonly');
+    const request = transaction.objectStore(PLENAULA_QUESTIONS_CACHE_STORE).get(getQuestionsCacheTopic(topic));
+    request.onsuccess = () => resolve(request.result || null);
+    request.onerror = () => reject(request.error);
+  }));
+}
+
+function getCachedQuestions(topic) {
+  return readQuestionsCache(topic).then(entry => {
+    if (!entry || !isCacheValid(entry.cachedAt) || !Array.isArray(entry.questions)) return null;
+    return entry.questions;
+  });
+}
+
+// Mantém no dispositivo apenas os campos necessários para renderizar o simulado.
+function sanitizeQuestionForCache(question) {
+  const cached = {};
+  [
+    'pergunta', 'perguntas', 'question',
+    'materia', 'topico', 'tópico', 'topic',
+    'A', 'B', 'C', 'D', 'a', 'b', 'c', 'd',
+    'resposta', 'answer',
+    'explicacao', 'explicação', 'explanation',
+    'ativo', 'randomKey'
+  ].forEach(field => {
+    if (Object.prototype.hasOwnProperty.call(question, field)) cached[field] = question[field];
+  });
+  return cached;
+}
+
+function saveCachedQuestions(topic, questions) {
+  const entry = {
+    topic: getQuestionsCacheTopic(topic),
+    cachedAt: Date.now(),
+    questions: (questions || []).map(sanitizeQuestionForCache)
+  };
+  return openPlenAulaDB().then(db => new Promise((resolve, reject) => {
+    const transaction = db.transaction(PLENAULA_QUESTIONS_CACHE_STORE, 'readwrite');
+    transaction.objectStore(PLENAULA_QUESTIONS_CACHE_STORE).put(entry);
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error || new Error('Não foi possível salvar o cache de questões.'));
+  }));
+}
+
+function clearExpiredQuestionsCache() {
+  return openPlenAulaDB().then(db => new Promise((resolve, reject) => {
+    const transaction = db.transaction(PLENAULA_QUESTIONS_CACHE_STORE, 'readwrite');
+    const store = transaction.objectStore(PLENAULA_QUESTIONS_CACHE_STORE);
+    const request = store.openCursor();
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (!cursor) return;
+      if (!isCacheValid(cursor.value && cursor.value.cachedAt)) cursor.delete();
+      cursor.continue();
+    };
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  }));
+}
+
+function shuffleQuestions(questions) {
+  const shuffled = questions.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+async function buscarQuestoesAleatoriasFirestore(ref, quantidade) {
   const limite = Math.max(1, Math.floor(Number(quantidade) || 1));
   const ponto = Math.random();
   const porId = new Map();
@@ -207,7 +314,40 @@ window.buscarQuestoesAleatorias = async function(ref, quantidade) {
   }
 
   return Array.from(porId.values()).slice(0, limite);
+}
+
+async function getQuestionsWithCache(ref, topic, quantidade) {
+  const limite = Math.max(1, Math.floor(Number(quantidade) || 1));
+  try {
+    const cachedQuestions = await getCachedQuestions(topic);
+    if (cachedQuestions && (cachedQuestions.length === 0 || cachedQuestions.length >= limite)) return shuffleQuestions(cachedQuestions).slice(0, limite);
+  } catch (error) {
+    // O cache é uma otimização: se falhar, o simulado segue usando o Firestore.
+    console.warn('[Cache de questões] IndexedDB indisponível; buscando no Firestore.', error);
+  }
+
+  const questions = await buscarQuestoesAleatoriasFirestore(ref, limite);
+  try {
+    await saveCachedQuestions(topic, questions);
+    void clearExpiredQuestionsCache().catch(() => {});
+  } catch (error) {
+    console.warn('[Cache de questões] Não foi possível salvar o cache.', error);
+  }
+  return questions;
+}
+
+// API legada: chamadas sem matéria mantêm exatamente a busca direta por randomKey.
+window.buscarQuestoesAleatorias = async function(ref, quantidade, topic) {
+  if (topic !== undefined && topic !== null) return getQuestionsWithCache(ref, topic, quantidade);
+  return buscarQuestoesAleatoriasFirestore(ref, quantidade);
 };
+
+window.openPlenAulaDB = openPlenAulaDB;
+window.getCachedQuestions = getCachedQuestions;
+window.saveCachedQuestions = saveCachedQuestions;
+window.isCacheValid = isCacheValid;
+window.clearExpiredQuestionsCache = clearExpiredQuestionsCache;
+window.getQuestionsWithCache = getQuestionsWithCache;
 
 window.atualizarEstatisticasMateria = async function(materia, acertou) {
   if (!window.firebase || !firebase.auth().currentUser || !firebase.firestore) return null;
@@ -941,13 +1081,13 @@ async function loadTopicQuestions(topic) {
     const db = getFirestoreDb();
     let ref = db.collection('questoes').where('ativo', '==', true);
     if (topic && topic !== 'Todos') ref = ref.where('materia', '==', topic);
-    POOL = await window.buscarQuestoesAleatorias(ref, TEMPLATE_QUIZ_SIZE);
+    POOL = await window.getQuestionsWithCache(ref, topic, TEMPLATE_QUIZ_SIZE);
 
     // Fallback: se não encontrou questões com o nome exato, busca todas e filtra por similaridade
     if (POOL.length === 0 && topic && topic !== 'Todos') {
       console.warn(`[Simulado] Fallback de similaridade para "${topic}"...`);
       const refGeral = db.collection('questoes').where('ativo', '==', true);
-      const todas = await window.buscarQuestoesAleatorias(refGeral, 500);
+      const todas = await window.getQuestionsWithCache(refGeral, 'Todos', 500);
       const filtradas = todas.filter(q => materiasCompatíveis(q_topic(q), topic));
       if (filtradas.length > 0) {
         POOL = filtradas.sort(() => Math.random() - 0.5).slice(0, TEMPLATE_QUIZ_SIZE);
@@ -1433,8 +1573,9 @@ window.startGrandeDia = async function() {
   simulationStartTime = Date.now();
 
   try {
-    POOL = await window.buscarQuestoesAleatorias(
+    POOL = await window.getQuestionsWithCache(
       getFirestoreDb().collection('questoes').where('ativo', '==', true),
+      'Todos',
       100
     );
 
@@ -1543,13 +1684,13 @@ async function loadTopicQuestionsLimited(topic, qtd) {
     const db = getFirestoreDb();
     let ref = db.collection('questoes').where('ativo', '==', true);
     if (topic && topic !== 'Todos') ref = ref.where('materia', '==', topic);
-    POOL = await window.buscarQuestoesAleatorias(ref, qtd || 5);
+    POOL = await window.getQuestionsWithCache(ref, topic, qtd || 5);
 
     // Fallback: se não encontrou questões com o nome exato, busca todas e filtra por similaridade
     if (POOL.length === 0 && topic && topic !== 'Todos') {
       console.warn(`[Simulado-Jornada] Fallback de similaridade para "${topic}"...`);
       const refGeral = db.collection('questoes').where('ativo', '==', true);
-      const todas = await window.buscarQuestoesAleatorias(refGeral, 500);
+      const todas = await window.getQuestionsWithCache(refGeral, 'Todos', 500);
       const filtradas = todas.filter(q => materiasCompatíveis(q_topic(q), topic));
       if (filtradas.length > 0) {
         POOL = filtradas.sort(() => Math.random() - 0.5).slice(0, qtd || 5);
