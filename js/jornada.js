@@ -8,6 +8,12 @@
 const JORNADA_KEY       = 'jornada_progress_v2';
 const CARREIRA_KEY      = 'jornada_carreira_v1';
 const TEMPO_ESTUDO_KEY  = 'jornada_tempo_estudo';
+const MISSAO_DIA_MATERIAS_CACHE_KEY = 'missao_dia_materias_cache_v1';
+const MISSAO_DIA_MATERIAS_CACHE_TTL = 24 * 60 * 60 * 1000;
+const CLOUD_SYNC_MIN_INTERVAL = 2 * 60 * 1000;
+let _missaoDiaMateriasPromise = null;
+let _renderMissaoDoDiaEmAndamento = false;
+let _renderMissaoDoDiaPendente = false;
 const JORNADA_XP_BONUS  = { missao: 50, modulo: 150, carreira: 500 };
 
 // ─── 8. ARQUITETURA ESCALÁVEL DE CARREIRAS ────────────────────────────────────
@@ -57,17 +63,7 @@ const CARREIRAS = {
 
 // ─── CARREGAMENTO DINÂMICO DE MISSÕES (FIREBASE) ─────────────────────────────
 function registrarAvisoAcessoJornada(funcao, acesso, erro) {
-  const usuario = (window.firebase && firebase.auth && firebase.auth().currentUser)
-    ? firebase.auth().currentUser
-    : null;
-
-  console.warn('[Jornada] Acesso Firestore indisponível; continuando sem dados dinâmicos.', {
-    funcao,
-    acesso,
-    usuario: usuario ? { uid: usuario.uid, email: usuario.email || null } : null,
-    codigo: erro?.code || 'sem-codigo',
-    mensagem: erro?.message || 'Sem mensagem de erro'
-  });
+  // Falhas de acesso dinâmico já possuem fallback de interface; não registrar dados do usuário no console.
 }
 window.carregarMissoesFirebase = async function() {
   if (!window.firebase || !firebase.firestore) return;
@@ -79,7 +75,6 @@ window.carregarMissoesFirebase = async function() {
     
 
     if (qSnap.empty) {
-      console.warn("Nenhuma questão ativa retornada pela consulta.");
     }
     
     // Agrupa: Matéria -> Assunto -> Subassunto
@@ -112,7 +107,6 @@ window.carregarMissoesFirebase = async function() {
 
     // Se estiver vazio, exibe log e para a execução para não crachar a tela
     if (qSnap.empty) {
-      console.warn("Nenhuma questão encontrada com ativo==true.");
       return;
     }
 
@@ -130,7 +124,6 @@ window.carregarMissoesFirebase = async function() {
         conteudos[key] = d;
       });
     } catch(e) {
-      console.warn("Aviso: Não foi possível carregar conteudos_jornada. Verifique as regras do Firestore.", e);
     }
 
 
@@ -285,12 +278,29 @@ function salvarProgress() {
 }
 
 let _sincronizarTimeout = null;
-window.sincronizarCloud = async function() {
-  if (_sincronizarTimeout) clearTimeout(_sincronizarTimeout);
-  _sincronizarTimeout = setTimeout(async () => {
+let _ultimoSyncCloud = 0;
+let _sincronizacaoCloudEmAndamento = false;
+let _sincronizacaoCloudPendente = false;
+
+window.sincronizarCloud = function(options = {}) {
+  const force = options === true || options.force === true;
+  if (!window.firebase || !firebase.auth().currentUser) return;
+
+  const executar = async () => {
+    _sincronizarTimeout = null;
+    if (_sincronizacaoCloudEmAndamento) {
+      _sincronizacaoCloudPendente = true;
+      return;
+    }
+
+    const restante = CLOUD_SYNC_MIN_INTERVAL - (Date.now() - _ultimoSyncCloud);
+    if (!force && _ultimoSyncCloud && restante > 0) {
+      _sincronizarTimeout = setTimeout(executar, restante);
+      return;
+    }
+
+    _sincronizacaoCloudEmAndamento = true;
     try {
-      if (!window.firebase || !firebase.auth().currentUser) return;
-      
       const payload = {
         jornada_progress: JORNADA_PROGRESS,
         jornada_carreira: CARREIRA_ATIVA,
@@ -304,13 +314,27 @@ window.sincronizarCloud = async function() {
       await firebase.firestore()
         .collection('users_progress').doc(firebase.auth().currentUser.uid)
         .set(payload, { merge: true });
-        
+      _ultimoSyncCloud = Date.now();
     } catch(e) {
-      console.error("Erro ao salvar no Firestore:", e);
+      console.error('Erro ao salvar no Firestore:', e);
+    } finally {
+      _sincronizacaoCloudEmAndamento = false;
+      if (_sincronizacaoCloudPendente) {
+        _sincronizacaoCloudPendente = false;
+        window.sincronizarCloud();
+      }
     }
-  }, 2000);
-}
+  };
 
+  if (_sincronizarTimeout) {
+    if (!force) return;
+    clearTimeout(_sincronizarTimeout);
+  }
+
+  const restante = CLOUD_SYNC_MIN_INTERVAL - (Date.now() - _ultimoSyncCloud);
+  const atraso = force ? 0 : Math.max(2000, _ultimoSyncCloud ? restante : 2000);
+  _sincronizarTimeout = setTimeout(executar, atraso);
+};
 window.baixarDadosCloud = async function() {
   try {
     if (!window.firebase || !firebase.auth().currentUser) return;
@@ -359,13 +383,13 @@ function iniciarSessao() {
   _TEMPO_INICIO_SESSAO = Date.now();
 }
 
-function registrarTempoSessao() {
+function registrarTempoSessao(options = {}) {
   if (!_TEMPO_INICIO_SESSAO) return;
   const mins = Math.round((Date.now() - _TEMPO_INICIO_SESSAO) / 60000);
   const total = parseInt(localStorage.getItem(TEMPO_ESTUDO_KEY) || '0') + mins;
   localStorage.setItem(TEMPO_ESTUDO_KEY, total);
   _TEMPO_INICIO_SESSAO = null;
-  if (window.sincronizarCloud) window.sincronizarCloud();
+  if (window.sincronizarCloud) window.sincronizarCloud({ force: options.forceCloud === true });
 }
 
 function getTempoEstudado() {
@@ -488,7 +512,6 @@ async function buscarConteudoMissao(missao) {
     FIREBASE_CONTENT[chave] = conteudo;
     return conteudo;
   } catch(e) {
-    console.warn('Erro ao buscar conteúdo:', e);
     return { cmsId: null, videos: [], audios: [], slides: [], questoes: 0, flashcards: 0 };
   }
 }
@@ -1107,42 +1130,69 @@ function escapeHtmlMissaoDia(text = '') {
 }
 
 async function buscarMateriasParaMissaoDia() {
-  const db = typeof getFirestoreDb === 'function'
-    ? getFirestoreDb()
-    : (window.firebase && firebase.firestore ? firebase.firestore() : null);
-  if (!db) return [];
+  try {
+    const cached = JSON.parse(localStorage.getItem(MISSAO_DIA_MATERIAS_CACHE_KEY) || 'null');
+    if (
+      cached &&
+      Array.isArray(cached.materias) &&
+      Number.isFinite(Number(cached.cachedAt)) &&
+      (Date.now() - Number(cached.cachedAt)) < MISSAO_DIA_MATERIAS_CACHE_TTL
+    ) {
+      return cached.materias;
+    }
+  } catch (e) {}
 
-  const [qSnap, fSnap] = await Promise.all([
-    db.collection('questoes').where('ativo', '==', true).get(),
-    db.collection('flashcards').get(),
-  ]);
+  if (_missaoDiaMateriasPromise) return _missaoDiaMateriasPromise;
 
-  const mapa = {};
-  qSnap.forEach(doc => {
-    const materia = obterMateriaDocMissaoDia(doc.data());
-    const chave = chaveMateriaMissaoDia(materia);
-    if (!chave) return;
-    if (!mapa[chave]) mapa[chave] = { materia, materiaKey: chave, questoes: 0, flashcards: 0 };
-    if (!mapa[chave].materia && materia) mapa[chave].materia = materia;
-    mapa[chave].questoes++;
-  });
+  _missaoDiaMateriasPromise = (async () => {
+    const db = typeof getFirestoreDb === 'function'
+      ? getFirestoreDb()
+      : (window.firebase && firebase.firestore ? firebase.firestore() : null);
+    if (!db) return [];
 
-  fSnap.forEach(doc => {
-    const materia = obterMateriaDocMissaoDia(doc.data());
-    const chave = chaveMateriaMissaoDia(materia);
-    if (!chave) return;
-    if (!mapa[chave]) mapa[chave] = { materia, materiaKey: chave, questoes: 0, flashcards: 0 };
-    if (!mapa[chave].materia && materia) mapa[chave].materia = materia;
-    mapa[chave].flashcards++;
-  });
+    const [qSnap, fSnap] = await Promise.all([
+      db.collection('questoes').where('ativo', '==', true).get(),
+      db.collection('flashcards').get(),
+    ]);
 
-  const materias = Object.values(mapa)
-    .filter(item => item.questoes > 0 && item.flashcards > 0)
-    .sort((a, b) => a.materia.localeCompare(b.materia));
+    const mapa = {};
+    qSnap.forEach(doc => {
+      const materia = obterMateriaDocMissaoDia(doc.data());
+      const chave = chaveMateriaMissaoDia(materia);
+      if (!chave) return;
+      if (!mapa[chave]) mapa[chave] = { materia, materiaKey: chave, questoes: 0, flashcards: 0 };
+      if (!mapa[chave].materia && materia) mapa[chave].materia = materia;
+      mapa[chave].questoes++;
+    });
 
-  return materias;
+    fSnap.forEach(doc => {
+      const materia = obterMateriaDocMissaoDia(doc.data());
+      const chave = chaveMateriaMissaoDia(materia);
+      if (!chave) return;
+      if (!mapa[chave]) mapa[chave] = { materia, materiaKey: chave, questoes: 0, flashcards: 0 };
+      if (!mapa[chave].materia && materia) mapa[chave].materia = materia;
+      mapa[chave].flashcards++;
+    });
+
+    const materias = Object.values(mapa)
+      .filter(item => item.questoes > 0 && item.flashcards > 0)
+      .sort((a, b) => a.materia.localeCompare(b.materia));
+
+    try {
+      localStorage.setItem(MISSAO_DIA_MATERIAS_CACHE_KEY, JSON.stringify({
+        cachedAt: Date.now(),
+        materias: materias.map(({ materia, materiaKey, questoes, flashcards }) => ({ materia, materiaKey, questoes, flashcards }))
+      }));
+    } catch (e) {}
+    return materias;
+  })();
+
+  try {
+    return await _missaoDiaMateriasPromise;
+  } finally {
+    _missaoDiaMateriasPromise = null;
+  }
 }
-
 function sortearMateriaMissaoDia(materias) {
   const hoje = getDataLocalMissaoDia();
   let salva = null;
@@ -1197,6 +1247,11 @@ window.renderMissaoDoDia = async function() {
   const container = document.getElementById('missaoDoDiaCard');
   const body = document.getElementById('mddContentBody');
   if (!container || !body) return;
+  if (_renderMissaoDoDiaEmAndamento) {
+    _renderMissaoDoDiaPendente = true;
+    return;
+  }
+  _renderMissaoDoDiaEmAndamento = true;
 
   body.innerHTML = `
     <div class="mdd-loading" style="color:var(--text-muted); font-size:14px;">
@@ -1277,6 +1332,12 @@ window.renderMissaoDoDia = async function() {
         <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">Não foi possível carregar a missão</div>
         <button class="btn btn-secondary" style="width:100%; border-radius:14px; margin-top:12px;" onclick="renderMissaoDoDia()"><i class="ph-fill ph-arrow-clockwise"></i> Tentar novamente</button>
       </div>`;
+  } finally {
+    _renderMissaoDoDiaEmAndamento = false;
+    if (_renderMissaoDoDiaPendente) {
+      _renderMissaoDoDiaPendente = false;
+      void window.renderMissaoDoDia();
+    }
   }
 };
 
@@ -1831,9 +1892,9 @@ window.renderPerfil = function() {
     setTimeout(render, 100);
   }
   // Registra tempo ao sair da página
-  window.addEventListener('beforeunload', registrarTempoSessao);
+  window.addEventListener('beforeunload', () => registrarTempoSessao({ forceCloud: true }));
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) registrarTempoSessao(); else iniciarSessao();
+    if (document.hidden) registrarTempoSessao({ forceCloud: true }); else iniciarSessao();
   });
 })();
 
