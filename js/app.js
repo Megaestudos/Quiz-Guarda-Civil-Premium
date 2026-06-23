@@ -238,11 +238,15 @@ function readQuestionsCache(topic) {
   }));
 }
 
-function getCachedQuestions(topic) {
+function getCachedQuestionsEntry(topic) {
   return readQuestionsCache(topic).then(entry => {
     if (!entry || !isCacheValid(entry.cachedAt) || !Array.isArray(entry.questions)) return null;
-    return entry.questions;
+    return entry;
   });
+}
+
+function getCachedQuestions(topic) {
+  return getCachedQuestionsEntry(topic).then(entry => entry ? entry.questions : null);
 }
 
 // Mantém no dispositivo apenas os campos necessários para renderizar o simulado.
@@ -261,10 +265,11 @@ function sanitizeQuestionForCache(question) {
   return cached;
 }
 
-function saveCachedQuestions(topic, questions) {
+function saveCachedQuestions(topic, questions, cacheLimit) {
   const entry = {
     topic: getQuestionsCacheTopic(topic),
     cachedAt: Date.now(),
+    cacheLimit: Number.isFinite(Number(cacheLimit)) ? Math.max(1, Math.floor(Number(cacheLimit))) : null,
     questions: (questions || []).map(sanitizeQuestionForCache)
   };
   return openPlenAulaDB().then(db => new Promise((resolve, reject) => {
@@ -318,22 +323,33 @@ async function buscarQuestoesAleatoriasFirestore(ref, quantidade) {
 
 async function getQuestionsWithCache(ref, topic, quantidade) {
   const limite = Math.max(1, Math.floor(Number(quantidade) || 1));
+  const cacheTopic = getQuestionsCacheTopic(topic);
+  const cacheLimit = cacheTopic === 'Todos' ? 500 : 300;
+  let indexedDbAvailable = true;
+
   try {
-    const cachedQuestions = await getCachedQuestions(topic);
-    if (cachedQuestions && (cachedQuestions.length === 0 || cachedQuestions.length >= limite)) return shuffleQuestions(cachedQuestions).slice(0, limite);
+    const cachedEntry = await getCachedQuestionsEntry(topic);
+    // Entradas antigas (sem cacheLimit) continham apenas o tamanho do simulado;
+    // são atualizadas uma vez para ganhar variedade sem esperar sete dias.
+    if (cachedEntry && cachedEntry.cacheLimit >= cacheLimit) {
+      return shuffleQuestions(cachedEntry.questions).slice(0, limite);
+    }
   } catch (error) {
-    // O cache é uma otimização: se falhar, o simulado segue usando o Firestore.
+    // O cache é uma otimização: se falhar, preserva a busca original do Firestore.
+    indexedDbAvailable = false;
     console.warn('[Cache de questões] IndexedDB indisponível; buscando no Firestore.', error);
   }
 
-  const questions = await buscarQuestoesAleatoriasFirestore(ref, limite);
+  const questions = await buscarQuestoesAleatoriasFirestore(ref, indexedDbAvailable ? cacheLimit : limite);
+  if (!indexedDbAvailable) return questions;
+
   try {
-    await saveCachedQuestions(topic, questions);
+    await saveCachedQuestions(topic, questions, cacheLimit);
     void clearExpiredQuestionsCache().catch(() => {});
   } catch (error) {
     console.warn('[Cache de questões] Não foi possível salvar o cache.', error);
   }
-  return questions;
+  return shuffleQuestions(questions).slice(0, limite);
 }
 
 // API legada: chamadas sem matéria mantêm exatamente a busca direta por randomKey.
