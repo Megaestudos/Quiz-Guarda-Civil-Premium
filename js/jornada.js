@@ -1114,6 +1114,31 @@ function chaveMateriaMissaoDia(nome) {
     .replace(/\s+/g, ' ');
 }
 
+const MATERIA_ALIASES_MISSAO_DIA = [
+  [
+    'Lei 13.869/2019 - Abuso de Autoridade',
+    'Abuso de Autoridade',
+    'Lei de Abuso de Autoridade',
+    'Lei 13.869',
+    'Lei 13869'
+  ]
+];
+
+function obterChavesMateriaMissaoDia(materia, materiaKeySalva = '') {
+  const chaves = new Set([
+    chaveMateriaMissaoDia(materia),
+    chaveMateriaMissaoDia(materiaKeySalva)
+  ].filter(Boolean));
+
+  MATERIA_ALIASES_MISSAO_DIA.forEach(grupo => {
+    const chavesDoGrupo = grupo.map(chaveMateriaMissaoDia);
+    if (chavesDoGrupo.some(chave => chaves.has(chave))) {
+      chavesDoGrupo.forEach(chave => chaves.add(chave));
+    }
+  });
+
+  return chaves;
+}
 function obterMateriaDocMissaoDia(data = {}) {
   return normalizarMateriaMissaoDia(
     data.materia || data.disciplina || data.subject || data.categoria || ''
@@ -1217,6 +1242,8 @@ window.atualizarRecomendacaoMissaoDia = function(recomendacao) {
   titulo.textContent = 'Matéria recomendada';
   motivo.textContent = 'Responda algumas questões para receber uma recomendação personalizada.';
 };
+let _conteudoMissaoDiaPrecarregado = null;
+
 window.renderMissaoDoDia = async function() {
   const container = document.getElementById('missaoDoDiaCard');
   const body = document.getElementById('mddContentBody');
@@ -1261,6 +1288,12 @@ window.renderMissaoDoDia = async function() {
         </div>`;
       return;
     }
+    const cachePrecarregado = _conteudoMissaoDiaPrecarregado;
+    const conteudo = cachePrecarregado && cachePrecarregado.materiaKey === selecionada.materiaKey
+      ? cachePrecarregado.conteudo
+      : await carregarConteudoMissaoDia(selecionada.materia, selecionada.materiaKey);
+    _conteudoMissaoDiaPrecarregado = { materiaKey: selecionada.materiaKey, conteudo };
+
     {
       try {
         localStorage.setItem(MISSAO_DIA_KEY, JSON.stringify({
@@ -1268,16 +1301,17 @@ window.renderMissaoDoDia = async function() {
           versao: 3,
           materia: selecionada.materia,
           materiaKey: selecionada.materiaKey,
-          questoes: selecionada.questoes,
-          flashcards: selecionada.flashcards,
+          questoes: conteudo.questoes.length,
+          flashcards: conteudo.flashcards.length,
         }));
       } catch (e) {}
     }
 
     const materia = selecionada.materia;
     const materiaHtml = escapeHtmlMissaoDia(materia);
-    const questoesTxt = Math.min(selecionada.questoes, 20);
-    const flashcardsTxt = Math.min(selecionada.flashcards, 15);
+    const questoesTxt = conteudo.questoes.length;
+    const flashcardsTxt = conteudo.flashcards.length;
+    const flashcardsResumo = flashcardsTxt ? String(flashcardsTxt) + '/15' : '0';
 
     body.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px;">
@@ -1294,7 +1328,7 @@ window.renderMissaoDoDia = async function() {
       </div>
       <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; margin-bottom:14px;">
         <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px;">
-          <div style="font-size:18px; color:#fff; font-weight:900;">${flashcardsTxt}/15</div>
+          <div style="font-size:18px; color:#fff; font-weight:900;">${flashcardsResumo}</div>
           <div style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Flashcards</div>
         </div>
         <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px;">
@@ -1302,6 +1336,7 @@ window.renderMissaoDoDia = async function() {
           <div style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Questões</div>
         </div>
       </div>
+      ${flashcardsTxt ? '' : '<div style="margin:-4px 0 14px; font-size:12px; color:var(--text-muted); font-weight:600;">Ainda não há flashcards cadastrados para esta matéria. Vamos começar pelas questões.</div>'}
             <div id="mddRecommendation" data-materia="${materiaHtml}" aria-live="polite"></div>
       <button class="btn btn-primary" onclick="iniciarMissaoDoDia()" style="width:100%; padding:14px; border-radius:14px; font-size:16px; box-shadow:0 4px 15px rgba(16,185,129,0.3); background:linear-gradient(135deg, #10B981, #059669);"><i class="ph-fill ph-play-circle"></i> Iniciar Agora</button>
     `;
@@ -1350,15 +1385,9 @@ function getFlashcardVersoMissaoDia(fc) {
 async function carregarConteudoMissaoDia(materia, materiaKeySalva = '') {
   const db = getDbMissaoDia();
   if (!db) return { flashcards: [], questoes: [] };
-  const materiaKey = materiaKeySalva || chaveMateriaMissaoDia(materia);
-  console.log('[DIAG MDD] matéria:', materia);
-  console.log('[DIAG MDD] matériaKey:', materiaKey);
   // Conserva a chave salva para compatibilidade, mas sempre inclui a chave
   // recalculada da matéria atual para não perder flashcards após uma mudança de nome.
-  const materiaKeys = new Set([
-    chaveMateriaMissaoDia(materia),
-    chaveMateriaMissaoDia(materiaKeySalva)
-  ].filter(Boolean));
+  const materiaKeys = obterChavesMateriaMissaoDia(materia, materiaKeySalva);
 
   const [fSnap, qSnap] = await Promise.all([
     db.collection('flashcards').where('materia', '==', materia).get(),
@@ -1389,10 +1418,6 @@ async function carregarConteudoMissaoDia(materia, materiaKeySalva = '') {
       }
     });
   }
-
-  console.log('[DIAG MDD] total flashcards encontrados:', flashcards.length);
-  console.log('[DIAG MDD] amostra flashcards:', flashcards.slice(0, 3));
-  console.log('[DIAG MDD] total questões encontradas:', questoes.length);
 
   return {
     flashcards: shuffleArray(flashcards).slice(0, 15),
@@ -1568,7 +1593,10 @@ window.iniciarMissaoDoDia = async function() {
   }
 
   try {
-    const conteudo = await carregarConteudoMissaoDia(salva.materia, salva.materiaKey);
+    const cachePrecarregado = _conteudoMissaoDiaPrecarregado;
+    const conteudo = cachePrecarregado && cachePrecarregado.materiaKey === salva.materiaKey
+      ? cachePrecarregado.conteudo
+      : await carregarConteudoMissaoDia(salva.materia, salva.materiaKey);
     _missaoDiaSessao = {
       materia: salva.materia,
       flashcards: conteudo.flashcards,
@@ -1577,9 +1605,6 @@ window.iniciarMissaoDoDia = async function() {
       index: 0,
       acertos: 0,
     };
-
-    console.log('[DIAG MDD] sessão final:', _missaoDiaSessao);
-    console.log('[DIAG MDD] vai abrir flashcards?', !!(_missaoDiaSessao.flashcards && _missaoDiaSessao.flashcards.length));
 
     if (!_missaoDiaSessao.flashcards.length && !_missaoDiaSessao.questoes.length) {
       if (el) {
