@@ -15,7 +15,7 @@ if (!uid) {
 admin.initializeApp();
 
 admin.auth().setCustomUserClaims(uid, { admin: true })
-  .then(() => console.log(`Admin claim granted to ${uid}. The user must sign in again.`))
+  .then(() => console.log('Admin claim granted. The user must sign in again.'))
   .catch((error) => {
     console.error('Could not grant admin claim:', error.message);
     process.exitCode = 1;

@@ -95,7 +95,7 @@ onAuthStateChanged(auth, async (user) => {
             return;
         }
         revealAdmin();
-        console.log("Autenticado como Admin:", user.email);
+
         await initDashboard();
     } catch (error) {
         console.error('Falha ao verificar a permissão administrativa:', error);
@@ -111,7 +111,7 @@ async function initDashboard() {
         console.log("Chamando Cloud Function 'listUsersV2'...");
         
         const result = await listUsersCall();
-        console.log("Resultado recebido:", result);
+
         
         const users = Array.isArray(result.data) ? result.data : [];
         

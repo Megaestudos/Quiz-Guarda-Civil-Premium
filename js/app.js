@@ -429,7 +429,7 @@ async function carregarEstatisticasDashboard() {
       return DASHBOARD_MATERIA_CACHE.dados;
     })
     .catch((erro) => {
-      console.warn('[Dashboard por matéria] Estatísticas indisponíveis.', { colecao: `users_progress/${uid}`, codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
+      console.warn('[Dashboard por matéria] Estatísticas indisponíveis.', { colecao: 'users_progress', codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
       DASHBOARD_MATERIA_CACHE.dados = {};
       return {};
     })
