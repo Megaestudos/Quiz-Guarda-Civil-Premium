@@ -1323,42 +1323,6 @@ window.renderMissaoDoDia = async function() {
   }
 };
 
-window.iniciarMissaoDoDia = async function() {
-  let salva = null;
-  try {
-    salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
-  } catch (e) {}
-
-  if (!salva?.materia) {
-    await renderMissaoDoDia();
-    try {
-      salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
-    } catch (e) {}
-  }
-
-  if (!salva?.materia) return;
-
-  if (typeof window.iniciarFluxoMissaoAvulsa !== 'function') {
-    console.error('[Jornada] missao-flow.js não carregou iniciarFluxoMissaoAvulsa.');
-    return;
-  }
-
-  window.iniciarFluxoMissaoAvulsa({
-    modId: 'missao_do_dia',
-    missaoId: `missao_do_dia_${salva.data}_${salva.materia}`.replace(/[^a-z0-9_-]/gi, '_').toLowerCase(),
-    modNome: 'Missão do Dia',
-    modIcon: 'ph-target',
-    cor: '#10B981',
-    nome: `Missão do Dia - ${escapeHtmlMissaoDia(salva.materia)}`,
-    materia: salva.materia,
-    flashcardsLimite: 15,
-    questoesLimite: 20,
-    flashcardsSomenteMateria: true,
-    tempoMin: 25,
-    xp: 100,
-  });
-};
-
 let _missaoDiaSessao = {
   materia: '',
   flashcards: [],
@@ -1485,7 +1449,7 @@ function renderMissaoDiaFlashcard() {
         </div>
       </div>
     </div>
-    <div class="mf-classificacao" id="mddClassificacao">
+    <div class="mf-classificacao" id="mddClassificacao" style="display:none;">
       <p class="mf-classif-label">Como foi essa?</p>
       <div class="mf-classif-btns">
         <button class="mf-classif-btn mf-classif-dificil" onclick="classificarFlashcardMissaoDia('dificil')">
@@ -1634,7 +1598,10 @@ window.fecharMissaoDoDia = function() {
 
 window.virarFlashcardMissaoDia = function() {
   const card = document.getElementById('mddFlashcard');
-  if (card) card.classList.toggle('mf-flashcard-virado');
+  if (!card) return;
+  card.classList.toggle('mf-flashcard-virado');
+  const classif = document.getElementById('mddClassificacao');
+  if (classif) setTimeout(() => classif.style.display = 'block', 200);
 };
 
 window.proximoFlashcardMissaoDia = function() {
