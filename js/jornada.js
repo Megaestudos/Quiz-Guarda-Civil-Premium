@@ -1265,6 +1265,7 @@ window.renderMissaoDoDia = async function() {
       try {
         localStorage.setItem(MISSAO_DIA_KEY, JSON.stringify({
           data: getDataLocalMissaoDia(),
+          versao: 2,
           materia: selecionada.materia,
           materiaKey: selecionada.materiaKey,
           questoes: selecionada.questoes,
@@ -1533,7 +1534,9 @@ window.iniciarMissaoDoDia = async function() {
     salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
   } catch (e) {}
 
-  if (!salva?.materia) {
+  // A sessão é diária. Não reutilize uma matéria/chave de uma missão antiga,
+  // pois o card atual pode já ter selecionado outro ponto de atenção.
+  if (!salva?.materia || salva.versao !== 2 || salva.data !== getDataLocalMissaoDia()) {
     await renderMissaoDoDia();
     try {
       salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
