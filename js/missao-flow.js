@@ -90,7 +90,6 @@ async function buscarCmsMissao(materia) {
     }
     return resultado;
   } catch (e) {
-    console.warn('[MissaoFlow] Erro ao buscar CMS:', e);
     return null;
   }
 }
@@ -277,7 +276,6 @@ window.iniciarFluxoMissao = async function(modId, missaoId) {
     _missaoSessao.flashcards = flashcards;
     _missaoSessao.questoesEtapa5 = questoesE5;
   } catch (e) {
-    console.warn('[MissaoFlow] Erro ao carregar dados:', e);
   }
 
   renderEtapa(1);
@@ -370,7 +368,6 @@ window.iniciarFluxoMissaoAvulsa = async function(config = {}) {
     _missaoSessao.cms = cms;
     _missaoSessao.resumoRapido = detectResumoRapido(cms);
   } catch (e) {
-    console.warn('[MissaoFlow] Erro ao carregar missão avulsa:', e);
   }
 
   renderEtapa(1);

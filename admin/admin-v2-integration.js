@@ -104,11 +104,9 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 async function initDashboard() {
-    console.log("Iniciando carregamento de dados do Dashboard...");
     try {
         // 1. Carregar Alunos via Cloud Function
         const listUsersCall = httpsCallable(functions, "listUsersV2");
-        console.log("Chamando Cloud Function 'listUsersV2'...");
         
         const result = await listUsersCall();
 
@@ -118,10 +116,8 @@ async function initDashboard() {
         // Sort by creation date descending
         users.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         
-        console.log("Total de usuários processados:", users.length);
 
         if (users.length === 0) {
-            console.warn("A função retornou zero usuários. Verifique as permissões ou se há usuários no Firebase.");
         }
 
         updateUIStats(users);
@@ -138,7 +134,6 @@ async function initDashboard() {
         if ($('topStudentsList')) initSimulados(users);
         if ($('iaRequestChart')) initAiControl(users);
         
-        console.log("UI atualizada com sucesso.");
 
     } catch (e) {
         console.error("Erro crítico ao carregar dados do Firebase:", e);

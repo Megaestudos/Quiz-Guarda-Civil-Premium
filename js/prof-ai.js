@@ -432,7 +432,6 @@ window.sendAiMessage = async function() {
 
          attempt++;
          if (attempt <= MAX_RETRIES) {
-             console.warn(`⏳ Falha na IA. Tentando novamente... (Tentativa ${attempt}/${MAX_RETRIES})`, error);
              await new Promise(r => setTimeout(r, 1500)); // Delay
          } else {
              console.error("❌ Falha crítica: Erro na última tentativa.");

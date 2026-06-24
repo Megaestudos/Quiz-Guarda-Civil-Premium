@@ -337,7 +337,6 @@ async function getQuestionsWithCache(ref, topic, quantidade) {
   } catch (error) {
     // O cache é uma otimização: se falhar, preserva a busca original do Firestore.
     indexedDbAvailable = false;
-    console.warn('[Cache de questões] IndexedDB indisponível; buscando no Firestore.', error);
   }
 
   const questions = await buscarQuestoesAleatoriasFirestore(ref, indexedDbAvailable ? cacheLimit : limite);
@@ -347,7 +346,6 @@ async function getQuestionsWithCache(ref, topic, quantidade) {
     await saveCachedQuestions(topic, questions, cacheLimit);
     void clearExpiredQuestionsCache().catch(() => {});
   } catch (error) {
-    console.warn('[Cache de questões] Não foi possível salvar o cache.', error);
   }
   return shuffleQuestions(questions).slice(0, limite);
 }
@@ -429,7 +427,6 @@ async function carregarEstatisticasDashboard() {
       return DASHBOARD_MATERIA_CACHE.dados;
     })
     .catch((erro) => {
-      console.warn('[Dashboard por matéria] Estatísticas indisponíveis.', { colecao: 'users_progress', codigo: erro?.code || 'sem-codigo', mensagem: erro?.message || 'Sem mensagem de erro' });
       DASHBOARD_MATERIA_CACHE.dados = {};
       return {};
     })
@@ -1078,7 +1075,6 @@ async function showTopicSelection(){
       });
 
       if (materias.length === 0) {
-          console.warn("Aviso: Nenhuma matéria encontrada no banco.");
       }
     } catch (err) {
       console.error("Erro ao carregar tópicos:", err);
@@ -1112,7 +1108,6 @@ async function loadTopicQuestions(topic) {
 
     // Fallback: se não encontrou questões com o nome exato, busca todas e filtra por similaridade
     if (POOL.length === 0 && topic && topic !== 'Todos') {
-      console.warn(`[Simulado] Fallback de similaridade para "${topic}"...`);
       const refGeral = db.collection('questoes').where('ativo', '==', true);
       const todas = await window.getQuestionsWithCache(refGeral, 'Todos', 500);
       const filtradas = todas.filter(q => materiasCompatíveis(q_topic(q), topic));
@@ -1715,7 +1710,6 @@ async function loadTopicQuestionsLimited(topic, qtd) {
 
     // Fallback: se não encontrou questões com o nome exato, busca todas e filtra por similaridade
     if (POOL.length === 0 && topic && topic !== 'Todos') {
-      console.warn(`[Simulado-Jornada] Fallback de similaridade para "${topic}"...`);
       const refGeral = db.collection('questoes').where('ativo', '==', true);
       const todas = await window.getQuestionsWithCache(refGeral, 'Todos', 500);
       const filtradas = todas.filter(q => materiasCompatíveis(q_topic(q), topic));
