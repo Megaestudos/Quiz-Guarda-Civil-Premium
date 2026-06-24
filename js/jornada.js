@@ -8,7 +8,7 @@
 const JORNADA_KEY       = 'jornada_progress_v2';
 const CARREIRA_KEY      = 'jornada_carreira_v1';
 const TEMPO_ESTUDO_KEY  = 'jornada_tempo_estudo';
-const MISSAO_DIA_MATERIAS_CACHE_KEY = 'missao_dia_materias_cache_v2';
+const MISSAO_DIA_MATERIAS_CACHE_KEY = 'missao_dia_materias_cache_v3';
 const MISSAO_DIA_MATERIAS_CACHE_TTL = 24 * 60 * 60 * 1000;
 const CLOUD_SYNC_MIN_INTERVAL = 2 * 60 * 1000;
 let _missaoDiaMateriasPromise = null;
@@ -1265,7 +1265,7 @@ window.renderMissaoDoDia = async function() {
       try {
         localStorage.setItem(MISSAO_DIA_KEY, JSON.stringify({
           data: getDataLocalMissaoDia(),
-          versao: 2,
+          versao: 3,
           materia: selecionada.materia,
           materiaKey: selecionada.materiaKey,
           questoes: selecionada.questoes,
@@ -1350,6 +1350,9 @@ function getFlashcardVersoMissaoDia(fc) {
 async function carregarConteudoMissaoDia(materia, materiaKeySalva = '') {
   const db = getDbMissaoDia();
   if (!db) return { flashcards: [], questoes: [] };
+  const materiaKey = materiaKeySalva || chaveMateriaMissaoDia(materia);
+  console.log('[DIAG MDD] matéria:', materia);
+  console.log('[DIAG MDD] matériaKey:', materiaKey);
   // Conserva a chave salva para compatibilidade, mas sempre inclui a chave
   // recalculada da matéria atual para não perder flashcards após uma mudança de nome.
   const materiaKeys = new Set([
@@ -1386,6 +1389,10 @@ async function carregarConteudoMissaoDia(materia, materiaKeySalva = '') {
       }
     });
   }
+
+  console.log('[DIAG MDD] total flashcards encontrados:', flashcards.length);
+  console.log('[DIAG MDD] amostra flashcards:', flashcards.slice(0, 3));
+  console.log('[DIAG MDD] total questões encontradas:', questoes.length);
 
   return {
     flashcards: shuffleArray(flashcards).slice(0, 15),
@@ -1536,7 +1543,7 @@ window.iniciarMissaoDoDia = async function() {
 
   // A sessão é diária. Não reutilize uma matéria/chave de uma missão antiga,
   // pois o card atual pode já ter selecionado outro ponto de atenção.
-  if (!salva?.materia || salva.versao !== 2 || salva.data !== getDataLocalMissaoDia()) {
+  if (!salva?.materia || salva.versao !== 3 || salva.data !== getDataLocalMissaoDia()) {
     await renderMissaoDoDia();
     try {
       salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
@@ -1570,6 +1577,9 @@ window.iniciarMissaoDoDia = async function() {
       index: 0,
       acertos: 0,
     };
+
+    console.log('[DIAG MDD] sessão final:', _missaoDiaSessao);
+    console.log('[DIAG MDD] vai abrir flashcards?', !!(_missaoDiaSessao.flashcards && _missaoDiaSessao.flashcards.length));
 
     if (!_missaoDiaSessao.flashcards.length && !_missaoDiaSessao.questoes.length) {
       if (el) {
