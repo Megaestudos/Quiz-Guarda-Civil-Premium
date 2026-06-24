@@ -1349,7 +1349,12 @@ function getFlashcardVersoMissaoDia(fc) {
 async function carregarConteudoMissaoDia(materia, materiaKeySalva = '') {
   const db = getDbMissaoDia();
   if (!db) return { flashcards: [], questoes: [] };
-  const materiaKey = materiaKeySalva || chaveMateriaMissaoDia(materia);
+  // Conserva a chave salva para compatibilidade, mas sempre inclui a chave
+  // recalculada da matéria atual para não perder flashcards após uma mudança de nome.
+  const materiaKeys = new Set([
+    chaveMateriaMissaoDia(materia),
+    chaveMateriaMissaoDia(materiaKeySalva)
+  ].filter(Boolean));
 
   const [fSnap, qSnap] = await Promise.all([
     db.collection('flashcards').where('materia', '==', materia).get(),
@@ -1361,21 +1366,21 @@ async function carregarConteudoMissaoDia(materia, materiaKeySalva = '') {
   fSnap.forEach(doc => flashcards.push({ id: doc.id, ...doc.data() }));
   qSnap.forEach(doc => questoes.push({ id: doc.id, ...doc.data() }));
 
-  if (!flashcards.length && materiaKey) {
+  if (!flashcards.length && materiaKeys.size) {
     const todosFlashcards = await db.collection('flashcards').get();
     todosFlashcards.forEach(doc => {
       const data = doc.data();
-      if (chaveMateriaMissaoDia(obterMateriaDocMissaoDia(data)) === materiaKey) {
+      if (materiaKeys.has(chaveMateriaMissaoDia(obterMateriaDocMissaoDia(data)))) {
         flashcards.push({ id: doc.id, ...data });
       }
     });
   }
 
-  if (!questoes.length && materiaKey) {
+  if (!questoes.length && materiaKeys.size) {
     const todasQuestoes = await db.collection('questoes').where('ativo', '==', true).get();
     todasQuestoes.forEach(doc => {
       const data = doc.data();
-      if (chaveMateriaMissaoDia(obterMateriaDocMissaoDia(data)) === materiaKey) {
+      if (materiaKeys.has(chaveMateriaMissaoDia(obterMateriaDocMissaoDia(data)))) {
         questoes.push({ id: doc.id, ...data });
       }
     });
