@@ -13,7 +13,7 @@ if (!firebase.apps.length) {
 // App Check protege as chamadas Firebase do cliente com token reCAPTCHA v3.
 if (firebase.appCheck) {
   firebase.appCheck().activate(
-    '6Le6nDAtAAAAAG2RlT_9IwsiqENsKEMYyPIz0Tum',
+    '6Le6nDAtAAAAAG2RIT_9IwsiqENsKEMYyPIz0Tum',
     true
   );
 }
