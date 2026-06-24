@@ -46,7 +46,7 @@ auth.onAuthStateChanged(async (user) => {
   // Se não há usuário, redireciona para o login APENAS se estiver em uma página restrita
   if (!user) {
     if (isApp || isResumos) {
-        console.warn("Redirecionando para login: Usuário não autenticado em página restrita.");
+
         window.location.href = isResumos ? '../index.html' : 'index.html';
     } else {
         document.body.style.opacity = '1';
