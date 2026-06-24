@@ -450,7 +450,6 @@ function compararPontoDeAtencao(a, b) {
 
 function selecionarPontoDeAtencao(materias) {
   const pior = materias.length ? [...materias].sort(compararPontoDeAtencao)[0] : null;
-  if (pior) console.log('[PlenAula] Ponto de atenção escolhido:', pior.materia);
   return pior;
 }
 

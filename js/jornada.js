@@ -1261,8 +1261,6 @@ window.renderMissaoDoDia = async function() {
         </div>`;
       return;
     }
-
-    console.log('[PlenAula] Missão do dia usando matéria:', selecionada.materia);
     {
       try {
         localStorage.setItem(MISSAO_DIA_KEY, JSON.stringify({
