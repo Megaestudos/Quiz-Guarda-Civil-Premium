@@ -483,11 +483,6 @@ function renderEtapa1() {
       const embedUrl = typeof window.obterUrlEmbedYoutube === 'function'
         ? window.obterUrlEmbedYoutube(url)
         : null;
-      const diagnosticoAtivo = window.location.hostname === 'localhost'
-        || window.location.hostname.endsWith('.web.app');
-      const diagnosticoHtml = diagnosticoAtivo && embedUrl
-        ? `<div style="margin-top:8px;color:var(--text-muted);font-size:12px;word-break:break-all;">URL embed usada: ${embedUrl}</div>`
-        : '';
       const avisoArquivoLocal = window.location.protocol === 'file:'
         ? '<div style="margin:0 0 12px;padding:10px 12px;border:1px solid rgba(245,158,11,.35);border-radius:10px;color:#FCD34D;background:rgba(245,158,11,.1);font-size:13px;">Para testar vídeos do YouTube, use o link publicado do app.</div>'
         : '';
@@ -505,7 +500,6 @@ function renderEtapa1() {
               allowfullscreen>
             </iframe>
           </div>
-          ${diagnosticoHtml}
           <div class="mf-video-titulo">${missao.nome}</div>
           <div class="text-sm text-gray-400 mt-2">${missao.descricao || ''}</div>
         </div>`
