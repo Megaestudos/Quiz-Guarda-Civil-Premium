@@ -8,7 +8,7 @@
 const JORNADA_KEY       = 'jornada_progress_v2';
 const CARREIRA_KEY      = 'jornada_carreira_v1';
 const TEMPO_ESTUDO_KEY  = 'jornada_tempo_estudo';
-const MISSAO_DIA_MATERIAS_CACHE_KEY = 'missao_dia_materias_cache_v1';
+const MISSAO_DIA_MATERIAS_CACHE_KEY = 'missao_dia_materias_cache_v2';
 const MISSAO_DIA_MATERIAS_CACHE_TTL = 24 * 60 * 60 * 1000;
 const CLOUD_SYNC_MIN_INTERVAL = 2 * 60 * 1000;
 let _missaoDiaMateriasPromise = null;
@@ -1175,7 +1175,7 @@ async function buscarMateriasParaMissaoDia() {
     });
 
     const materias = Object.values(mapa)
-      .filter(item => item.questoes > 0 && item.flashcards > 0)
+      .filter(item => item.questoes > 0)
       .sort((a, b) => a.materia.localeCompare(b.materia));
 
     try {
@@ -1193,32 +1193,6 @@ async function buscarMateriasParaMissaoDia() {
     _missaoDiaMateriasPromise = null;
   }
 }
-function sortearMateriaMissaoDia(materias) {
-  const hoje = getDataLocalMissaoDia();
-  let salva = null;
-  try {
-    salva = JSON.parse(localStorage.getItem(MISSAO_DIA_KEY) || 'null');
-  } catch (e) {}
-
-  if (salva?.data === hoje) {
-    const chaveSalva = salva.materiaKey || chaveMateriaMissaoDia(salva.materia);
-    const existente = materias.find(item => item.materiaKey === chaveSalva);
-    if (existente) return existente;
-  }
-
-  const sorteada = materias[Math.floor(Math.random() * materias.length)];
-  try {
-    localStorage.setItem(MISSAO_DIA_KEY, JSON.stringify({
-      data: hoje,
-      materia: sorteada.materia,
-      materiaKey: sorteada.materiaKey,
-      questoes: sorteada.questoes,
-      flashcards: sorteada.flashcards,
-    }));
-  } catch (e) {}
-  return sorteada;
-}
-
 window.atualizarRecomendacaoMissaoDia = function(recomendacao) {
   const container = document.getElementById('mddRecommendation');
   if (!container) return;
@@ -1255,7 +1229,7 @@ window.renderMissaoDoDia = async function() {
 
   body.innerHTML = `
     <div class="mdd-loading" style="color:var(--text-muted); font-size:14px;">
-      <i class="ph ph-spinner-gap ph-spin"></i> Sorteando missão do dia...
+      <i class="ph ph-spinner-gap ph-spin"></i> Preparando missão do dia...
     </div>
   `;
 
@@ -1274,12 +1248,22 @@ window.renderMissaoDoDia = async function() {
     const recomendada = typeof window.obterPiorMateriaDashboard === 'function'
       ? window.obterPiorMateriaDashboard()
       : null;
-    const materiaRecomendada = recomendada
+    const selecionada = recomendada
       ? materias.find(item => chaveMateriaMissaoDia(item.materia) === chaveMateriaMissaoDia(recomendada.materia))
       : null;
-    const selecionada = materiaRecomendada || sortearMateriaMissaoDia(materias);
 
-    if (materiaRecomendada) {
+    if (!selecionada) {
+      body.innerHTML = `
+        <div style="text-align:center;">
+          <i class="ph-fill ph-chart-line-up" style="color:#F59E0B; font-size:38px; margin-bottom:8px;"></i>
+          <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">Missão personalizada em preparação</div>
+          <div style="font-size:13px; color:var(--text-muted);">Responda questões para definirmos seu ponto de atenção.</div>
+        </div>`;
+      return;
+    }
+
+    console.log('[PlenAula] Missão do dia usando matéria:', selecionada.materia);
+    {
       try {
         localStorage.setItem(MISSAO_DIA_KEY, JSON.stringify({
           data: getDataLocalMissaoDia(),
@@ -1323,7 +1307,7 @@ window.renderMissaoDoDia = async function() {
       <button class="btn btn-primary" onclick="iniciarMissaoDoDia()" style="width:100%; padding:14px; border-radius:14px; font-size:16px; box-shadow:0 4px 15px rgba(16,185,129,0.3); background:linear-gradient(135deg, #10B981, #059669);"><i class="ph-fill ph-play-circle"></i> Iniciar Agora</button>
     `;
     if (typeof window.atualizarRecomendacaoMissaoDia === 'function') {
-      window.atualizarRecomendacaoMissaoDia(typeof window.obterPiorMateriaDashboard === 'function' ? window.obterPiorMateriaDashboard() : null);
+      window.atualizarRecomendacaoMissaoDia(recomendada);
     }
   } catch (e) {
     body.innerHTML = `

@@ -442,6 +442,18 @@ function renderEstadoDesempenhoMateria(container, mensagem) {
   container.querySelector('span').textContent = mensagem;
 }
 
+function compararPontoDeAtencao(a, b) {
+  return a.taxa - b.taxa
+    || a.total - b.total
+    || a.materia.localeCompare(b.materia, 'pt-BR');
+}
+
+function selecionarPontoDeAtencao(materias) {
+  const pior = materias.length ? [...materias].sort(compararPontoDeAtencao)[0] : null;
+  if (pior) console.log('[PlenAula] Ponto de atenção escolhido:', pior.materia);
+  return pior;
+}
+
 window.obterPiorMateriaDashboard = function() {
   const dados = DASHBOARD_MATERIA_CACHE.dados;
   if (!dados) return null;
@@ -451,7 +463,7 @@ window.obterPiorMateriaDashboard = function() {
     const total = Number(stats?.totalRespondidas) || (acertos + erros);
     return { materia, total, taxa: total ? (acertos / total) * 100 : 0 };
   }).filter((item) => item.total > 0);
-  return materias.length ? materias.sort((a, b) => a.taxa - b.taxa || b.total - a.total)[0] : null;
+  return selecionarPontoDeAtencao(materias);
 };
 window.renderDashboardMateria = async function() {
   const container = document.getElementById('desempenhoMateriaHome');
@@ -478,7 +490,7 @@ window.renderDashboardMateria = async function() {
   }
 
   const melhor = [...materias].sort((a, b) => b.taxa - a.taxa || b.total - a.total)[0];
-  const pior = [...materias].sort((a, b) => a.taxa - b.taxa || b.total - a.total)[0];
+  const pior = selecionarPontoDeAtencao(materias);
   const total = materias.reduce((soma, item) => soma + item.total, 0);
   const acertos = materias.reduce((soma, item) => soma + item.acertos, 0);
   const taxaGeral = total ? (acertos / total) * 100 : 0;
